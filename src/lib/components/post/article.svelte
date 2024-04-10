@@ -10,7 +10,7 @@
     export let siteConfig: any;
 </script>
 
-<article>
+<article class="h-entry e-content">
     <div class="article-header container">
         {#if post.image}
             <img
@@ -20,7 +20,7 @@
                 style="max-width: 100%"
             />
         {/if}
-        <h1>{post.title}</h1>
+        <h1 class="p-name">{post.title}</h1>
         {#if post.template == "item"}
             <div class="article-meta">
                 {#if post.author && post.author != systemConfig.user?.default}
@@ -83,7 +83,7 @@
     <div class="article-footer container">
         {#if post.template == "item"}
             <div class="article-extra">
-                {#if post.license || systemConfig.license?.default || "11"}
+                {#if post.license || systemConfig.license?.default}
                     <div class="article-license">
                         <div class="article-license-base-info">
                             <div><strong>{post.title}</strong></div>
@@ -194,6 +194,7 @@ day     = {${new Date(post.date).getDate()}}
                                         {#each post.taxonomy.category as category}
                                             <li>
                                                 <a
+                                                    class="p-category"
                                                     href="/category/{category.toLowerCase()}/"
                                                     >/{category}</a
                                                 >
@@ -236,6 +237,23 @@ day     = {${new Date(post.date).getDate()}}
         {/if}
     </div>
 </article>
+
+<div style="display:none">
+    <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
+    <p class="h-card p-author">
+        {#each [post.author || systemConfig.user.default].flat() as author}
+            <a class="p-name u-url" rel="author" href={siteConfig.url}
+                >{author}</a
+            >
+            <img
+                alt={author}
+                class="u-photo"
+                src={siteConfig.url + "/favicon.png"}
+            />
+        {/each}
+    </p>
+    <p class="p-summary">{post.summary}</p>
+</div>
 
 <style lang="scss">
     :global(article) {
