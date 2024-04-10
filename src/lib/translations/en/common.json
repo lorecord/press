@@ -38,5 +38,8 @@
     "comma": ", ",
     "review": "Review",
     "find_more": "Find More...",
-    "cite": "Cite"
+    "cite": "Cite",
+    "comment_form": "Comment Form",
+    "webmention": "webmention",
+    "comment_send": "Send"
 }

@@ -322,6 +322,10 @@
         />
     {/each}
 
+    {#if systemConfig.webmention?.enabled}
+        
+    {/if}
+
     {@html `<script type="application/ld+json">${JSON.stringify(
         json(),
     )}</script>`}
@@ -387,7 +391,9 @@
                 comments={commonComments}
                 gravatarBase={systemConfig.gravatar?.base}
                 reply={post.comment?.reply}
-                post={{ slug: post.slug, lang: post.lang }}
+                {post}
+                postUrl={siteConfig.url + post.url}
+                webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
             />
         </div>
     {/if}
