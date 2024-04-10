@@ -1,0 +1,26 @@
+@media (prefers-color-scheme: dark) {
+    /** color */
+    :root {
+        --bg-color: #111;
+        --text-color: rgba(255, 255, 255, 0.667);
+        --text-color-primary: rgba(255, 255, 255, 0.833);
+        --text-color-tertiary: rgba(255, 255, 255, 0.333);
+        --text-color-secondary: rgba(255, 255, 255, 0.5);
+        --text-color-success: #109510;
+
+        --link-color: #2a99ee;
+
+        --content-bg-color: #fff1;
+
+        --pane-bg-color: rgba(0, 0, 0, 0.167);
+
+        --button-text-color: var(--text-color-primary);
+
+        --code-bg-color: #000000aa;
+        --code-color: var(--text-color);
+    }
+
+    :root {
+        --content-border: unset;
+    }
+}

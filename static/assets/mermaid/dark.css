@@ -1,0 +1,66 @@
+.mermaid {
+    background-color: #212121 !important;
+    color: #ffffff !important;
+    display: flex;
+    justify-content: center;
+}
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node polygon,
+.mermaid .node path {
+    fill: #333333 !important;
+    stroke: #bbbbbb !important;
+}
+
+.mermaid .node text {
+    fill: #ffffff !important;
+}
+
+.mermaid .edgePath .path {
+    stroke: #888888 !important;
+}
+
+.mermaid .edgePath .path {
+    fill: none;
+    stroke-opacity: 1 !important;
+    stroke-width: 2px;
+    stroke: #888888 !important;
+}
+
+.mermaid .decision rect {
+    fill: #4c4c4c !important;
+    stroke: #aaaaaa !important;
+}
+
+.mermaid .action rect {
+    fill: #5a5a5a !important;
+    stroke: #cccccc !important;
+}
+
+.mermaid .note {
+    fill: #424242 !important;
+    stroke: #999999 !important;
+}
+
+.mermaid .note text,
+.mermaid .label text,
+.mermaid .legend text {
+    fill: #ffffff !important;
+}
+
+.mermaid .edgeLabel rect {
+    fill: #616161 !important;
+    stroke: #e0e0e0 !important;
+}
+
+.mermaid .edgeLabel text {
+    fill: #ffffff !important;
+}
+
+.mermaid .nodeLabel {
+    color: #ffffff !important;
+}
+.mermaid .relation {
+    stroke: #b5b5b5 !important;
+}

@@ -1,0 +1,51 @@
+import { getSystemConfig } from "$lib/server/config";
+import { saveComment, loadComment } from "$lib/handle-discuss";
+import { loadPost } from "$lib/post/handle-posts";
+import { getRealClientAddress } from "$lib/server/event-utils";
+import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
+
+/** @type {import('./$types').Actions} */
+export const actions = {
+    default: async ({ request, setHeaders, getClientAddress, params, locals }) => {
+        const { site } = locals;
+        const systemConfig = getSystemConfig(site);
+
+        let { route, locale } = params;
+        if (route.endsWith('/')) {
+            route = route.substring(0, route.length - 1);
+        }
+        const post = await loadPost(site, { route, lang: locale || undefined });
+        if (post && post.comment?.enable) {
+            const form = await request.formData();
+            if (form.get("captcha")?.toString().length == 0 // honey pot
+                && form.get("name")?.toString()?.length || 0 > 0
+                && form.get("email")?.toString().toLowerCase().match(/[\w](([\w+-_.]+)?[\w])?@([\w](([\w-]+)?[\w])?\.)[a-z]{2,}/)
+                && form.get("text")?.toString()?.length || 0 > 0
+                && (form.get("website")?.toString()?.length == 0
+                    || form.get("email")?.toString().match(/^(http)/))) {
+
+                let comment = {
+                    slug: route.toString(),
+                    lang: locale || systemConfig.locale.default,
+                    author: form.get("name")?.toString() || '',
+                    user: '',
+                    email: form.get("email")?.toString() || '',
+                    url: form.get("website")?.toString() || '',
+                    text: form.get("text")?.toString() || '',
+                    ip: getRealClientAddress({ request, getClientAddress }),
+                    reply: form.get("reply")?.toString() || '',
+                };
+                let saved = saveComment(site, comment);
+
+                sendNewCommentMail(site, post, saved);
+
+                if (comment.reply) {
+                    let replied = loadComment(site, { slug: route.toString(), id: comment.reply });
+                    if (replied) {
+                        sendNewReplyMail(site, post, saved, replied);
+                    }
+                }
+            }
+        }
+    }
+};

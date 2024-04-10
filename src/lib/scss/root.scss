@@ -1,0 +1,47 @@
+/** color */
+:root {
+    --bg-color: #fafafa;
+    --text-color: rgba(0, 0, 0, 0.667);
+    --text-color-reverse: rgba(255, 255, 255, 0.667);
+    --text-color-primary: rgba(0, 0, 0, 0.833);
+    --text-color-tertiary: rgba(0, 0, 0, 0.333);
+    --text-color-secondary: rgba(0, 0, 0, 0.5);
+    --text-color-success: #109510;
+
+    --scrollbar-color: #666 #333;
+
+    --link-color: #0e69af;
+
+    --content-bg-color: #fff;
+
+    --pane-bg-color: rgba(0, 0, 0, 0.067);
+
+    --button-text-color: var(--text-color-reverse);
+
+    --code-bg-color: #000b;
+    --code-color: var(--text-color-reverse);
+}
+
+:root {
+    --content-border: 1px solid #0001;
+}
+
+/** layout */
+:root {
+    --content-padding: 2rem;
+    --content-border-radius: 0.5rem;
+}
+
+/** comment */
+:root {
+    --avatar-size: 3rem;
+    --avatar-gap: 0.75rem;
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --content-border-radius: 0rem;
+        --content-padding: 1rem;
+        --avatar-size: 2rem;
+    }
+}
