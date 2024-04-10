@@ -203,20 +203,20 @@
     {#if post.date}
         <meta
             name="og:article:published_time"
-            content={new Date(post.date).toString()}
+            content={new Date(post.date).toISOString()}
         />
     {/if}
 
     {#if post.modified?.date}
         <meta
             name="og:article:modified_time"
-            content={new Date(post.modified.date).toString()}
+            content={new Date(post.modified.date).toISOString()}
         />
     {/if}
     {#if post.expired?.date}
         <meta
             name="og:article:modified_time"
-            content={new Date(post.expired.date).toString()}
+            content={new Date(post.expired.date).toISOString()}
         />
     {/if}
 

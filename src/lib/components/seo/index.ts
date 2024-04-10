@@ -5,5 +5,5 @@ import SveltekitSeo from "./all.svelte";
 export { Title, DescriptionMeta, SveltekitSeo };
 
 export function dateToString(date: string | Date) {
-    return new Date(date).toString();
+    return new Date(date).toISOString();
 }
