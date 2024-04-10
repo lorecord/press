@@ -25,7 +25,7 @@
             <li class="timeline-item">
                 <time
                     class="dt-published"
-                    datetime={new Date(post.date).toString()}
+                    datetime={new Date(post.date).toISOString()}
                 >
                     {new Intl.DateTimeFormat($locale).format(
                         new Date(post.date)
