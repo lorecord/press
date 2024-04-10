@@ -47,7 +47,7 @@
 
                 <time
                     class="dt-published"
-                    datetime={new Date(post.date).toString()}
+                    datetime={new Date(post.date).toISOString()}
                 >
                     {new Intl.DateTimeFormat($locale, {
                         dateStyle: "short",
@@ -117,7 +117,7 @@
                                         class="dt-published"
                                         datetime={new Date(
                                             post.date,
-                                        ).toString()}
+                                        ).toISOString()}
                                     >
                                         {new Intl.DateTimeFormat(
                                             $locale,

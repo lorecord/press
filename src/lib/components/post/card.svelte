@@ -16,7 +16,7 @@
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
-            <time class="dt-published" datetime={new Date(date).toString()}>
+            <time class="dt-published" datetime={new Date(date).toISOString()}>
                 {new Intl.DateTimeFormat($locale, {
                     dateStyle: "short",
                     timeStyle: "short",

@@ -16,7 +16,7 @@
             <h4>
                 <time
                     class="dt-published"
-                    datetime={new Date(comment.date).toString()}
+                    datetime={new Date(comment.date).toISOString()}
                 >
                     {new Intl.DateTimeFormat($locale, {
                         dateStyle: "short",
