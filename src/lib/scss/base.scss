@@ -2,7 +2,7 @@
     box-sizing: border-box;
 }
 
-html{
+html {
     scroll-behavior: smooth;
 }
 
@@ -193,4 +193,19 @@ tr {
 td,
 th {
     word-break: break-all;
+}
+
+details {
+    summary {
+        cursor: pointer;
+        user-select: none;
+
+        > * {
+            display: inline-block;
+        }
+
+        &:hover > * {
+            text-decoration: underline;
+        }
+    }
 }
