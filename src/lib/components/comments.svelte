@@ -1,6 +1,6 @@
 <script lang="ts">
     import { t } from "$lib/translations";
-    import { IconX } from "@tabler/icons-svelte";
+    import { IconBrandX, IconX } from "@tabler/icons-svelte";
     import CommentList from "./comment/list.svelte";
 
     export let comments: any[];
@@ -86,9 +86,9 @@
     {/if}
     {#if post["x.com"]?.status}
         <details>
-            <summary><h4>X</h4></summary>
+            <summary><h4>X.com</h4></summary>
             <a href={post["x.com"].status} target="_blank"
-                ><IconX />{post["x.com"].status}</a
+                ><IconBrandX />{post["x.com"].status}</a
             >
         </details>
     {/if}
