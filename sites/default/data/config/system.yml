@@ -1,0 +1,13 @@
+public:
+  locale:
+    default: 'en'
+  user:
+    default: 'lorepress'
+  domains:
+    primary: 'press.lorecord.com'
+    aliases:
+      - 'test.lorecord.com'
+  plausible:
+    enabled: false
+    domain: plausible.com
+private:
