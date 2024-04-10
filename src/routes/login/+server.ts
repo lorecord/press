@@ -1,4 +1,4 @@
-export async function POST({ url, locals, request }) {
+export async function POST({ url, locals, request, cookies }) {
     const { site } = locals as { site: any };
 
     const form = await request.formData();
@@ -9,10 +9,15 @@ export async function POST({ url, locals, request }) {
     if (username === 'admin' && password === 'admin') {
         const session = 'to_be_generated';
 
+        cookies.set('session', session, {
+            path: '/',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24 * 365
+        });
+
         return new Response(`<script>window.location.href = '/admin';</script>`, {
             status: 200,
             headers: {
-                'Set-Cookie': `session=${session}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=31536000`,
                 'Content-Type': 'text/html'
             }
         });
