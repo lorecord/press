@@ -5,6 +5,8 @@
     export let comments: any[];
     export let reply: false;
     export let post: { slug: string; lang: string };
+    export let webmentionEndpoint: string = "";
+    export let postUrl: string;
 
     export let gravatarBase: string;
 
@@ -58,18 +60,17 @@
 {#if reply}
     <details>
         <summary><h4>{$t("common.webmention")}</h4></summary>
-        <form method="post" class="form form-webmention">
+        <form
+            method="post"
+            class="form form-webmention"
+            action={webmentionEndpoint || ""}
+        >
             <input type="hidden" name="source" value="" />
             <div class="form-row">
                 <label>
-                    <input
-                        type="url"
-                        name="source"
-                        placeholder="URL"
-                    />
-                    <div class="label">
-                        URL
-                    </div>
+                    <input type="url" name="source" placeholder="URL" />
+                    <input type="hidden" name="target" value={postUrl} />
+                    <div class="label">URL</div>
                 </label>
             </div>
             <button type="submit">{$t("common.comment_submit")}</button>

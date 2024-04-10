@@ -388,6 +388,8 @@
                 gravatarBase={systemConfig.gravatar?.base}
                 reply={post.comment?.reply}
                 post={{ slug: post.slug, lang: post.lang }}
+                postUrl={siteConfig.url + post.url}
+                webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
             />
         </div>
     {/if}
