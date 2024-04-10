@@ -152,6 +152,18 @@ export async function handle({ event, resolve }) {
             }
         }
     }
+
+    const session = event.cookies.get('session');
+
+    if (event.url.pathname.startsWith('/admin') && !session) {
+        return new Response(`<script>window.location.href = '/signin?continue=${encodeURIComponent(event.url.pathname)}';</script>`, {
+            status: 401,
+            headers: {
+                'Content-Type': 'text/html'
+            }
+        });
+    }
+
     const response = await resolve(event, {
         transformPageChunk: ({ html }) => html.replace('%lang%', pathLang || locale.get() || system.locale?.default)
     });
