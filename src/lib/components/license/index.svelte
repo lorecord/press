@@ -3,65 +3,72 @@
 
     export let license: string;
 
-    function getLicense(name: string): any {
-        return spdxLicenseList[name] || matchLicense(name);
+    function getLicense(license: string): any {
+        if (spdxLicenseList[license]) {
+            return { licenseId: license, ...spdxLicenseList[license] };
+        }
+        return matchLicense(name);
     }
 
-    function matchLicense(name: string): { name: string; url?: string } {
+    function matchLicense(name: string): {
+        licenseId: string;
+        name?: string;
+        url?: string;
+    } {
         if (license === "CC-BY-NC-SA") {
             return {
-                name: "CC BY-NC-SA 4.0",
+                licenseId: "CC BY-NC-SA 4.0",
                 url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
             };
         }
         if (license === "CC-BY-NC") {
             return {
-                name: "CC BY-NC-SA 4.0",
+                licenseId: "CC BY-NC-SA 4.0",
                 url: "https://creativecommons.org/licenses/by-nc/4.0/",
             };
         } else if (license === "CC-BY-ND") {
             return {
-                name: "CC BY-ND 4.0",
+                licenseId: "CC BY-ND 4.0",
                 url: "https://creativecommons.org/licenses/by-nc-nd/4.0/",
             };
         } else if (license === "CC-NC-SA") {
             return {
-                name: "CC NC-SA 4.0",
+                licenseId: "CC NC-SA 4.0",
                 url: "https://creativecommons.org/licenses/nc-sa/4.0/",
             };
         } else if (license === "CC-BY") {
             return {
-                name: "CC BY 4.0",
+                licenseId: "CC BY 4.0",
                 url: "https://creativecommons.org/licenses/by/4.0/",
             };
         } else if (license === "CC-BY-SA") {
             return {
-                name: "CC BY-SA 4.0",
+                licenseId: "CC BY-SA 4.0",
                 url: "https://creativecommons.org/licenses/by-sa/4.0/",
             };
         } else if (license === "CC-BY-NC-ND") {
             return {
-                name: "CC BY-NC-ND 4.0",
+                licenseId: "CC BY-NC-ND 4.0",
                 url: "https://creativecommons.org/licenses/by-nc-nd/4.0/",
             };
         } else if (license === "WTFPL") {
             return {
-                name: "WTFPL",
+                licenseId: "WTFPL",
                 url: "http://www.wtfpl.net/",
             };
         } else {
             console.log("Unknown license: " + license);
-            return { name: license };
+            return { licenseId: license };
         }
     }
 
-    $: ({ name, url } = getLicense(license));
+    $: ({ licenseId, name, url } = getLicense(license));
 </script>
 
 {#if url}
-    <a href={url} rel="external">{name}</a>
+    <a href={url} rel="external" title={name}>{licenseId}</a>
 {:else}
-    <span>{name}</span>
+    <abbr title={name}>{licenseId}</abbr>
 {/if}
 
 <style lang="scss">
