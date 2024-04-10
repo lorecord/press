@@ -1,0 +1,86 @@
+article a:hover {
+    text-decoration: underline;
+}
+
+.article-content p > img,
+.comment-body p > img {
+    max-width: 100%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.article-content a,
+.comment-body a {
+    position: relative;
+}
+
+.article-content a:not([href^="#"])::before,
+.comment-body a:not([href^="#"])::before {
+    content: "";
+    background-color: var(--text-color-tertiary);
+    mask: url("data:image/svg+xml; utf8, <svg xmlns='http://www.w3.org/2000/svg' class='icon icon-tabler icon-tabler-link' width='20' height='20' viewBox='0 0 24 24' stroke-width='1' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'><path stroke='none' d='M0 0h24v24H0z' fill='none'></path><path d='M9 15l6 -6'></path><path d='M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464'></path><path d='M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463'></path></svg>")
+        no-repeat 50% 50%;
+    mask-size: cover;
+    height: 18px;
+    width: 18px;
+    display: inline-block;
+    vertical-align: sub;
+}
+
+@media print {
+    .article-content a:not([href^="#"])::before,
+    .comment-body a:not([href^="#"])::before {
+        display: none;
+    }
+}
+
+.article-content a[aria-describedby="footnote-label"]::before {
+    content: "[";
+}
+.article-content a[aria-describedby="footnote-label"]::after {
+    content: "]";
+}
+
+blockquote :first-child {
+    margin-top: 0;
+}
+blockquote :last-child {
+    margin-bottom: 0;
+}
+
+table > :first-child > * {
+    border-bottom-width: 1px;
+}
+
+table {
+    border-collapse: collapse;
+    border-top: 3px solid var(--text-color-tertiary);
+    border-bottom: 3px solid var(--text-color-tertiary);
+}
+
+table > :not(caption) > * > * {
+    padding: 0.5rem 0.5rem;
+}
+
+/** code highlight */
+.line-number::before {
+    white-space: nowrap;
+}
+
+code[class*="language-"] {
+    white-space: pre-wrap !important;
+}
+
+.code-line {
+    transition: background-color 0.2s ease;
+    transition: filter 0.2s ease;
+}
+
+.code-line:not(.highlight-line):not(.inserted):not(.deleted):hover {
+    background-color: #ffffff0f;
+}
+.code-line:hover {
+    filter: brightness(125%);
+}

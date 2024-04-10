@@ -1,0 +1,17 @@
+.container {
+    margin: 0 auto;
+    max-width: 1024px;
+    flex: 1;
+
+    @include breakpoint(xs) {
+        max-width: 100svw;
+    }
+}
+
+.trunk > .container > h1 {
+    padding-left: calc(var(--content-padding) / 2);
+
+    @include breakpoint(xs) {
+        padding-left: var(--content-padding);
+    }
+}
