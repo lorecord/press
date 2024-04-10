@@ -1,10 +1,11 @@
 <script lang="ts">
     import { t } from "$lib/translations";
+    import { IconX } from "@tabler/icons-svelte";
     import CommentList from "./comment/list.svelte";
 
     export let comments: any[];
     export let reply: false;
-    export let post: { slug: string; lang: string };
+    export let post: { slug: string; lang: string; "x.com"?: any; nostr?: any };
     export let webmentionEndpoint: string = "";
     export let postUrl: string;
 
@@ -58,24 +59,45 @@
 </script>
 
 {#if reply}
-    <details>
-        <summary><h4>{$t("common.webmention")}</h4></summary>
-        <form
-            method="post"
-            class="form form-webmention"
-            action={webmentionEndpoint || ""}
-        >
-            <input type="hidden" name="source" value="" />
-            <div class="form-row">
-                <label>
-                    <input type="url" name="source" placeholder="URL" />
-                    <input type="hidden" name="target" value={postUrl} />
-                    <div class="label">URL</div>
-                </label>
-            </div>
-            <button type="submit">{$t("common.comment_submit")}</button>
-        </form>
-    </details>
+    {#if webmentionEndpoint}
+        <details>
+            <summary><h4>{$t("common.webmention")}</h4></summary>
+            <form
+                method="post"
+                class="form form-webmention"
+                action={webmentionEndpoint || ""}
+            >
+                <input type="hidden" name="source" value="" />
+                <div class="form-row">
+                    <label>
+                        <input
+                            type="url"
+                            name="source"
+                            placeholder="URL"
+                            required
+                        />
+                        <input type="hidden" name="target" value={postUrl} />
+                        <div class="label">URL</div>
+                    </label>
+                </div>
+                <button type="submit">{$t("common.comment_send")}</button>
+            </form>
+        </details>
+    {/if}
+    {#if post["x.com"]?.status}
+        <details>
+            <summary><h4>X</h4></summary>
+            <a href={post["x.com"].status} target="_blank"
+                ><IconX />{post["x.com"].status}</a
+            >
+        </details>
+    {/if}
+    {#if post.nostr?.note}
+        <details>
+            <summary><h4>Nostr</h4></summary>
+            <pre>{post.nostr.note}</pre>
+        </details>
+    {/if}
     <details>
         <summary><h4>{$t("common.comment_form")}</h4></summary>
         {#if commentToReply}
