@@ -10,4 +10,6 @@ public:
   plausible:
     enabled: false
     domain: plausible.com
+  brand:
+    personal: true
 private:

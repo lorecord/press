@@ -6,15 +6,15 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ posts, siteConfig, ldjson } = data);
+    $: ({ posts, siteConfig, ldjson, systemConfig } = data);
 
     let json = () => {
         let sameAs: string[] = [];
-        if (siteConfig["x.com"]) {
-            sameAs.push(`https://x.com/${siteConfig["x.com"]}`);
+        if (siteConfig["x.com"]?.username) {
+            sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
         }
-        if (siteConfig["github"]) {
-            sameAs.push(`https://github.com/${siteConfig["github"]}`);
+        if (siteConfig.github?.home) {
+            sameAs.push(`https://github.com/${siteConfig.github.home}`);
         }
         let obj: any = {
             "@context": "https://schema.org",
@@ -57,6 +57,25 @@
     {@html `<script type="application/ld+json">${JSON.stringify(
         json(),
     )}</script>`}
+
+    {#if systemConfig.brand?.personal}
+        {#if siteConfig.github?.username}
+            <link
+                href={`https://github.com/${siteConfig.github.username}`}
+                rel="me"
+            />
+        {/if}
+        {#if siteConfig["x.com"]?.username}
+            <link
+                href={`https://x.com/${siteConfig["x.com"].username}`}
+                rel="me"
+            />
+            <link
+                href={`https://twitter.com/${siteConfig["x.com"].username}`}
+                rel="me"
+            />
+        {/if}
+    {/if}
 </svelte:head>
 
 <div class="articles container">
