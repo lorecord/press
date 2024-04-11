@@ -28,6 +28,7 @@ import remarkMermaid from '$lib/markdown/remark-mermaid';
 import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config';
+import { getSiteAccount } from '$lib/server/accouns';
 
 const DEFAULT_ATTRIBUTE_MAP: any = {
     default: {
@@ -379,7 +380,23 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
         const rawObject = loadFrontMatterRaw(site, target.file);
 
         if (rawObject) {
-            return convertToPost(rawObject);
+            const post = convertToPost(rawObject);
+            post.isDefaultAuthor = !post.author && !post.authors;
+            post.authors = [post.authors || post.author || systemConfig.user?.default].flat()
+                .filter((author) => !!author)
+                .map((author) => {
+                    if (typeof author === 'string') {
+                        const account = getSiteAccount(site, author, post.lang);
+                        if (account) {
+                            const { name, id, ircid, url } = account;
+                            return { name, id, ircid, url, account: author };
+                        } else {
+                            return { name: author, account: author };
+                        }
+                    }
+                    return author;
+                });
+            return post;
         }
     }
     return {};

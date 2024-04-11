@@ -2,6 +2,7 @@
     import { t, locale } from "$lib/translations/index.js";
     import Rating from "$lib/ui/rating/index.svelte";
     import License from "$lib/components/license/index.svelte";
+    import Cite from "$lib/components/cite/index.svelte";
 
     import { IconLanguage } from "@tabler/icons-svelte";
 
@@ -23,8 +24,10 @@
         <h1 class="p-name">{post.title}</h1>
         {#if post.template == "item"}
             <div class="article-meta">
-                {#if post.author && post.author != systemConfig.user?.default}
-                    <span>{post.author}</span>
+                {#if post.authors && !post.isDefaultAuthor}
+                    {#each post.authors as author}
+                        <span>{author.name}</span>
+                    {/each}
                 {/if}
 
                 {#if post.review}
@@ -97,14 +100,15 @@
                             </div>
                         </div>
                         <div class="article-license-meta">
-                            {#if post.author || systemConfig.user?.default}
+                            {#if post.authors}
                                 <div class="article-license-meta-item">
                                     <div class="label">
                                         {$t("common.author")}
                                     </div>
                                     <div class="value">
-                                        {post.author ||
-                                            systemConfig.user.default}
+                                        {#each post.authors as author}
+                                            <span>{author.name}</span>
+                                        {/each}
                                     </div>
                                 </div>
                             {/if}
@@ -144,41 +148,11 @@
                         {$t("common.cite")}
                     </summary>
                     <div style="padding-left: 2rem">
-                        <details>
-                            <summary>APA</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. (${new Date(post.date).toISOString().split("T")[0]}). ${siteConfig.title}. ${post.title} [Blog post]. ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>MLA</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. "${post.title}." ${siteConfig.title}, ${new Date(post.date).toISOString().split("T")[0]} ${siteConfig.url}${post.url}. Accessed ${new Date().toISOString().split("T")[0]}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Chicago (CMS)</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. "${post.title}." ${siteConfig.title} (Blog), ${new Date(post.date).toISOString().split("T")[0]} ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Harvard</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. (${new Date(post.date).getFullYear()}). ${post.title}. ${siteConfig.title}. ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Vancouver</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. ${post.title}. ${siteConfig.title} [Internet]. ${new Date(post.date).toISOString().split("T")[0]}; Available from: ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Bibtex</summary>
-                            <pre>{`@online{${post.author || systemConfig.user.default}_${new Date(post.date).getFullYear()}_${post.title},
-author  = {${post.author || systemConfig.user.default}},
-title   = {{${post.title}}},
-journal = {${siteConfig.title}},
-type    = {Blog},
-doi     = {${siteConfig.url}${post.url}},
-urldate = {${new Date().toISOString().split("T")[0]}},
-date    = {${new Date(post.date).toISOString().split("T")[0]}},
-year    = {${new Date(post.date).getFullYear()}},
-month   = {${new Date(post.date).getMonth()}},
-day     = {${new Date(post.date).getDate()}}
-}`}</pre>
-                        </details>
+                        <Cite
+                            {post}
+                            site={siteConfig.title}
+                            base={siteConfig.url}
+                        />
                         <details>
                             <summary>CFF</summary>
                             <a href="./CITATION.cff">CITATION.cff</a>
@@ -241,12 +215,12 @@ day     = {${new Date(post.date).getDate()}}
 <div style="display:none">
     <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
     <p class="h-card p-author">
-        {#each [post.author || systemConfig.user.default].flat() as author}
+        {#each post.authors as author}
             <a class="p-name u-url" rel="author" href={siteConfig.url}
-                >{author}</a
+                >{author.name}</a
             >
             <img
-                alt={author}
+                alt={author.name}
                 class="u-photo"
                 src={siteConfig.url + "/favicon.png"}
             />
