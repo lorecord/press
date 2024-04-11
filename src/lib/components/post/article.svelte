@@ -168,9 +168,9 @@
                                         {#each post.taxonomy.category as category}
                                             <li>
                                                 <a
-                                                    class="p-category"
+                                                    class="p-category category"
                                                     href="/category/{category.toLowerCase()}/"
-                                                    >/{category}</a
+                                                    >{category}</a
                                                 >
                                             </li>
                                         {/each}
@@ -182,8 +182,9 @@
                                         {#each post.taxonomy.tag as tag}
                                             <li>
                                                 <a
+                                                    class="p-tag tag"
                                                     href="/tag/{tag.toLowerCase()}/"
-                                                    >#{tag}</a
+                                                    >{tag}</a
                                                 >
                                             </li>
                                         {/each}
@@ -210,24 +211,23 @@
             </div>
         {/if}
     </div>
+    <div style="display:none">
+        <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
+        <p class="h-card p-author">
+            {#each [post.author || systemConfig.user.default].flat() as author}
+                <a class="p-name u-url" rel="author" href={siteConfig.url}
+                    >{author}</a
+                >
+                <img
+                    alt={author}
+                    class="u-photo"
+                    src={siteConfig.url + "/favicon.png"}
+                />
+            {/each}
+        </p>
+        <p class="p-summary p-content">{post.summary}</p>
+    </div>
 </article>
-
-<div style="display:none">
-    <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-    <p class="h-card p-author">
-        {#each post.authors as author}
-            <a class="p-name u-url" rel="author" href={siteConfig.url}
-                >{author.name}</a
-            >
-            <img
-                alt={author.name}
-                class="u-photo"
-                src={siteConfig.url + "/favicon.png"}
-            />
-        {/each}
-    </p>
-    <p class="p-summary">{post.summary}</p>
-</div>
 
 <style lang="scss">
     :global(article) {
@@ -430,6 +430,13 @@
 
                 a {
                     color: var(--text-color-tertiary);
+                }
+
+                .category::before{
+                    content: '/'
+                }
+                .tag::before{
+                    content: '#'
                 }
             }
 
