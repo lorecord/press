@@ -108,7 +108,10 @@
                                     </div>
                                     <div class="value">
                                         {#each post.authors as author}
-                                            <p class="h-card p-author">
+                                            <p
+                                                style="margin:0"
+                                                class="h-card p-author"
+                                            >
                                                 <a
                                                     class="p-name u-url"
                                                     rel="author"
