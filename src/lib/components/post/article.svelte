@@ -139,7 +139,7 @@
                         </div>
                     </div>
                 {/if}
-                <details style="padding: 1rem">
+                <details style="padding: 1rem" class="no-print">
                     <summary>
                         {$t("common.cite")}
                     </summary>
