@@ -87,67 +87,65 @@
     <div class="article-footer container">
         {#if post.template == "item"}
             <div class="article-extra">
-                {#if post.license || systemConfig.license?.default}
-                    <div class="article-license">
-                        <div class="article-license-base-info">
-                            <div><strong>{post.title}</strong></div>
-                            <div>
-                                <a
-                                    class="link"
-                                    href={post.url}
-                                    data-print-content-none
-                                    >{siteConfig.url}{post.url}</a
-                                >
-                            </div>
+                <div class="article-license">
+                    <div class="article-license-base-info">
+                        <div><strong>{post.title}</strong></div>
+                        <div>
+                            <a
+                                class="link"
+                                href={post.url}
+                                data-print-content-none
+                                >{siteConfig.url}{post.url}</a
+                            >
                         </div>
-                        <div class="article-license-meta">
-                            {#if post.authors}
-                                <div class="article-license-meta-item">
-                                    <div class="label">
-                                        {$t("common.author")}
-                                    </div>
-                                    <div class="value">
-                                        {#each post.authors as author}
-                                            <p
-                                                style="margin:0"
-                                                class="h-card p-author"
-                                            >
-                                                <a
-                                                    class="p-name u-url"
-                                                    rel="author"
-                                                    href={author.url ||
-                                                        siteConfig.url}
-                                                    >{author.name}</a
-                                                >
-                                                <img
-                                                    style="display:none"
-                                                    alt={author.name}
-                                                    class="u-photo"
-                                                    src={siteConfig.url +
-                                                        "/favicon.png"}
-                                                />
-                                            </p>
-                                        {/each}
-                                    </div>
-                                </div>
-                            {/if}
+                    </div>
+                    <div class="article-license-meta">
+                        {#if post.authors}
                             <div class="article-license-meta-item">
                                 <div class="label">
-                                    {$t("common.publish_date")}
+                                    {$t("common.author")}
                                 </div>
                                 <div class="value">
-                                    <time
-                                        class="dt-published"
-                                        datetime={new Date(
-                                            post.date,
-                                        ).toISOString()}
-                                    >
-                                        {new Intl.DateTimeFormat(
-                                            $locale,
-                                        ).format(new Date(post.date))}
-                                    </time>
+                                    {#each post.authors as author}
+                                        <p
+                                            style="margin:0"
+                                            class="h-card p-author"
+                                        >
+                                            <a
+                                                class="p-name u-url"
+                                                rel="author"
+                                                href={author.url ||
+                                                    siteConfig.url}
+                                                >{author.name}</a
+                                            >
+                                            <img
+                                                style="display:none"
+                                                alt={author.name}
+                                                class="u-photo"
+                                                src={siteConfig.url +
+                                                    "/favicon.png"}
+                                            />
+                                        </p>
+                                    {/each}
                                 </div>
                             </div>
+                        {/if}
+                        <div class="article-license-meta-item">
+                            <div class="label">
+                                {$t("common.publish_date")}
+                            </div>
+                            <div class="value">
+                                <time
+                                    class="dt-published"
+                                    datetime={new Date(post.date).toISOString()}
+                                >
+                                    {new Intl.DateTimeFormat($locale).format(
+                                        new Date(post.date),
+                                    )}
+                                </time>
+                            </div>
+                        </div>
+                        {#if post.license || systemConfig.license?.default}
                             <div class="article-license-meta-item">
                                 <div class="label">
                                     {$t("common.license")}
@@ -159,25 +157,25 @@
                                     />
                                 </div>
                             </div>
+                        {/if}
+                    </div>
+                    <details style="padding: 1rem" class="no-print">
+                        <summary>
+                            {$t("common.cite")}
+                        </summary>
+                        <div style="padding-left: 2rem">
+                            <Cite
+                                {post}
+                                site={siteConfig.title}
+                                base={siteConfig.url}
+                            />
+                            <details>
+                                <summary>CFF</summary>
+                                <a href="./CITATION.cff">CITATION.cff</a>
+                            </details>
                         </div>
-                    </div>
-                {/if}
-                <details style="padding: 1rem" class="no-print">
-                    <summary>
-                        {$t("common.cite")}
-                    </summary>
-                    <div style="padding-left: 2rem">
-                        <Cite
-                            {post}
-                            site={siteConfig.title}
-                            base={siteConfig.url}
-                        />
-                        <details>
-                            <summary>CFF</summary>
-                            <a href="./CITATION.cff">CITATION.cff</a>
-                        </details>
-                    </div>
-                </details>
+                    </details>
+                </div>
                 {#if post.taxonomy || post.langs?.length > 0}
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
