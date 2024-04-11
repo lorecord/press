@@ -422,20 +422,27 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
 
     const systemConfig = getSystemConfig(site);
     attr.isDefaultAuthor = !attr.author && !attr.authors;
+
+    let mapper = (author: any) => {
+        if (typeof author === 'string') {
+            const account = getSiteAccount(site, author, attr.lang);
+            if (account) {
+                const { name, id, ircid, url } = account;
+                return { name, id, ircid, url, account: author };
+            } else {
+                return { name: author, account: author };
+            }
+        }
+        return author;
+    };
+
     attr.authors = [attr.authors || attr.author || systemConfig.user?.default].flat()
         .filter((author) => !!author)
-        .map((author) => {
-            if (typeof author === 'string') {
-                const account = getSiteAccount(site, author, attr.lang);
-                if (account) {
-                    const { name, id, ircid, url } = account;
-                    return { name, id, ircid, url, account: author };
-                } else {
-                    return { name: author, account: author };
-                }
-            }
-            return author;
-        });
+        .map(mapper);
+
+    attr.contributors = [attr.contributors].flat()
+        .filter((author) => !!author)
+        .map(mapper);
 }
 
 export function convertToPostForFeed(site: any, raw: Raw) {
