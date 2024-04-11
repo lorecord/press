@@ -5,6 +5,7 @@ import { locale, locales, loadTranslations } from "$lib/translations";
 import { getPreferredLangFromHeader } from '$lib/translations/utils';
 import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
+import { getSiteAccount } from '$lib/server/accouns';
 
 {
     const currentLocale = locale.get();
@@ -104,7 +105,7 @@ export async function handle({ event, resolve }) {
 
             let finalFilePath = '';
 
-            console.log('filePath', filePath);
+            console.log('[hooks.server.ts] filePath', filePath);
 
             if (postExsits && fs.existsSync(filePath)) {
                 let stat = fs.statSync(filePath);

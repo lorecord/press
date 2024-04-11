@@ -11,15 +11,20 @@ let accountsOfSite: any = {};
 function load() {
     for (const site of sites) {
         const { ACCOUNTS_DIR } = site.constants;
+
         const loadForSite = () => {
             if (!fs.existsSync(ACCOUNTS_DIR)) {
+                console.log(`ACCOUNTS_DIR ${ACCOUNTS_DIR} not exsits`);
                 return;
             }
 
-            const accountNames = Object.keys(fs.readdirSync(ACCOUNTS_DIR).map((file: string) => path.basename(file).split('[.]')[0]).reduce((acc: any, file: string) => {
+            const accountNames = Object.keys(fs.readdirSync(ACCOUNTS_DIR).map((file: string) => path.basename(file).split(/[\.]/)[0]).reduce((acc: any, file: string) => {
                 acc[file] = acc[file] || (acc[file] = 0);
                 acc[file] += 1;
+                return acc;
             }, {}));
+
+            console.log(`[server/account.ts] accountNames of site ${site.unique}`, accountNames);
 
             let accounts: any = {};
 
