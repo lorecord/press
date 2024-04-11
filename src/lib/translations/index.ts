@@ -7,10 +7,10 @@ const config = ({
         en: { lang },
         'zh-CN': { lang }
     },
-    loaders: createLoaders(['en', 'zh-CN'], ['common'])
+    loaders: createLoaders(['en', 'zh-CN'], ['common', 'auth'])
 });
 
-function createLoaders(locales:string[], keys:string[]) {
+function createLoaders(locales: string[], keys: string[]) {
     const loaders = [];
     for (let locale of locales) {
         for (let key of keys) {
