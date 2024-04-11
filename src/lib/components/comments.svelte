@@ -87,8 +87,12 @@
     {#if post["x.com"]?.status}
         <details>
             <summary><h4>X.com</h4></summary>
-            <a rel="syndication external" class="u-syndication" href={post["x.com"].status} target="_blank"
-                ><IconBrandX />{post["x.com"].status}</a
+            <a
+                rel="syndication external"
+                class="u-syndication"
+                href={post["x.com"].status}
+                style="display: flex"
+                target="_blank"><IconBrandX />{post["x.com"].status}</a
             >
         </details>
     {/if}
