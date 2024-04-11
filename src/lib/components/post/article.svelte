@@ -80,7 +80,7 @@
                 </aside>
             {/if}
         </div>
-        <div class="article-content e-content">
+        <div class="e-content article-content">
             {@html post.content}
         </div>
     </div>
