@@ -26,13 +26,13 @@
             <a class="navbar-brand" href="/">
                 {#if siteConfig?.logo?.provider === "gravatar" && siteConfig.logo.gravatar}
                     <img
-                        class="avatar brand-icon"
+                        class="avatar brand-icon u-photo"
                         src={`${gravatarBase}/avatar/${siteConfig.logo.gravatar}?s=48`}
                         alt={siteConfig?.title || "Press"}
                     />
                 {:else if siteConfig?.logo?.provider === "local" && siteConfig.logo.local}
                     <img
-                        class="avatar brand-icon"
+                        class="avatar brand-icon  u-photo"
                         src={siteConfig.logo.local}
                         alt={siteConfig?.title || "Press"}
                     />

@@ -322,81 +322,83 @@
         />
     {/each}
 
-    {#if systemConfig.webmention?.enabled}
-        
-    {/if}
+    {#if systemConfig.webmention?.enabled}{/if}
 
     {@html `<script type="application/ld+json">${JSON.stringify(
         json(),
     )}</script>`}
 </svelte:head>
 
-<div class="page-wrapper">
-    {#if post.lang && post.lang != $locale}
-        <div class="container">
-            <div class="alert alert-info no-print">
-                <strong style="display: flex; align-items: center; gap: .25rem;"
-                    ><IconLanguage size={18} />
-                    {$t("common.i18n_alert_title")}</strong
-                >
-                <span>
-                    {$t("common.i18n_alert_message_a")}<a
-                        href="/{post.lang}{post.url}"
-                        >{$t(
-                            `lang.${post.lang || systemConfig.locale.default}`,
-                        )}</a
-                    >{#if post.langs?.length > 1}{$t(
-                            "common.i18n_alert_message_b",
-                        )}{#each post.langs as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
-                                    href="/{l}{post.url}">{$t(`lang.${l}`)}</a
-                                >{#if index < post.langs.length - 2}{$t(
-                                        "common.comma",
-                                    )}{/if}{/if}{/each}{$t(
-                            "common.i18n_alert_message_c",
-                        )}{/if}
-                </span>
+<div class="h-entry">
+    <div class="page-wrapper">
+        {#if post.lang && post.lang != $locale}
+            <div class="container">
+                <div class="alert alert-info no-print">
+                    <strong
+                        style="display: flex; align-items: center; gap: .25rem;"
+                        ><IconLanguage size={18} />
+                        {$t("common.i18n_alert_title")}</strong
+                    >
+                    <span>
+                        {$t("common.i18n_alert_message_a")}<a
+                            href="/{post.lang}{post.url}"
+                            >{$t(
+                                `lang.${post.lang || systemConfig.locale.default}`,
+                            )}</a
+                        >{#if post.langs?.length > 1}{$t(
+                                "common.i18n_alert_message_b",
+                            )}{#each post.langs as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
+                                        href="/{l}{post.url}"
+                                        >{$t(`lang.${l}`)}</a
+                                    >{#if index < post.langs.length - 2}{$t(
+                                            "common.comma",
+                                        )}{/if}{/if}{/each}{$t(
+                                "common.i18n_alert_message_c",
+                            )}{/if}
+                    </span>
+                </div>
             </div>
-        </div>
-    {/if}
+        {/if}
 
-    <svelte:component
-        this={templateComponent}
-        {post}
-        {siteConfig}
-        {systemConfig}
-        {newer}
-        {earlier}
-    />
-</div>
+        <svelte:component
+            this={templateComponent}
+            {post}
+            {siteConfig}
+            {systemConfig}
+            {newer}
+            {earlier}
+        />
+    </div>
 
-<div class="discuss no-print">
-    {#if post.comment?.enable}
-        {#if citations?.length}
-            <h3 id="citations">
-                {$t("common.citations_lead_title")}
-                {#if citations.length}
-                    ({citations.length})
+    <div class="discuss no-print">
+        {#if post.comment?.enable}
+            {#if citations?.length}
+                <h3 id="citations">
+                    {$t("common.citations_lead_title")}
+                    {#if citations.length}
+                        ({citations.length})
+                    {/if}
+                </h3>
+                <Citations comments={citations} />
+            {/if}
+            <h3 id="comments" style="text-align: center">
+                {$t("common.comment_lead_title")}
+                {#if commonComments.length}
+                    ({commonComments.length})
                 {/if}
             </h3>
-            <Citations comments={citations} />
+            <div class="comments-wrapper">
+                <Comments
+                    comments={commonComments}
+                    gravatarBase={systemConfig.gravatar?.base}
+                    reply={post.comment?.reply}
+                    {post}
+                    postUrl={siteConfig.url + post.url}
+                    webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
+                />
+            </div>
         {/if}
-        <h3 id="comments" style="text-align: center">
-            {$t("common.comment_lead_title")}
-            {#if commonComments.length}
-                ({commonComments.length})
-            {/if}
-        </h3>
-        <div class="comments-wrapper">
-            <Comments
-                comments={commonComments}
-                gravatarBase={systemConfig.gravatar?.base}
-                reply={post.comment?.reply}
-                {post}
-                postUrl={siteConfig.url + post.url}
-                webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
-            />
-        </div>
-    {/if}
+    </div>
 </div>
 
 <style lang="scss">

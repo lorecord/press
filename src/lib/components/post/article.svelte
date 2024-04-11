@@ -11,7 +11,7 @@
     export let siteConfig: any;
 </script>
 
-<article class="h-entry e-content">
+<article>
     <div class="article-header container">
         {#if post.image}
             <img
@@ -34,6 +34,7 @@
                     {$t("common.review")}
                     {#if post.review.item?.url}
                         <a
+                            class="u-review-of"
                             style={post.review.rating > 6
                                 ? ""
                                 : "color: var(--text-color-tertiary)"}
@@ -79,7 +80,7 @@
                 </aside>
             {/if}
         </div>
-        <div class="article-content">
+        <div class="article-content e-content">
             {@html post.content}
         </div>
     </div>
@@ -107,7 +108,21 @@
                                     </div>
                                     <div class="value">
                                         {#each post.authors as author}
-                                            <span>{author.name}</span>
+                                            <p class="h-card p-author">
+                                                <a
+                                                    class="p-name u-url"
+                                                    rel="author"
+                                                    href={author.url ||
+                                                        siteConfig.url}
+                                                    >{author.name}</a
+                                                >
+                                                <img
+                                                    alt={author.name}
+                                                    class="u-photo"
+                                                    src={siteConfig.url +
+                                                        "/favicon.png"}
+                                                />
+                                            </p>
                                         {/each}
                                     </div>
                                 </div>
@@ -213,18 +228,6 @@
     </div>
     <div style="display:none">
         <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-        <p class="h-card p-author">
-            {#each [post.author || systemConfig.user.default].flat() as author}
-                <a class="p-name u-url" rel="author" href={siteConfig.url}
-                    >{author}</a
-                >
-                <img
-                    alt={author}
-                    class="u-photo"
-                    src={siteConfig.url + "/favicon.png"}
-                />
-            {/each}
-        </p>
         <p class="p-summary p-content">{post.summary}</p>
     </div>
 </article>
@@ -432,11 +435,11 @@
                     color: var(--text-color-tertiary);
                 }
 
-                .category::before{
-                    content: '/'
+                .category::before {
+                    content: "/";
                 }
-                .tag::before{
-                    content: '#'
+                .tag::before {
+                    content: "#";
                 }
             }
 
