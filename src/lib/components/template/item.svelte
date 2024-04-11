@@ -75,7 +75,11 @@
         margin: 1rem 0;
         flex-wrap: wrap;
         color: var(--text-color-tertiary);
+        gap: 1rem;
 
+        .newer {
+            flex: 1;
+        }
         .newer,
         .earlier {
             div {
@@ -96,5 +100,24 @@
     .related {
         list-style: none;
         color: var(--text-color-tertiary);
+    }
+
+    @media screen and (max-width: 600px) {
+        .sublings {
+            gap: 0;
+            flex-flow: column;
+            .newer,
+            .earlier {
+                div svg {
+                    display: none;
+                }
+            }
+
+            .earlier {
+                div {
+                    justify-content: left;
+                }
+            }
+        }
     }
 </style>
