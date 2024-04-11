@@ -117,6 +117,7 @@
                                                     >{author.name}</a
                                                 >
                                                 <img
+                                                    style="display:none"
                                                     alt={author.name}
                                                     class="u-photo"
                                                     src={siteConfig.url +
