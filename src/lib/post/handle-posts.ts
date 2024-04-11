@@ -380,29 +380,14 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
         const rawObject = loadFrontMatterRaw(site, target.file);
 
         if (rawObject) {
-            const post = convertToPost(rawObject);
-            post.isDefaultAuthor = !post.author && !post.authors;
-            post.authors = [post.authors || post.author || systemConfig.user?.default].flat()
-                .filter((author) => !!author)
-                .map((author) => {
-                    if (typeof author === 'string') {
-                        const account = getSiteAccount(site, author, post.lang);
-                        if (account) {
-                            const { name, id, ircid, url } = account;
-                            return { name, id, ircid, url, account: author };
-                        } else {
-                            return { name: author, account: author };
-                        }
-                    }
-                    return author;
-                });
+            const post = convertToPost(site, rawObject);
             return post;
         }
     }
     return {};
 }
 
-export function convertToPost(raw: Raw) {
+export function convertToPost(site: any, raw: Raw) {
     const { content, headings, processMeta } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
@@ -427,9 +412,30 @@ export function convertToPost(raw: Raw) {
         }
     });
 
+    handleAuthors(site, raw.attributes);
     return {
         ...raw?.attributes, content, headings, processMeta
     };
+}
+
+function handleAuthors(site: any, attr: { author?: string, authors?: string[], lang: string } & any) {
+
+    const systemConfig = getSystemConfig(site);
+    attr.isDefaultAuthor = !attr.author && !attr.authors;
+    attr.authors = [attr.authors || attr.author || systemConfig.user?.default].flat()
+        .filter((author) => !!author)
+        .map((author) => {
+            if (typeof author === 'string') {
+                const account = getSiteAccount(site, author, attr.lang);
+                if (account) {
+                    const { name, id, ircid, url } = account;
+                    return { name, id, ircid, url, account: author };
+                } else {
+                    return { name: author, account: author };
+                }
+            }
+            return author;
+        });
 }
 
 export function convertToPostForFeed(site: any, raw: Raw) {
@@ -457,13 +463,18 @@ export function convertToPostForFeed(site: any, raw: Raw) {
         }
     });
 
-    const siteConfig = getSiteConfig(site, raw.attributes.lang);
+    const systemConfig = getSystemConfig(site);
+    const siteConfig = getSiteConfig(site, raw.attributes.lang || systemConfig.locale?.default);
 
-    let feedContent = `${content}
-    <p>${raw.attributes.langs.map((lang: string) =>
-        `<a href="${siteConfig.url}/${lang}${raw.attributes.url}">${t.get(`lang.${lang}`)}</a>`)
-        }</p>
-    `;
+    let feedContent = `${content}`;
+
+    if (raw.attributes.langs) {
+        feedContent = `${feedContent}
+        <p>${raw.attributes.langs.map((lang: string) =>
+            `<a href="${siteConfig.url}/${lang}${raw.attributes.url}">${t.get(`lang.${lang}`)}</a>`)
+            }</p>
+        `;
+    }
 
     if (raw.attributes.toc && headings) {
         feedContent = `
@@ -477,6 +488,8 @@ export function convertToPostForFeed(site: any, raw: Raw) {
         </ul>
         ${feedContent}`;
     }
+
+    handleAuthors(site, raw.attributes);
 
     return {
         ...raw?.attributes, content: feedContent, headings
