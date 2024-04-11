@@ -13,8 +13,17 @@ export function loadConfig(path: string) {
         return {};
     }
     let file = fs.readFileSync(path, 'utf8');
-    let parsed = YAML.parse(file);
+    let parsed = loadData(path);
     return Object.assign({}, parsed.public, { private: parsed.private });
+}
+
+export function loadData(path: string) {
+    if (!fs.existsSync(path)) {
+        console.error(`No config file found for ${path}.`);
+        return {};
+    }
+    let file = fs.readFileSync(path, 'utf8');
+    return YAML.parse(file);
 }
 
 function matchSite(domain: string) {
@@ -34,6 +43,7 @@ function load() {
         const DISCUSS_DIR = `${DATA_DIR}/discuss`;
         const CONFIG_DIR = `${DATA_DIR}/config`;
         const SYSTEM_CONFIG_FILE = `${CONFIG_DIR}/system.yml`;
+        const ACCOUNTS_DIR = `${DATA_DIR}/accounts`;
 
         const system = loadConfig(SYSTEM_CONFIG_FILE);
 
@@ -44,7 +54,7 @@ function load() {
                 aliases: system.domains?.aliases || []
             },
             constants: {
-                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, DISCUSS_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE
+                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, DISCUSS_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE, ACCOUNTS_DIR
             },
             system,
         }
