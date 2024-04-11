@@ -35,6 +35,17 @@
 {/if}
 
 <svelte:head>
+    {#if systemConfig.activitypub?.enabled}
+        <link
+            rel="alternate"
+            type="application/activity+json"
+            href="/.well-known/nodeinfo"
+        />
+        <meta
+            name="admin"
+            content="mailto:admin@{systemConfig.domain?.primary}"
+        />
+    {/if}
     {#if siteConfig.keywords}
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}

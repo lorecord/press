@@ -12,4 +12,6 @@ public:
     domain: plausible.com
   brand:
     personal: true
+  activitypub:
+    enabled: true
 private:
