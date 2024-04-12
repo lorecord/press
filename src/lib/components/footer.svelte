@@ -35,9 +35,7 @@
             {$t("common.copyright")} &copy; {siteConfig.copyright?.start
                 ? `${siteConfig.copyright.start}-`
                 : ""}{new Date().getFullYear()}
-            <a href={siteConfig.url} class="h-card" rel="me"
-                >{siteConfig.title}</a
-            >
+            <a href={siteConfig.url}>{siteConfig.title}</a>
             {$t("common.all_rights_reversed")}
         </span>
         {#if siteConfig.issn}

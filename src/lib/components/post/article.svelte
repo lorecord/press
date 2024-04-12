@@ -21,7 +21,9 @@
                 style="max-width: 100%"
             />
         {/if}
+
         <h1 class="p-name">{post.title}</h1>
+
         {#if post.template == "item"}
             <div class="article-meta">
                 {#if post.authors && !post.isDefaultAuthor}
@@ -60,6 +62,11 @@
                 </time>
             </div>
         {/if}
+
+        <div style="display:none">
+            <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
+            <p class="p-summary p-content">{post.summary}</p>
+        </div>
     </div>
     <div class="article-body container">
         <div class="article-aside no-print">
@@ -227,10 +234,6 @@
                 {/if}
             </div>
         {/if}
-    </div>
-    <div style="display:none">
-        <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-        <p class="p-summary p-content">{post.summary}</p>
     </div>
 </article>
 

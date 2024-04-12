@@ -23,7 +23,7 @@
 <header class="no-print">
     <nav class="navbar" class:reponsive on:blur={handleBlur}>
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="h-card navbar-brand" href="/" rel="me">
                 {#if siteConfig?.logo?.provider === "gravatar" && siteConfig.logo.gravatar}
                     <img
                         class="u-photo avatar brand-icon"
@@ -40,6 +40,10 @@
                 <svelte:element this={isHome ? "h1" : "span"} class="brand-text"
                     >{siteConfig?.title || "Press"}</svelte:element
                 >
+
+                <p style="display:none" class="p-note">
+                    {siteConfig.description}
+                </p>
             </a>
             <ul class="nav">
                 <li class="nav-item">
