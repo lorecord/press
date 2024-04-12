@@ -65,7 +65,7 @@
 
         <div style="display:none">
             <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-            <p class="p-summary p-content">{post.summary}</p>
+            <p class="p-summary">{post.summary}</p>
         </div>
     </div>
     <div class="article-body container">

@@ -23,29 +23,31 @@
 <header class="no-print">
     <nav class="navbar" class:reponsive on:blur={handleBlur}>
         <div class="container">
-            <a class="h-card u-url navbar-brand" href="/" rel="me">
-                {#if siteConfig?.logo?.provider === "gravatar" && siteConfig.logo.gravatar}
-                    <img
-                        class="u-photo avatar brand-icon"
-                        src={`${gravatarBase}/avatar/${siteConfig.logo.gravatar}?s=48`}
-                        alt={siteConfig?.title || "Press"}
-                    />
-                {:else if siteConfig?.logo?.provider === "local" && siteConfig.logo.local}
-                    <img
-                        class="u-photo avatar brand-icon"
-                        src={siteConfig.logo.local}
-                        alt={siteConfig?.title || "Press"}
-                    />
-                {/if}
-                <svelte:element
-                    this={isHome ? "h1" : "span"}
-                    class="p-name brand-text"
-                    >{siteConfig?.title || "Press"}</svelte:element
-                >
+            <span class="h-card" style="display: flex; align-items: center;">
+                <a class="u-url u-uid navbar-brand" href="/">
+                    {#if siteConfig?.logo?.provider === "gravatar" && siteConfig.logo.gravatar}
+                        <img
+                            class="u-photo avatar brand-icon"
+                            src={`${gravatarBase}/avatar/${siteConfig.logo.gravatar}?s=48`}
+                            alt={siteConfig?.title || "Press"}
+                        />
+                    {:else if siteConfig?.logo?.provider === "local" && siteConfig.logo.local}
+                        <img
+                            class="u-photo avatar brand-icon"
+                            src={siteConfig.logo.local}
+                            alt={siteConfig?.title || "Press"}
+                        />
+                    {/if}
+                    <svelte:element
+                        this={isHome ? "h1" : "span"}
+                        class="p-name brand-text"
+                        >{siteConfig?.title || "Press"}</svelte:element
+                    >
+                </a>
                 <p style="display:none" class="p-note">
                     {siteConfig.description}
                 </p>
-            </a>
+            </span>
             <ul class="nav">
                 <li class="nav-item">
                     <a href="/" class="nav-link active" on:click={handleClick}
