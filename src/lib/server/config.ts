@@ -31,6 +31,8 @@ function load() {
 
         fileWatch(CONFIG_DIR, loadForSite, `${site.unique}-load-config`);
     }
+
+    console.log('[server/config.ts] config loaded');
 }
 
 function getSystemConfig(site: any) {

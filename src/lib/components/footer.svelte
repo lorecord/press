@@ -35,13 +35,14 @@
             {$t("common.copyright")} &copy; {siteConfig.copyright?.start
                 ? `${siteConfig.copyright.start}-`
                 : ""}{new Date().getFullYear()}
-            {siteConfig.title}
+            <a href={siteConfig.url}>{siteConfig.title}</a>
             {$t("common.all_rights_reversed")}
         </span>
         {#if siteConfig.issn}
             <span class="issn">
                 <abbr title="International Standard Serial Number">ISSN</abbr>
-                <a href={`https://portal.issn.org/resource/ISSN/${siteConfig.issn}`}
+                <a
+                    href={`https://portal.issn.org/resource/ISSN/${siteConfig.issn}`}
                     ><span itemprop="issn">{siteConfig.issn}</span></a
                 >
             </span>

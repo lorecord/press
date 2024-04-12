@@ -1,49 +1,52 @@
 <script lang="ts">
-    export let data:
+    export let post:
         | {
               authors: any[] | any;
               title: string;
               date: string | Date;
               url: string;
-              siteTitle: string;
           }
         | any = {};
 
-    $: ({ authors: _authors, title, date: _date, url, siteTitle } = data);
+    export let site: string;
+    export let base: string = "";
+
+    $: ({ authors: _authors, title, date: _date, url: _url } = post);
     $: date = new Date(_date);
+    $: url = base + _url;
     $: authors = [_authors].flat();
     $: authorsString = authors
-        .map((author) => author?.name || author)
+        .map((author) => author?.name || author?.account)
         .join(", ");
     $: isoDateString = date.toISOString().split("T")[0];
 </script>
 
 <details>
     <summary>APA</summary>
-    <pre>{`${authorsString}. (${isoDateString}). ${siteTitle}. ${title} [Blog post]. ${url}`}</pre>
+    <pre>{`${authorsString}. (${isoDateString}). ${site}. ${title} [Blog post]. ${url}`}</pre>
 </details>
 <details>
     <summary>MLA</summary>
-    <pre>{`${authorsString}. "${title}." ${siteTitle}, ${isoDateString} ${url}. Accessed ${new Date().toISOString().split("T")[0]}`}</pre>
+    <pre>{`${authorsString}. "${title}." ${site}, ${isoDateString} ${url}. Accessed ${new Date().toISOString().split("T")[0]}`}</pre>
 </details>
 <details>
     <summary>Chicago (CMS)</summary>
-    <pre>{`${authorsString}. "${title}." ${siteTitle} (Blog), ${isoDateString} ${url}`}</pre>
+    <pre>{`${authorsString}. "${title}." ${site} (Blog), ${isoDateString} ${url}`}</pre>
 </details>
 <details>
     <summary>Harvard</summary>
-    <pre>{`${authorsString}. (${new Date(date).getFullYear()}). ${title}. ${siteTitle}. ${url}`}</pre>
+    <pre>{`${authorsString}. (${new Date(date).getFullYear()}). ${title}. ${site}. ${url}`}</pre>
 </details>
 <details>
     <summary>Vancouver</summary>
-    <pre>{`${authorsString}. ${title}. ${siteTitle} [Internet]. ${isoDateString}; Available from: ${url}`}</pre>
+    <pre>{`${authorsString}. ${title}. ${site} [Internet]. ${isoDateString}; Available from: ${url}`}</pre>
 </details>
 <details>
     <summary>Bibtex</summary>
     <pre>{`@online{${authorsString}_${new Date(date).getFullYear()}_${title},
 author  = {${authorsString}},
 title   = {{${title}}},
-journal = {${siteTitle}},
+journal = {${site}},
 type    = {Blog},
 doi     = {${url}},
 urldate = {${new Date().toISOString().split("T")[0]}},

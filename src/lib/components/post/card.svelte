@@ -34,7 +34,9 @@
             {/if}
             <div>
                 {#if review}
-                    <div style="color: var(--text-color-tertiary); font-size: 90%">
+                    <div
+                        style="color: var(--text-color-tertiary); font-size: 90%"
+                    >
                         <span>{$t("common.review")}</span>
 
                         <span>{review.item.name}</span>
@@ -60,6 +62,7 @@
 
     h2 {
         margin-bottom: 0;
+        flex: 1;
 
         a {
             &::before {
@@ -75,6 +78,7 @@
 
     .article-meta {
         color: var(--text-color-tertiary);
+        padding-top: 0.5rem;
     }
 
     .content {
@@ -94,10 +98,12 @@
 
     @media screen and (max-width: 600px) {
         .article-meta {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            padding-top: 0;
         }
         .content {
             flex-flow: column;
+            padding-bottom: 0;
         }
         .feature_image {
             flex: 0 0 100%;

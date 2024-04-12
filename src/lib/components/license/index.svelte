@@ -15,51 +15,8 @@
         name?: string;
         url?: string;
     } {
-        if (license === "CC-BY-NC-SA") {
-            return {
-                licenseId: "CC BY-NC-SA 4.0",
-                url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-            };
-        }
-        if (license === "CC-BY-NC") {
-            return {
-                licenseId: "CC BY-NC-SA 4.0",
-                url: "https://creativecommons.org/licenses/by-nc/4.0/",
-            };
-        } else if (license === "CC-BY-ND") {
-            return {
-                licenseId: "CC BY-ND 4.0",
-                url: "https://creativecommons.org/licenses/by-nc-nd/4.0/",
-            };
-        } else if (license === "CC-NC-SA") {
-            return {
-                licenseId: "CC NC-SA 4.0",
-                url: "https://creativecommons.org/licenses/nc-sa/4.0/",
-            };
-        } else if (license === "CC-BY") {
-            return {
-                licenseId: "CC BY 4.0",
-                url: "https://creativecommons.org/licenses/by/4.0/",
-            };
-        } else if (license === "CC-BY-SA") {
-            return {
-                licenseId: "CC BY-SA 4.0",
-                url: "https://creativecommons.org/licenses/by-sa/4.0/",
-            };
-        } else if (license === "CC-BY-NC-ND") {
-            return {
-                licenseId: "CC BY-NC-ND 4.0",
-                url: "https://creativecommons.org/licenses/by-nc-nd/4.0/",
-            };
-        } else if (license === "WTFPL") {
-            return {
-                licenseId: "WTFPL",
-                url: "http://www.wtfpl.net/",
-            };
-        } else {
-            console.log("Unknown license: " + license);
-            return { licenseId: license };
-        }
+        console.log("Unknown license: " + license);
+        return { licenseId: license };
     }
 
     $: ({ licenseId, name, url } = getLicense(license));
