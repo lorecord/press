@@ -73,7 +73,7 @@
         if (issn) {
             obj.issn = issn;
         }
-        return Object.assign({}, ldjson, obj);
+        return Object.assign({}, obj);
     };
 </script>
 
