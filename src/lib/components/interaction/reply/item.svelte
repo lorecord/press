@@ -1,8 +1,10 @@
 <script lang="ts">
-    import { locale } from "$lib/translations";
+    import { locale, t } from "$lib/translations";
     import {
         IconDiscountCheckFilled,
         IconMessageCircle,
+        IconExternalLink,
+        IconAlien,
     } from "@tabler/icons-svelte";
     import CommentList from "./list.svelte";
     import "./reply.css";
@@ -22,20 +24,22 @@
     class:replying
     class:replying-one={replyingOne}
 >
-    {#if item.author?.email?.hash?.md5}
+    {#if item.author?.email?.hash?.md5 || item.author?.avatar}
         <div class="comment-avatar">
-            {#if item.url}
-                <a href={item.url} rel="external nofollow">
+            {#if item.author?.url}
+                <a href={item.author?.url} rel="external nofollow">
                     <img
                         class="avatar rounded-circle"
-                        src={`${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
+                        src={item.author?.avatar ||
+                            `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
                         alt={item.author?.name}
                     />
                 </a>
             {:else}
                 <img
                     class="avatar rounded-circle"
-                    src={`${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
+                    src={item.author?.avatar ||
+                        `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
                     alt={item.author?.name}
                 />
             {/if}
@@ -76,15 +80,29 @@
             {@html item.content}
         </div>
         <div class="comment-footer">
-            <a
-                href={`#reply-${item.id?.toString().substr(-8)}`}
-                on:click|preventDefault={commentHelper.replyTo(item.id)}
-            >
-                <IconMessageCircle size={18} />
-                {#if item.replies?.length > 0}
-                    {item.replies?.length}
+            <div class="extra">
+                {#if item.channel !== "native"}
+                    <div class="via">
+                        <IconAlien size={12} /> via {item.channel}
+                    </div>
                 {/if}
-            </a>
+            </div>
+            <div class="action">
+                <a
+                    href={`#reply-${item.id?.toString().substr(-8)}`}
+                    on:click|preventDefault={commentHelper.replyTo(item.id)}
+                >
+                    <IconMessageCircle size={18} />
+                    {#if item.replies?.length > 0}
+                        {item.replies?.length}
+                    {/if}
+                </a>
+                {#if item.url}
+                    <a href={item.url} rel="external nofollow">
+                        <IconExternalLink size={18} />
+                    </a>
+                {/if}
+            </div>
         </div>
     </div>
 </article>
@@ -178,6 +196,25 @@
     }
 
     .comment-footer {
+        .extra {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            color: var(--text-color-quaternary);
+            font-size: 67%;
+
+            .via {
+                display: flex;
+                align-items: center;
+                gap: 0.125rem;
+            }
+        }
+        .action {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
         a {
             display: inline-flex;
             align-items: center;

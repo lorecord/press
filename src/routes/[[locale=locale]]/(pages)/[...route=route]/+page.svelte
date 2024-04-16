@@ -12,8 +12,7 @@
 
     $: ({
         post,
-        comments,
-        mentions,
+        interactions,
         systemConfig,
         siteConfig,
         newer,
@@ -21,8 +20,12 @@
         ldjson,
     } = data);
 
-    $: commonComments = comments?.filter((c) => c.type === 'reply');
-    $: citations = comments?.filter((c) => c.type === "pingback");
+    $: commonComments = interactions.replies?.filter(
+        (r: any) => r.type === "reply",
+    );
+    $: citations = interactions.replies?.filter(
+        (r: any) => r.type === "pingback",
+    );
 
     const templates: any = {
         default: TemplatePage,
@@ -396,12 +399,6 @@
                 {/if}
             </h3>
             <div class="comments-wrapper">
-                {#each mentions as mention}
-                    {JSON.stringify(mention)}
-                    <div class="mention">
-                        <a href={mention.url}>{mention.url}</a>
-                    </div>
-                {/each}
                 <Replies
                     replies={commonComments}
                     gravatarBase={systemConfig.gravatar?.base}

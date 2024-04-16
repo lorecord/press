@@ -54,6 +54,7 @@ export type WebmentionReply = {
 } & Reply;
 
 export type NativeBase = {
+    channel: 'native';
     ip?: EncryptedString;
 }
 

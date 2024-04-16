@@ -7,7 +7,10 @@ export function GET({ params, locals }) {
 
     const comments = loadComments(site, { slug });
     const mentions = loadMentions(site, slug);
-    let body = JSON.stringify({ comments, mentions });
+
+    const replies = [...comments.filter((comment: any) => comment.type === "reply"), ...mentions.filter((mention: any) => mention.type === "reply")];
+
+    let body = JSON.stringify({ replies });
 
     return new Response(body, { status: 200 });
 }

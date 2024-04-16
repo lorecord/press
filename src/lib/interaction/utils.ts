@@ -3,6 +3,7 @@ import type { NativeReply } from "./types";
 export function commentToInteraction(comment: any): NativeReply {
     return {
         type: 'reply',
+        channel: 'native',
         id: comment.id,
         author: {
             name: comment.author,
