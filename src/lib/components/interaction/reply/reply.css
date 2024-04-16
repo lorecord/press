@@ -1,0 +1,11 @@
+.comment-body > *:first-child {
+    margin-top: 0;
+}
+
+.comment-body > *:last-child {
+    margin-bottom: 0;
+}
+
+.user-verified {
+    color: #2a99ee !important;
+}

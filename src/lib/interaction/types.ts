@@ -4,39 +4,40 @@ interface Base {
     id: string;
     published: string;
     type: string;
-    source: string;
+    channel?: string;
     author?: Author;
+    url?: string;
+    target?: string;
 }
 
 export interface EncryptedString {
     value: string;
-    nonce: string;
+    nonce?: string;
+    algorithm?: string;
 }
 
-export interface HashString {
+export type HashString = {
     md5: string;
+} | {
     sha256: string;
 }
 
-export interface Author {
+
+export type Author = {
     name?: string;
     url?: string;
     avatar?: string;
     user?: string;
     email?: {
-        value: EncryptedString;
+        value?: EncryptedString;
         hash: HashString
     };
+    verifed?: boolean;
 }
 
-export interface WebmentionReplyRaw {
+export interface WebmentionRaw {
     source: string;
 }
-export interface WebmentionReply extends WebmentionReplyRaw {
-    published: Date | boolean;
-    name: string;
-    url: string;
-};
 
 export interface Reply extends Base {
     type: 'reply';
@@ -45,6 +46,18 @@ export interface Reply extends Base {
         hash: HashString
     };
 }
+
+export type WebmentionReply = {
+    channel: 'webmention';
+    webmention: WebmentionRaw;
+    url: string;
+} & Reply;
+
+export type NativeBase = {
+    ip?: EncryptedString;
+}
+
+export type NativeReply = NativeBase & Reply;
 
 export interface Like extends Base {
     type: 'like';
@@ -97,4 +110,4 @@ export interface Tip extends Base {
     type: 'tip';
 }
 
-export type UserResponse = Reply | Like | Repost | Bookmark | Mention | Citation | Sponsor | Reaction;
+export type Interaction = Reply | Like | Repost | Bookmark | Mention | Citation | Sponsor | Reaction;
