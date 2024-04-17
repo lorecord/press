@@ -24,6 +24,7 @@ export function commentToInteraction(comment: any): NativeReply {
         content: comment.text,
         ip: {
             value: comment.ip,  // TODO: encrypt
-        }
+        },
+        target: comment.reply
     }
 }
