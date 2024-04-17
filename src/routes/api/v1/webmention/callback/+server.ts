@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { getSystemConfig } from '$lib/server/config.js';
-import { loadPost } from '$lib/post/handle-posts';
+import { loadPostRaw } from '$lib/post/handle-posts';
 
 export async function POST({ url, locals, request }) {
     const { site } = locals as { site: any };
@@ -18,9 +18,9 @@ export async function POST({ url, locals, request }) {
 
     const postRoute = payload.target.replace(`${site.url}/`, '');
 
-    const post = await loadPost(site, { route: postRoute, lang: undefined });
+    const postRaw = await loadPostRaw(site, { route: postRoute, lang: undefined });
 
-    if (!post) {
+    if (!postRaw) {
         return new Response('{}', { status: 404 });
     }
 
@@ -28,12 +28,12 @@ export async function POST({ url, locals, request }) {
         console.log('wm deleted');
         delete payload.secret;
 
-        // TODO save payload to post
+        console.log('path', postRaw.path);
     } else {
         console.log('wm created');
     }
 
-    if (!post || !post.content) {
+    if (!postRaw || !postRaw.content) {
         return new Response('{}', { status: 404 });
     }
 

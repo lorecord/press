@@ -5,7 +5,7 @@ export function GET({ params, locals }) {
     const { slug } = params;
 
     const comments = loadComments(site, { slug });
-    let body = JSON.stringify(comments);
+    let body = JSON.stringify({ comments });
 
     return new Response(body, { status: 200 });
 }

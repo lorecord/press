@@ -36,6 +36,9 @@ function load() {
     }
 
     sites = fs.readdirSync(SITES_DIR).map((site) => {
+        if (site === '.DS_Store') {
+            return;
+        }
         const SITE_DIR = `${SITES_DIR}/${site}`;
         const POSTS_DIR = `${SITE_DIR}/posts`;
         const PUBLIC_DIR = `${SITE_DIR}/public`;
@@ -58,7 +61,7 @@ function load() {
             },
             system,
         }
-    });
+    }).filter(site => !!site);
 
     if (!sites.length) {
         console.error(`No sites found in SITES_DIR '${SITES_DIR}'.`);

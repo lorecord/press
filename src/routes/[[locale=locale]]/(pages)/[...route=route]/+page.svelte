@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Comments from "$lib/components/comments.svelte";
+    import Replies from "$lib/components/interaction/replies.svelte";
     import { t, locale } from "$lib/translations/index.js";
     import Citations from "$lib/components/comment/citations.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
@@ -10,11 +10,22 @@
 
     export let data;
 
-    $: ({ post, comments, systemConfig, siteConfig, newer, earlier, ldjson } =
-        data);
+    $: ({
+        post,
+        interactions,
+        systemConfig,
+        siteConfig,
+        newer,
+        earlier,
+        ldjson,
+    } = data);
 
-    $: commonComments = comments?.filter((c) => !c.type);
-    $: citations = comments?.filter((c) => c.type === "pingback");
+    $: commonComments = interactions.replies?.filter(
+        (r: any) => r.type === "reply",
+    );
+    $: citations = interactions.replies?.filter(
+        (r: any) => r.type === "pingback",
+    );
 
     const templates: any = {
         default: TemplatePage,
@@ -388,8 +399,8 @@
                 {/if}
             </h3>
             <div class="comments-wrapper">
-                <Comments
-                    comments={commonComments}
+                <Replies
+                    replies={commonComments}
                     gravatarBase={systemConfig.gravatar?.base}
                     reply={post.comment?.reply}
                     {post}

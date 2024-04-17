@@ -372,17 +372,23 @@ export function fetchPostPath(site: any, { route, lang }: { route: string, lang?
     return fetchPath(site, { route, lang, match: (file) => file.endsWith('.md') });
 }
 
-export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
+export function loadPostRaw(site: any, { route, lang }: { route: string, lang?: string }): any {
     const systemConfig = getSystemConfig(site);
     lang = lang || systemConfig.locale?.default;
     let { target, langMap } = fetchPostPath(site, { route, lang });
     if (target) {
         const rawObject = loadFrontMatterRaw(site, target.file);
+        return rawObject;
+    }
+    return {};
+}
 
-        if (rawObject) {
-            const post = convertToPost(site, rawObject);
-            return post;
-        }
+export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
+    const rawObject = loadPostRaw(site, { route, lang });
+
+    if (rawObject) {
+        const post = convertToPost(site, rawObject);
+        return post;
     }
     return {};
 }
