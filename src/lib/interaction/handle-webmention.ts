@@ -58,6 +58,7 @@ export function saveMention(site: any, postPath: string, mention: any) {
         mentions = loadMentions(site, postPath);
     }
 
+    mentions = mentions.filter((m: any) => m.source !== mention.source);
     mentions.push(mention);
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');

@@ -42,9 +42,11 @@ export async function POST({ url, locals, request }) {
     if (!payload.deleted) {
         console.log('new webmention from ', payload.source, 'to', payload.target);
         saveMention(site, postRoute, payload);
+        return new Response('{}', { status: 202 });
     } else {
         console.log('webmention from ', payload.source, 'to', payload.target, 'deleted');
         deleteMention(site, postRoute, payload);
+        return new Response('{}', { status: 202 });
     }
 
     return json('ok');
