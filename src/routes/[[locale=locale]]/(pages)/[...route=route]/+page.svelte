@@ -7,6 +7,14 @@
     import TemplatePage from "$lib/components/template/default.svelte";
     import TemplatePost from "$lib/components/template/item.svelte";
     import TemplateLinks from "$lib/components/template/links.svelte";
+    import type {
+        WithContext,
+        Article as SchemeArticle,
+        Review,
+        CreativeWork,
+        WebPage,
+    } from "schema-dts";
+    import Article from "$lib/components/post/article.svelte";
 
     export let data;
 
@@ -39,10 +47,8 @@
         templates[(post.template as string) || "default"] || templates.default;
 
     let json = () => {
-        let obj: any = {
-            "@context": "https://schema.org",
-            "@type":
-                post.type || (post.template == "item" ? "Article" : "Webpage"),
+        let creatework: CreativeWork = {
+            "@type": "CreativeWork",
             headline: post.title,
             image: post.image
                 ? [`${siteConfig.url}${post.url}${post.image}`]
@@ -54,30 +60,18 @@
                 name: post.author || systemConfig.user?.default,
             },
         };
+
         if (post.modified?.date) {
-            obj.dateModified = new Date(post.modified.date).toISOString();
+            creatework.dateModified = new Date(
+                post.modified.date,
+            ).toISOString();
         }
         if (post.summary) {
-            obj.description = post.summary;
-        }
-        if (post.review) {
-            obj.itemReviewed = {
-                "@type": post.review.item?.type,
-                name: post.review.item?.name,
-                url: post.review.item?.url,
-                image: post.review.item?.image,
-            };
-            obj.rating = {
-                "@type": "Rating",
-                ratingValue: post.review.rating,
-                bestRating: 10,
-                worstRating: 1,
-            };
-            obj.reviewBody = post.review.body || post.summary;
+            creatework.description = post.summary;
         }
 
         if (post.aggregateRating) {
-            obj.aggregateRating = {
+            creatework.aggregateRating = {
                 "@type": "AggregateRating",
                 ratingValue: post.aggregateRating.value,
                 reviewCount: post.aggregateRating.count,
@@ -85,7 +79,45 @@
                 worstRating: post.aggregateRating.worst || 1,
             };
         }
-        return Object.assign({}, ldjson, obj);
+
+        if (post.template == "item") {
+            if (post.review) {
+                creatework = Object.assign(creatework, {
+                    "@type": "Review",
+                    itemReviewed: {
+                        "@type": post.review.item?.type,
+                        name: post.review.item?.name,
+                        url: post.review.item?.url,
+                        image: post.review.item?.image,
+                    },
+                    reviewRating: {
+                        "@type": "Rating",
+                        ratingValue: post.review.rating,
+                        bestRating: 10,
+                        worstRating: 1,
+                    },
+                    reviewBody: post.review.body || post.summary,
+                } as Review);
+            } else {
+                creatework = Object.assign(creatework, {
+                    "@type": "Article",
+                } as SchemeArticle);
+            }
+        } else if (post.template == "links") {
+            creatework = creatework as WithContext<CreativeWork>;
+        } else if (post.template == "default") {
+            creatework = Object.assign(creatework, {
+                "@type": "WebPage",
+            } as WebPage);
+        } else {
+            creatework = creatework as WithContext<CreativeWork>;
+        }
+
+        let schema: WithContext<any> = Object.assign(creatework, {
+            "@context": "https://schema.org",
+        });
+
+        return Object.assign({}, ldjson, schema);
     };
 </script>
 
