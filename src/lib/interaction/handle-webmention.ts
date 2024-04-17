@@ -42,3 +42,37 @@ export function loadMentions(site: any, postPath: string) {
         return webmentionReply;
     });
 }
+
+export function saveMention(site: any, postPath: string, mention: any) {
+    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
+    if (!postRaw) {
+        return;
+    }
+    const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
+
+    let mentions = [];
+
+    if (!fs.existsSync(filepath)) {
+        fs.mkdirSync(path.dirname(filepath), { recursive: true });
+    } else {
+        mentions = loadMentions(site, postPath);
+    }
+
+    mentions.push(mention);
+    let data = YAML.stringify(mentions);
+    fs.writeFileSync(filepath, data, 'utf8');
+}
+
+export function deleteMention(site: any, postPath: string, mention: any) {
+    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
+    if (!postRaw) {
+        return;
+    }
+    const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
+
+    let mentions = loadMentions(site, postPath);
+    mentions = mentions.filter((m: any) => m.source !== mention.source);
+
+    let data = YAML.stringify(mentions);
+    fs.writeFileSync(filepath, data, 'utf8');
+}

@@ -17,10 +17,12 @@ export interface EncryptedString {
 }
 
 export type HashString = {
+    salt?: string;
+} & ({
     md5: string;
 } | {
     sha256: string;
-}
+});
 
 
 export type Author = {
