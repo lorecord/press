@@ -1,16 +1,17 @@
 <script lang="ts">
     export let data: any;
 
-    $: ({ siteConfig } = data);
+    $: ({ systemConfig } = data);
 </script>
 
 <svelte:head>
-    {#if siteConfig?.domains?.primary}
+    {#if systemConfig?.domains?.primary}
+        {@const primaryDomain = systemConfig?.domains?.primary}
         {@html `
     <style>
         .article-content a[ref^="external"]::after,
-        .article-content a[href^="http"]:not([href*="${siteConfig?.domains?.primary}"])::after,
-        .comment-body a[href^="http"]:not([href*="${siteConfig?.domains?.primary}"])::after,
+        .article-content a[href^="http"]:not([href*="${primaryDomain}"])::after,
+        .comment-body a[href^="http"]:not([href*="${primaryDomain}"])::after,
         .comment-body a[ref^="external"]::after {
             content: "";
             background-color: var(--text-color-tertiary);
