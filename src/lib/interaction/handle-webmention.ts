@@ -64,7 +64,7 @@ export function saveWebmention(site: any, postPath: string, mention: any) {
     fs.writeFileSync(filepath, data, 'utf8');
 }
 
-export function deleteMention(site: any, postPath: string, mention: any) {
+export function deleteWebmention(site: any, postPath: string, mention: any) {
     const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
     if (!postRaw) {
         return;
