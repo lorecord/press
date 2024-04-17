@@ -5,7 +5,7 @@ import { loadPostRaw } from '$lib/post/handle-posts';
 import type { WebmentionReply } from './types';
 import Crypto from 'crypto';
 
-export function loadMentions(site: any, postPath: string) {
+export function loadWebmentions(site: any, postPath: string) {
     const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
     if (!postRaw) {
         return [];
@@ -43,7 +43,7 @@ export function loadMentions(site: any, postPath: string) {
     });
 }
 
-export function saveMention(site: any, postPath: string, mention: any) {
+export function saveWebmention(site: any, postPath: string, mention: any) {
     const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
     if (!postRaw) {
         return;
@@ -55,7 +55,7 @@ export function saveMention(site: any, postPath: string, mention: any) {
     if (!fs.existsSync(filepath)) {
         fs.mkdirSync(path.dirname(filepath), { recursive: true });
     } else {
-        mentions = loadMentions(site, postPath);
+        mentions = loadWebmentions(site, postPath);
     }
 
     mentions = mentions.filter((m: any) => m.source !== mention.source);
@@ -71,7 +71,7 @@ export function deleteMention(site: any, postPath: string, mention: any) {
     }
     const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
 
-    let mentions = loadMentions(site, postPath);
+    let mentions = loadWebmentions(site, postPath);
     mentions = mentions.filter((m: any) => m.source !== mention.source);
 
     let data = YAML.stringify(mentions);

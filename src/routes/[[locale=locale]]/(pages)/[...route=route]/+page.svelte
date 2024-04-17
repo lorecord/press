@@ -1,7 +1,6 @@
 <script lang="ts">
     import Replies from "$lib/components/interaction/replies.svelte";
     import { t, locale } from "$lib/translations/index.js";
-    import Citations from "$lib/components/comment/citations.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import { IconLanguage } from "@tabler/icons-svelte";
     import TemplatePage from "$lib/components/template/default.svelte";
@@ -14,7 +13,7 @@
         CreativeWork,
         WebPage,
     } from "schema-dts";
-    import Article from "$lib/components/post/article.svelte";
+    import Mentions from "$lib/components/interaction/mention/mentions.svelte";
 
     export let data;
 
@@ -31,9 +30,10 @@
     $: commonComments = interactions.replies?.filter(
         (r: any) => r.type === "reply",
     );
-    $: citations = interactions.replies?.filter(
-        (r: any) => r.type === "pingback",
-    );
+    $: citations =
+        interactions.mentions?.filter(
+            (r: any) => r.type === "mention" || r.type === "citation",
+        ) || [];
 
     const templates: any = {
         default: TemplatePage,
@@ -416,13 +416,15 @@
     <div class="discuss no-print">
         {#if post.comment?.enable}
             {#if citations?.length}
-                <h3 id="citations">
+                <h3 id="citations" style="text-align: center">
                     {$t("common.citations_lead_title")}
                     {#if citations.length}
                         ({citations.length})
                     {/if}
                 </h3>
-                <Citations comments={citations} />
+                <div class="comments-wrapper">
+                    <Mentions mentions={citations} />
+                </div>
             {/if}
             <h3 id="comments" style="text-align: center">
                 {$t("common.comment_lead_title")}

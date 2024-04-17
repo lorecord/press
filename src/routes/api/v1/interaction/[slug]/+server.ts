@@ -1,16 +1,19 @@
-import { loadComments } from "$lib/handle-discuss";
-import { loadMentions } from "$lib/interaction/handle-webmention";
+import { loadNativeInteractions } from "$lib/interaction/handle-native";
+import { loadWebmentions } from "$lib/interaction/handle-webmention";
 
 export function GET({ params, locals }) {
     const { site } = locals;
     const { slug } = params;
 
-    const comments = loadComments(site, { slug });
-    const mentions = loadMentions(site, slug);
+    const nativeInteractions = loadNativeInteractions(site, { slug });
 
-    const replies = [...comments.filter((comment: any) => comment.type === "reply"), ...mentions.filter((mention: any) => mention.type === "reply")];
+    const webmentions = loadWebmentions(site, slug);
 
-    let body = JSON.stringify({ replies });
+    const replies = [...nativeInteractions.filter((comment: any) => comment.type === "reply"), ...webmentions.filter((mention: any) => mention.type === "reply")];
+
+    const mentions = [...nativeInteractions.filter((comment: any) => comment.type === "mention"), ...webmentions.filter((mention: any) => mention.type === "mention")]
+
+    let body = JSON.stringify({ replies, mentions });
 
     return new Response(body, { status: 200 });
 }

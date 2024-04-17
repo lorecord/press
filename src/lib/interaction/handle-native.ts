@@ -9,9 +9,9 @@ import rehypeRaw from 'rehype-raw';
 import { rehypePrism } from '$lib/markdown/rehype-prism';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-import { getSystemConfig } from './server/config';
-import type { Reply } from './interaction/types';
-import { commentToInteraction } from './interaction/utils';
+import { getSystemConfig } from '../server/config';
+import type { Interaction } from './types';
+import { commentToInteraction } from './utils';
 
 export interface Comment {
     slug: string;
@@ -26,7 +26,7 @@ export interface Comment {
     type: string;
 }
 
-export function loadComment(site: any, { slug, id }: { slug: string, id: string }) {
+export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);
 
@@ -54,7 +54,7 @@ export function loadComment(site: any, { slug, id }: { slug: string, id: string 
     return commentToInteraction(comment);
 }
 
-export function loadComments(site: any, { slug }: { slug: string }) {
+export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
 
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);
@@ -66,6 +66,8 @@ export function loadComments(site: any, { slug }: { slug: string }) {
     }
     let file = fs.readFileSync(path, 'utf8');
     let parsed = YAML.parse(file);
+
+    console.log('path', path);
 
     parsed.comments?.forEach((comment: any) => {
         if (comment.email) {
@@ -82,7 +84,7 @@ export function loadComments(site: any, { slug }: { slug: string }) {
         comment.text = commentMarkdown(comment.text, comment.id, systemConfig.domains?.primary);
     });
     parsed.comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.sdate).getTime());
-    return parsed.comments.map((comment: any): Reply => commentToInteraction(comment));
+    return parsed.comments.map((comment: any): Interaction => commentToInteraction(comment));
 }
 
 export function commentMarkdown(content: string, id: string, domain: string) {
@@ -170,7 +172,7 @@ export function commentMarkdown(content: string, id: string, domain: string) {
     return result;
 }
 
-export function saveComment(site: any, { slug, lang, author, user, email, url, text, ip, reply }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string }) {
+export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string }) {
 
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);

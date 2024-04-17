@@ -61,6 +61,9 @@ export type NativeBase = {
 }
 
 export type NativeReply = NativeBase & Reply;
+export type NativeMention = NativeBase & Mention;
+
+export type NativeInteraction = NativeReply | NativeMention;
 
 export interface Like extends Base {
     type: 'like';

@@ -1,34 +1,34 @@
 <script lang="ts">
     import { locale } from "$lib/translations";
-    import "./citation.css";
+    import "./mentions.css";
 
-    export let comments: any[];
+    export let mentions: any[];
     export let reverse = true;
 </script>
 
 <ul class="citations" class:reverse>
-    {#each comments as comment}
+    {#each mentions as mention}
         <li
-            id="citation-{comment.id?.toString().substr(-8)}"
-            data-id={comment.id}
+            id="citation-{mention.id?.toString().substr(-8)}"
+            data-id={mention.id}
             class="citations-list-item"
         >
             <h4>
-                {#if comment.published}
+                {#if mention.published}
                     <time
                         class="dt-published"
-                        datetime={new Date(comment.published).toISOString()}
+                        datetime={new Date(mention.published).toISOString()}
                     >
                         {new Intl.DateTimeFormat($locale, {
                             dateStyle: "short",
                             timeStyle: "short",
-                        }).format(new Date(comment.published))}
+                        }).format(new Date(mention.published))}
                     </time>
                 {/if}
-                <a href={comment.url} rel="nofollow">{comment.author}</a>
+                <a href={mention.url} rel="nofollow">{mention.author?.name}</a>
             </h4>
             <div class="citation-body">
-                {@html comment.text}
+                {@html mention.content}
             </div>
         </li>
     {/each}

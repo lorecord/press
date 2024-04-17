@@ -32,7 +32,7 @@ export async function load({ params, fetch, parent }) {
         error(409); // Gone
     }
 
-    const { replies } = post?.comment?.enable ? await fetch(`/api/v1/interaction/${route}`).then((r) => r.json()) : undefined;
+    const { replies, mentions } = post?.comment?.enable ? await fetch(`/api/v1/interaction/${route}`).then((r) => r.json()) : undefined;
 
     post.newer && await fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
@@ -51,6 +51,6 @@ export async function load({ params, fetch, parent }) {
     }).then(json => earlier.set(json));
 
     return {
-        post, newer, earlier, ldjson, interactions: { replies }
+        post, newer, earlier, ldjson, interactions: { replies, mentions }
     };
 }
