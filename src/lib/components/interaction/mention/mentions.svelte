@@ -49,6 +49,11 @@
         }
 
         .citation-body {
+            font-size: 80%;
+            color: var(--text-color-secondary);
+        }
+
+        a {
             color: var(--text-color-secondary);
         }
     }

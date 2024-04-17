@@ -31,6 +31,9 @@ export async function POST({ url, locals, request }) {
     }
 
     delete payload.secret;
+
+    console.log('webmention callback payload', payload);
+
     const postRoute = payload.target.replace(`${siteConfig.url}/`, '').replace(/\/$/, '');
 
     const postRaw = await loadPostRaw(site, { route: postRoute, lang: 'en' });
