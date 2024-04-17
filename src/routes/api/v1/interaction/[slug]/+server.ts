@@ -11,6 +11,14 @@ export function GET({ params, locals }) {
 
     const replies = [...nativeInteractions.filter((comment: any) => comment.type === "reply"), ...webmentions.filter((mention: any) => mention.type === "reply")];
 
+    replies.forEach((reply: any) => {
+        if (reply.author?.email?.value) {
+            const email = reply.author.email;
+            delete email.value;
+        }
+        delete reply.ip;
+    });
+
     const mentions = [...nativeInteractions.filter((comment: any) => comment.type === "mention"), ...webmentions.filter((mention: any) => mention.type === "mention")]
 
     let body = JSON.stringify({ replies, mentions });
