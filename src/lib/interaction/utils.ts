@@ -33,7 +33,7 @@ export function encrypt(value: string, encodedKey: string | undefined = undefine
     let encrypted = cipher.update(value, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return {
-        value: Buffer.from(encrypted).toString('base64'),
+        encrypted: Buffer.from(encrypted).toString('base64'),
         algorithm,
         iv: iv.toString('hex'),
     }
@@ -48,7 +48,7 @@ export function decrypt(encrypted: EncryptedString, encodedKey: string | undefin
         encryptedValue = encrypted;
         algorithm = 'aes-256-gcm';
     } else {
-        encryptedValue = Buffer.from(encrypted.value, 'base64').toString('utf8');
+        encryptedValue = Buffer.from(encrypted.encrypted, 'base64').toString('utf8');
         algorithm = encrypted.algorithm;
     }
 
@@ -64,6 +64,12 @@ export function decrypt(encrypted: EncryptedString, encodedKey: string | undefin
 }
 
 export function commentToInteraction(comment: any): NativeInteraction {
+
+    function optional(value: any, key: string, callback?: (value: any) => any) {
+        return value && value !== '' ? {
+            [key]: callback ? callback(value) : value
+        } : {};
+    }
     if (comment.type === 'pingback') {
         return {
             type: 'mention',
@@ -74,39 +80,34 @@ export function commentToInteraction(comment: any): NativeInteraction {
             content: comment.text,
             author: Object.assign({
                 name: comment.author,
-            }, comment.email ? {
-                email: {
-                    value: encrypt(comment.email),
-                    hash: {
-                        md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
-                    }
-                },
-            } : {})
+            }, optional(comment.email, 'email', () => ({
+                value: encrypt(comment.email),
+                hash: {
+                    md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
+                }
+            })),)
         } as NativeMention;
     }
-    return {
+    return Object.assign({
         type: 'reply',
         channel: 'native',
         id: comment.id,
         author: Object.assign({
             name: comment.author,
-            url: comment.url,
-            user: comment.user,
             verifed: comment.verified,
-        }, comment.email ? {
-            email: {
+        },
+            optional(comment.user, 'user'),
+            optional(comment.url, 'url'),
+            optional(comment.email, 'email', () => ({
                 value: encrypt(comment.email),
                 hash: {
                     md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
                 }
-            },
-        } : {}),
+            })),
+        ),
         published: comment.date,
         content: comment.text,
         ip: encrypt(comment.ip),
-        target: comment.reply,
-        secret: {
-            sha1: comment.secret,
-        }
-    } as NativeReply;
+    }, optional(comment.reply, 'target')) as NativeReply;
+
 }

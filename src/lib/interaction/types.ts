@@ -9,7 +9,7 @@ interface Base {
 }
 
 export interface EncryptedString {
-    value: string;
+    encrypted: string;
     nonce?: string;
     iv?: string;
     algorithm?: string;

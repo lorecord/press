@@ -10,7 +10,7 @@ import { rehypePrism } from '$lib/markdown/rehype-prism';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import { getSystemConfig } from '../server/config';
-import type { Interaction } from './types';
+import type { Interaction, NativeInteraction } from './types';
 import { commentToInteraction, getInteractionsFoler } from './utils';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import path from 'path';
@@ -36,21 +36,23 @@ export function getNativeInteractionsFolder(site: any, { slug }: { slug: string 
             return filepath;
         }
     }
+}
 
+export function getCommentFolder(site: any, { slug }: { slug: string }) {
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);
-    let filepath = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
+    let filepath = `${DISCUSS_DIR}/zh-CN/${slug}.yaml`;
     if (!fs.existsSync(filepath)) {
-        console.error(`No discuss file found for ${slug}.`);
+        console.error(`No discuss file found for ${slug}.`, filepath);
         return;
     }
     return filepath;
 }
 
-export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+export function loadComment(site: any, { slug, id }: { slug: string, id: string }) {
 
     const systemConfig = getSystemConfig(site);
-    let filepath = getNativeInteractionsFolder(site, { slug });
+    let filepath = getCommentFolder(site, { slug });
 
     if (!filepath) {
         return;
@@ -67,11 +69,44 @@ export function loadNativeInteration(site: any, { slug, id }: { slug: string, id
         } else {
             comment.id += '';
         }
-        comment.text = commentMarkdown(comment.text, comment.id, systemConfig.domains?.primary);
     });
 
     let comment = parsed.comments?.find((comment: any) => comment.id === id);
-    return commentToInteraction(comment);
+    return parsed.replies?.find((comment: any) => comment.id === id) || commentToInteraction(comment);
+}
+
+export function loadComments(site: any, { slug }: { slug: string }) {
+
+    let filepath = getCommentFolder(site, { slug });
+
+    if (!filepath) {
+        return;
+    }
+
+    const systemConfig = getSystemConfig(site);
+
+    let file = fs.readFileSync(filepath, 'utf8');
+    let parsed = YAML.parse(file);
+
+    parsed.comments?.forEach((comment: any) => {
+        if (comment.email) {
+            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
+            comment.email;
+        }
+        if (!comment.id) {
+            comment.id = calcCommentId(comment, true);
+        } else {
+            comment.id += '';
+        }
+        delete comment.secret;
+        comment.ip;
+    });
+    parsed.comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return parsed.comments;
+}
+
+export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+    return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
 }
 
 export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
@@ -82,30 +117,20 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
         return;
     }
 
-    const systemConfig = getSystemConfig(site);
-
     let file = fs.readFileSync(filepath, 'utf8');
     let parsed = YAML.parse(file);
 
-    parsed.comments?.forEach((comment: any) => {
-        if (comment.email) {
-            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
-            delete comment.email;
+    const systemConfig = getSystemConfig(site);
+
+    parsed.forEach((interaction: any) => {
+        if (interaction.content) {
+            interaction.content = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
         }
-        if (!comment.id) {
-            comment.id = calcCommentId(comment, true);
-        } else {
-            comment.id += '';
-        }
-        delete comment.secret;
-        delete comment.ip;
-        comment.text = commentMarkdown(comment.text, comment.id, systemConfig.domains?.primary);
     });
-    parsed.comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.sdate).getTime());
-    return parsed.comments.map((comment: any): Interaction => commentToInteraction(comment));
+    return parsed.sort((a: NativeInteraction, b: NativeInteraction) => new Date(b.published).getTime() - new Date(a.published).getTime());
 }
 
-export function commentMarkdown(content: string, id: string, domain: string) {
+export function markdown(content: string, id: string, domain: string) {
     const parser = unified()
         .use(remarkParse)
         .use(remarkGfm)
@@ -189,9 +214,14 @@ export function commentMarkdown(content: string, id: string, domain: string) {
     // result = result.replace(/^<html><head><\/head><body>/, '');
     return result;
 }
-
-export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string }) {
-    let filepath = getNativeInteractionsFolder(site, { slug });
+export function saveNativeInterationNew(site: any, { slug }, interaction: NativeInteraction) {
+    let filepath = (() => {
+        const folder = getInteractionsFoler(site, { slug });
+        if (folder) {
+            const filepath = path.join(folder, 'native.yml');
+            return filepath;
+        }
+    })();
 
     if (!filepath) {
         return;
@@ -199,25 +229,69 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
 
     let folder = path.dirname(filepath);
 
-    let interactions: any = { lang, comments: [] };
+    let interactions: any = [];
     if (!fs.existsSync(folder)) {
         // create
         fs.mkdirSync(folder, { recursive: true });
-    } else {
+    } else if (fs.existsSync(filepath)) {
+        interactions = YAML.parse(fs.readFileSync(filepath, 'utf8'))
+    }
+
+    if (!interaction.id) {
+        interaction.id = calcCommentId(interaction, true);
+        console.log('new interaction', interaction);
+    }
+    if (!interaction.published) {
+        interaction.published = new Date().toISOString();
+    }
+
+    // TODO Attributes
+
+    interactions = interactions.filter((i: any) => i.id !== interaction.id);
+    interactions.push(interaction);
+
+    fs.writeFileSync(filepath, YAML.stringify(interactions.sort((a: NativeInteraction, b: NativeInteraction) => new Date(a.published).getTime() - new Date(b.published).getTime())));
+
+    return interaction;
+}
+export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply, type }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string }) {
+
+    let filepath = (() => {
+        const folder = getInteractionsFoler(site, { slug });
+        if (folder) {
+            const filepath = path.join(folder, 'native.yml');
+            return filepath;
+        }
+    })();
+
+    console.log('filepath', filepath);
+
+    if (!filepath) {
+        return;
+    }
+
+    let folder = path.dirname(filepath);
+
+    let interactions: any = [];
+    if (!fs.existsSync(folder)) {
+        // create
+        fs.mkdirSync(folder, { recursive: true });
+    } else if (fs.existsSync(filepath)) {
         interactions = YAML.parse(fs.readFileSync(filepath, 'utf8'))
     }
 
     let comment: any = {
-        author, user, email, url, text, ip, reply, date: new Date()
+        type, author, user, email, url, text, ip, reply, date: new Date()
     };
 
     comment.id = calcCommentId(comment, true);
 
-    interactions.comments.push(comment);
+    interactions.push(commentToInteraction(comment));
 
+    console.log('write file', filepath);
     fs.writeFileSync(filepath, YAML.stringify(interactions));
 
-    return comment;
+    return commentToInteraction(comment);
 }
 
 export function calcCommentId(comment: any, force: boolean = false) {
