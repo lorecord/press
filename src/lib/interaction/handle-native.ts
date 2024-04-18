@@ -10,9 +10,8 @@ import { rehypePrism } from '$lib/markdown/rehype-prism';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import { getSystemConfig } from '../server/config';
-import type { Interaction, NativeInteraction } from './types';
+import type { NativeInteraction } from './types';
 import { commentToInteraction, getInteractionsFoler } from './utils';
-import { loadPostRaw } from '$lib/post/handle-posts';
 import path from 'path';
 
 export interface Comment {
