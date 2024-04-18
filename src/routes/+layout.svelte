@@ -23,6 +23,21 @@
             display: inline-block;
             vertical-align: sub;
         }
+
+        @media print{
+            .article-content a[ref^="external"]::after,
+            .article-content a[href^="http"]:not([href*="${primaryDomain}"])::after,
+            .comment-body a[href^="http"]:not([href*="${primaryDomain}"])::after,
+            .comment-body a[ref^="external"]::after{
+                height: unset;
+                width: unset;
+                display: inline;
+                vertical-align: unset;
+                mask-zie: unset;
+                background-color: unset;
+                mask: unset;
+            }
+        }
     </style>
     `}
     {/if}
