@@ -22,7 +22,6 @@ export function loadWebmentions(site: any, postPath: string) {
     }
 
     if (!fs.existsSync(filepath)) {
-        console.error(`No webmention file found for ${filepath}.`);
         return [];
     }
     let file = fs.readFileSync(filepath, 'utf8');

@@ -11,7 +11,7 @@ export async function POST({ url, locals, request }) {
         error(404);
     }
 
-    const source = url.searchParams.get('source');
+    const source = url.searchParams.get('source') as string;
     const target = url.searchParams.get('target') as string;
 
     const postRoute = target.replace(`${site.url}/`, '');
