@@ -1,6 +1,15 @@
+import { loadPostRaw } from "$lib/post/handle-posts";
 import type { NativeInteraction, NativeMention, NativeReply } from "./types";
 import Crypto from 'crypto';
+import path from 'path';
 
+export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
+    const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
+    if (!postRaw) {
+        return '';
+    }
+    return path.dirname(postRaw.path) + '/.data/interactions/channels/';
+}
 export function commentToInteraction(comment: any): NativeInteraction {
     if (comment.type === 'pingback') {
         return {

@@ -11,7 +11,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import { getSystemConfig } from '../server/config';
 import type { Interaction } from './types';
-import { commentToInteraction } from './utils';
+import { commentToInteraction, getInteractionsFoler } from './utils';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import path from 'path';
 
@@ -29,13 +29,14 @@ export interface Comment {
 }
 
 export function getNativeInteractionsFolder(site: any, { slug }: { slug: string }) {
-    const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
-    if (postRaw) {
-        const filepath = path.dirname(postRaw.path) + '/.data/interactions/native.yml';
+    const folder = getInteractionsFoler(site, { slug });
+    if (folder) {
+        const filepath = path.join(folder, 'native.yml');
         if (fs.existsSync(filepath)) {
             return filepath;
         }
     }
+
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);
     let filepath = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;

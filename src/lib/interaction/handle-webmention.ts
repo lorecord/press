@@ -5,13 +5,13 @@ import { loadPostRaw } from '$lib/post/handle-posts';
 import type { WebmentionReply } from './types';
 import Crypto from 'crypto';
 import { getSiteConfig } from '$lib/server/config';
+import { getInteractionsFoler } from './utils';
 
 export function getWebmentionPathOfSource(site: any, postPath: string) {
-    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
-    if (!postRaw) {
-        return '';
+    const folder = getInteractionsFoler(site, { slug: postPath });
+    if (folder) {
+        return path.join(folder, 'webmention/source.yml');
     }
-    return path.dirname(postRaw.path) + '/.data/interactions/webmention/source.yml';
 }
 
 export function loadWebmentions(site: any, postPath: string) {
@@ -180,16 +180,21 @@ export async function sendWebmention({ source, target }: { source: string, targe
 
 export function sendWebmentions(site: any, postPath: string, targets: string[]) {
     const siteConfig = getSiteConfig(site, 'en');
+    const folder = getInteractionsFoler(site, { slug: postPath });
+    if (!folder) {
+        return;
+    }
+    const filepath = path.join(folder, 'webmention/target.yml');
+
     const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
     if (!postRaw) {
         return;
     }
-    const filepath = path.dirname(postRaw.path) + '/.data/interactions/webmention/target.yml';
 
     let mentions: any = [];
 
     if (!fs.existsSync(filepath)) {
-        fs.mkdirSync(path.dirname(filepath), { recursive: true });
+        fs.mkdirSync(folder, { recursive: true });
     } else {
         mentions = loadWebmentions(site, postPath);
     }
