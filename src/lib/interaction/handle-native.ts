@@ -46,7 +46,7 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
     let filepath = getNativeInteractionsFolder(site, { slug });
 
     if (!filepath) {
-        return;
+        return[];
     }
 
     let file = fs.readFileSync(filepath, 'utf8');

@@ -394,7 +394,7 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
 }
 
 export function convertToPost(site: any, raw: Raw) {
-    const { content, headings, processMeta } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
+    const { content, headings, processMeta } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
