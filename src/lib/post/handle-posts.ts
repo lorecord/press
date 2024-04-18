@@ -425,6 +425,10 @@ export function convertToPost(site: any, raw: Raw) {
 }
 
 function handleAuthors(site: any, attr: { author?: string, authors?: string[], lang: string } & any) {
+    
+    if(!attr){
+        return;
+    }
 
     const systemConfig = getSystemConfig(site);
     attr.isDefaultAuthor = !attr.author && !attr.authors;
