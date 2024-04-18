@@ -4,14 +4,22 @@ import path from 'path';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import type { WebmentionReply } from './types';
 import Crypto from 'crypto';
-import { getSiteConfig, getSystemConfig } from '$lib/server/config';
+import { getSiteConfig } from '$lib/server/config';
 
-export function loadWebmentions(site: any, postPath: string) {
+export function getWebmentionPathOfSource(site: any, postPath: string) {
     const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
     if (!postRaw) {
+        return '';
+    }
+    return path.dirname(postRaw.path) + '/.data/interactions/webmention/source.yml';
+}
+
+export function loadWebmentions(site: any, postPath: string) {
+    const filepath = getWebmentionPathOfSource(site, postPath);
+
+    if (!filepath) {
         return [];
     }
-    const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
 
     if (!fs.existsSync(filepath)) {
         console.error(`No webmention file found for ${filepath}.`);
@@ -45,11 +53,11 @@ export function loadWebmentions(site: any, postPath: string) {
 }
 
 export function saveWebmention(site: any, postPath: string, mention: any) {
-    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
-    if (!postRaw) {
+    const filepath = getWebmentionPathOfSource(site, postPath);
+
+    if (!filepath) {
         return;
     }
-    const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
 
     let mentions = [];
 
@@ -66,11 +74,11 @@ export function saveWebmention(site: any, postPath: string, mention: any) {
 }
 
 export function deleteWebmention(site: any, postPath: string, mention: any) {
-    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
-    if (!postRaw) {
+    const filepath = getWebmentionPathOfSource(site, postPath);
+
+    if (!filepath) {
         return;
     }
-    const filepath = path.dirname(postRaw.path) + '/.data/webmention/source.yml';
 
     let mentions = loadWebmentions(site, postPath);
     mentions = mentions.filter((m: any) => m.source !== mention.source);
@@ -176,7 +184,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[]) 
     if (!postRaw) {
         return;
     }
-    const filepath = path.dirname(postRaw.path) + '/.data/webmention/target.yml';
+    const filepath = path.dirname(postRaw.path) + '/.data/interactions/webmention/target.yml';
 
     let mentions: any = [];
 

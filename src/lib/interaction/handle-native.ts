@@ -12,6 +12,8 @@ import rehypeStringify from 'rehype-stringify';
 import { getSystemConfig } from '../server/config';
 import type { Interaction } from './types';
 import { commentToInteraction } from './utils';
+import { loadPostRaw } from '$lib/post/handle-posts';
+import path from 'path';
 
 export interface Comment {
     slug: string;
@@ -26,16 +28,33 @@ export interface Comment {
     type: string;
 }
 
-export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+export function getNativeInteractionsFolder(site: any, { slug }: { slug: string }) {
+    const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
+    if (postRaw) {
+        const filepath = path.dirname(postRaw.path) + '/.data/interactions/native.yml';
+        if (fs.existsSync(filepath)) {
+            return filepath;
+        }
+    }
     const { DISCUSS_DIR } = site.constants;
     const systemConfig = getSystemConfig(site);
-
-    let path = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
-    if (!fs.existsSync(path)) {
+    let filepath = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
+    if (!fs.existsSync(filepath)) {
         console.error(`No discuss file found for ${slug}.`);
-        return [];
+        return;
     }
-    let file = fs.readFileSync(path, 'utf8');
+    return filepath;
+}
+
+export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+
+    const systemConfig = getSystemConfig(site);
+    let filepath = getNativeInteractionsFolder(site, { slug });
+
+    if (!filepath) {
+        return;
+    }
+    let file = fs.readFileSync(filepath, 'utf8');
     let parsed = YAML.parse(file);
 
     parsed.comments?.forEach((comment: any) => {
@@ -56,18 +75,16 @@ export function loadNativeInteration(site: any, { slug, id }: { slug: string, id
 
 export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
 
-    const { DISCUSS_DIR } = site.constants;
+    let filepath = getNativeInteractionsFolder(site, { slug });
+
+    if (!filepath) {
+        return;
+    }
+
     const systemConfig = getSystemConfig(site);
 
-    let path = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
-    if (!fs.existsSync(path)) {
-        console.error(`No discuss file found for ${slug}.`);
-        return [];
-    }
-    let file = fs.readFileSync(path, 'utf8');
+    let file = fs.readFileSync(filepath, 'utf8');
     let parsed = YAML.parse(file);
-
-    console.log('path', path);
 
     parsed.comments?.forEach((comment: any) => {
         if (comment.email) {
@@ -173,17 +190,21 @@ export function commentMarkdown(content: string, id: string, domain: string) {
 }
 
 export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string }) {
+    let filepath = getNativeInteractionsFolder(site, { slug });
 
-    const { DISCUSS_DIR } = site.constants;
-    const systemConfig = getSystemConfig(site);
+    if (!filepath) {
+        return;
+    }
 
-    let folder = `${DISCUSS_DIR}/${lang || systemConfig.locale?.default}`;
-    let path = `${folder}/${slug}.yaml`;
+    let folder = path.dirname(filepath);
+
+    let interactions: any = { lang, comments: [] };
     if (!fs.existsSync(folder)) {
         // create
         fs.mkdirSync(folder, { recursive: true });
+    } else {
+        interactions = YAML.parse(fs.readFileSync(filepath, 'utf8'))
     }
-    let parsed = fs.existsSync(path) ? YAML.parse(fs.readFileSync(path, 'utf8')) : { lang, comments: [] };
 
     let comment: any = {
         author, user, email, url, text, ip, reply, date: new Date()
@@ -191,9 +212,9 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
 
     comment.id = calcCommentId(comment, true);
 
-    parsed.comments.push(comment);
+    interactions.comments.push(comment);
 
-    fs.writeFileSync(path, YAML.stringify(parsed));
+    fs.writeFileSync(filepath, YAML.stringify(interactions));
 
     return comment;
 }
