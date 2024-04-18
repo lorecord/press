@@ -6,11 +6,18 @@ import { env } from '$env/dynamic/private';
 import { getEnvConfig } from "$lib/server/config";
 
 export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
+    const folder = getPostFolder(site, { slug });
+    if (folder) {
+        return path.join(folder, '/.data/interactions/channels/');
+    }
+}
+
+export function getPostFolder(site: any, { slug }: { slug: string }) {
     const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
     if (!postRaw) {
         return '';
     }
-    return path.dirname(postRaw.path) + '/.data/interactions/channels/';
+    return path.dirname(postRaw.path);
 }
 
 function resolveKey(site: any, key: string | undefined) {
