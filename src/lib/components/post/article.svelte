@@ -375,6 +375,7 @@
         .article-extra {
             display: flex;
             flex-flow: column;
+            flex-wrap: wrap;
 
             ul {
                 display: flex;
