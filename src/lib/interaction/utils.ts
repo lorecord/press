@@ -1,9 +1,8 @@
 import { loadPostRaw } from "$lib/post/handle-posts";
 import type { EncryptedString, NativeInteraction, NativeMention, NativeReply } from "./types";
-import Crypto from 'crypto';
+import crypto from 'crypto';
 import path from 'path';
 import { env } from '$env/dynamic/private';
-
 
 export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
     const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
@@ -13,37 +12,51 @@ export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
     return path.dirname(postRaw.path) + '/.data/interactions/channels/';
 }
 
-export function encrypt(value: string, key: string | undefined = env.SECRET_KEY): EncryptedString {
-    if (!key) {
-        return { value };
+function resolveKey(key: string | undefined) {
+    return Buffer.from(key || env.SECRET_KEY, 'base64');
+}
+
+function genKey() {
+    const buffer = crypto.randomBytes(32);
+    const encodedKey = buffer.toString('base64');
+    return encodedKey;
+}
+
+export function encrypt(value: string, encodedKey: string | undefined = undefined, algorithm: string | undefined = undefined): EncryptedString | undefined {
+    if (!value) {
+        return;
     }
-    const cipher = Crypto.createCipheriv('aes-256-cbc', key, key);
+    const key = resolveKey(encodedKey);
+    algorithm = algorithm || 'aes-256-gcm';
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(value, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-
     return {
         value: Buffer.from(encrypted).toString('base64'),
-        algorithm: 'aes-256-cbc',
+        algorithm,
+        iv: iv.toString('hex'),
     }
 }
 
-export function decrypt(encrypted: EncryptedString, key: string | undefined = env.SECRET_KEY): string {
+export function decrypt(encrypted: EncryptedString, encodedKey: string | undefined = undefined): string {
+    const key = resolveKey(encodedKey);
 
     let encryptedValue;
     let algorithm;
     if (typeof encrypted === 'string') {
         encryptedValue = encrypted;
-        algorithm = 'aes-256-cbc';
+        algorithm = 'aes-256-gcm';
     } else {
         encryptedValue = Buffer.from(encrypted.value, 'base64').toString('utf8');
         algorithm = encrypted.algorithm;
     }
 
-    if (!key || !algorithm) {
+    if (!encodedKey || !algorithm) {
         return encryptedValue;
     }
 
-    const decipher = Crypto.createDecipheriv('aes-256-cbc', key, key);
+    const decipher = crypto.createDecipheriv(algorithm, key, Buffer.from(encrypted.iv || '', 'hex'));
     let decrypted = decipher.update(encryptedValue, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
 
@@ -55,7 +68,7 @@ export function commentToInteraction(comment: any): NativeInteraction {
         return {
             type: 'mention',
             channel: 'native',
-            id: comment.id || Crypto.createHash('md5').update(comment.url).digest('hex'),
+            id: comment.id || crypto.createHash('md5').update(comment.url).digest('hex'),
             published: comment.date,
             url: comment.url,
             content: comment.text,
@@ -63,11 +76,9 @@ export function commentToInteraction(comment: any): NativeInteraction {
                 name: comment.author,
             }, comment.email ? {
                 email: {
-                    value: {
-                        value: encrypt(comment.email)
-                    },
+                    value: encrypt(comment.email),
                     hash: {
-                        md5: comment.email_md5 || Crypto.createHash('md5').update(comment.email).digest('hex'),
+                        md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
                     }
                 },
             } : {})
@@ -84,11 +95,9 @@ export function commentToInteraction(comment: any): NativeInteraction {
             verifed: comment.verified,
         }, comment.email ? {
             email: {
-                value: {
-                    value: encrypt(comment.email)
-                },
+                value: encrypt(comment.email),
                 hash: {
-                    md5: comment.email_md5 || Crypto.createHash('md5').update(comment.email).digest('hex'),
+                    md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
                 }
             },
         } : {}),

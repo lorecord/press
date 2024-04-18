@@ -11,6 +11,7 @@ interface Base {
 export interface EncryptedString {
     value: string;
     nonce?: string;
+    iv?: string;
     algorithm?: string;
 }
 
