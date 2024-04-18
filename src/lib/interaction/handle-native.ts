@@ -219,7 +219,7 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
 
     comment.id = calcCommentId(comment, true);
 
-    interactions.push(commentToInteraction(comment));
+    interactions.push(commentToInteraction(site, comment));
 
     console.log('write file', filepath);
     fs.writeFileSync(filepath, YAML.stringify(interactions));
