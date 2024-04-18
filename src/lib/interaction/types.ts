@@ -1,5 +1,3 @@
-import type { WebSite } from 'schema-dts';
-
 interface Base {
     id: string;
     published: string;
@@ -18,10 +16,13 @@ export interface EncryptedString {
 
 export type HashString = {
     salt?: string;
+    i?: number;
 } & ({
     md5: string;
 } | {
     sha256: string;
+} | {
+    sha1: string;
 });
 
 
@@ -58,6 +59,7 @@ export type WebmentionReply = {
 export type NativeBase = {
     channel: 'native';
     ip?: EncryptedString;
+    secret?: HashString;
 }
 
 export type NativeReply = NativeBase & Reply;
