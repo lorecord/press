@@ -3,6 +3,7 @@ import type { EncryptedString, NativeInteraction, NativeMention, NativeReply } f
 import crypto from 'crypto';
 import path from 'path';
 import { env } from '$env/dynamic/private';
+import { getEnvConfig } from "$lib/server/config";
 
 export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
     const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
@@ -12,8 +13,8 @@ export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
     return path.dirname(postRaw.path) + '/.data/interactions/channels/';
 }
 
-function resolveKey(key: string | undefined) {
-    return Buffer.from(key || env.SECRET_KEY, 'base64');
+function resolveKey(site: any, key: string | undefined) {
+    return Buffer.from(key || getEnvConfig(site)?.private?.SECRET_KEY || env.SECRET_KEY, 'base64');
 }
 
 function genKey() {
@@ -22,11 +23,11 @@ function genKey() {
     return encodedKey;
 }
 
-export function encrypt(value: string, encodedKey: string | undefined = undefined, algorithm: string | undefined = undefined): EncryptedString | undefined {
+export function encrypt(site: any, value: string, encodedKey: string | undefined = undefined, algorithm: string | undefined = undefined): EncryptedString | undefined {
     if (!value) {
         return;
     }
-    const key = resolveKey(encodedKey);
+    const key = resolveKey(site, encodedKey);
     algorithm = algorithm || 'aes-256-gcm';
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -39,8 +40,8 @@ export function encrypt(value: string, encodedKey: string | undefined = undefine
     }
 }
 
-export function decrypt(encrypted: EncryptedString, encodedKey: string | undefined = undefined): string {
-    const key = resolveKey(encodedKey);
+export function decrypt(site: any, encrypted: EncryptedString, encodedKey: string | undefined = undefined): string {
+    const key = resolveKey(site, encodedKey);
 
     let encryptedValue;
     let algorithm;
@@ -63,7 +64,7 @@ export function decrypt(encrypted: EncryptedString, encodedKey: string | undefin
     return decrypted;
 }
 
-export function commentToInteraction(comment: any): NativeInteraction {
+export function commentToInteraction(site: any, comment: any): NativeInteraction {
 
     function optional(value: any, key: string, callback?: (value: any) => any) {
         return value && value !== '' ? {
@@ -81,7 +82,7 @@ export function commentToInteraction(comment: any): NativeInteraction {
             author: Object.assign({
                 name: comment.author,
             }, optional(comment.email, 'email', () => ({
-                value: encrypt(comment.email),
+                value: encrypt(site, comment.email),
                 hash: {
                     md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
                 }
@@ -99,7 +100,7 @@ export function commentToInteraction(comment: any): NativeInteraction {
             optional(comment.user, 'user'),
             optional(comment.url, 'url'),
             optional(comment.email, 'email', () => ({
-                value: encrypt(comment.email),
+                value: encrypt(site, comment.email),
                 hash: {
                     md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
                 }
@@ -107,7 +108,7 @@ export function commentToInteraction(comment: any): NativeInteraction {
         ),
         published: comment.date,
         content: comment.text,
-        ip: encrypt(comment.ip),
+        ip: encrypt(site, comment.ip),
     }, optional(comment.reply, 'target')) as NativeReply;
 
 }

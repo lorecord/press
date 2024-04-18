@@ -38,73 +38,6 @@ export function getNativeInteractionsFolder(site: any, { slug }: { slug: string 
     }
 }
 
-export function getCommentFolder(site: any, { slug }: { slug: string }) {
-    const { DISCUSS_DIR } = site.constants;
-    const systemConfig = getSystemConfig(site);
-    let filepath = `${DISCUSS_DIR}/zh-CN/${slug}.yaml`;
-    if (!fs.existsSync(filepath)) {
-        console.error(`No discuss file found for ${slug}.`, filepath);
-        return;
-    }
-    return filepath;
-}
-
-export function loadComment(site: any, { slug, id }: { slug: string, id: string }) {
-
-    const systemConfig = getSystemConfig(site);
-    let filepath = getCommentFolder(site, { slug });
-
-    if (!filepath) {
-        return;
-    }
-    let file = fs.readFileSync(filepath, 'utf8');
-    let parsed = YAML.parse(file);
-
-    parsed.comments?.forEach((comment: any) => {
-        if (comment.email) {
-            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
-        }
-        if (!comment.id) {
-            comment.id = calcCommentId(comment, true);
-        } else {
-            comment.id += '';
-        }
-    });
-
-    let comment = parsed.comments?.find((comment: any) => comment.id === id);
-    return parsed.replies?.find((comment: any) => comment.id === id) || commentToInteraction(comment);
-}
-
-export function loadComments(site: any, { slug }: { slug: string }) {
-
-    let filepath = getCommentFolder(site, { slug });
-
-    if (!filepath) {
-        return;
-    }
-
-    const systemConfig = getSystemConfig(site);
-
-    let file = fs.readFileSync(filepath, 'utf8');
-    let parsed = YAML.parse(file);
-
-    parsed.comments?.forEach((comment: any) => {
-        if (comment.email) {
-            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
-            comment.email;
-        }
-        if (!comment.id) {
-            comment.id = calcCommentId(comment, true);
-        } else {
-            comment.id += '';
-        }
-        delete comment.secret;
-        comment.ip;
-    });
-    parsed.comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    return parsed.comments;
-}
-
 export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
     return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
 }
@@ -214,7 +147,7 @@ export function markdown(content: string, id: string, domain: string) {
     // result = result.replace(/^<html><head><\/head><body>/, '');
     return result;
 }
-export function saveNativeInterationNew(site: any, { slug }, interaction: NativeInteraction) {
+export function saveNativeInterationNew(site: any, { slug }: { slug: string }, interaction: NativeInteraction) {
     let filepath = (() => {
         const folder = getInteractionsFoler(site, { slug });
         if (folder) {
