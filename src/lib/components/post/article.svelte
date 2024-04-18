@@ -216,7 +216,7 @@
                                 {/if}
                             </div>
                         {/if}
-                        {#if post.langs?.length > 0}
+                        {#if post.langs?.length > 1}
                             <div class="article-lang">
                                 <IconLanguage size={20} />
                                 <ul>
