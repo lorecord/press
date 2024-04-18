@@ -32,7 +32,7 @@ export async function load({ params, fetch, parent }) {
         error(409); // Gone
     }
 
-    const { replies, mentions } = post?.comment?.enable ? await fetch(`/api/v1/interaction/${route}`).then((r) => r.json()) : undefined;
+    const { replies, mentions } = post?.comment?.enable ? await fetch(`/api/v1/interaction/${route}`).then((r) => r.json()) : {replies: [], mentions: []};
 
     post.newer && await fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
