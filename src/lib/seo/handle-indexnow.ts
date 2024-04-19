@@ -44,6 +44,11 @@ export const requestIndexNow = async (site: any, url: string | string[]) => {
 }
 
 export const handleRequestIndexNow = async (site: any, { slug, lang }: { slug: string, lang: string }) => {
+    const systemConfig = getSystemConfig(site);
+    if (!systemConfig.bing?.indexnow?.enabled) {
+        return;
+    }
+
     const folder = getPostFolder(site, { slug });
     const filepath = path.join(folder, '/.data/seo/bing/indexnow.json');
     if (!fs.existsSync(folder)) {
