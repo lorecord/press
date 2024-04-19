@@ -27,7 +27,7 @@ Host: api.indexnow.org
  * @param url 
  */
 export const requestIndexNow = async (site: any, url: string | string[]) => {
-    const systemConfig = getSystemConfig(site.system);
+    const systemConfig = getSystemConfig(site);
     const key = systemConfig.bing?.indexnow?.key;
     const keyLocation = systemConfig.bing?.indexnow?.location;
     const host = systemConfig.primary?.domain;

@@ -1,6 +1,9 @@
 import { convertToPreview, loadAllPublicPostRaws } from "$lib/post/handle-posts";
+import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
+import { getSystemConfig } from "./config";
 import { sites } from './sites';
+import { getWorkerPool } from "./worker/init";
 
 let postRawsOfSite: any = {};
 let postsOfSite: any = {};
@@ -11,6 +14,7 @@ function load() {
         const { POSTS_DIR } = site.constants;
 
         const loadForSite = () => {
+            const systemConfig = getSystemConfig(site);
             const postRaws = loadAllPublicPostRaws(site);
 
             const posts = postRaws.map(raw => convertToPreview(raw));
@@ -42,6 +46,12 @@ function load() {
 
             postRawsOfSite[site.unique] = postRaws;
             postsOfSite[site.unique] = posts;
+
+            if (systemConfig.bing?.index?.enabled) {
+                getWorkerPool('bing').run({ site, posts }).then(() => {
+                    console.log(`indexed ${posts.length} posts for ${site.unique}`);
+                });
+            }
         }
 
         loadForSite();
