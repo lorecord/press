@@ -122,7 +122,7 @@ ${posts.map((post: any) => `
             : ``}
         ${post.authors && !post.isDefaultAuthor
             ? post.authors.map((author: any) => `<author>
-            <name>${author.name || author.account}</name>
+            <name>${author.name || author.account || author}</name>
         </author>`)
             : ``}
         ${post.contributors

@@ -26,13 +26,14 @@ export async function GET({ locals, params }) {
 
     cff['cff-version'] = '1.2.0';
     cff.message = 'If you use this content, please cite it as below.';
-    cff.authors = cff.authors || [systemConfig.user?.default].flat().map(author => {
-        return {
-            'family-names': author.familyNames || author,
-            'given-names': author.givenNames || author,
-            orcid: author.orcid || systemConfig.user?.default.orcid
-        };
-    });
+    cff.authors = cff.authors || [systemConfig.user?.default].flat().filter((author) => !!author)
+        .map(author => {
+            return {
+                'family-names': author.familyNames || author,
+                'given-names': author.givenNames || author,
+                orcid: author.orcid || systemConfig.user?.default.orcid
+            };
+        });
     cff.contact = [{
         affiliation: '',
         email: ''

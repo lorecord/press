@@ -43,7 +43,13 @@
         />
     {/if}
     {#if author}
-        <meta name="author" content={author} />
+        <meta
+            name="author"
+            content={[author]
+                .flat()
+                .map((author) => author.name || author.account || author)
+                .join(",")}
+        />
     {/if}
     {#if robots}
         <meta name="robots" content={flatJoin(robots, ",")} />

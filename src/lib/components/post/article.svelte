@@ -28,7 +28,7 @@
             <div class="article-meta">
                 {#if post.authors && !post.isDefaultAuthor}
                     {#each post.authors as author}
-                        <span>{author.name}</span>
+                        <span>{author.name || author.account || author}</span>
                     {/each}
                 {/if}
 
@@ -123,11 +123,11 @@
                                                 rel="author"
                                                 href={author.url ||
                                                     siteConfig.url}
-                                                >{author.name}</a
+                                                >{author.name || author.account || author}</a
                                             >
                                             <img
                                                 style="display:none"
-                                                alt={author.name}
+                                                alt={author.name || author.account || author}
                                                 class="u-photo"
                                                 src={siteConfig.url +
                                                     "/favicon.png"}

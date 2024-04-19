@@ -62,7 +62,7 @@
                 Object.assign(
                     {
                         "@type": "Person",
-                        name: author.name,
+                        name: author.name || author.account || author,
                     },
                     author.url
                         ? {
@@ -279,7 +279,15 @@
         />
     {/if}
 
-    <meta name="author" content={post.author || systemConfig.user?.default} />
+    {#if post.authors}
+    {@const authorString = post.authors.map((author) => author.name || author.account || author).join(",")}
+        <meta
+            name="author"
+            content={authorString}
+        />
+        <meta name="author" content={authorString} />
+        <meta name="og:article:author" content={authorString} />
+    {/if}
 
     {#if post.robots}
         <meta name="robots" content={post.robots.join(",")} />
@@ -287,7 +295,7 @@
     {#if post.googlebot}
         <meta name="googlebot" content={post.googlebot} />
     {/if}
-    {#if post.googlebot}
+    {#if post.google}
         <meta name="google" content={post.google} />
     {/if}
     {#if post.rating}
@@ -317,11 +325,6 @@
             property="og:audio"
             content="{siteConfig.url}{post.url}{post.audio}"
         />
-    {/if}
-
-    {#if post.author}
-        <meta name="author" content={post.author} />
-        <meta name="og:article:author" content={post.author} />
     {/if}
 
     {#if post.taxonomy?.category?.length > 0}
@@ -380,8 +383,6 @@
             content={systemConfig.locale?.default}
         />
     {/each}
-
-    {#if systemConfig.webmention?.enabled}{/if}
 
     {@html `<script type="application/ld+json">${JSON.stringify(
         json(),
