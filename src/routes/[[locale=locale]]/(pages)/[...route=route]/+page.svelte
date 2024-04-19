@@ -47,7 +47,7 @@
         templates[(post.template as string) || "default"] || templates.default;
 
     let json = () => {
-        let creatework: CreativeWork = {
+        let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
             image: post.image
@@ -55,23 +55,39 @@
                 : [`${siteConfig.url}/favicon.png`],
             datePublished: new Date(post.date).toISOString(),
             url: `${siteConfig.url}${post.url}`,
-            author: {
-                "@type": "Person",
-                name: post.author || systemConfig.user?.default,
-            },
         };
 
+        if (post.authors) {
+            let author = post.authors.map((author: any) =>
+                Object.assign(
+                    {
+                        "@type": "Person",
+                        name: author.name,
+                    },
+                    author.url
+                        ? {
+                              url: author.url,
+                          }
+                        : {},
+                ),
+            );
+            if (author.length === 1) {
+                author = author[0];
+            }
+            creativeWork.author = author;
+        }
+
         if (post.modified?.date) {
-            creatework.dateModified = new Date(
+            creativeWork.dateModified = new Date(
                 post.modified.date,
             ).toISOString();
         }
         if (post.summary) {
-            creatework.description = post.summary;
+            creativeWork.description = post.summary;
         }
 
         if (post.aggregateRating) {
-            creatework.aggregateRating = {
+            creativeWork.aggregateRating = {
                 "@type": "AggregateRating",
                 ratingValue: post.aggregateRating.value,
                 reviewCount: post.aggregateRating.count,
@@ -82,7 +98,7 @@
 
         if (post.template == "item") {
             if (post.review) {
-                creatework = Object.assign(creatework, {
+                creativeWork = Object.assign(creativeWork, {
                     "@type": "Review",
                     itemReviewed: {
                         "@type": post.review.item?.type,
@@ -99,21 +115,21 @@
                     reviewBody: post.review.body || post.summary,
                 } as Review);
             } else {
-                creatework = Object.assign(creatework, {
+                creativeWork = Object.assign(creativeWork, {
                     "@type": "Article",
                 } as SchemeArticle);
             }
         } else if (post.template == "links") {
-            creatework = creatework as WithContext<CreativeWork>;
+            creativeWork = creativeWork as WithContext<CreativeWork>;
         } else if (post.template == "default") {
-            creatework = Object.assign(creatework, {
+            creativeWork = Object.assign(creativeWork, {
                 "@type": "WebPage",
             } as WebPage);
         } else {
-            creatework = creatework as WithContext<CreativeWork>;
+            creativeWork = creativeWork as WithContext<CreativeWork>;
         }
 
-        let schema: WithContext<any> = Object.assign(creatework, {
+        let schema: WithContext<any> = Object.assign(creativeWork, {
             "@context": "https://schema.org",
         });
 

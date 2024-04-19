@@ -102,7 +102,7 @@
             <pre>{post.nostr.note}</pre>
         </details>
     {/if}
-    <details>
+    <details open>
         <summary><h4>{$t("common.comment_form")}</h4></summary>
         {#if replyToReply}
             <div class="reply-to">

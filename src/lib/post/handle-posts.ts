@@ -437,8 +437,8 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
         if (typeof author === 'string') {
             const account = getSiteAccount(site, author, attr.lang);
             if (account) {
-                const { name, id, ircid, url } = account;
-                return { name, id, ircid, url, account: author };
+                const { name, id, orcid, url } = account;
+                return { name, id, orcid, url, account: author };
             } else {
                 return { name: author, account: author };
             }

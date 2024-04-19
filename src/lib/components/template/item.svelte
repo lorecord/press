@@ -4,7 +4,7 @@
         IconArrowNarrowLeft,
         IconArrowNarrowRight,
     } from "@tabler/icons-svelte";
-    import { t } from "$lib/translations/index.js";
+    import { t, locale } from "$lib/translations/index.js";
 
     export let post: any;
     export let systemConfig: any;
@@ -57,6 +57,14 @@
             {#each post.related as r}
                 <li>
                     <h4>
+                        <time
+                            class="dt-published"
+                            datetime={new Date(post.date).toISOString()}
+                        >
+                            {new Intl.DateTimeFormat($locale, {
+                                dateStyle: "short",
+                            }).format(new Date(post.date))}
+                        </time>
                         <a href={r.post.url} data-related={r.score}
                             >{r.post.title}</a
                         >
