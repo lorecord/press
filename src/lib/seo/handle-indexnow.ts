@@ -30,9 +30,11 @@ export const requestIndexNow = async (site: any, url: string | string[]) => {
     const systemConfig = getSystemConfig(site);
     const key = systemConfig.bing?.indexnow?.key;
     const keyLocation = systemConfig.bing?.indexnow?.location;
-    const host = systemConfig.primary?.domain;
+    const host = systemConfig.domains?.primary;
     const urlList = [url].flat();
     const body = JSON.stringify({ host, key, keyLocation, urlList });
+
+    console.log('requestIndexNow', body);
     const response = await fetch('https://api.indexnow.org/IndexNow', {
         method: 'POST',
         headers: {
@@ -51,14 +53,17 @@ export const handleRequestIndexNow = async (site: any, { slug, lang }: { slug: s
 
     const folder = getPostFolder(site, { slug });
     const filepath = path.join(folder, '/.data/seo/bing/indexnow.json');
-    if (!fs.existsSync(folder)) {
-        fs.mkdirSync(folder, { recursive: true });
+    if (!fs.existsSync(path.dirname(filepath))) {
+        fs.mkdirSync(path.dirname(filepath), { recursive: true });
     }
     let data: any = {};
     if (fs.existsSync(filepath)) {
         data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
     }
     if (data.status !== 200) {
+        if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 1) {
+            return data;
+        }
         const siteConfig = getSiteConfig(site, lang || getSystemConfig(site).locale?.default);
 
         const response = await requestIndexNow(site, `${siteConfig.url}${slug}`);
@@ -66,6 +71,7 @@ export const handleRequestIndexNow = async (site: any, { slug, lang }: { slug: s
             status: response.status,
             updated: new Date().toISOString()
         }
+        console.log('response', await response.text());
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
     }
     return data;

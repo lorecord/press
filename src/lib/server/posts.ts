@@ -47,11 +47,10 @@ function load() {
             postRawsOfSite[site.unique] = postRaws;
             postsOfSite[site.unique] = posts;
 
-            if (systemConfig.bing?.index?.enabled) {
-                getWorkerPool('bing').run({ site, posts }).then(() => {
-                    console.log(`indexed ${posts.length} posts for ${site.unique}`);
-                });
+            for (const post of posts) {
+                handleRequestIndexNow(site, { slug: post.slug, lang: post.lang });
             }
+
         }
 
         loadForSite();

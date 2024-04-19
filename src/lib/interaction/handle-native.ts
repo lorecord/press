@@ -46,7 +46,7 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
     let filepath = getNativeInteractionsFolder(site, { slug });
 
     if (!filepath) {
-        return[];
+        return [];
     }
 
     let file = fs.readFileSync(filepath, 'utf8');
@@ -223,7 +223,7 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
     console.log('write file', filepath);
     fs.writeFileSync(filepath, YAML.stringify(interactions));
 
-    return commentToInteraction(comment);
+    return commentToInteraction(site, comment);
 }
 
 export function calcCommentId(comment: any, force: boolean = false) {
