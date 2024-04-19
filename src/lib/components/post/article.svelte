@@ -416,6 +416,7 @@
                 .article-license-meta {
                     display: flex;
                     gap: 1rem;
+                    flex-wrap: wrap;
                 }
 
                 .article-license-meta-item {
