@@ -14,7 +14,7 @@ export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
 
 export function getPostFolder(site: any, { slug }: { slug: string }) {
     const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
-    if (!postRaw) {
+    if (!postRaw || !postRaw.path) {
         return '';
     }
     return path.dirname(postRaw.path);

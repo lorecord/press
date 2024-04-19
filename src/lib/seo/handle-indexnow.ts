@@ -29,7 +29,7 @@ Host: api.indexnow.org
 export const requestIndexNow = async (site: any, url: string | string[]) => {
     const systemConfig = getSystemConfig(site);
     const key = systemConfig.bing?.indexnow?.key;
-    const keyLocation = systemConfig.bing?.indexnow?.location;
+    const keyLocation = systemConfig.bing?.indexnow?.location || `${systemConfig.domains?.primary}/${key}.txt`;
     const host = systemConfig.domains?.primary;
     const urlList = [url].flat();
     const body = JSON.stringify({ host, key, keyLocation, urlList });
@@ -66,12 +66,13 @@ export const handleRequestIndexNow = async (site: any, { slug, lang }: { slug: s
         }
         const siteConfig = getSiteConfig(site, lang || getSystemConfig(site).locale?.default);
 
-        const response = await requestIndexNow(site, `${siteConfig.url}${slug}`);
+        const response = await requestIndexNow(site, `${siteConfig.url}/${slug}/`);
         data = {
             status: response.status,
-            updated: new Date().toISOString()
+            updated: new Date().toISOString(),
+            url: `${siteConfig.url}/${slug}/`,
+            response: await response.text()
         }
-        console.log('response', await response.text());
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
     }
     return data;
