@@ -14,6 +14,7 @@
         WebPage,
     } from "schema-dts";
     import Mentions from "$lib/components/interaction/mention/mentions.svelte";
+    import spdxLicenseList from "spdx-license-list";
 
     export let data;
 
@@ -47,6 +48,13 @@
         templates[(post.template as string) || "default"] || templates.default;
 
     let json = () => {
+        const license = ((l) => {
+            if (spdxLicenseList[l]) {
+                return { licenseId: l, ...spdxLicenseList[l] };
+            }
+            return { licenseId: l, name: l, url: undefined };
+        })(post.license || systemConfig.license?.default);
+
         let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
@@ -55,6 +63,7 @@
                 : [`${siteConfig.url}/favicon.png`],
             datePublished: new Date(post.date).toISOString(),
             url: `${siteConfig.url}${post.url}`,
+            license: license.url || license.name,
         };
 
         if (post.authors) {
@@ -280,11 +289,10 @@
     {/if}
 
     {#if post.authors}
-    {@const authorString = post.authors.map((author) => author.name || author.account || author).join(",")}
-        <meta
-            name="author"
-            content={authorString}
-        />
+        {@const authorString = post.authors
+            .map((author) => author.name || author.account || author)
+            .join(",")}
+        <meta name="author" content={authorString} />
         <meta name="author" content={authorString} />
         <meta name="og:article:author" content={authorString} />
     {/if}
