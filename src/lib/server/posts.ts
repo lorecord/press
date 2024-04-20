@@ -1,7 +1,7 @@
 import { convertToPreview, loadAllPublicPostRaws } from "$lib/post/handle-posts";
 import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
-import { getSystemConfig } from "./config";
+import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites } from './sites';
 import { getWorkerPool } from "./worker/init";
 
@@ -15,6 +15,7 @@ function load() {
 
         const loadForSite = () => {
             const systemConfig = getSystemConfig(site);
+            const envConfig = getEnvConfig(site);
             const postRaws = loadAllPublicPostRaws(site);
 
             const posts = postRaws.map(raw => convertToPreview(raw));
@@ -47,10 +48,21 @@ function load() {
             postRawsOfSite[site.unique] = postRaws;
             postsOfSite[site.unique] = posts;
 
-            for (const post of posts) {
-                handleRequestIndexNow(site, { slug: post.slug, lang: post.lang });
+            if (systemConfig.seo?.indexnow?.enabled && systemConfig.domains?.primary) {
+                const siteConfig = getSiteConfig(site, systemConfig.locale?.default || 'en');
+                const tasks = postRaws
+                    .map((p) => ({
+                        url: `${siteConfig.url}${p?.attributes.url}`,
+                        folder: p?.path || ''
+                    }))
+                    .filter((p) => p.folder);
+                handleRequestIndexNow(tasks, {
+                    key: envConfig.INDEXNOW_KEY,
+                    keyLocation: systemConfig.indexnow.location,
+                    host: systemConfig.domains?.primary,
+                    dataFolder: site.constants.DATA_DIR
+                });
             }
-
         }
 
         loadForSite();

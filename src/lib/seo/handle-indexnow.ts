@@ -26,13 +26,18 @@ Host: api.indexnow.org
  * @param site 
  * @param url 
  */
-export const requestIndexNow = async (site: any, url: string | string[]) => {
-    const systemConfig = getSystemConfig(site);
-    const key = systemConfig.bing?.indexnow?.key;
-    const keyLocation = systemConfig.bing?.indexnow?.location || `${systemConfig.domains?.primary}/${key}.txt`;
-    const host = systemConfig.domains?.primary;
-    const urlList = [url].flat();
-    const body = JSON.stringify({ host, key, keyLocation, urlList });
+export const requestIndexNow = async (indexTasks: {
+    url: string;
+    callback: (response: any) => Promise<any>;
+}[], extra: {
+    key: string;
+    keyLocation?: string;
+    host: string;
+    dataFolder: string;
+}) => {
+    const urlList = indexTasks.map((t) => t.url);
+    const { host, key, keyLocation, dataFolder } = extra;
+    const body = JSON.stringify(Object.assign({ host, key, keyLocation, urlList }, keyLocation ? { keyLocation } : {}));
 
     console.log('requestIndexNow', body);
     const response = await fetch('https://api.indexnow.org/IndexNow', {
@@ -42,38 +47,78 @@ export const requestIndexNow = async (site: any, url: string | string[]) => {
         },
         body
     });
+
+    let data = {
+        status: response.status,
+        updated: new Date().toISOString(),
+        body,
+        response: await response.text()
+    }
+
+    const indexNowFolder = path.join(dataFolder, '/seo/indexnow');
+    if (!fs.existsSync(indexNowFolder)) {
+        fs.mkdirSync(indexNowFolder, { recursive: true });
+    }
+    fs.writeFileSync(path.join(indexNowFolder, 'indexnow.json'), JSON.stringify(data, null, 2));
+
     return response;
 }
 
-export const handleRequestIndexNow = async (site: any, { slug, lang }: { slug: string, lang: string }) => {
-    const systemConfig = getSystemConfig(site);
-    if (!systemConfig.bing?.indexnow?.enabled) {
+export const handleRequestIndexNow = async (pages: {
+    url: string;
+    folder: string;
+}[], extra: {
+    key: string;
+    keyLocation?: string;
+    host: string;
+    dataFolder: string;
+}) => {
+
+    let indexTasks = [];
+
+    const { dataFolder } = extra;
+    const globalIndexNowFile = path.join(dataFolder, '/seo/indexnow.json');
+    let globalIndexNow: any = {};
+    if (!fs.existsSync(globalIndexNowFile)) {
+        globalIndexNow = JSON.parse(fs.readFileSync(globalIndexNowFile, 'utf-8'));
+    }
+
+    if (new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 5) {
         return;
     }
 
-    const folder = getPostFolder(site, { slug });
-    const filepath = path.join(folder, '/.data/seo/bing/indexnow.json');
-    if (!fs.existsSync(path.dirname(filepath))) {
-        fs.mkdirSync(path.dirname(filepath), { recursive: true });
-    }
-    let data: any = {};
-    if (fs.existsSync(filepath)) {
-        data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
-    }
-    if (data.status !== 200) {
-        if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 1) {
-            return data;
+    for (const { url, folder } of pages) {
+        const filepath = path.join(folder, '/.data/seo/indexnow.json');
+        if (!fs.existsSync(path.dirname(filepath))) {
+            fs.mkdirSync(path.dirname(filepath), { recursive: true });
         }
-        const siteConfig = getSiteConfig(site, lang || getSystemConfig(site).locale?.default);
+        let data: any = {};
+        if (fs.existsSync(filepath)) {
+            data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+        }
 
-        const response = await requestIndexNow(site, `${siteConfig.url}/${slug}/`);
-        data = {
-            status: response.status,
-            updated: new Date().toISOString(),
-            url: `${siteConfig.url}/${slug}/`,
-            response: await response.text()
+        if (data.status !== 200) {
+            if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 1) {
+                return data;
+            }
+
+            indexTasks.push({
+                url,
+                callback: async (response: any) => {
+                    data = {
+                        status: response.status,
+                        updated: new Date().toISOString(),
+                        url,
+                        response: await response.text()
+                    }
+                    fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+                }
+            });
         }
-        fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
     }
-    return data;
+
+    if (indexTasks.length > 0) {
+        const response: any = await requestIndexNow(indexTasks, extra);
+        return Promise.all(indexTasks.map((t) => t.callback(response)));
+    }
 }
