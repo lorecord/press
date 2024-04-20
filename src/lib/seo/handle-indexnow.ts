@@ -55,7 +55,7 @@ export const requestIndexNow = async (indexTasks: {
         response: await response.text()
     }
 
-    const indexNowFolder = path.join(dataFolder, '/seo/indexnow');
+    const indexNowFolder = path.join(dataFolder, '/seo');
     if (!fs.existsSync(indexNowFolder)) {
         fs.mkdirSync(indexNowFolder, { recursive: true });
     }
