@@ -118,6 +118,7 @@ export const handleRequestIndexNow = async (pages: {
     }
 
     if (indexTasks.length > 0) {
+        // TODO up to 10000 urls per post
         const response: any = await requestIndexNow(indexTasks, extra);
         return Promise.all(indexTasks.map((t) => t.callback(response)));
     }
