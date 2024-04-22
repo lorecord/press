@@ -268,10 +268,13 @@ export async function loadAllPosts() {
 
 export function buildPostByMarkdown(content: string, lang: string, rehypeFunction?: (tree: any) => void, options: any = {}) {
     const parser = createMarkdownParser({ rehypeFunction, lang, config: options });
-    let processed = parser.processSync(content);
-    let result = processed.value;
-    result = fixMarkdownHtmlWrapper(result.toString());
-    return { content: result, headings: processed.data.headings, processMeta: processed.data.processMeta };
+
+    if (content) {
+        let processed = parser.processSync(content);
+        let result = fixMarkdownHtmlWrapper(processed.value.toString());
+        return { content: result, headings: processed.data.headings, processMeta: processed.data.processMeta };
+    }
+    return { content: undefined, headings: [], processMeta: {} };
 }
 
 export function createMarkdownParser(options: any = {}) {
@@ -385,7 +388,6 @@ export function loadPostRaw(site: any, { route, lang }: { route: string, lang?: 
 
 export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
     const rawObject = loadPostRaw(site, { route, lang });
-
     if (rawObject) {
         const post = convertToPost(site, rawObject);
         return post;
@@ -425,8 +427,8 @@ export function convertToPost(site: any, raw: Raw) {
 }
 
 function handleAuthors(site: any, attr: { author?: string, authors?: string[], lang: string } & any) {
-    
-    if(!attr){
+
+    if (!attr) {
         return;
     }
 
