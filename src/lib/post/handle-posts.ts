@@ -29,6 +29,7 @@ import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config';
 import { getSiteAccount } from '$lib/server/accouns';
+import remarkLinks from '$lib/markdown/remark-links';
 
 const DEFAULT_ATTRIBUTE_MAP: any = {
     default: {
@@ -256,9 +257,9 @@ export function buildPostByMarkdown(content: string, lang: string, rehypeFunctio
     if (content) {
         let processed = parser.processSync(content);
         let result = fixMarkdownHtmlWrapper(processed.value.toString());
-        return { content: result, headings: processed.data.headings, processMeta: processed.data.processMeta };
+        return { content: result, headings: processed.data.headings, links: processed.data.links, processMeta: processed.data.processMeta };
     }
-    return { content: undefined, headings: [], processMeta: {} };
+    return { content: undefined, headings: [], links: [], processMeta: {} };
 }
 
 export function createMarkdownParser(options: any = {}) {
@@ -277,6 +278,7 @@ export function createMarkdownParser(options: any = {}) {
         .use(remarkFrontmatter)
         .use(remarkGfm)
         .use(remarkMath)
+        .use(remarkLinks)
         .use(remarkFng)
         .use(remarkAlert, { tagName: alertTagName })
         .use(remarkSlug)
@@ -380,7 +382,7 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
 }
 
 export function convertToPost(site: any, raw: Raw) {
-    const { content, headings, processMeta } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
+    const { content, headings, processMeta, links } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
@@ -406,7 +408,7 @@ export function convertToPost(site: any, raw: Raw) {
 
     handleAuthors(site, raw.attributes);
     return {
-        ...raw?.attributes, content, headings, processMeta
+        ...raw?.attributes, content, headings, processMeta, links
     };
 }
 
@@ -442,7 +444,7 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
 }
 
 export function convertToPostForFeed(site: any, raw: Raw) {
-    const { content, headings } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
+    const { content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
@@ -495,7 +497,7 @@ export function convertToPostForFeed(site: any, raw: Raw) {
     handleAuthors(site, raw.attributes);
 
     return {
-        ...raw?.attributes, content: feedContent, headings
+        ...raw?.attributes, content: feedContent, headings, links
     };
 }
 
