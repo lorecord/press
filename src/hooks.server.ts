@@ -165,7 +165,7 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
 export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
     const { site } = event.locals as any;
     const envConfig = getEnvConfig(site);
-    if (!envConfig.INDEXNOW_KEY && event.url.pathname === `${envConfig.INDEXNOW_KEY.text}`) {
+    if (!envConfig.INDEXNOW_KEY && event.url.pathname === `${envConfig.INDEXNOW_KEY}.txt`) {
         return new Response(process.env.INDEXNOW_KEY, {
             status: 200,
             headers: {
