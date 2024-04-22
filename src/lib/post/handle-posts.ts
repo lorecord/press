@@ -219,22 +219,6 @@ export function loadAllPostRaws(site: any) {
     return loadPostRaws(site, POSTS_DIR);
 }
 
-export function loadAllPublicPostRaws(site: any) {
-    const result = loadAllPostRaws(site)
-        .filter(r => r.attributes?.published)
-        .filter(r => r.attributes?.visible)
-        .filter(r => r.attributes?.routable)
-        .filter(r => new Date(r.attributes?.date).getTime() < Date.now())
-        .filter(r => {
-            let attr = r.attributes;
-            delete attr.published;
-            delete attr.routable;
-            return true;
-        });
-
-    return result;
-}
-
 export function loadPostRaws(site: any, path: string) {
     let fileNames = globSync(`${path}/**/*.md`);
     if (!fileNames?.length) {

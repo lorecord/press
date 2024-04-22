@@ -67,6 +67,7 @@ export const requestIndexNow = async (indexTasks: {
 export const handleRequestIndexNow = async (pages: {
     url: string;
     folder: string;
+    modified?: string;
 }[], extra: {
     key: string;
     keyLocation?: string;
@@ -83,11 +84,11 @@ export const handleRequestIndexNow = async (pages: {
         globalIndexNow = JSON.parse(fs.readFileSync(globalIndexNowFile, 'utf-8'));
     }
 
-    if (new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 5) {
+    if (new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
         return;
     }
 
-    for (const { url, folder } of pages) {
+    for (const { url, folder, modified } of pages) {
         const filepath = path.join(folder, '/.data/seo/indexnow.json');
         if (!fs.existsSync(path.dirname(filepath))) {
             fs.mkdirSync(path.dirname(filepath), { recursive: true });
@@ -98,8 +99,12 @@ export const handleRequestIndexNow = async (pages: {
         }
 
         if (data.status !== 200) {
-            if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 1) {
-                return data;
+            if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
+                continue;
+            }
+
+            if (modified && new Date(modified).getTime() < new Date(data.updated).getTime()) {
+                continue;
             }
 
             indexTasks.push({

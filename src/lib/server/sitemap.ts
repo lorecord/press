@@ -1,4 +1,4 @@
-import { loadAllPublicPostRaws } from "$lib/post/handle-posts";
+import { getPublicPostRaws } from "./posts";
 
 /**
  * @param {string} date 
@@ -10,7 +10,7 @@ function formatDate(date: Date) {
 }
 
 function build(site: any) {
-    let postRaws = loadAllPublicPostRaws(site);
+    let postRaws = getPublicPostRaws(site);
 
     let map: any = {};
 

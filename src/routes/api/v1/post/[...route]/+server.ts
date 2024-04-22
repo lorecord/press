@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { loadPost } from "$lib/post/handle-posts";
-import { getPosts, findRelatedPosts } from "$lib/server/posts";
+import { getPublicPosts, findRelatedPosts } from "$lib/server/posts";
 
 export async function GET({ params, url, locals }) {
     const { site } = locals as { site: any };
@@ -15,7 +15,7 @@ export async function GET({ params, url, locals }) {
         return new Response('{}', { status: 404 });
     }
 
-    const posts = getPosts(site);
+    const posts = getPublicPosts(site);
     const postInCollection = posts.find((p: any) => p.slug === post.slug);
 
     if (postInCollection) {

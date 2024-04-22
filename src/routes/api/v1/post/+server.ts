@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getPosts } from "$lib/server/posts";
+import { getPublicPosts } from "$lib/server/posts";
 import { getSystemConfig } from '$lib/server/config.js';
 
 export function GET({ url, locals }) {
@@ -12,7 +12,7 @@ export function GET({ url, locals }) {
     const limit = url.searchParams.get('limit');
     let lang: string | null = url.searchParams.get('lang');
 
-    let collection = getPosts(site);
+    let collection = getPublicPosts(site);
 
     if (template) {
         const templates = template.split('|');
