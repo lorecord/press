@@ -72,7 +72,7 @@
         <div class="article-aside no-print">
             {#if post.toc && post.headings}
                 <aside class="article-toc">
-                    <details>
+                    <details open>
                         <summary>
                             <h3>{$t("common.toc")}</h3>
                         </summary>
