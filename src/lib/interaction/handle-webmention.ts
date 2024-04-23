@@ -6,6 +6,7 @@ import type { WebmentionReply } from './types';
 import Crypto from 'crypto';
 import { getSiteConfig } from '$lib/server/config';
 import { getInteractionsFoler } from './utils';
+import { parse } from 'node-html-parser';
 
 export function getWebmentionPathOfSource(site: any, postPath: string) {
     const folder = getInteractionsFoler(site, { slug: postPath });
@@ -126,8 +127,7 @@ const resolveEndpoint = async (url: string) => {
                     }
                     return '';
                 }).then((content) => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(content, 'text/html');
+                    const doc = parse(content);
                     const links = doc.querySelectorAll('link[rel="webmention"]');
                     for (const link of links) {
                         return link.getAttribute('href');

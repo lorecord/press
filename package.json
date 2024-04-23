@@ -30,6 +30,7 @@
 		"lodash.debounce": "^4.0.8",
 		"mdsvex": "^0.11.0",
 		"mermaid": "^10.9.0",
+		"node-html-parser": "^6.1.13",
 		"rehype": "^12.0.1",
 		"rehype-autolink-headings": "^6.1.1",
 		"rehype-external-links": "^2.0.1",
