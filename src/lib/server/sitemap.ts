@@ -15,6 +15,7 @@ function build(site: any) {
     let map: any = {};
 
     let filteredPostRaws = postRaws
+        .filter((post: any) => post.attributes?.visible)
         .filter((post: any) => {
             let robots = post.attributes?.robots;
             if (!robots) {

@@ -28,8 +28,9 @@ export async function GET({ request, locals }) {
 
     let postRaws = getPublicPostRaws(site);
     let posts = postRaws.map((p: any) => convertToPostForFeed(site, p))
-        .filter(p => p.template == 'item')
-        .filter(p => p.lang === lang);
+        .filter((p: any) => p.template == 'item')
+        .filter((p: any) => p.visible)
+        .filter((p: any) => p.lang === lang);
 
     posts = posts?.slice(0, 20);
 
