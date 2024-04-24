@@ -58,7 +58,7 @@ function load() {
                 aliases: system.domains?.aliases || []
             },
             constants: {
-                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE, ACCOUNTS_DIR
+                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE, ACCOUNTS_DIR, ENV_CONFIG_FILE
             },
             system,
             env

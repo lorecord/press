@@ -21,7 +21,6 @@ export function getPostFolder(site: any, { slug }: { slug: string }) {
 }
 
 function resolveKey(site: any, key: string | undefined) {
-    console.log('getEnvConfig(site)?.private?.SECRET_KEY || env.SECRET_KEY', getEnvConfig(site)?.private?.SECRET_KEY?.length);
     return Buffer.from(key || getEnvConfig(site)?.private?.SECRET_KEY || env.SECRET_KEY, 'base64');
 }
 

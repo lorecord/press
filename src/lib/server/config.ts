@@ -11,16 +11,16 @@ let envOfSite: any = {};
 function load() {
     for (const site of sites) {
         const { CONFIG_DIR, SYSTEM_CONFIG_FILE, ENV_CONFIG_FILE } = site.constants;
+
         const loadForSite = () => {
             const system = loadConfig(SYSTEM_CONFIG_FILE);
             systemOfSite[site.unique] = system;
             site.system = system;
 
+            console.log('ENV_CONFIG_FILE', ENV_CONFIG_FILE);
             const env = loadConfig(ENV_CONFIG_FILE);
             envOfSite[site.unique] = env;
             site.env = env;
-
-            console.log('[server/config.ts] loadForSite', site.unique, Object.keys(env.private || {}));
 
             let sitesResource = detectResourceLocales(`${CONFIG_DIR}/site.yml`);
 
@@ -47,8 +47,6 @@ function getSystemConfig(site: any) {
 }
 
 function getEnvConfig(site: any) {
-    console.log('[getEnvConfig]', site.unique, Object.keys(envOfSite[site.unique] || {}), Object.keys(site.env || {}));
-
     return envOfSite[site.unique] || site.env || {};
 }
 

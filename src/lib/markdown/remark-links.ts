@@ -45,10 +45,6 @@ const remarkLinks: Plugin = () => (tree: any, file: any) => {
         .filter((link) => !link.href.match(/^(https?|ftp):\/\/(localhost|127\.0\.0\.1|(.*\.)?example\.com)/));
 
     file.data.links = links;
-
-    if(links.length){
-        console.log('links', links.length, links.map(l => l.href).join('\n'));
-    }
 };
 
 
