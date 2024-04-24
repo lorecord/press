@@ -20,6 +20,8 @@ function load() {
             envOfSite[site.unique] = env;
             site.env = env;
 
+            console.log('[server/config.ts] loadForSite', site.unique, Object.keys(env.private));
+
             let sitesResource = detectResourceLocales(`${CONFIG_DIR}/site.yml`);
 
             let siteConfigLocales = sitesResource.locales?.map((resource: any) => {
@@ -45,6 +47,8 @@ function getSystemConfig(site: any) {
 }
 
 function getEnvConfig(site: any) {
+    console.log('[getEnvConfig]', site.unique, Object.keys(envOfSite[site.unique]), Object.keys(site.env));
+
     return envOfSite[site.unique] || site.env || {};
 }
 
