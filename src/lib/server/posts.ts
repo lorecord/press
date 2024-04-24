@@ -71,11 +71,12 @@ export function getPublishedPostRaws(site: any) {
         .filter((raw: any) => raw.attributes?.routable)
         .filter((raw: any) => raw.attributes?.published)
         .filter((raw: any) => new Date(raw.attributes?.date).getTime() < Date.now())
-        .filter((raw: any) => {
-            let attr = raw.attributes;
+        .map((raw: any) => {
+            let attr = Object.assign({}, raw.attributes);
             delete attr.routable;
             delete attr.published;
-            return true;
+            let newRaw = Object.assign({}, raw);
+            return newRaw;
         })
         || [];
 }
