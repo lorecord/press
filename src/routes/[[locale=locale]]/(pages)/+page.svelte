@@ -35,6 +35,21 @@
 {/if}
 
 <svelte:head>
+    {#if systemConfig.git?.repo}
+        <link rel="vcs-git" href={systemConfig.git?.repo} />
+    {/if}
+    {#if systemConfig.openid?.server}
+        <link rel="openid.server" href={systemConfig.openid?.server} />
+        <link rel="openid.delegate" href={systemConfig.openid?.delegate} />
+    {/if}
+    {#if systemConfig.openid2?.provider}
+        <link rel="openid2.provider" href={systemConfig.openid?.provider} />
+        <link rel="openid2.local_id" href={systemConfig.openid2?.local_id} />
+        <meta
+            http-equiv="X-XRDS-Location"
+            content={systemConfig.openid2["X-XRDS-Location"]}
+        />
+    {/if}
     {#if siteConfig.keywords}
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}

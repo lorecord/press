@@ -30,6 +30,7 @@
                         class="avatar rounded-circle"
                         src={`${gravatarBase}/avatar/${comment.email_md5}?s=48`}
                         alt={comment.author}
+                        referrerpolicy="no-referrer"
                     />
                 </a>
             {:else}
@@ -37,6 +38,7 @@
                     class="avatar rounded-circle"
                     src={`${gravatarBase}/avatar/${comment.email_md5}?s=48`}
                     alt={comment.author}
+                    referrerpolicy="no-referrer"
                 />
             {/if}
         </div>

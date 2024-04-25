@@ -46,6 +46,8 @@
 />
 
 <svelte:head>
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="generator" content="LorePress 0.0.1-alpha" />
     <meta property="og:site_name" content={siteConfig.title} />
 
     {#if siteConfig.issn}
