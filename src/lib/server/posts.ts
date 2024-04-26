@@ -46,7 +46,7 @@ function load() {
 
                 handleRequestIndexNow(tasks, {
                     key: envConfig.INDEXNOW_KEY,
-                    keyLocation: systemConfig.indexnow.location,
+                    keyLocation: systemConfig.seo?.indexnow?.location,
                     host: systemConfig.domains?.primary,
                     dataFolder: site.constants.DATA_DIR
                 });
