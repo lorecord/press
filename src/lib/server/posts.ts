@@ -42,7 +42,7 @@ function load() {
                         acc.push(current);
                     }
                     return acc;
-                }, {});
+                }, []);
 
                 handleRequestIndexNow(tasks, {
                     key: envConfig.INDEXNOW_KEY,
