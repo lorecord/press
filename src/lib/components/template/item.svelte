@@ -59,11 +59,11 @@
                     <h4>
                         <time
                             class="dt-published"
-                            datetime={new Date(post.date).toISOString()}
+                            datetime={new Date(r.post.date).toISOString()}
                         >
                             {new Intl.DateTimeFormat($locale, {
                                 dateStyle: "short",
-                            }).format(new Date(post.date))}
+                            }).format(new Date(r.post.date))}
                         </time>
                         <a href={r.post.url} data-related={r.score}
                             >{r.post.title}</a
