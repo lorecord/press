@@ -51,7 +51,9 @@ export const requestIndexNow = async (indexTasks: {
     let data = {
         status: response.status,
         updated: new Date().toISOString(),
-        body,
+        body: {
+            host, urlList
+        },
         response: await response.text()
     }
 
@@ -59,6 +61,7 @@ export const requestIndexNow = async (indexTasks: {
     if (!fs.existsSync(indexNowFolder)) {
         fs.mkdirSync(indexNowFolder, { recursive: true });
     }
+
     fs.writeFileSync(path.join(indexNowFolder, 'indexnow.json'), JSON.stringify(data, null, 2));
 
     return response;
