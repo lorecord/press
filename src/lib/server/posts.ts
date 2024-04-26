@@ -3,7 +3,7 @@ import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites } from './sites';
-import { getWorkerPool } from "./worker/init";
+import path from 'path';
 
 let postRawsOfSite: any = {};
 let postsOfSite: any = {};
@@ -32,7 +32,7 @@ function load() {
                 let tasks = getPublishedPostRaws(site)
                     .map((p: any) => ({
                         url: `${siteConfig.url}${p?.attributes.url}`,
-                        folder: p?.path || '',
+                        folder: path.dirname(p?.path) || '',
                         modified: p?.attributes?.date || p?.attributes?.modified?.date
                     }))
                     .filter((p: any) => p.folder);
