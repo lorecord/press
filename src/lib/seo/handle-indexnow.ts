@@ -80,7 +80,7 @@ export const handleRequestIndexNow = async (pages: {
     const { dataFolder } = extra;
     const globalIndexNowFile = path.join(dataFolder, '/seo/indexnow.json');
     let globalIndexNow: any = {};
-    if (!fs.existsSync(globalIndexNowFile)) {
+    if (fs.existsSync(globalIndexNowFile)) {
         globalIndexNow = JSON.parse(fs.readFileSync(globalIndexNowFile, 'utf-8'));
     }
 
