@@ -101,7 +101,7 @@ export const handleRequestIndexNow = async (pages: {
             data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
         }
 
-        if (data.status !== 200) {
+        if (data.status < 200 || data.status > 299) {
             if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
                 continue;
             }
