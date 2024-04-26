@@ -164,6 +164,7 @@
             width: calc(var(--avatar-size));
             height: calc(var(--avatar-size));
             background: var(--bg-color);
+            object-fit: cover;
         }
     }
 
