@@ -123,11 +123,15 @@
                                                 rel="author"
                                                 href={author.url ||
                                                     siteConfig.url}
-                                                >{author.name || author.account || author}</a
+                                                >{author.name ||
+                                                    author.account ||
+                                                    author}</a
                                             >
                                             <img
                                                 style="display:none"
-                                                alt={author.name || author.account || author}
+                                                alt={author.name ||
+                                                    author.account ||
+                                                    author}
                                                 class="u-photo"
                                                 src={siteConfig.url +
                                                     "/favicon.png"}
@@ -252,8 +256,8 @@
                     opacity: 0;
                     transition: opacity 0.3s ease-in-out;
                     position: absolute;
-                    left: -1rem;
-                    width: 1rem;
+                    left: -1ch;
+                    width: 1ch;
                 }
 
                 &:hover {
