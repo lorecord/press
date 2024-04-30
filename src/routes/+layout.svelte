@@ -1,6 +1,5 @@
 <script lang="ts">
     export let data: any;
-
     $: ({ systemConfig } = data);
 </script>
 
@@ -28,6 +27,26 @@
     </style>
     `}
     {/if}
+
+    <script>
+        function getColorScheme() {
+            const preferScheme = localStorage.getItem("color-scheme");
+            if (typeof preferScheme === "string") {
+                return preferScheme;
+            }
+
+            const mql = window.matchMedia("(prefers-color-scheme: dark)");
+            if (typeof mql.matches === "boolean") {
+                return mql.matches ? "dark" : "light";
+            }
+            return light;
+        }
+
+        function setColorScheme(scheme: string) {
+            localStorage.setItem("color-scheme", scheme);
+            document.documentElement.setAttribute("data-color-scheme", scheme);
+        }
+    </script>
 </svelte:head>
 
 <slot />
