@@ -11,7 +11,7 @@
     export let siteConfig: any;
 </script>
 
-<article>
+<article class="typography">
     <div class="article-header container">
         {#if post.image}
             <img
