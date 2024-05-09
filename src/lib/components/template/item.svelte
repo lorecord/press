@@ -5,6 +5,7 @@
         IconArrowNarrowRight,
     } from "@tabler/icons-svelte";
     import { t, locale } from "$lib/translations/index.js";
+    import PostRelated from "$lib/components/post/related.svelte";
 
     export let post: any;
     export let systemConfig: any;
@@ -53,25 +54,7 @@
         <h3 style="text-align: center">
             {$t("common.related_lead_title")}
         </h3>
-        <ul class="related">
-            {#each post.related as r}
-                <li>
-                    <h4>
-                        <time
-                            class="dt-published"
-                            datetime={new Date(r.post.date).toISOString()}
-                        >
-                            {new Intl.DateTimeFormat($locale, {
-                                dateStyle: "short",
-                            }).format(new Date(r.post.date))}
-                        </time>
-                        <a href={r.post.url} data-related={r.score}
-                            >{r.post.title}</a
-                        >
-                    </h4>
-                </li>
-            {/each}
-        </ul>
+        <PostRelated related={post.related} />
     {/if}
 </div>
 
@@ -95,6 +78,7 @@
                 align-items: center;
                 gap: 0.5rem;
                 color: var(--text-color-tertiary);
+                font-size: 67%;
             }
         }
 
@@ -103,11 +87,6 @@
                 justify-content: right;
             }
         }
-    }
-
-    .related {
-        list-style: none;
-        color: var(--text-color-tertiary);
     }
 
     @media screen and (max-width: 600px) {

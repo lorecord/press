@@ -28,7 +28,7 @@
     <PostTimeline {posts} />
 </div>
 
-<style>
+<style lang="scss">
     .archives {
         display: flex;
         flex-flow: column;

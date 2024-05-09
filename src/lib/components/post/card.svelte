@@ -63,6 +63,7 @@
     h2 {
         margin-bottom: 0;
         flex: 1;
+        font-size: 1.33rem;
 
         a {
             &::before {
@@ -78,7 +79,6 @@
 
     .article-meta {
         color: var(--text-color-tertiary);
-        padding-top: 0.5rem;
     }
 
     .content {

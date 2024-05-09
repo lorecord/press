@@ -15,7 +15,7 @@
             }
             acc[year].push(post);
             return acc;
-        }, {})
+        }, {}),
     );
 </script>
 
@@ -28,14 +28,14 @@
                     datetime={new Date(post.date).toISOString()}
                 >
                     {new Intl.DateTimeFormat($locale).format(
-                        new Date(post.date)
+                        new Date(post.date),
                     )}
                 </time>
                 <h3><a href={post.url}>{post.title}</a></h3>
             </li>
         {/each}
         <li class="timeline-item">
-            <h3>{yearGroup.year}</h3>
+            <h2>{yearGroup.year}</h2>
         </li>
     {/each}
 </ul>
@@ -65,6 +65,18 @@
         display: flex;
         gap: 0.25rem;
         align-items: center;
+
+        h2,
+        h3 {
+            margin: 0.33em 0 0.33em;
+        }
+
+        h2 {
+            font-size: 1.667rem;
+        }
+        h3 {
+            font-size: 1.333rem;
+        }
     }
 
     .timeline-item::before {
