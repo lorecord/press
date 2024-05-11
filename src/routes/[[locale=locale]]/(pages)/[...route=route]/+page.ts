@@ -25,9 +25,6 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    if (!post?.content) {
-        error(404);
-    }
     if (!post?.published) {
         error(409); // Gone
     }

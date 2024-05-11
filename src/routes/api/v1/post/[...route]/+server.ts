@@ -11,7 +11,8 @@ export async function GET({ params, url, locals }) {
     }
     const lang = url.searchParams.get('lang');
     const post = await loadPost(site, { route, lang: lang || undefined });
-    if (!post || !post.content) {
+
+    if (!post) {
         return new Response('{}', { status: 404 });
     }
 
