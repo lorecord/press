@@ -122,7 +122,7 @@ export const handleRequestIndexNow = async (pages: {
                         status: response.status,
                         updated: new Date().toISOString(),
                         url,
-                        response: await response.text()
+                        response: response.text()
                     }
                     fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
                 }
