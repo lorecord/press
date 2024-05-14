@@ -81,17 +81,21 @@ export const handleRequestIndexNow = async (pages: {
     let indexTasks = [];
 
     const { dataFolder } = extra;
+    if (!dataFolder) {
+        return;
+    }
     const globalIndexNowFile = path.join(dataFolder, '/seo/indexnow.json');
     let globalIndexNow: any = {};
     if (fs.existsSync(globalIndexNowFile)) {
         globalIndexNow = JSON.parse(fs.readFileSync(globalIndexNowFile, 'utf-8'));
     }
 
-    if (new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
+    if (globalIndexNow.updated && new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
         return;
     }
 
     for (const { url, folder, modified } of pages) {
+
         const filepath = path.join(folder, '/.data/seo/indexnow.json');
         if (!fs.existsSync(path.dirname(filepath))) {
             fs.mkdirSync(path.dirname(filepath), { recursive: true });
@@ -101,7 +105,8 @@ export const handleRequestIndexNow = async (pages: {
             data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
         }
 
-        if (data.status < 200 || data.status > 299) {
+
+        if (!data.status || data.status < 200 || data.status > 299) {
             if (new Date(data.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
                 continue;
             }
