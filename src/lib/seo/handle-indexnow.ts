@@ -54,6 +54,12 @@ export const requestIndexNow = async (indexTasks: {
     } catch (e) {
         console.error('requestIndexNow', e);
     }
+
+    let responseData = {
+        status: response.status,
+        text: responseText
+    }
+
     let data = {
         status: response.status,
         updated: new Date().toISOString(),
@@ -70,7 +76,7 @@ export const requestIndexNow = async (indexTasks: {
 
     fs.writeFileSync(path.join(indexNowFolder, 'indexnow.json'), JSON.stringify(data, null, 2));
 
-    return response;
+    return responseData;
 }
 
 export const handleRequestIndexNow = async (pages: {
@@ -123,18 +129,12 @@ export const handleRequestIndexNow = async (pages: {
 
             indexTasks.push({
                 url,
-                callback: async (response: any) => {
-                    let responseText = '';
-                    try {
-                        responseText = response.text();
-                    } catch (e) {
-                        console.error('handleRequestIndexNow', e);
-                    }
+                callback: async ({ text, status }: any) => {
                     data = {
-                        status: response.status,
+                        status: status,
                         updated: new Date().toISOString(),
                         url,
-                        response: responseText
+                        response: text
                     }
                     fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
                 }
