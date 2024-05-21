@@ -95,7 +95,7 @@
 
 <div class="articles container">
     {#each posts as post, index}
-        <PostCard {post} showContent={index == 0} />
+        <PostCard {post} showContent={true} />
     {/each}
 
     <a
