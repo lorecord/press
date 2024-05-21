@@ -47,6 +47,7 @@
         display: flex;
         flex-flow: column;
         gap: 1rem;
+        margin: 0;
 
         &.reverse {
             flex-flow: column-reverse;
