@@ -316,14 +316,16 @@
             overflow: hidden;
         }
 
-        .article-header {
+        > :first-child {
             border-top-left-radius: var(--article-border-radius);
             border-top-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
-        .article-footer {
+        > :last-child {
             border-bottom-left-radius: var(--article-border-radius);
             border-bottom-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
         .article-body {

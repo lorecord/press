@@ -21,7 +21,7 @@ body {
 }
 
 p {
-    margin: 0.5em 0;
+    margin: 0.667em 0;
 }
 
 h1,
@@ -30,7 +30,7 @@ h3,
 h4,
 h5,
 h6 {
-    margin: 1.33em 0 0.5em;
+    margin: 1.133em 0 0.33em;
 }
 
 .typography {
@@ -60,8 +60,14 @@ h6 {
     }
 }
 
-ul {
+ul,
+ol {
     padding-left: var(--content-padding);
+    margin: 0.667em 0;
+}
+
+li{
+    margin: 0.133em 0;
 }
 
 a {
@@ -87,7 +93,7 @@ code:not([class*="language-"]) {
 
 pre {
     padding: 1rem;
-    margin: 0.5em 0;
+    margin: 0.667em 0;
     overflow-x: auto;
     word-break: break-all;
     word-wrap: break-word;
