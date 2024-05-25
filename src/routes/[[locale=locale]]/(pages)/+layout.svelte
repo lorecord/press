@@ -190,7 +190,7 @@
     {/if}
 </svelte:head>
 
-<div class="layout">
+<div class="layout" lang={$locale}>
     <LoadingBar bind:this={loadingBar} />
     <Header
         {posts}

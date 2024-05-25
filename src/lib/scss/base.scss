@@ -17,9 +17,14 @@ body {
     scrollbar-color: var(--scrollbar-color);
     color: var(--text-color);
     line-height: 1.5;
+    font-size: 18px;
+    text-shadow: 0 0 0.75px #82828200;
+}
+
+[lang="zh"],
+[lang^="zh-"] {
     font-size: 16px;
     font-family: serif;
-    text-shadow: 0 0 .75px #82828200;
 }
 
 p {
@@ -68,7 +73,7 @@ ol {
     margin: 0.667em 0;
 }
 
-li{
+li {
     margin: 0.133em 0;
 }
 
