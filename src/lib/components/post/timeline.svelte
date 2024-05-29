@@ -85,9 +85,13 @@
         left: 13px;
         width: 12px;
         height: 12px;
-        background-color: rgb(107, 107, 107);
+        background-color: var(--bg-color);
         border: 2px solid rgb(107, 107, 107);
         border-radius: 50%;
+
+        @media (prefers-color-scheme: dark) {
+            background-color: rgb(107, 107, 107);
+        }
     }
 
     .timeline-item time {
