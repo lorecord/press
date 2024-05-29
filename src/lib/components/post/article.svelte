@@ -252,12 +252,14 @@
                 position: relative;
 
                 :global(a.heading-anchor-link) {
+                    --width: 1.33ch;
                     visibility: hidden;
                     opacity: 0;
                     transition: opacity 0.3s ease-in-out;
                     position: absolute;
-                    left: -1ch;
-                    width: 1ch;
+                    left: calc(var(--width) * -1);
+                    width: var(--width);
+                    font-weight: lighter;
                 }
 
                 &:hover {
