@@ -8,6 +8,7 @@
         --text-color-tertiary: rgba(255, 255, 255, 0.333);
         --text-color-quaternary: rgba(255, 255, 255, 0.25);
         --text-color-quinary: rgba(255, 255, 255, 0.167);
+        --text-color-senary: rgba(255, 255, 255, 0.083);
         --text-color-success: #109510;
 
         --link-color: #2a99ee;
@@ -20,6 +21,8 @@
 
         --code-bg-color: #000000aa;
         --code-color: var(--text-color);
+
+        --input-border: none;
     }
 
     :root {

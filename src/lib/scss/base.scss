@@ -162,7 +162,7 @@ button,
 input {
     padding: 1rem 1rem 0.5rem;
     border-radius: 0.25rem;
-    border: 1px solid transparent;
+    border: var(--input-border);
     background-color: var(--content-bg-color);
     color: var(--text-color);
     display: block;
@@ -259,4 +259,11 @@ details {
             text-decoration: underline;
         }
     }
+}
+
+hr {
+    border-top: 1px solid var(--text-color-quinary);
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
 }

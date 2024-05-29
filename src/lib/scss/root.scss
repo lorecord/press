@@ -3,10 +3,12 @@
     --bg-color: #fafafa;
     --text-color: rgba(0, 0, 0, 0.667);
     --text-color-reverse: rgba(255, 255, 255, 0.667);
-    --text-color-primary: rgba(0, 0, 0, 0.833) --text-color-secondary: rgba(0, 0, 0, 0.5);
+    --text-color-primary: rgba(0, 0, 0, 0.833);
+    --text-color-secondary: rgba(0, 0, 0, 0.5);
     --text-color-tertiary: rgba(0, 0, 0, 0.333);
     --text-color-quaternary: rgba(0, 0, 0, 0.25);
     --text-color-quinary: rgba(0, 0, 0, 0.167);
+    --text-color-senary: rgba(0, 0, 0, 0.083);
     --text-color-success: #109510;
 
     --scrollbar-color: #666 #333;
@@ -23,9 +25,13 @@
     --code-color: var(--text-color-reverse);
 
     --font-text: "Noto Serif SC", Garamond, Georgia, Times, "Times New Roman", serif;
-    --font-heading: "Noto Serif SC", 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-heading: "Noto Serif SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-code: Consolas, monaco, monospace;
-    --font-cursive: 'Bradley Hand', Chalkboard, 'Comic Sans', Alexa;
+    --font-cursive: "Bradley Hand", Chalkboard, "Comic Sans", Alexa;
+
+    --input-border: 1px solid var(--text-color-senary);
+
+    --alert-warning-color: #cdda1c;
 }
 
 :root {
