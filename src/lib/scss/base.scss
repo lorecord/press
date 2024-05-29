@@ -17,7 +17,7 @@ body {
     scrollbar-color: var(--scrollbar-color);
     color: var(--text-color);
     line-height: 1.667;
-    font-size: 18px;
+    font-size: 20px;
     font-family: var(--font-text);
     text-shadow: 0 0 0.75px #82828200;
 }
@@ -25,7 +25,7 @@ body {
 [lang="zh"],
 [lang^="zh-"] {
     --font-text: serif;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 p {
@@ -126,12 +126,13 @@ pre {
 }
 
 blockquote {
-    background-color: var(--code-bg-color);
-    border-left: 0.25rem solid #ffffff45;
+    background-color: var(--bg-color);
     padding: 1rem;
     margin-left: 0;
     margin-right: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--blockquote-border-color);
+    border-left: 0.33rem solid var(--blockquote-border-color);
 }
 
 textarea {

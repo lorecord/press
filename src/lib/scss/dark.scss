@@ -15,7 +15,8 @@
 
         --content-bg-color: #fff1;
 
-        --pane-bg-color: rgba(0, 0, 0, 0.167);
+        --pane-bg-color: rgba(255, 255, 255, 0.083);
+        --blockquote-border-color: rgba(255, 255, 255, 0.167);
 
         --button-text-color: var(--text-color-primary);
 
@@ -27,5 +28,11 @@
 
     :root {
         --content-border: unset;
+    }
+
+    blockquote {
+        border-right: 0;
+        border-top: 0;
+        border-bottom: 0;
     }
 }
