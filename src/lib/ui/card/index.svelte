@@ -57,7 +57,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 0;
+        padding: 1rem 0 0 0;
     }
 
     :global(.card .header > *) {
@@ -67,7 +67,6 @@
     @media screen and (max-width: 600px) {
         .header {
             flex-flow: column;
-            gap: 1rem;
             align-items: unset;
         }
     }

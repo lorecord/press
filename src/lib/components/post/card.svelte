@@ -98,12 +98,10 @@
 
     @media screen and (max-width: 600px) {
         .article-meta {
-            margin-bottom: 0.5rem;
             padding-top: 0;
         }
         .content {
             flex-flow: column;
-            padding-bottom: 0;
         }
         .feature_image {
             flex: 0 0 100%;

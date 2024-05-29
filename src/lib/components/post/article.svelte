@@ -276,9 +276,14 @@
         color: var(--text-color-secondary);
 
         :global(~ ol) {
-            font-size: 90%;
+            font-size: 85%;
             color: var(--text-color-secondary);
         }
+    }
+
+    :global([id^="fn-"] p) {
+        margin: 0.333em 0;
+        line-height: 1.5;
     }
 
     article {
