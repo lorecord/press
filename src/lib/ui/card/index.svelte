@@ -57,7 +57,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 0 0 0;
+        padding: 1rem 0 0.667rem;
     }
 
     :global(.card .header > *) {
@@ -68,6 +68,7 @@
         .header {
             flex-flow: column;
             align-items: unset;
+            padding: 1rem 0 0;
         }
     }
 </style>
