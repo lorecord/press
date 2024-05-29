@@ -69,24 +69,3 @@ table {
 table > :not(caption) > * > * {
     padding: 0.5rem 0.5rem;
 }
-
-/** code highlight */
-.line-number::before {
-    white-space: nowrap;
-}
-
-code[class*="language-"] {
-    white-space: pre-wrap !important;
-}
-
-.code-line {
-    transition: background-color 0.2s ease;
-    transition: filter 0.2s ease;
-}
-
-.code-line:not(.highlight-line):not(.inserted):not(.deleted):hover {
-    background-color: #ffffff0f;
-}
-.code-line:hover {
-    filter: brightness(125%);
-}

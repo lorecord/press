@@ -268,3 +268,24 @@ hr {
     border-left: 0;
     border-right: 0;
 }
+
+/** code highlight */
+.line-number::before {
+    white-space: nowrap;
+}
+
+code[class*="language-"] {
+    white-space: pre-wrap !important;
+}
+
+.code-line {
+    transition: background-color 0.2s ease;
+    transition: filter 0.2s ease;
+
+    &:not(.highlight-line):not(.inserted):not(.deleted):hover {
+        background-color: #ffffff88;
+    }
+    &:hover {
+        filter: brightness(80%);
+    }
+}
