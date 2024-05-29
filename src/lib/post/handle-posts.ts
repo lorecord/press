@@ -312,8 +312,8 @@ export function createMarkdownParser(options: any = {}) {
                     ...(defaultSchema.attributes?.code || []),
                     ['className', /.*/]
                 ],
-                blockqoute: [
-                    ...(defaultSchema.attributes?.blockqoute || []),
+                blockquote: [
+                    ...(defaultSchema.attributes?.blockquote || []),
                     ['className', /.*/]
                 ],
                 div: [
