@@ -201,6 +201,7 @@
         display: flex;
         flex-flow: column;
         gap: 0.5rem;
+        padding: 1rem;
     }
 
     .form-row {

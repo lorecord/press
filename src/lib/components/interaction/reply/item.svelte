@@ -187,12 +187,12 @@
 
             &,
             a {
-                color: var(--text-color);
+                color: var(--text-color-secondary);
             }
         }
 
         time {
-            color: var(--text-color-tertiary);
+            color: var(--text-color-quaternary);
         }
     }
 
@@ -201,7 +201,7 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
-            color: var(--text-color-quaternary);
+            color: var(--text-color-quinary);
             font-size: 67%;
 
             .via {
@@ -219,7 +219,7 @@
         a {
             display: inline-flex;
             align-items: center;
-            color: var(--text-color-tertiary);
+            color: var(--text-color-quaternary);
         }
     }
 
