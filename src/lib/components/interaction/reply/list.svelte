@@ -55,6 +55,7 @@
 
         .comment-list-item {
             position: relative;
+            margin: 0;
 
             &::before {
                 content: "";
