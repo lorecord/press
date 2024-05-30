@@ -106,7 +106,10 @@
         <summary><h4>{$t("common.comment_form")}</h4></summary>
         {#if replyToReply}
             <div class="reply-to">
-                <div class="reply-to-content">
+                <div
+                    class="reply-to-content"
+                    style="padding: var(--content-padding)"
+                >
                     <RepliesList
                         {gravatarBase}
                         comments={[replyToReply]}

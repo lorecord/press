@@ -96,7 +96,7 @@
 
         &.replying-one {
             margin-left: calc(var(--content-padding) * 2 - 3.5rem);
-            margin-left: calc(-1 * (var(--avatar-size) + var(--avatar-gap)));
+            padding-left: calc(-1 * (var(--avatar-size) + var(--avatar-gap)));
         }
     }
 </style>
