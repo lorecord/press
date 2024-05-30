@@ -20,10 +20,14 @@ export async function load({ params, fetch, parent }) {
     const { status, json: post }: { status: number, json: any } = await fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
-        return { status: r.status, json: r.ok ? r.json() : {} };
+        if (r.ok) {
+            return r.json().then(json => ({ status: r.status, json }));
+        } else {
+            return { status: r.status, json: {} };
+        }
     });
 
-    if (!post?.published) {
+    if (!post) {
         error(status);
     }
 
