@@ -32,13 +32,17 @@
                             new Date(post.date),
                         )}
                     </time>
-                    <h3><a href={post.url}>{post.title}</a></h3>
+                    <slot name="heading" {post}>
+                        <h3><a href={post.url}>{post.title}</a></h3>
+                    </slot>
                 </div>
             </li>
         {/each}
-        <li class="timeline-item">
-            <h2>{yearGroup.year}</h2>
-        </li>
+        <slot name="year" year={yearGroup.year} group={yearGroup}>
+            <li class="timeline-item">
+                <h2>{yearGroup.year}</h2>
+            </li>
+        </slot>
     {/each}
 </ul>
 
