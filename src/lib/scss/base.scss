@@ -4,6 +4,7 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 20px;
 }
 
 html,
@@ -17,7 +18,6 @@ body {
     scrollbar-color: var(--scrollbar-color);
     color: var(--text-color);
     line-height: 1.667;
-    font-size: 20px;
     font-family: var(--font-text);
     text-shadow: 0 0 0.75px #82828200;
 }
