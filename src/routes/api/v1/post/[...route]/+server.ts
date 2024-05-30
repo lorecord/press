@@ -16,6 +16,10 @@ export async function GET({ params, url, locals }) {
         return new Response('{}', { status: 404 });
     }
 
+    if(post.deleted){
+        return new Response('{}', { status: 409 });
+    }
+
     const posts = getPublicPosts(site);
     const postInCollection = posts.find((p: any) => p.slug === post.slug);
 
