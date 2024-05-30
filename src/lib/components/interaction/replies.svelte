@@ -2,6 +2,7 @@
     import { t } from "$lib/translations";
     import { IconBrandX, IconX } from "@tabler/icons-svelte";
     import RepliesList from "./reply/list.svelte";
+    import ReplyItem from "./reply/item.svelte";
 
     export let replies: any[];
     export let reply: false;
@@ -106,20 +107,16 @@
         <summary><h4>{$t("common.comment_form")}</h4></summary>
         {#if replyToReply}
             <div class="reply-to">
-                <div
-                    class="reply-to-content"
-                    style="padding: var(--content-padding)"
-                >
-                    <RepliesList
+                <div class="reply-to-content" style="padding: 1rem; padding-left: calc(var(--avatar-size) + var(--avatar-gap));">
+                    <ReplyItem
                         {gravatarBase}
-                        comments={[replyToReply]}
+                        item={replyToReply}
                         commentHelper={{
                             replyTo: () => {},
                         }}
-                        showReplies={false}
                     />
                 </div>
-                <h3 class="reply-to-title">
+                <h3 class="reply-to-title" style="margin-top: .33em">
                     {$t("common.reply_to")}
                     {replyToReply.author?.name}
                     <a
