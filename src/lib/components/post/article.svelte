@@ -287,7 +287,6 @@
 
     :global([id^="fn-"] p) {
         margin: 0.333em 0;
-        line-height: 1.5;
     }
 
     article {
