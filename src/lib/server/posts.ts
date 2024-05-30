@@ -85,6 +85,7 @@ export function getPublishedPosts(site: any) {
     const posts = postsOfSite[site.unique]
         .filter((p: any) => p.routable)
         .filter((p: any) => p.published)
+        .filter((p: any) => !p.deleted)
         .filter((p: any) => new Date(p.date).getTime() < Date.now())
         .filter((p: any) => {
             return true;

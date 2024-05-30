@@ -283,7 +283,7 @@
     {/if}
     {#if post.expired?.date}
         <meta
-            name="og:article:modified_time"
+            name="og:article:expired_time"
             content={new Date(post.expired.date).toISOString()}
         />
     {/if}
