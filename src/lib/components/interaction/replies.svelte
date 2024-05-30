@@ -118,7 +118,7 @@
                 </div>
                 <h3 class="reply-to-title">
                     {$t("common.reply_to")}
-                    {replyToReply.author}
+                    {replyToReply.author?.name}
                     <a
                         href={`#comment-${replyToReply.id
                             ?.toString()
