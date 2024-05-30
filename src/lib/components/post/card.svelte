@@ -65,6 +65,10 @@
         flex: 1;
         font-size: 1.33rem;
 
+        @media screen and (max-width: 600px){
+            font-size: 1.222rem;
+        }
+
         a {
             &::before {
                 content: " ";

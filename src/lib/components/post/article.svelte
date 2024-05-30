@@ -373,16 +373,27 @@
             color: var(--text-color-tertiary);
         }
 
-        .article-content {
+        .article-content,
+        .article-toc {
             padding: var(--content-padding);
+
+            @media screen {
+                :global(> *:first-child) {
+                    margin-top: 0;
+                }
+            }
 
             @media print {
                 padding: 0;
             }
         }
 
-        .article-toc {
-            padding: var(--content-padding);
+        @media screen {
+            .article-toc {
+                h3 {
+                    margin-top: 0;
+                }
+            }
         }
 
         .article-extra {

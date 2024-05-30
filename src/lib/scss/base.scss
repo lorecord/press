@@ -49,7 +49,7 @@ h6 {
     h4,
     h5,
     h6 {
-        max-width: 80ch;
+        max-width: calc(max(80ch, 100%));
     }
 
     h1 {
@@ -62,10 +62,30 @@ h6 {
         font-size: 2em;
     }
     h4 {
-        font-size: 1.63em;
+        font-size: 1.667em;
     }
     h5 {
         font-size: 1.33em;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .typography {
+        h1 {
+            font-size: 2.333em;
+        }
+        h2 {
+            font-size: 2em;
+        }
+        h3 {
+            font-size: 1.667em;
+        }
+        h4 {
+            font-size: 1.444em;
+        }
+        h5 {
+            font-size: 1.222em;
+        }
     }
 }
 

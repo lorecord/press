@@ -23,15 +23,17 @@
     {#each timeline as yearGroup}
         {#each yearGroup.posts as post}
             <li class="timeline-item">
-                <time
-                    class="dt-published"
-                    datetime={new Date(post.date).toISOString()}
-                >
-                    {new Intl.DateTimeFormat($locale).format(
-                        new Date(post.date),
-                    )}
-                </time>
-                <h3><a href={post.url}>{post.title}</a></h3>
+                <div>
+                    <time
+                        class="dt-published"
+                        datetime={new Date(post.date).toISOString()}
+                    >
+                        {new Intl.DateTimeFormat($locale).format(
+                            new Date(post.date),
+                        )}
+                    </time>
+                    <h3><a href={post.url}>{post.title}</a></h3>
+                </div>
             </li>
         {/each}
         <li class="timeline-item">
@@ -46,18 +48,17 @@
         margin: 0 auto;
         list-style: none;
         padding-left: 100px;
-    }
 
-    .timeline::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 30px;
-        width: 2px;
-        background-color: rgb(107, 107, 107);
-        margin-left: 20px;
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 30px;
+            width: 2px;
+            background-color: rgb(107, 107, 107);
+            margin-left: 20px;
+        }
     }
-
     .timeline-item {
         position: relative;
         padding-left: 40px;
@@ -66,40 +67,93 @@
         gap: 0.25rem;
         align-items: center;
 
+        > div {
+            display: flex;
+            align-items: center;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--bg-color);
+            border: 2px solid rgb(107, 107, 107);
+            border-radius: 50%;
+
+            @media (prefers-color-scheme: dark) {
+                background-color: rgb(107, 107, 107);
+            }
+        }
+
         h2,
         h3 {
             margin: 0.33em 0 0.33em;
         }
 
         h2 {
-            font-size: 1.667rem;
+            font-size: 1.667em;
+
+            @media screen and (max-width: 600px) {
+                font-size: 1.444em;
+            }
         }
         h3 {
-            font-size: 1.333rem;
+            font-size: 1.333em;
+
+            @media screen and (max-width: 600px) {
+                font-size: 1.222em;
+            }
+        }
+
+        time {
+            position: absolute;
+            left: -110px;
+            width: 120px;
+            padding: 5px;
+            font-weight: bold;
+            text-align: right;
         }
     }
 
-    .timeline-item::before {
-        content: "";
-        position: absolute;
-        left: 13px;
-        width: 12px;
-        height: 12px;
-        background-color: var(--bg-color);
-        border: 2px solid rgb(107, 107, 107);
-        border-radius: 50%;
-
-        @media (prefers-color-scheme: dark) {
-            background-color: rgb(107, 107, 107);
+    @media screen and (max-width: 600px) {
+        .timeline {
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            gap: 1em;
+            flex-direction: column;
         }
-    }
 
-    .timeline-item time {
-        position: absolute;
-        left: -110px;
-        width: 120px;
-        padding: 5px;
-        font-weight: bold;
-        text-align: right;
+        .timeline-item {
+            padding-left: 40px;
+            align-items: baseline;
+            margin-left: 0;
+
+            &::before {
+                top: calc(1.222em / 2);
+            }
+
+            > div {
+                display: flex;
+                align-items: start;
+                flex-direction: column-reverse;
+            }
+
+            h2,
+            h3 {
+                margin: 0;
+            }
+
+            time {
+                position: static;
+                width: auto;
+                padding: 0;
+                line-height: 1;
+                font-weight: normal;
+                color: var(--text-color-secondary);
+            }
+        }
     }
 </style>
