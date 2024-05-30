@@ -33,22 +33,24 @@
                 {/if}
 
                 {#if post.review}
-                    {$t("common.review")}
-                    {#if post.review.item?.url}
-                        <a
-                            class="u-review-of"
-                            style={post.review.rating > 6
-                                ? ""
-                                : "color: var(--text-color-tertiary)"}
-                            href={post.review.item.url}
-                            rel={post.review.rating > 6 ? "" : "nofollow"}
-                            >{post.review.item.name}</a
-                        >
-                    {:else}
-                        <span>{post.review.item.name}</span>
-                    {/if}
+                    <div>
+                        {$t("common.review")}
+                        {#if post.review.item?.url}
+                            <a
+                                class="u-review-of"
+                                style={post.review.rating > 6
+                                    ? ""
+                                    : "color: var(--text-color-tertiary)"}
+                                href={post.review.item.url}
+                                rel={post.review.rating > 6 ? "" : "nofollow"}
+                                >{post.review.item.name}</a
+                            >
+                        {:else}
+                            <span>{post.review.item.name}</span>
+                        {/if}
 
-                    <Rating value={post.review.rating} />
+                        <Rating value={post.review.rating} />
+                    </div>
                 {/if}
 
                 <time
@@ -371,6 +373,10 @@
 
         .article-meta {
             color: var(--text-color-tertiary);
+
+            display: flex;
+            gap: 1em;
+            justify-content: center;
         }
 
         .article-content,
