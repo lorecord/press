@@ -37,6 +37,11 @@
     {/if}
 
     {#if siteConfig.url}
+        <link
+            rel="alternate"
+            href={`${siteConfig.url}/category/${category}/`}
+            hreflang="x-default"
+        />
         {#if $locale === systemConfig.locale.default}
             {@const url = `${siteConfig.url}/category/${category}/`}
             <link rel="canonical" href={url} />
