@@ -360,7 +360,7 @@
     {#if siteConfig.url}
         <link
             rel="alternate"
-            href="${siteConfig.url}${post.url}"
+            href={`${siteConfig.url}${post.url}`}
             hreflang="x-default"
         />
         {#if $locale === systemConfig.locale.default}
@@ -376,7 +376,7 @@
         {#each post.langs as value}
             <link
                 rel="alternate"
-                href="{siteConfig.url}/{value}/{post.url}"
+                href="{siteConfig.url}/{value}{post.url}"
                 hreflang={value}
             />
             <meta property="og:locale:alternate" content={value} />
