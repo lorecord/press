@@ -95,8 +95,10 @@
             flex-flow: column;
             .newer,
             .earlier {
-                div svg {
-                    display: none;
+                div {
+                    :global(svg) {
+                        display: none;
+                    }
                 }
             }
 
