@@ -18,15 +18,8 @@
 
     export let data;
 
-    $: ({
-        post,
-        interactions,
-        systemConfig,
-        siteConfig,
-        newer,
-        earlier,
-        ldjson,
-    } = data);
+    $: ({ post, interactions, systemConfig, siteConfig, newer, earlier } =
+        data);
 
     $: commonComments = interactions.replies?.filter(
         (r: any) => r.type === "reply",
@@ -47,7 +40,7 @@
     $: templateComponent =
         templates[(post.template as string) || "default"] || templates.default;
 
-    let json = () => {
+    let ldjson = () => {
         const license = ((l) => {
             if (spdxLicenseList[l]) {
                 return { licenseId: l, ...spdxLicenseList[l] };
@@ -142,7 +135,7 @@
             "@context": "https://schema.org",
         });
 
-        return Object.assign({}, ldjson, schema);
+        return schema;
     };
 </script>
 
@@ -398,7 +391,7 @@
     {/each}
 
     {@html `<script type="application/ld+json">${JSON.stringify(
-        json(),
+        ldjson(),
     )}</script>`}
 </svelte:head>
 

@@ -19,7 +19,7 @@
 
     let loadingBar: LoadingBar;
 
-    $: ({ posts, systemConfig, siteConfig, ldjson, currentRoute } = data);
+    $: ({ posts, systemConfig, siteConfig, currentRoute } = data);
     $: ({ seo } = $page.data);
 
     onMount(() => {
@@ -39,7 +39,7 @@
         };
     });
 
-    let json = () => {
+    let ldjson = () => {
         let sameAs: string[] = [];
         if (siteConfig["x.com"]?.username) {
             sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
@@ -56,7 +56,11 @@
             sameAs,
         };
 
-        return Object.assign({}, ldjson, obj);
+        if (siteConfig.issn) {
+            obj.issn = siteConfig.issn;
+        }
+
+        return obj;
     };
 </script>
 
@@ -208,7 +212,7 @@
     {/if}
 
     {@html `<script type="application/ld+json">${JSON.stringify(
-        json(),
+        ldjson(),
     )}</script>`}
 </svelte:head>
 

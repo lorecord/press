@@ -13,13 +13,5 @@ export const load: Load = async ({ fetch, params, depends, parent, data }) => {
     })}`)
         .then((r) => r.json());
 
-    const ldjson: any = {
-        '@context': 'https://schema.org',
-    };
-
-    if (siteConfig?.issn) {
-        ldjson.issn = siteConfig?.issn;
-    }
-
-    return { posts, ldjson, siteConfig, systemConfig };
+    return { posts, siteConfig, systemConfig };
 }

@@ -4,7 +4,7 @@ import { derived, get, writable } from "svelte/store";
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ params, fetch, parent }) {
-    const { ldjson } = await parent();
+    const { } = await parent();
 
     let { route } = params;
     let lang = params.locale || locale.get();
@@ -50,6 +50,6 @@ export async function load({ params, fetch, parent }) {
     }).then(json => earlier.set(json));
 
     return {
-        post, newer, earlier, ldjson, interactions: { replies, mentions }
+        post, newer, earlier, interactions: { replies, mentions }
     };
 }

@@ -9,5 +9,5 @@ export async function load({ params, parent, fetch, data }) {
         limit: 8,
     })}`).then((r) => r.json());
 
-    return { posts, ldjson: data?.ldjson, siteConfig, systemConfig };
+    return { posts, siteConfig, systemConfig };
 }

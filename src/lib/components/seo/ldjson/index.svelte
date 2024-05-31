@@ -11,7 +11,6 @@
         type,
         article,
         canonical,
-        issn,
         reviewed,
         aggregateRating,
     } = data);
@@ -69,9 +68,6 @@
                 bestRating: aggregateRating.best || 10,
                 worstRating: aggregateRating.worst || 1,
             };
-        }
-        if (issn) {
-            obj.issn = issn;
         }
         return Object.assign({}, obj);
     };
