@@ -319,6 +319,9 @@
             name="twitter:image"
             content="{siteConfig.url}{post.url}{post.image}"
         />
+        <meta name="twitter:card" content="summary_large_image" />
+    {:else}
+        <meta name="twitter:card" content="summary" />
     {/if}
 
     {#if post.video}
@@ -362,34 +365,36 @@
     {/if}
 
     {#if siteConfig.url}
-        <link rel="canonical" href="{siteConfig.url}{post.url}" />
         <link
             rel="alternate"
-            href="{siteConfig.url}{post.url}"
+            href="${siteConfig.url}${post.url}"
             hreflang="x-default"
         />
-        <meta property="og:url" content="{siteConfig.url}{post.url}" />
+        {#if $locale === systemConfig.locale.default}
+            {@const url = `${siteConfig.url}${post.url}`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {:else}
+            {@const url = `${siteConfig.url}/${$locale}${post.url}`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {/if}
+
+        {#each post.langs as value}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/{post.url}"
+                hreflang={value}
+            />
+            <meta property="og:locale:alternate" content={value} />
+        {/each}
     {/if}
 
     <meta property="og:locale" content={post.lang} />
-
-    {#each post.langs || [] as value}
-        <link
-            rel="alternate"
-            href="{siteConfig.url}/{value}{post.url}"
-            hreflang={value}
-        />
-        <meta property="og:locale:alternate" content={value} />
-    {:else}
-        <link
-            rel="alternate"
-            href="{siteConfig.url}{post.url}"
-            hreflang={systemConfig.locale?.default}
-        />
-        <meta
-            property="og:locale:alternate"
-            content={systemConfig.locale?.default}
-        />
+    {#each post.langs as value}
+        {#if value !== $locale}
+            <meta property="og:locale:alternate" content={value} />
+        {/if}
     {/each}
 
     {@html `<script type="application/ld+json">${JSON.stringify(

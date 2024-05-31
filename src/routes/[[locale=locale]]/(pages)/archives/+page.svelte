@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { t } from "$lib/translations";
+    import { t, locale, locales } from "$lib/translations";
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ posts, siteConfig } = data);
+    $: ({ posts, siteConfig, systemConfig } = data);
 </script>
 
 <Title value={$t("common.archives")}></Title>
@@ -16,10 +16,40 @@
     {#if siteConfig.keywords}
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}
+
     {#if siteConfig.url}
-        <link rel="canonical" href="{siteConfig.url}/archives/" />
-        <meta property="og:url" content="{siteConfig.url}/archives/" />
+        <link
+            rel="alternate"
+            href={`${siteConfig.url}/archives`}
+            hreflang="x-default"
+        />
+        {#if $locale === systemConfig.locale.default}
+            {@const url = `${siteConfig.url}/archives`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {:else}
+            {@const url = `${siteConfig.url}/${$locale}/archives`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {/if}
+
+        {#each $locales as value}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/archives/"
+                hreflang={value}
+            />
+        {/each}
     {/if}
+
+    <meta property="og:type" content="website" />
+
+    <meta property="og:locale" content={$locale} />
+    {#each $locales as value}
+        {#if value !== $locale}
+            <meta property="og:locale:alternate" content={value} />
+        {/if}
+    {/each}
 </svelte:head>
 
 <div class="container archives">

@@ -19,7 +19,7 @@
 
     let loadingBar: LoadingBar;
 
-    $: ({ posts, systemConfig, siteConfig, currentRoute } = data);
+    $: ({ posts, systemConfig, siteConfig, ldjson, currentRoute } = data);
     $: ({ seo } = $page.data);
 
     onMount(() => {
@@ -38,6 +38,26 @@
             loadingBar?.start();
         };
     });
+
+    let json = () => {
+        let sameAs: string[] = [];
+        if (siteConfig["x.com"]?.username) {
+            sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
+        }
+        if (siteConfig.github?.home) {
+            sameAs.push(`https://github.com/${siteConfig.github.home}`);
+        }
+        let obj: any = {
+            "@context": "https://schema.org",
+            "@type": "Website",
+            name: siteConfig.title,
+            url: `${siteConfig.url}`,
+            logo: `${siteConfig.url}/favicon.png`,
+            sameAs,
+        };
+
+        return Object.assign({}, ldjson, obj);
+    };
 </script>
 
 <svelte:window
@@ -53,8 +73,6 @@
     {#if siteConfig.issn}
         <meta name="citation_issn" content={siteConfig.issn} />
     {/if}
-
-    <meta name="twitter:card" content="summary" />
 
     {#if siteConfig["x.com"]?.username}
         <meta name="twitter:site" content={siteConfig["x.com"].username} />
@@ -188,6 +206,10 @@
             />
         {/if}
     {/if}
+
+    {@html `<script type="application/ld+json">${JSON.stringify(
+        json(),
+    )}</script>`}
 </svelte:head>
 
 <div class="layout" lang={$locale}>

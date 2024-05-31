@@ -1,32 +1,12 @@
 <script lang="ts">
     import PostCard from "$lib/components/post/card.svelte";
-    import { locales, t } from "$lib/translations";
+    import { locales, t, locale } from "$lib/translations";
     import { Title, DescriptionMeta } from "$lib/components/seo";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ posts, siteConfig, ldjson, systemConfig } = data);
-
-    let json = () => {
-        let sameAs: string[] = [];
-        if (siteConfig["x.com"]?.username) {
-            sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
-        }
-        if (siteConfig.github?.home) {
-            sameAs.push(`https://github.com/${siteConfig.github.home}`);
-        }
-        let obj: any = {
-            "@context": "https://schema.org",
-            "@type": "Website",
-            name: siteConfig.title,
-            url: `${siteConfig.url}`,
-            logo: `${siteConfig.url}/favicon.png`,
-            sameAs,
-        };
-
-        return Object.assign({}, ldjson, obj);
-    };
+    $: ({ posts, siteConfig, systemConfig } = data);
 </script>
 
 <Title value={siteConfig.title}></Title>
@@ -54,24 +34,36 @@
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}
     {#if siteConfig.url}
-        <link rel="canonical" href={siteConfig.url} />
-        <meta property="og:url" content={siteConfig.url} />
+        <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
+        {#if $locale === systemConfig.locale.default}
+            {@const url = `${siteConfig.url}`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {:else}
+            {@const url = `${siteConfig.url}/${$locale}/`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {/if}
+
+        {#each $locales as value}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/"
+                hreflang={value}
+            />
+        {/each}
     {/if}
+
+    <meta property="og:locale" content={$locale} />
+    {#each $locales as value}
+        {#if value !== $locale}
+            <meta property="og:locale:alternate" content={value} />
+        {/if}
+    {/each}
 
     <meta property="og:type" content="website" />
 
-    <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
-    {#each $locales as value}
-        <link
-            rel="alternate"
-            href="{siteConfig.url}/{value}/"
-            hreflang={value}
-        />
-    {/each}
-
-    {@html `<script type="application/ld+json">${JSON.stringify(
-        json(),
-    )}</script>`}
+    <meta name="twitter:card" content="summary" />
 
     {#if systemConfig.brand?.personal}
         {#if siteConfig.github?.username}

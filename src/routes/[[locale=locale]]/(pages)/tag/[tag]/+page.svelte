@@ -6,7 +6,7 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ label, tag, posts, siteConfig } = data);
+    $: ({ label, tag, posts, siteConfig, systemConfig } = data);
 </script>
 
 <Title value={`${$t("common.tag")}: ${label}`}></Title>
@@ -14,14 +14,32 @@
 
 <svelte:head>
     {#if siteConfig.keywords}
-        <meta name="keywords" content={`${label},${siteConfig.keywords.join(",")}`} />
+        <meta
+            name="keywords"
+            content={`${label},${siteConfig.keywords.join(",")}`}
+        />
     {:else}
         <meta name="keywords" content={`${label}`} />
     {/if}
 
     {#if siteConfig.url}
-        <link rel="canonical" href={`${siteConfig.url}/tag/${tag}/`} />
-        <meta property="og:url" content={`${siteConfig.url}/tag/${tag}/`} />
+        {#if $locale === systemConfig.locale.default}
+            {@const url = `${siteConfig.url}/tag/${tag}/`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {:else}
+            {@const url = `${siteConfig.url}/${$locale}/tag/${tag}/`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
+        {/if}
+
+        {#each $locales as value}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/tag/{tag}/"
+                hreflang={value}
+            />
+        {/each}
     {/if}
 
     <meta property="og:type" content="website" />
