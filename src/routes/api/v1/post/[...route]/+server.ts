@@ -12,8 +12,12 @@ export async function GET({ params, url, locals }) {
     const lang = url.searchParams.get('lang');
     const post = await loadPost(site, { route, lang: lang || undefined });
 
-    if (!post) {
+    if (!post || !post.published) {
         return new Response('{}', { status: 404 });
+    }
+
+    if (post.deleted) {
+        return new Response('{ deleted: true }', { status: 410 });
     }
 
     const posts = getPublicPosts(site);
