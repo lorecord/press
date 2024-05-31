@@ -106,7 +106,7 @@ a {
 }
 
 code {
-    word-break: break-all;
+    word-break: break-word;
     word-wrap: break-word;
 }
 
@@ -125,7 +125,7 @@ pre {
     padding: 1rem;
     margin: 0.667em 0;
     overflow-x: auto;
-    word-break: break-all;
+    word-break: break-word;
     word-wrap: break-word;
 
     code {
@@ -265,7 +265,7 @@ tr {
 
 td,
 th {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 details {
