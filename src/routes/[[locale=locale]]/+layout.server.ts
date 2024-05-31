@@ -9,7 +9,9 @@ export const load = async ({ url, params, cookies, request, locals, parent }) =>
     const { system } = site;
 
     const cookieLang = cookies.get('locale');
-    const pathLang = params.locale;
+    const pathLang = (() => {
+        return locales.get().find(locale => locale.split('-')[0] === params.locale?.split('-')[0]);
+    })()
     const acceptLang = getPreferredLangFromHeader(request.headers.get('accept-language') || '', locales.get(), '');
     const defaultLang = system.locale?.default || 'en';
     const fallbackLang = 'en';

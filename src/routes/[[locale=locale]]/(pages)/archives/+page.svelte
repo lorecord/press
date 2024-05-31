@@ -31,35 +31,22 @@
     {/if}
 
     {#if siteConfig.url}
+        {@const url = `${siteConfig.url}/${$locale}/archives/`}
+        <link rel="canonical" href={url} />
+        <meta property="og:url" content={url} />
+
         <link
             rel="alternate"
             href={`${siteConfig.url}/archives/`}
             hreflang="x-default"
         />
-        {#if $locale === systemConfig.locale.default}
-            {@const url = `${siteConfig.url}/archives/`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {:else}
-            {@const url = `${siteConfig.url}/${$locale}/archives/`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {/if}
 
         {#each $locales as value}
-            {#if value === systemConfig.locale.default}
-                <link
-                    rel="alternate"
-                    href="{siteConfig.url}/archives/"
-                    hreflang={value}
-                />
-            {:else}
-                <link
-                    rel="alternate"
-                    href="{siteConfig.url}/{value}/archives/"
-                    hreflang={value}
-                />
-            {/if}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/archives/"
+                hreflang={value}
+            />
         {/each}
     {/if}
 

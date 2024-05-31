@@ -47,17 +47,11 @@
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}
     {#if siteConfig.url}
-        <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
-        {#if $locale === systemConfig.locale.default}
-            {@const url = `${siteConfig.url}`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {:else}
-            {@const url = `${siteConfig.url}/${$locale}/`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {/if}
+        {@const url = `${siteConfig.url}/${$locale}/`}
+        <link rel="canonical" href={url} />
+        <meta property="og:url" content={url} />
 
+        <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
         {#each $locales as value}
             <link
                 rel="alternate"

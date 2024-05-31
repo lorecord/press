@@ -37,36 +37,21 @@
     {/if}
 
     {#if siteConfig.url}
+        {@const url = `${siteConfig.url}/${$locale}/tag/${tag}/`}
+        <link rel="canonical" href={url} />
+        <meta property="og:url" content={url} />
+
         <link
             rel="alternate"
             href={`${siteConfig.url}/tag/${tag}/`}
             hreflang="x-default"
         />
-
-        {#if $locale === systemConfig.locale.default}
-            {@const url = `${siteConfig.url}/tag/${tag}/`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {:else}
-            {@const url = `${siteConfig.url}/${$locale}/tag/${tag}/`}
-            <link rel="canonical" href={url} />
-            <meta property="og:url" content={url} />
-        {/if}
-
         {#each $locales as value}
-            {#if value === systemConfig.locale.default}
-                <link
-                    rel="alternate"
-                    href="{siteConfig.url}/tag/{tag}/"
-                    hreflang={value}
-                />
-            {:else}
-                <link
-                    rel="alternate"
-                    href="{siteConfig.url}/{value}/tag/{tag}/"
-                    hreflang={value}
-                />
-            {/if}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}/tag/{tag}/"
+                hreflang={value}
+            />
         {/each}
     {/if}
 
