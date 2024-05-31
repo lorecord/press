@@ -2,11 +2,24 @@
     import { t, locale, locales } from "$lib/translations";
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
+    import type { WebPage, WithContext } from "schema-dts";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
     $: ({ posts, siteConfig, systemConfig } = data);
+
+    let ldjson = () => {
+        let creativeWork: WebPage = {
+            "@type": "WebPage",
+        };
+
+        let schema: WithContext<any> = Object.assign(creativeWork, {
+            "@context": "https://schema.org",
+        });
+
+        return schema;
+    };
 </script>
 
 <Title value={$t("common.archives")}></Title>
@@ -50,6 +63,10 @@
             <meta property="og:locale:alternate" content={value} />
         {/if}
     {/each}
+
+    {@html `<script type="application/ld+json">${JSON.stringify(
+        ldjson(),
+    )}</script>`}
 </svelte:head>
 
 <div class="container archives">

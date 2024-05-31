@@ -13,6 +13,7 @@
     import "$lib/scss/default.scss";
     import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";
+    import type { WebSite, WithContext } from "schema-dts";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -47,20 +48,23 @@
         if (siteConfig.github?.home) {
             sameAs.push(`https://github.com/${siteConfig.github.home}`);
         }
-        let obj: any = {
-            "@context": "https://schema.org",
-            "@type": "Website",
+        let website: WebSite = {
+            "@type": "WebSite",
             name: siteConfig.title,
             url: `${siteConfig.url}`,
-            logo: `${siteConfig.url}/favicon.png`,
+            image: `${siteConfig.url}/favicon.png`,
             sameAs,
         };
 
         if (siteConfig.issn) {
-            obj.issn = siteConfig.issn;
+            website.issn = siteConfig.issn;
         }
 
-        return obj;
+        let schema: WithContext<any> = Object.assign(website, {
+            "@context": "https://schema.org",
+        });
+
+        return schema;
     };
 </script>
 

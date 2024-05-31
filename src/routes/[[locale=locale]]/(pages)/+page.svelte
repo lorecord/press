@@ -2,11 +2,24 @@
     import PostCard from "$lib/components/post/card.svelte";
     import { locales, t, locale } from "$lib/translations";
     import { Title, DescriptionMeta } from "$lib/components/seo";
+    import type { WebPage, WithContext } from "schema-dts";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
     $: ({ posts, siteConfig, systemConfig } = data);
+
+    let ldjson = () => {
+        let creativeWork: WebPage = {
+            "@type": "WebPage",
+        };
+
+        let schema: WithContext<any> = Object.assign(creativeWork, {
+            "@context": "https://schema.org",
+        });
+
+        return schema;
+    };
 </script>
 
 <Title value={siteConfig.title}></Title>
@@ -83,6 +96,10 @@
             />
         {/if}
     {/if}
+
+    {@html `<script type="application/ld+json">${JSON.stringify(
+        ldjson(),
+    )}</script>`}
 </svelte:head>
 
 <div class="articles container">
