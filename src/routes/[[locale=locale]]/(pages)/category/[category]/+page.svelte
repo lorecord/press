@@ -7,7 +7,7 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ category, posts, label, siteConfig, systemConfig } = data);
+    $: ({ category, posts, label, siteConfig, pathLocale } = data);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -37,7 +37,7 @@
     {/if}
 
     {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${$locale}/category/${category}/`}
+        {@const url = `${siteConfig.url}/${pathLocale || $locale}/category/${category}/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 

@@ -44,7 +44,13 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
         let segments = event.url.pathname.split('/');
         if (segments?.length > 1 && /^\w{2,3}(-\w{2,6})?$/.test(segments[1])) {
             segments[0] = segments[1];
-            pathLang = segments.shift();
+            pathLang = (() => {
+                let pathLangFoo = segments.shift();
+
+                pathLangFoo = locales.get().find(locale => locale.split('-')[0] === pathLangFoo?.split('-')[0]) || '';
+                return pathLangFoo;
+            })();
+
             segments[0] = '';
         }
 

@@ -11,13 +11,14 @@ export const load = async ({ url, params, cookies, request, locals, parent }) =>
     const cookieLang = cookies.get('locale');
     const pathLang = (() => {
         return locales.get().find(locale => locale.split('-')[0] === params.locale?.split('-')[0]);
-    })()
+    })();
+
     const acceptLang = getPreferredLangFromHeader(request.headers.get('accept-language') || '', locales.get(), '');
     const defaultLang = system.locale?.default || 'en';
     const fallbackLang = 'en';
     const currentLang = locale.get();
 
-    selectedLocale.set(cookieLang);
+    selectedLocale.set(cookieLang || pathLang);
 
     return {
         translationContext: {

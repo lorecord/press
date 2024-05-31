@@ -18,8 +18,15 @@
 
     export let data;
 
-    $: ({ post, interactions, systemConfig, siteConfig, newer, earlier } =
-        data);
+    $: ({
+        post,
+        interactions,
+        systemConfig,
+        siteConfig,
+        newer,
+        earlier,
+        pathLocale,
+    } = data);
 
     $: commonComments = interactions.replies?.filter(
         (r: any) => r.type === "reply",

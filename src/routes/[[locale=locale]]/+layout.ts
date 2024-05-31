@@ -41,5 +41,5 @@ export const load: Load = async ({ url, parent, data }) => {
         await loadTranslations(finnalLang, url.pathname);
     }
 
-    return { siteConfig, systemConfig };
+    return { pathLocale: pathLang, siteConfig, systemConfig };
 }
