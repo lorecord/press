@@ -46,7 +46,7 @@
             sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
         }
         if (siteConfig.github?.home) {
-            sameAs.push(`https://github.com/${siteConfig.github.home}`);
+            sameAs.push(`https://github.com/${siteConfig.github.username}`);
         }
         let website: WebSite = {
             "@type": "WebSite",
