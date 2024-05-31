@@ -1,6 +1,7 @@
 <script lang="ts">
     import { t, locale } from "$lib/translations/index.js";
     import Card from "$lib/ui/card/index.svelte";
+    import Time from "$lib/ui/time/index.svelte";
     import "./card.css";
     import Rating from "$lib/ui/rating/index.svelte";
 
@@ -16,12 +17,7 @@
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
-            <time class="dt-published" datetime={new Date(date).toISOString()}>
-                {new Intl.DateTimeFormat($locale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                }).format(new Date(date))}
-            </time>
+            <Time {date} class="dt-published" locale={$locale} />
         </div>
     </svelte:fragment>
     {#if showContent}
@@ -65,7 +61,7 @@
         flex: 1;
         font-size: 1.33rem;
 
-        @media screen and (max-width: 600px){
+        @media screen and (max-width: 600px) {
             font-size: 1.222rem;
         }
 

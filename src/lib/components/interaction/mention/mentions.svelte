@@ -1,5 +1,6 @@
 <script lang="ts">
     import { locale } from "$lib/translations";
+    import Time from "$lib/ui/time/index.svelte";
     import "./mentions.css";
 
     export let mentions: any[];
@@ -15,15 +16,11 @@
         >
             <h4>
                 {#if mention.published}
-                    <time
+                    <Time
+                        date={mention.published}
                         class="dt-published"
-                        datetime={new Date(mention.published).toISOString()}
-                    >
-                        {new Intl.DateTimeFormat($locale, {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                        }).format(new Date(mention.published))}
-                    </time>
+                        locale={$locale}
+                    />
                 {/if}
                 <a href={mention.url} rel="nofollow">{mention.author?.name}</a>
             </h4>

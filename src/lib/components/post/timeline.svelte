@@ -1,5 +1,6 @@
 <script lang="ts">
     import { locale, t } from "$lib/translations";
+    import Time from "$lib/ui/time/index.svelte";
 
     export let posts: any[];
 
@@ -24,14 +25,14 @@
         {#each yearGroup.posts as post}
             <li class="timeline-item">
                 <div>
-                    <time
-                        class="dt-published"
-                        datetime={new Date(post.date).toISOString()}
-                    >
-                        {new Intl.DateTimeFormat($locale).format(
-                            new Date(post.date),
-                        )}
-                    </time>
+                    <div class="time">
+                        <Time
+                            date={post.date}
+                            class="dt-published"
+                            locale={$locale}
+                            options={{ dateStyle: "short" }}
+                        />
+                    </div>
                     <slot name="heading" {post}>
                         <h3><a href={post.url}>{post.title}</a></h3>
                     </slot>
@@ -111,13 +112,15 @@
             }
         }
 
-        time {
+        .time {
+            --color: var(--text-color);
             position: absolute;
             left: -110px;
             width: 120px;
             padding: 5px;
             font-weight: bold;
             text-align: right;
+            color: var(--color);
         }
     }
 
@@ -150,13 +153,13 @@
                 margin: 0;
             }
 
-            time {
+            .time {
+                --color: var(--text-color-secondary);
                 position: static;
                 width: auto;
                 padding: 0;
                 line-height: 1;
                 font-weight: normal;
-                color: var(--text-color-secondary);
             }
         }
     }

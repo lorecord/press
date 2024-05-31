@@ -7,6 +7,7 @@
         IconAlien,
     } from "@tabler/icons-svelte";
     import CommentList from "./list.svelte";
+    import Time from "$lib/ui/time/index.svelte";
     import "./reply.css";
 
     export let item: any;
@@ -65,15 +66,14 @@
                 href={`#comment-${item.id?.toString().substr(-8)}`}
                 class="comment-permalink"
             >
-                <time
+                <Time
+                    date={item.published}
                     class="dt-published"
-                    datetime={new Date(item.published).toString()}
-                >
-                    {new Intl.DateTimeFormat($locale, {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                    }).format(new Date(item.published))}
-                </time>
+                    locale={$locale}
+                    style={{
+                        color: "var(--text-color-quaternary)",
+                    }}
+                />
             </a>
         </div>
         <div class="comment-body">
@@ -189,10 +189,6 @@
             a {
                 color: var(--text-color-secondary);
             }
-        }
-
-        time {
-            color: var(--text-color-quaternary);
         }
     }
 

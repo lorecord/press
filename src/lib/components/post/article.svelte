@@ -3,6 +3,7 @@
     import Rating from "$lib/ui/rating/index.svelte";
     import License from "$lib/components/license/index.svelte";
     import Cite from "$lib/components/cite/index.svelte";
+    import Time from "$lib/ui/time/index.svelte";
 
     import { IconLanguage } from "@tabler/icons-svelte";
 
@@ -53,15 +54,7 @@
                     </div>
                 {/if}
 
-                <time
-                    class="dt-published"
-                    datetime={new Date(post.date).toISOString()}
-                >
-                    {new Intl.DateTimeFormat($locale, {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                    }).format(new Date(post.date))}
-                </time>
+                <Time date={post.date} class="dt-published" locale={$locale} />
             </div>
         {/if}
 
@@ -148,14 +141,11 @@
                                 {$t("common.publish_date")}
                             </div>
                             <div class="value">
-                                <time
+                                <Time
+                                    date={post.date}
                                     class="dt-published"
-                                    datetime={new Date(post.date).toISOString()}
-                                >
-                                    {new Intl.DateTimeFormat($locale).format(
-                                        new Date(post.date),
-                                    )}
-                                </time>
+                                    locale={$locale}
+                                />
                             </div>
                         </div>
                         {#if post.license || systemConfig.license?.default}

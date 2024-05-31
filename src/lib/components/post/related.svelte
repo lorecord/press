@@ -1,5 +1,6 @@
 <script lang="ts">
     import { locale } from "$lib/translations";
+    import Time from "$lib/ui/time/index.svelte";
 
     export let related: any[];
 </script>
@@ -7,14 +8,12 @@
 <ul class="related">
     {#each related as r}
         <li>
-            <time
+            <Time
+                date={r.post.date}
                 class="dt-published"
-                datetime={new Date(r.post.date).toISOString()}
-            >
-                {new Intl.DateTimeFormat($locale, {
-                    dateStyle: "short",
-                }).format(new Date(r.post.date))}
-            </time>
+                locale={$locale}
+                options={{ dateStyle: "short" }}
+            />
             <h4>
                 <a href={r.post.url} data-related={r.score}>{r.post.title}</a>
             </h4>
@@ -58,10 +57,6 @@
                 margin: 0.5em;
 
                 h4 {
-                    margin: 0;
-                }
-
-                time {
                     margin: 0;
                 }
             }
