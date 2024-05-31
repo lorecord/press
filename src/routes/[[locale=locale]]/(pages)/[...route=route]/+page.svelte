@@ -363,22 +363,30 @@
             href={`${siteConfig.url}${post.url}`}
             hreflang="x-default"
         />
-        {#if $locale === systemConfig.locale.default}
+        {#if post.lang === systemConfig.locale.default}
             {@const url = `${siteConfig.url}${post.url}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
         {:else}
-            {@const url = `${siteConfig.url}/${$locale}${post.url}`}
+            {@const url = `${siteConfig.url}/${post.lang}${post.url}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
         {/if}
 
         {#each post.langs as value}
-            <link
-                rel="alternate"
-                href="{siteConfig.url}/{value}{post.url}"
-                hreflang={value}
-            />
+            {#if value === systemConfig.locale.default}
+                <link
+                    rel="alternate"
+                    href={`${siteConfig.url}${post.url}`}
+                    hreflang={value}
+                />
+            {:else}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/{value}{post.url}"
+                    hreflang={value}
+                />
+            {/if}
             <meta property="og:locale:alternate" content={value} />
         {/each}
     {/if}

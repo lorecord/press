@@ -54,11 +54,19 @@
         {/if}
 
         {#each $locales as value}
-            <link
-                rel="alternate"
-                href="{siteConfig.url}/{value}/tag/{tag}/"
-                hreflang={value}
-            />
+            {#if value === systemConfig.locale.default}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/tag/{tag}/"
+                    hreflang={value}
+                />
+            {:else}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/{value}/tag/{tag}/"
+                    hreflang={value}
+                />
+            {/if}
         {/each}
     {/if}
 
