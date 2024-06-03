@@ -23,9 +23,7 @@
 </script>
 
 <Title value={siteConfig.title}></Title>
-{#if siteConfig.description}
-    <DescriptionMeta value={siteConfig.description}></DescriptionMeta>
-{/if}
+<DescriptionMeta value={siteConfig.description}></DescriptionMeta>
 
 <svelte:head>
     {#if systemConfig.git?.repo}

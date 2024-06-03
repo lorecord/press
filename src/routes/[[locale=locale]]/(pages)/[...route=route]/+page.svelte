@@ -147,9 +147,7 @@
 </script>
 
 <Title value={post.title}></Title>
-{#if post.summary}
-    <DescriptionMeta value={post.summary}></DescriptionMeta>
-{/if}
+<DescriptionMeta value={post.summary}></DescriptionMeta>
 
 <svelte:head>
     {#if post.processMeta?.prism}
