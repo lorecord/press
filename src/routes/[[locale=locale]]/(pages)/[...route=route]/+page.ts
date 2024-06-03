@@ -27,7 +27,7 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    if (!post) {
+    if (!post || status > 299 || status < 200) {
         error(status);
     }
 

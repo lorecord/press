@@ -61,10 +61,14 @@
             image: post.image
                 ? [`${siteConfig.url}${post.url}${post.image}`]
                 : [`${siteConfig.url}/favicon.png`],
-            datePublished: new Date(post.date).toISOString(),
+
             url: `${siteConfig.url}${post.url}`,
             license: license.url || license.name,
         };
+
+        if (post.date) {
+            creativeWork.datePublished = new Date(post.date).toISOString();
+        }
 
         if (post.authors) {
             let author = post.authors.map((author: any) =>
@@ -373,7 +377,7 @@
             hreflang="x-default"
         />
 
-        {#each post.langs as value}
+        {#each post.langs || [] as value}
             <link
                 rel="alternate"
                 href="{siteConfig.url}/{value}{post.url}"
@@ -383,7 +387,7 @@
     {/if}
 
     <meta property="og:locale" content={post.lang} />
-    {#each post.langs as value}
+    {#each post.langs || [] as value}
         {#if value !== $locale}
             <meta property="og:locale:alternate" content={value} />
         {/if}
@@ -412,7 +416,7 @@
                             )}</a
                         >{#if post.langs?.length > 1}{$t(
                                 "common.i18n_alert_message_b",
-                            )}{#each post.langs as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
+                            )}{#each post.langs || [] as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
                                         href="/{l}{post.url}"
                                         >{$t(`lang.${l}`)}</a
                                     >{#if index < post.langs.length - 2}{$t(
