@@ -42,7 +42,7 @@
             return light;
         }
 
-        function setColorScheme(scheme: string) {
+        function setColorScheme(scheme) {
             localStorage.setItem("color-scheme", scheme);
             document.documentElement.setAttribute("data-color-scheme", scheme);
         }
