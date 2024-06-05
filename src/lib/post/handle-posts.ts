@@ -111,10 +111,11 @@ export interface LangMappedRaw {
  */
 export function extractSummary(body: string) {
     let summaryRaw: string;
-    if (body.indexOf('\n===+\n')) {
-        summaryRaw = body.split(/===+/)[0];
+
+    if (body.indexOf('\n\n===') != -1) {
+        summaryRaw = body.split(/\n+===+/)[0].trim();
     } else {
-        summaryRaw = body.split('\n')[0];
+        summaryRaw = body.split('\n')[0].trim();
     }
     // remove footnote reference
     summaryRaw = summaryRaw.replace(/\[\^[\w-_]+\]/g, '');
@@ -122,7 +123,7 @@ export function extractSummary(body: string) {
     let summaryHtml = markdown(summaryRaw);
     return {
         summary_html: summaryHtml,
-        summary: untag(summaryHtml)
+        summary: untag(summaryHtml).trim()
     }
 }
 
