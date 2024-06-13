@@ -82,10 +82,6 @@
                 href={`https://x.com/${siteConfig["x.com"].username}`}
                 rel="me"
             />
-            <link
-                href={`https://twitter.com/${siteConfig["x.com"].username}`}
-                rel="me"
-            />
         {/if}
     {/if}
 
