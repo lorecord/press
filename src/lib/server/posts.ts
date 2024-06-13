@@ -33,7 +33,7 @@ function load() {
                     .map((p: any) => ({
                         url: `${siteConfig.url}${p?.attributes.url}`,
                         folder: path.dirname(p?.path) || '',
-                        modified: p?.attributes?.date || p?.attributes?.modified?.date
+                        modified: p?.attributes?.modified?.date || p?.attributes?.date
                     }))
                     .filter((p: any) => p.folder);
 
