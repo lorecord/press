@@ -218,6 +218,42 @@
     {@html `<script type="application/ld+json">${JSON.stringify(
         ldjson(),
     )}</script>`}
+
+    <link href="/assets/spacer/spacer.min.css" rel="stylesheet" />
+    <script async src="/assets/spacer/spacer.min.js"></script>
+    <script>
+        (() => {
+            let initSpacer = once(() => {
+                let spacer = new Spacer({
+                    // wrapper: {
+                    //     open: "<spacer>",
+                    //     close: "</spacer>",
+                    // },
+                    spacingContent: " ",
+                    handleOriginalSpace: true,
+                    forceUnifiedSpacing: true,
+                });
+                spacer.spacePage(document, undefined, true);
+                return true;
+            });
+
+            let startSpacer = single(() => {
+                return initSpacer();
+            });
+
+            window.whenLoad(handleSpacer);
+
+            function handleSpacer() {
+                if (window.Spacer) {
+                    startSpacer();
+                } else {
+                    setTimeout(handleSpacer, 100);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", handleSpacer, false);
+        })();
+    </script>
 </svelte:head>
 
 <div class="layout" lang={$locale}>
