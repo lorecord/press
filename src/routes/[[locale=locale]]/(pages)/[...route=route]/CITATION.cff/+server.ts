@@ -65,7 +65,7 @@ export async function GET({ locals, params }) {
         if (keywords) {
             cff.keywords = keywords;
         }
-    })([...(post.taxonomy?.tag || []), ...(post.taxonomy?.category || []), ...(post.keywords || [])]);
+    })([...(post.taxonomy?.tag || []), ...(post.taxonomy?.category || []), ...(post.taxonomy?.series || []), ...(post.keywords || [])]);
 
     cff.references = [];
     cff['preferred-citation'] = {};

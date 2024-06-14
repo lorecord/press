@@ -183,6 +183,19 @@
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
                             <div class="article-taxonomy">
+                                {#if post.taxonomy?.series?.length}
+                                    <ul>
+                                        {#each post.taxonomy.series as series}
+                                            <li>
+                                                <a
+                                                    class="p-series series"
+                                                    href="/series/{series.toLowerCase()}/"
+                                                    >{series}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
                                 {#if post.taxonomy?.category?.length}
                                     <ul>
                                         {#each post.taxonomy.category as category}
@@ -196,7 +209,6 @@
                                         {/each}
                                     </ul>
                                 {/if}
-
                                 {#if post.taxonomy?.tag?.length}
                                     <ul>
                                         {#each post.taxonomy.tag as tag}
@@ -461,6 +473,9 @@
                     color: var(--text-color-tertiary);
                 }
 
+                .category::before {
+                    content: "+";
+                }
                 .category::before {
                     content: "/";
                 }

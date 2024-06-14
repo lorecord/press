@@ -351,13 +351,19 @@
             <meta property="og:article:tag" content={tag} />
         {/each}
     {/if}
+    {#if post.taxonomy?.series}
+        {#each post.taxonomy?.series as series}
+            <meta property="og:article:tag" content={series} />
+        {/each}
+    {/if}
 
-    {#if post.taxonomy?.category || post.taxonomy?.tag || post.keywords}
+    {#if post.taxonomy?.category || post.taxonomy?.tag || post.taxonomy?.series || post.keywords}
         <meta
             name="keywords"
             content={`${[
                 post.taxonomy?.category,
                 post.taxonomy?.tag,
+                post.taxonomy?.series,
                 post.keywords,
             ]
                 .filter((s) => !!s)

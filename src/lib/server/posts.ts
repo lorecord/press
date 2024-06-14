@@ -131,30 +131,33 @@ export function findRelatedPosts(site: any, post: any, limit = 3) {
     const weights = {
         category: 2,
         tag: 1,
+        series: 3,
         keywords: 2
     };
 
     const relatedPosts = getPublicPosts(site)
-        .filter(p => p.template == 'item')
-        .filter(p => p.visible)
-        .filter(p => p.slug != post.slug)
-        .filter(p => p.lang == post.lang)
-        .map(p => {
+        .filter((p: any) => p.template == 'item')
+        .filter((p: any) => p.visible)
+        .filter((p: any) => p.slug != post.slug)
+        .filter((p: any) => p.lang == post.lang)
+        .map((p: any) => {
             let score = 0;
             if (p.taxonomy?.tag && post.taxonomy?.tag) {
-                score += p.taxonomy?.tag.filter(t => post.taxonomy?.tag.includes(t)).length * weights.tag;
+                score += p.taxonomy?.tag.filter((t: any) => post.taxonomy?.tag.includes(t)).length * weights.tag;
             }
             if (p.taxonomy?.category && post.taxonomy?.category) {
-                score += p.taxonomy?.category.filter(c => post.taxonomy?.category.includes(c)).length * weights.tag;
+                score += p.taxonomy?.category.filter((c: any) => post.taxonomy?.category.includes(c)).length * weights.category;
             }
-
+            if (p.taxonomy?.series && post.taxonomy?.series) {
+                score += p.taxonomy?.series.filter((s: any) => post.taxonomy?.series.includes(s)).length * weights.series;
+            }
             if (p.keywords && post.keywords) {
-                score += p.keywords.filter(c => post.keywords.includes(c)).length * weights.keywords;
+                score += p.keywords.filter((c: any) => post.keywords.includes(c)).length * weights.keywords;
             }
             return { post: p, score };
         })
-        .filter(p => p.score > 0)
-        .sort((a, b) => b.score - a.score)
+        .filter((p: any) => p.score > 0)
+        .sort((a: any, b: any) => b.score - a.score)
         .slice(0, limit);
     return relatedPosts;
 }

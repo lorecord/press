@@ -49,6 +49,7 @@ function build(site: any) {
         };
         post.attributes.taxonomy?.category?.forEach(createHandler('category'));
         post.attributes.taxonomy?.tag?.forEach(createHandler('tag'));
+        post.attributes.taxonomy?.series?.forEach(createHandler('series'));
         return taxonomies;
     });
 

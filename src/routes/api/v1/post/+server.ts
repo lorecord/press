@@ -9,6 +9,7 @@ export function GET({ url, locals }) {
     const template = url.searchParams.get('template');
     const tag = url.searchParams.get('tag');
     const category = url.searchParams.get('category');
+    const series = url.searchParams.get('series');
     const limit = url.searchParams.get('limit');
     let lang: string | null = url.searchParams.get('lang');
 
@@ -24,6 +25,9 @@ export function GET({ url, locals }) {
     }
     if (category) {
         collection = collection.filter((p: any) => p.taxonomy?.category?.some((t: any) => t.toLowerCase() == category.toLowerCase()));
+    }
+    if (series) {
+        collection = collection.filter((p: any) => p.taxonomy?.series?.some((t: any) => t.toLowerCase() == series.toLowerCase()));
     }
 
     if (!lang || lang === 'undefined' || lang === 'null') {
