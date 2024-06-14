@@ -40,11 +40,12 @@ function build(site: any) {
     filteredPostRaws.forEach((post: any) => {
         let createHandler = (prefix: string) => {
             return (taxonomy: string) => {
-                if (map[taxonomy.toLowerCase()]) {
+                let slug = taxonomy.toLowerCase().replace(/\s+/gm, "-");
+                if (map[slug]) {
                     return;
                 }
-                map[taxonomy.toLowerCase()] = true;
-                taxonomies.push(`/${prefix}/${taxonomy.toLowerCase()}/`);
+                map[slug] = true;
+                taxonomies.push(`/${prefix}/${slug}/`);
             };
         };
         post.attributes.taxonomy?.category?.forEach(createHandler('category'));

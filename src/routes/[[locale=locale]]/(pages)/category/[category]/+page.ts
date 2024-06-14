@@ -12,7 +12,7 @@ export async function load({ params, fetch, parent }) {
     })}`).then((r) => r.json());
 
     let label = posts?.length
-        ? posts[0].taxonomy?.category?.find((c: string) => c.toLowerCase() === category.toLowerCase())
+        ? posts[0].taxonomy?.category?.find((c: string) => c.toLowerCase().replace(/\s+/gm, '-') === category.toLowerCase().replace(/\s+/gm, '-'))
         : category;
 
     if (!posts?.length) {

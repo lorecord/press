@@ -21,13 +21,13 @@ export function GET({ url, locals }) {
     }
 
     if (tag) {
-        collection = collection.filter((p: any) => p.taxonomy?.tag?.some((t: any) => t.toLowerCase() === tag.toLowerCase()));
+        collection = collection.filter((p: any) => p.taxonomy?.tag?.some((t: any) => t.toLowerCase().replace(/\s+/gm, '-') === tag.toLowerCase().replace(/\s+/gm, '-')));
     }
     if (category) {
-        collection = collection.filter((p: any) => p.taxonomy?.category?.some((t: any) => t.toLowerCase() == category.toLowerCase()));
+        collection = collection.filter((p: any) => p.taxonomy?.category?.some((t: any) => t.toLowerCase().replace(/\s+/gm, '-') == category.toLowerCase().replace(/\s+/gm, '-')));
     }
     if (series) {
-        collection = collection.filter((p: any) => p.taxonomy?.series?.some((t: any) => t.toLowerCase() == series.toLowerCase()));
+        collection = collection.filter((p: any) => p.taxonomy?.series?.some((t: any) => t.toLowerCase().replace(/\s+/gm, '-') == series.toLowerCase().replace(/\s+/gm, '-')));
     }
 
     if (!lang || lang === 'undefined' || lang === 'null') {
