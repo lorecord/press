@@ -220,25 +220,55 @@
     )}</script>`}
 
     <link href="/assets/spacer/spacer.min.css" rel="stylesheet" />
-    <script async src="/assets/spacer/spacer.min.js"></script>
+    <script async src="/assets/spacer/spacer.js"></script>
     <script>
         (() => {
-            let initSpacer = once(() => {
-                let spacer = new Spacer({
-                    // wrapper: {
-                    //     open: "<spacer>",
-                    //     close: "</spacer>",
-                    // },
-                    spacingContent: " ",
-                    handleOriginalSpace: true,
-                    forceUnifiedSpacing: true,
+            let spacer = { spacePace: () => {} };
+            let options = {
+                // wrapper: {
+                //     open: "<spacer>",
+                //     close: "</spacer>",
+                // },
+                spacingContent: " ",
+                handleOriginalSpace: true,
+                forceUnifiedSpacing: true,
+            };
+            let observeSpacer = once(() => {
+                var observer = new MutationObserver(function (mutations) {
+                    observer.disconnect();
+                    if (mutations && mutations.length > 0) {
+                        mutations.forEach((m) => {
+                            if (m.type === "childList") {
+                                spacer.spacePage(m.addedNodes, {}, false);
+                            } else if (m.type === "characterData") {
+                                spacer.spacePage(m.target.parent || m.target, {}, false);
+                            }
+                        });
+                    }
+                    connect();
                 });
-                spacer.spacePage(document, undefined, true);
-                return true;
+
+                var config = {
+                    characterData: true,
+                    childList: true,
+                    attributes: true,
+                    subtree: true,
+                };
+                function connect() {
+                    observer.observe(document, config);
+                }
+                connect();
             });
 
-            let startSpacer = single(() => {
-                return initSpacer();
+            let initSpacer = once(() => {
+                spacer = new Spacer(options);
+                spacer.spacePage(document);
+            });
+
+            let startSpacer = once(() => {
+                initSpacer();
+                observeSpacer();
+                return true;
             });
 
             window.whenLoad(handleSpacer);
