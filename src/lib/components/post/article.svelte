@@ -189,8 +189,12 @@
                                             <li>
                                                 <a
                                                     class="p-series series"
-                                                    href="/series/{series.toLowerCase().replace(/\s+/gm, "-")}/"
-                                                    >{series}</a
+                                                    href="/series/{series
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{series}</a
                                                 >
                                             </li>
                                         {/each}
@@ -202,8 +206,12 @@
                                             <li>
                                                 <a
                                                     class="p-category category"
-                                                    href="/category/{category.toLowerCase().replace(/\s+/gm, "-")}/"
-                                                    >{category}</a
+                                                    href="/category/{category
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{category}</a
                                                 >
                                             </li>
                                         {/each}
@@ -215,8 +223,12 @@
                                             <li>
                                                 <a
                                                     class="p-tag tag"
-                                                    href="/tag/{tag.toLowerCase().replace(/\s+/gm, "-")}/"
-                                                    >{tag}</a
+                                                    href="/tag/{tag
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{tag}</a
                                                 >
                                             </li>
                                         {/each}
