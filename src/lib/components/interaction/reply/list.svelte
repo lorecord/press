@@ -1,9 +1,9 @@
 <script lang="ts">
-    import CommentItem from "./item.svelte";
+    import ReplyItem from "./item.svelte";
 
     export let comments: any[];
 
-    $: effectedComments = comments.filter((c) => !c.type);
+    $: effectedComments = comments.filter((c) => c.type === 'reply');
 
     export let gravatarBase: string;
     export let commentHelper: any;
@@ -28,9 +28,9 @@
             class:has-reply={comment.replies?.length === 1}
             class:has-replies={comment.replies?.length > 1}
         >
-            <CommentItem
+            <ReplyItem
                 {gravatarBase}
-                {comment}
+                item={comment}
                 {commentHelper}
                 {showReplies}
                 {replying}
@@ -47,6 +47,7 @@
         display: flex;
         flex-flow: column;
         gap: 1rem;
+        margin: 0;
 
         &.reverse {
             flex-flow: column-reverse;
@@ -54,6 +55,7 @@
 
         .comment-list-item {
             position: relative;
+            margin: 0;
 
             &::before {
                 content: "";
@@ -94,7 +96,6 @@
         }
 
         &.replying-one {
-            margin-left: calc(var(--content-padding) * 2 - 3.5rem);
             margin-left: calc(-1 * (var(--avatar-size) + var(--avatar-gap)));
         }
     }

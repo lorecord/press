@@ -1,13 +1,16 @@
 <script lang="ts">
-    import { locale } from "$lib/translations";
+    import { locale, t } from "$lib/translations";
     import {
         IconDiscountCheckFilled,
         IconMessageCircle,
+        IconExternalLink,
+        IconAlien,
     } from "@tabler/icons-svelte";
     import CommentList from "./list.svelte";
-    import "./comment.css";
+    import Time from "$lib/ui/time/index.svelte";
+    import "./reply.css";
 
-    export let comment: any;
+    export let item: any;
     export let gravatarBase: string;
     export let commentHelper: any;
     export let showReplies = true;
@@ -17,26 +20,28 @@
 
 <article
     class="comment"
-    class:has-reply={comment.replies?.length === 1}
-    class:has-replies={comment.replies?.length > 1}
+    class:has-reply={item.replies?.length === 1}
+    class:has-replies={item.replies?.length > 1}
     class:replying
     class:replying-one={replyingOne}
 >
-    {#if comment.email_md5}
+    {#if item.author?.email?.hash?.md5 || item.author?.avatar}
         <div class="comment-avatar">
-            {#if comment.url}
-                <a href={comment.url} rel="external nofollow">
+            {#if item.author?.url}
+                <a href={item.author?.url} rel="external nofollow">
                     <img
                         class="avatar rounded-circle"
-                        src={`${gravatarBase}/avatar/${comment.email_md5}?s=48`}
-                        alt={comment.author}
+                        src={item.author?.avatar ||
+                            `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
+                        alt={item.author?.name}
                     />
                 </a>
             {:else}
                 <img
                     class="avatar rounded-circle"
-                    src={`${gravatarBase}/avatar/${comment.email_md5}?s=48`}
-                    alt={comment.author}
+                    src={item.author?.avatar ||
+                        `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
+                    alt={item.author?.name}
                 />
             {/if}
         </div>
@@ -44,55 +49,68 @@
     <div class="comment-main">
         <div class="comment-header">
             <span class="comment-author">
-                {#if comment.url}
-                    <a href={comment.url} rel="external nofollow"
-                        >{comment.author}</a
+                {#if item.author?.url}
+                    <a href={item.author?.url} rel="external nofollow"
+                        >{item.author?.name}</a
                     >
                 {:else}
-                    {comment.author}
+                    {item.author?.name}
                 {/if}
-                {#if comment.user}
+                {#if item.author?.user}
                     <IconDiscountCheckFilled class="user-verified" size={18} />
-                {:else if comment.verified}
+                {:else if item.author?.verified}
                     <IconDiscountCheckFilled class="email-verified" size={18} />
                 {/if}
             </span>
             <a
-                href={`#comment-${comment.id?.toString().substr(-8)}`}
+                href={`#comment-${item.id?.toString().substr(-8)}`}
                 class="comment-permalink"
             >
-                <time
+                <Time
+                    date={item.published}
                     class="dt-published"
-                    datetime={new Date(comment.date).toString()}
-                >
-                    {new Intl.DateTimeFormat($locale, {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                    }).format(new Date(comment.date))}
-                </time>
+                    locale={$locale}
+                    style={{
+                        color: "var(--text-color-quaternary)",
+                    }}
+                />
             </a>
         </div>
         <div class="comment-body">
-            {@html comment.text}
+            {@html item.content}
         </div>
         <div class="comment-footer">
-            <a
-                href={`#reply-${comment.id?.toString().substr(-8)}`}
-                on:click|preventDefault={commentHelper.replyTo(comment.id)}
-            >
-                <IconMessageCircle size={18} />
-                {#if comment.replies?.length > 0}
-                    {comment.replies?.length}
+            <div class="extra">
+                {#if item.channel !== "native"}
+                    <div class="via">
+                        <IconAlien size={12} /> via {item.channel}
+                    </div>
                 {/if}
-            </a>
+            </div>
+            <div class="action">
+                <a
+                    href={`#reply-${item.id?.toString().substr(-8)}`}
+                    on:click|preventDefault={commentHelper.replyTo(item.id)}
+                >
+                    <IconMessageCircle size={18} />
+                    {#if item.replies?.length > 0}
+                        {item.replies?.length}
+                    {/if}
+                </a>
+                {#if item.url}
+                    <a href={item.url} rel="external nofollow">
+                        <IconExternalLink size={18} />
+                    </a>
+                {/if}
+            </div>
         </div>
     </div>
 </article>
 
-{#if showReplies && comment.replies}
+{#if showReplies && item.replies}
     <CommentList
         {gravatarBase}
-        comments={comment.replies}
+        comments={item.replies}
         {commentHelper}
         {showReplies}
         replying={true}
@@ -146,6 +164,7 @@
             width: calc(var(--avatar-size));
             height: calc(var(--avatar-size));
             background: var(--bg-color);
+            object-fit: cover;
         }
     }
 
@@ -168,20 +187,35 @@
 
             &,
             a {
-                color: var(--text-color);
+                color: var(--text-color-secondary);
             }
-        }
-
-        time {
-            color: var(--text-color-tertiary);
         }
     }
 
     .comment-footer {
+        .extra {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            color: var(--text-color-quinary);
+            font-size: 67%;
+
+            .via {
+                display: flex;
+                align-items: center;
+                gap: 0.125rem;
+            }
+        }
+        .action {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
         a {
             display: inline-flex;
             align-items: center;
-            color: var(--text-color-tertiary);
+            color: var(--text-color-quaternary);
         }
     }
 

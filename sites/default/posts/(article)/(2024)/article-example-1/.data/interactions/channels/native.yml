@@ -1,0 +1,22 @@
+- type: reply
+  channel: native
+  id: 4aa620de063cc1d2b9f76feeeae72efe913cec02
+  author:
+    name: Press
+  published: 2024-03-16T14:35:36.565Z
+  content: <p>Hi! <strong>Markdown</strong> is supported in comments.</p>
+  ip:
+    encrypted: ZjEyMjlm
+    algorithm: aes-256-gcm
+    iv: 38ee73b277910968cd356560
+- type: reply
+  channel: native
+  id: 1f64039aab9a5d99bead1d4f1b8326cebaeeef59
+  author:
+    name: Press
+  published: 2024-03-16T14:30:32.889Z
+  content: <p>Hi! <strong>Markdown</strong> is supported in comments.</p>
+  ip:
+    encrypted: NTkxYzQz
+    algorithm: aes-256-gcm
+    iv: 195db04080b746a8e76c69df

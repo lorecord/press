@@ -1,10 +1,11 @@
-import { getSiteConfig, getSystemConfig } from "$lib/server/config";
+import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { Client } from '@sendgrid/client/';
 import { MailService } from '@sendgrid/mail';
 
 function getSendgridClient(site: any) {
 
     let systemConfig = getSystemConfig(site);
+    let envConfig = getEnvConfig(site);
 
     let smtpConfig = systemConfig.private?.email?.provider === "sendgrid"
         ? {
@@ -12,14 +13,14 @@ function getSendgridClient(site: any) {
             port: 587,
             auth: {
                 user: 'apikey',
-                pass: systemConfig.private?.email?.sendgrid?.key || process.env.SENDGRID_API_KEY
+                pass: envConfig.private?.SENDGRID_API_KEY || process.env.SENDGRID_API_KEY
             }
         } : {
             host: systemConfig.private?.email?.smtp?.host,
             port: systemConfig.private?.email?.smtp?.port,
             auth: {
                 user: systemConfig.private?.email?.smtp?.user,
-                pass: systemConfig.private?.email?.smtp?.pass
+                pass: envConfig.private?.SMTP_PASS
             }
         };
 

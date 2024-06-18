@@ -29,6 +29,12 @@ article a:hover {
     vertical-align: sub;
 }
 
+a[href^="mailto:"]::before {
+    mask: url('data:image/svg+xml; utf8, <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-mail"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>')
+        no-repeat 50% 50% !important;
+    mask-size: cover !important;
+}
+
 @media print {
     .article-content a:not([href^="#"])::before,
     .comment-body a:not([href^="#"])::before {
@@ -62,25 +68,4 @@ table {
 
 table > :not(caption) > * > * {
     padding: 0.5rem 0.5rem;
-}
-
-/** code highlight */
-.line-number::before {
-    white-space: nowrap;
-}
-
-code[class*="language-"] {
-    white-space: pre-wrap !important;
-}
-
-.code-line {
-    transition: background-color 0.2s ease;
-    transition: filter 0.2s ease;
-}
-
-.code-line:not(.highlight-line):not(.inserted):not(.deleted):hover {
-    background-color: #ffffff0f;
-}
-.code-line:hover {
-    filter: brightness(125%);
 }

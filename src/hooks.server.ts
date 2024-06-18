@@ -5,7 +5,9 @@ import { locale, locales, loadTranslations } from "$lib/translations";
 import { getPreferredLangFromHeader } from '$lib/translations/utils';
 import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
-import { getSiteAccount } from '$lib/server/accouns';
+import { sequence } from '@sveltejs/kit/hooks';
+import type { Handle } from '@sveltejs/kit';
+import { getEnvConfig } from '$lib/server/config';
 
 {
     const currentLocale = locale.get();
@@ -22,15 +24,16 @@ import { getSiteAccount } from '$lib/server/accouns';
     }
 }
 
-/** @type {import('@sveltejs/kit').Handle} */
-export async function handle({ event, resolve }) {
+export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
+    (event.locals as any).site = site;
+    return await resolve(event);
+}
 
-    const { PUBLIC_DIR } = site.constants;
-
+export const handleCommon: Handle = async ({ event, resolve }) => {
+    const { site } = event.locals as any;
     const { system } = site;
-
-    event.locals.site = site;
+    const { PUBLIC_DIR } = site.constants;
 
     let pathLang: string | undefined = '';
 
@@ -41,7 +44,13 @@ export async function handle({ event, resolve }) {
         let segments = event.url.pathname.split('/');
         if (segments?.length > 1 && /^\w{2,3}(-\w{2,6})?$/.test(segments[1])) {
             segments[0] = segments[1];
-            pathLang = segments.shift();
+            pathLang = (() => {
+                let pathLangFoo = segments.shift();
+
+                pathLangFoo = locales.get().find(locale => locale.split('-')[0] === pathLangFoo?.split('-')[0]) || '';
+                return pathLangFoo;
+            })();
+
             segments[0] = '';
         }
 
@@ -158,3 +167,19 @@ export async function handle({ event, resolve }) {
     });
     return response;
 }
+
+export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
+    const { site } = event.locals as any;
+    const envConfig = getEnvConfig(site);
+    if (envConfig.private?.INDEXNOW_KEY && event.url.pathname === `/${envConfig.private?.INDEXNOW_KEY}.txt`) {
+        return new Response(envConfig.private?.INDEXNOW_KEY, {
+            status: 200,
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+    }
+    return await resolve(event);
+};
+
+export const handle = sequence(handleSite, handleCommon, handleIndexNowKeyFile);

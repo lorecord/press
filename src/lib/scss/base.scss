@@ -4,6 +4,7 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 20px;
 }
 
 html,
@@ -16,25 +17,96 @@ body {
     background-color: var(--bg-color);
     scrollbar-color: var(--scrollbar-color);
     color: var(--text-color);
-    line-height: 1.5;
+    line-height: 1.667;
+    font-family: var(--font-text);
+    text-shadow: 0 0 0.75px #82828200;
+}
+
+[lang="zh"],
+[lang^="zh-"] {
+    --font-text: Georgia, serif;
     font-size: 18px;
 }
 
 p {
-    margin: 1rem 0;
+    margin: 1.333em 0;
 }
 
-ul {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    margin: 1.133em 0 0.33em;
+}
+
+.typography {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        max-width: calc(max(80ch, 100%));
+    }
+
+    h1 {
+        font-size: 3em;
+    }
+    h2 {
+        font-size: 2.45em;
+    }
+    h3 {
+        font-size: 2em;
+    }
+    h4 {
+        font-size: 1.667em;
+    }
+    h5 {
+        font-size: 1.33em;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .typography {
+        h1 {
+            font-size: 2.333em;
+        }
+        h2 {
+            font-size: 2em;
+        }
+        h3 {
+            font-size: 1.667em;
+        }
+        h4 {
+            font-size: 1.444em;
+        }
+        h5 {
+            font-size: 1.222em;
+        }
+    }
+}
+
+ul,
+ol {
     padding-left: var(--content-padding);
+    margin: 0.667em 0;
+}
+
+li {
+    margin: 0.133em 0;
 }
 
 a {
     text-decoration: none;
     color: var(--link-color);
+    word-break: break-word; /* for iOS safari */
 }
 
 code {
-    word-break: break-all;
+    word-break: break-word;
     word-wrap: break-word;
 }
 
@@ -51,9 +123,9 @@ code:not([class*="language-"]) {
 
 pre {
     padding: 1rem;
-    margin: 0.5em 0;
+    margin: 0.667em 0;
     overflow-x: auto;
-    word-break: break-all;
+    word-break: break-word;
     word-wrap: break-word;
 
     code {
@@ -75,12 +147,13 @@ pre {
 }
 
 blockquote {
-    background-color: var(--code-bg-color);
-    border-left: 0.25rem solid #ffffff45;
+    background-color: var(--bg-color);
     padding: 1rem;
     margin-left: 0;
     margin-right: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--blockquote-border-color);
+    border-left: 0.33rem solid var(--blockquote-border-color);
 }
 
 textarea {
@@ -111,7 +184,7 @@ button,
 input {
     padding: 1rem 1rem 0.5rem;
     border-radius: 0.25rem;
-    border: 1px solid transparent;
+    border: var(--input-border);
     background-color: var(--content-bg-color);
     color: var(--text-color);
     display: block;
@@ -192,7 +265,7 @@ tr {
 
 td,
 th {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 details {
@@ -207,5 +280,33 @@ details {
         &:hover > * {
             text-decoration: underline;
         }
+    }
+}
+
+hr {
+    border-top: 1px solid var(--text-color-quinary);
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+/** code highlight */
+.line-number::before {
+    white-space: nowrap;
+}
+
+code[class*="language-"] {
+    white-space: pre-wrap !important;
+}
+
+.code-line {
+    transition: background-color 0.2s ease;
+    transition: filter 0.2s ease;
+
+    &:not(.highlight-line):not(.inserted):not(.deleted):hover {
+        background-color: #ffffff88;
+    }
+    &:hover {
+        filter: brightness(80%);
     }
 }

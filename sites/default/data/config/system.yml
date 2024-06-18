@@ -12,4 +12,10 @@ public:
     domain: plausible.com
   brand:
     personal: true
+  webmention:
+    enabled: true
+    callback:
+      secret:
+        hash:
+          md5: 5EBE2294ECD0E0F08EAB7690D2A6EE69
 private:

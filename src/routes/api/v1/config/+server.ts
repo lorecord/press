@@ -7,6 +7,9 @@ export function GET({ url, locals }) {
     let systemConfig = getSystemConfig(site);
     let siteConfig = getSiteConfig(site, lang || 'en');
 
+    systemConfig = Object.assign({}, systemConfig);
+    siteConfig = Object.assign({}, siteConfig);
+
     delete systemConfig.private;
     delete siteConfig.private;
 

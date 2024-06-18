@@ -6,14 +6,21 @@ import path from 'path';
 
 let configOfSite: any = {};
 let systemOfSite: any = {};
+let envOfSite: any = {};
 
 function load() {
     for (const site of sites) {
-        const { CONFIG_DIR, SYSTEM_CONFIG_FILE } = site.constants;
+        const { CONFIG_DIR, SYSTEM_CONFIG_FILE, ENV_CONFIG_FILE } = site.constants;
+
         const loadForSite = () => {
             const system = loadConfig(SYSTEM_CONFIG_FILE);
             systemOfSite[site.unique] = system;
             site.system = system;
+
+            console.log('ENV_CONFIG_FILE', ENV_CONFIG_FILE);
+            const env = loadConfig(ENV_CONFIG_FILE);
+            envOfSite[site.unique] = env;
+            site.env = env;
 
             let sitesResource = detectResourceLocales(`${CONFIG_DIR}/site.yml`);
 
@@ -39,6 +46,10 @@ function getSystemConfig(site: any) {
     return systemOfSite[site.unique] || site.system || {};
 }
 
+function getEnvConfig(site: any) {
+    return envOfSite[site.unique] || site.env || {};
+}
+
 function getSiteConfig(site: any, lang: string) {
     const system = getSystemConfig(site);
 
@@ -58,4 +69,4 @@ function configInit() {
 
 configInit();
 
-export { getSystemConfig, getSiteConfig, loadConfig, configInit };
+export { getSystemConfig, getEnvConfig, getSiteConfig, loadConfig, configInit };

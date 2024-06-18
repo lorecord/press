@@ -1,4 +1,4 @@
-import { loadAllPublicPostRaws } from "$lib/post/handle-posts";
+import { getPublicPostRaws } from "./posts";
 
 /**
  * @param {string} date 
@@ -10,11 +10,12 @@ function formatDate(date: Date) {
 }
 
 function build(site: any) {
-    let postRaws = loadAllPublicPostRaws(site);
+    let postRaws = getPublicPostRaws(site);
 
     let map: any = {};
 
     let filteredPostRaws = postRaws
+        .filter((post: any) => post.attributes?.visible)
         .filter((post: any) => {
             let robots = post.attributes?.robots;
             if (!robots) {
@@ -39,15 +40,17 @@ function build(site: any) {
     filteredPostRaws.forEach((post: any) => {
         let createHandler = (prefix: string) => {
             return (taxonomy: string) => {
-                if (map[taxonomy.toLowerCase()]) {
+                let slug = taxonomy.toLowerCase().replace(/\s+/gm, "-");
+                if (map[slug]) {
                     return;
                 }
-                map[taxonomy.toLowerCase()] = true;
-                taxonomies.push(`/${prefix}/${taxonomy.toLowerCase()}/`);
+                map[slug] = true;
+                taxonomies.push(`/${prefix}/${slug}/`);
             };
         };
         post.attributes.taxonomy?.category?.forEach(createHandler('category'));
         post.attributes.taxonomy?.tag?.forEach(createHandler('tag'));
+        post.attributes.taxonomy?.series?.forEach(createHandler('series'));
         return taxonomies;
     });
 

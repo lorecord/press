@@ -3,6 +3,7 @@
     import Rating from "$lib/ui/rating/index.svelte";
     import License from "$lib/components/license/index.svelte";
     import Cite from "$lib/components/cite/index.svelte";
+    import Time from "$lib/ui/time/index.svelte";
 
     import { IconLanguage } from "@tabler/icons-svelte";
 
@@ -11,7 +12,7 @@
     export let siteConfig: any;
 </script>
 
-<article>
+<article class="typography">
     <div class="article-header container">
         {#if post.image}
             <img
@@ -28,38 +29,32 @@
             <div class="article-meta">
                 {#if post.authors && !post.isDefaultAuthor}
                     {#each post.authors as author}
-                        <span>{author.name}</span>
+                        <span>{author.name || author.account || author}</span>
                     {/each}
                 {/if}
 
                 {#if post.review}
-                    {$t("common.review")}
-                    {#if post.review.item?.url}
-                        <a
-                            class="u-review-of"
-                            style={post.review.rating > 6
-                                ? ""
-                                : "color: var(--text-color-tertiary)"}
-                            href={post.review.item.url}
-                            rel={post.review.rating > 6 ? "" : "nofollow"}
-                            >{post.review.item.name}</a
-                        >
-                    {:else}
-                        <span>{post.review.item.name}</span>
-                    {/if}
+                    <div>
+                        {$t("common.review")}
+                        {#if post.review.item?.url}
+                            <a
+                                class="u-review-of"
+                                style={post.review.rating > 6
+                                    ? ""
+                                    : "color: var(--text-color-tertiary)"}
+                                href={post.review.item.url}
+                                rel={post.review.rating > 6 ? "" : "nofollow"}
+                                >{post.review.item.name}</a
+                            >
+                        {:else}
+                            <span>{post.review.item.name}</span>
+                        {/if}
 
-                    <Rating value={post.review.rating} />
+                        <Rating value={post.review.rating} />
+                    </div>
                 {/if}
 
-                <time
-                    class="dt-published"
-                    datetime={new Date(post.date).toISOString()}
-                >
-                    {new Intl.DateTimeFormat($locale, {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                    }).format(new Date(post.date))}
-                </time>
+                <Time date={post.date} class="dt-published" locale={$locale} />
             </div>
         {/if}
 
@@ -72,7 +67,7 @@
         <div class="article-aside no-print">
             {#if post.toc && post.headings}
                 <aside class="article-toc">
-                    <details>
+                    <details open>
                         <summary>
                             <h3>{$t("common.toc")}</h3>
                         </summary>
@@ -123,11 +118,15 @@
                                                 rel="author"
                                                 href={author.url ||
                                                     siteConfig.url}
-                                                >{author.name}</a
+                                                >{author.name ||
+                                                    author.account ||
+                                                    author}</a
                                             >
                                             <img
                                                 style="display:none"
-                                                alt={author.name}
+                                                alt={author.name ||
+                                                    author.account ||
+                                                    author}
                                                 class="u-photo"
                                                 src={siteConfig.url +
                                                     "/favicon.png"}
@@ -142,14 +141,11 @@
                                 {$t("common.publish_date")}
                             </div>
                             <div class="value">
-                                <time
+                                <Time
+                                    date={post.date}
                                     class="dt-published"
-                                    datetime={new Date(post.date).toISOString()}
-                                >
-                                    {new Intl.DateTimeFormat($locale).format(
-                                        new Date(post.date),
-                                    )}
-                                </time>
+                                    locale={$locale}
+                                />
                             </div>
                         </div>
                         {#if post.license || systemConfig.license?.default}
@@ -187,28 +183,52 @@
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
                             <div class="article-taxonomy">
+                                {#if post.taxonomy?.series?.length}
+                                    <ul>
+                                        {#each post.taxonomy.series as series}
+                                            <li>
+                                                <a
+                                                    class="p-series series"
+                                                    href="/series/{series
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{series}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
                                 {#if post.taxonomy?.category?.length}
                                     <ul>
                                         {#each post.taxonomy.category as category}
                                             <li>
                                                 <a
                                                     class="p-category category"
-                                                    href="/category/{category.toLowerCase()}/"
-                                                    >{category}</a
+                                                    href="/category/{category
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{category}</a
                                                 >
                                             </li>
                                         {/each}
                                     </ul>
                                 {/if}
-
                                 {#if post.taxonomy?.tag?.length}
                                     <ul>
                                         {#each post.taxonomy.tag as tag}
                                             <li>
                                                 <a
                                                     class="p-tag tag"
-                                                    href="/tag/{tag.toLowerCase()}/"
-                                                    >{tag}</a
+                                                    href="/tag/{tag
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{tag}</a
                                                 >
                                             </li>
                                         {/each}
@@ -216,7 +236,7 @@
                                 {/if}
                             </div>
                         {/if}
-                        {#if post.langs?.length > 0}
+                        {#if post.langs?.length > 1}
                             <div class="article-lang">
                                 <IconLanguage size={20} />
                                 <ul>
@@ -248,12 +268,14 @@
                 position: relative;
 
                 :global(a.heading-anchor-link) {
+                    --width: 1.33ch;
                     visibility: hidden;
                     opacity: 0;
                     transition: opacity 0.3s ease-in-out;
                     position: absolute;
-                    left: -1rem;
-                    width: 1rem;
+                    left: calc(var(--width) * -1);
+                    width: var(--width);
+                    font-weight: lighter;
                 }
 
                 &:hover {
@@ -272,9 +294,13 @@
         color: var(--text-color-secondary);
 
         :global(~ ol) {
-            font-size: 90%;
+            font-size: 85%;
             color: var(--text-color-secondary);
         }
+    }
+
+    :global([id^="fn-"] p) {
+        margin: 0.333em 0;
     }
 
     article {
@@ -312,14 +338,16 @@
             overflow: hidden;
         }
 
-        .article-header {
+        > :first-child {
             border-top-left-radius: var(--article-border-radius);
             border-top-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
-        .article-footer {
+        > :last-child {
             border-bottom-left-radius: var(--article-border-radius);
             border-bottom-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
         .article-body {
@@ -358,23 +386,39 @@
 
         .article-meta {
             color: var(--text-color-tertiary);
+
+            display: flex;
+            gap: 1em;
+            justify-content: center;
         }
 
-        .article-content {
+        .article-content,
+        .article-toc {
             padding: var(--content-padding);
+
+            @media screen {
+                :global(> *:first-child) {
+                    margin-top: 0;
+                }
+            }
 
             @media print {
                 padding: 0;
             }
         }
 
-        .article-toc {
-            padding: var(--content-padding);
+        @media screen {
+            .article-toc {
+                h3 {
+                    margin-top: 0;
+                }
+            }
         }
 
         .article-extra {
             display: flex;
             flex-flow: column;
+            flex-wrap: wrap;
 
             ul {
                 display: flex;
@@ -415,6 +459,7 @@
                 .article-license-meta {
                     display: flex;
                     gap: 1rem;
+                    flex-wrap: wrap;
                 }
 
                 .article-license-meta-item {
@@ -440,6 +485,9 @@
                     color: var(--text-color-tertiary);
                 }
 
+                .series::before {
+                    content: "+";
+                }
                 .category::before {
                     content: "/";
                 }

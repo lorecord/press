@@ -79,7 +79,13 @@
     {/if}
     {#if article}
         {#if author}
-            <meta property="og:article:author" content={author} />
+            <meta
+                property="og:article:author"
+                content={[author]
+                    .flat()
+                    .map((author) => author.name || author.account || author)
+                    .join(",")}
+            />
         {/if}
         {#if article.published_time}
             <meta

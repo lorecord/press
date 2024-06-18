@@ -29,6 +29,7 @@ import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config';
 import { getSiteAccount } from '$lib/server/accouns';
+import remarkLinks from '$lib/markdown/remark-links';
 
 const DEFAULT_ATTRIBUTE_MAP: any = {
     default: {
@@ -109,19 +110,21 @@ export interface LangMappedRaw {
  * @param body Markdown body
  */
 export function extractSummary(body: string) {
-    if (body.indexOf('\n===+\n')) {
-        let summary = body.split(/===+/)[0];
+    let summaryRaw: string;
 
-        // remove footnote reference
-        summary = summary.replace(/\[\^[\w-_]+\]/g, '');
-
-        let summary_html = markdown(summary);
-        return {
-            summary_html,
-            summary: untag(summary_html)
-        }
+    if (body.indexOf('\n\n===') != -1) {
+        summaryRaw = body.split(/\n+===+/)[0].trim();
+    } else {
+        summaryRaw = body.split('\n')[0].trim();
     }
-    return {};
+    // remove footnote reference
+    summaryRaw = summaryRaw.replace(/\[\^[\w-_]+\]/g, '');
+
+    let summaryHtml = markdown(summaryRaw);
+    return {
+        summary_html: summaryHtml,
+        summary: untag(summaryHtml).trim()
+    }
 }
 
 export function detectResourceRaw(resourcePath: string): { path: string, locales: { lang: string, filename: string }[] } {
@@ -219,22 +222,6 @@ export function loadAllPostRaws(site: any) {
     return loadPostRaws(site, POSTS_DIR);
 }
 
-export function loadAllPublicPostRaws(site: any) {
-    const result = loadAllPostRaws(site)
-        .filter(r => r.attributes?.published)
-        .filter(r => r.attributes?.visible)
-        .filter(r => r.attributes?.routable)
-        .filter(r => new Date(r.attributes?.date).getTime() < Date.now())
-        .filter(r => {
-            let attr = r.attributes;
-            delete attr.published;
-            delete attr.routable;
-            return true;
-        });
-
-    return result;
-}
-
 export function loadPostRaws(site: any, path: string) {
     let fileNames = globSync(`${path}/**/*.md`);
     if (!fileNames?.length) {
@@ -268,10 +255,13 @@ export async function loadAllPosts() {
 
 export function buildPostByMarkdown(content: string, lang: string, rehypeFunction?: (tree: any) => void, options: any = {}) {
     const parser = createMarkdownParser({ rehypeFunction, lang, config: options });
-    let processed = parser.processSync(content);
-    let result = processed.value;
-    result = fixMarkdownHtmlWrapper(result.toString());
-    return { content: result, headings: processed.data.headings, processMeta: processed.data.processMeta };
+
+    if (content) {
+        let processed = parser.processSync(content);
+        let result = fixMarkdownHtmlWrapper(processed.value.toString());
+        return { content: result, headings: processed.data.headings, links: processed.data.links, processMeta: processed.data.processMeta };
+    }
+    return { content: undefined, headings: [], links: [], processMeta: {} };
 }
 
 export function createMarkdownParser(options: any = {}) {
@@ -290,6 +280,7 @@ export function createMarkdownParser(options: any = {}) {
         .use(remarkFrontmatter)
         .use(remarkGfm)
         .use(remarkMath)
+        .use(remarkLinks)
         .use(remarkFng)
         .use(remarkAlert, { tagName: alertTagName })
         .use(remarkSlug)
@@ -323,8 +314,8 @@ export function createMarkdownParser(options: any = {}) {
                     ...(defaultSchema.attributes?.code || []),
                     ['className', /.*/]
                 ],
-                blockqoute: [
-                    ...(defaultSchema.attributes?.blockqoute || []),
+                blockquote: [
+                    ...(defaultSchema.attributes?.blockquote || []),
                     ['className', /.*/]
                 ],
                 div: [
@@ -372,23 +363,28 @@ export function fetchPostPath(site: any, { route, lang }: { route: string, lang?
     return fetchPath(site, { route, lang, match: (file) => file.endsWith('.md') });
 }
 
-export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
+export function loadPostRaw(site: any, { route, lang }: { route: string, lang?: string }): any {
     const systemConfig = getSystemConfig(site);
     lang = lang || systemConfig.locale?.default;
     let { target, langMap } = fetchPostPath(site, { route, lang });
     if (target) {
         const rawObject = loadFrontMatterRaw(site, target.file);
+        return rawObject;
+    }
+    return {};
+}
 
-        if (rawObject) {
-            const post = convertToPost(site, rawObject);
-            return post;
-        }
+export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
+    const rawObject = loadPostRaw(site, { route, lang });
+    if (rawObject) {
+        const post = convertToPost(site, rawObject);
+        return post;
     }
     return {};
 }
 
 export function convertToPost(site: any, raw: Raw) {
-    const { content, headings, processMeta } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
+    const { content, headings, processMeta, links } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
@@ -414,11 +410,15 @@ export function convertToPost(site: any, raw: Raw) {
 
     handleAuthors(site, raw.attributes);
     return {
-        ...raw?.attributes, content, headings, processMeta
+        ...raw?.attributes, content, headings, processMeta, links
     };
 }
 
 function handleAuthors(site: any, attr: { author?: string, authors?: string[], lang: string } & any) {
+
+    if (!attr) {
+        return;
+    }
 
     const systemConfig = getSystemConfig(site);
     attr.isDefaultAuthor = !attr.author && !attr.authors;
@@ -427,8 +427,8 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
         if (typeof author === 'string') {
             const account = getSiteAccount(site, author, attr.lang);
             if (account) {
-                const { name, id, ircid, url } = account;
-                return { name, id, ircid, url, account: author };
+                const { name, id, orcid, url } = account;
+                return { name, id, orcid, url, account: author };
             } else {
                 return { name: author, account: author };
             }
@@ -446,7 +446,7 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
 }
 
 export function convertToPostForFeed(site: any, raw: Raw) {
-    const { content, headings } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
+    const { content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
@@ -499,7 +499,7 @@ export function convertToPostForFeed(site: any, raw: Raw) {
     handleAuthors(site, raw.attributes);
 
     return {
-        ...raw?.attributes, content: feedContent, headings
+        ...raw?.attributes, content: feedContent, headings, links
     };
 }
 

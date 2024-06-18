@@ -1,20 +1,40 @@
 <script lang="ts">
-    import Comments from "$lib/components/comments.svelte";
+    import Replies from "$lib/components/interaction/replies.svelte";
     import { t, locale } from "$lib/translations/index.js";
-    import Citations from "$lib/components/comment/citations.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import { IconLanguage } from "@tabler/icons-svelte";
     import TemplatePage from "$lib/components/template/default.svelte";
     import TemplatePost from "$lib/components/template/item.svelte";
     import TemplateLinks from "$lib/components/template/links.svelte";
+    import type {
+        WithContext,
+        Article as SchemeArticle,
+        Review,
+        CreativeWork,
+        WebPage,
+    } from "schema-dts";
+    import Mentions from "$lib/components/interaction/mention/mentions.svelte";
+    import spdxLicenseList from "spdx-license-list";
 
     export let data;
 
-    $: ({ post, comments, systemConfig, siteConfig, newer, earlier, ldjson } =
-        data);
+    $: ({
+        post,
+        interactions,
+        systemConfig,
+        siteConfig,
+        newer,
+        earlier,
+        pathLocale,
+    } = data);
 
-    $: commonComments = comments?.filter((c) => !c.type);
-    $: citations = comments?.filter((c) => c.type === "pingback");
+    $: commonComments = interactions.replies?.filter(
+        (r: any) => r.type === "reply",
+    );
+    $: citations =
+        interactions.mentions?.filter(
+            (r: any) => r.type === "mention" || r.type === "citation",
+        ) || [];
 
     const templates: any = {
         default: TemplatePage,
@@ -27,46 +47,60 @@
     $: templateComponent =
         templates[(post.template as string) || "default"] || templates.default;
 
-    let json = () => {
-        let obj: any = {
-            "@context": "https://schema.org",
-            "@type":
-                post.type || (post.template == "item" ? "Article" : "Webpage"),
+    let ldjson = () => {
+        const license = ((l) => {
+            if (spdxLicenseList[l]) {
+                return { licenseId: l, ...spdxLicenseList[l] };
+            }
+            return { licenseId: l, name: l, url: undefined };
+        })(post.license || systemConfig.license?.default);
+
+        let creativeWork: CreativeWork = {
+            "@type": "CreativeWork",
             headline: post.title,
             image: post.image
                 ? [`${siteConfig.url}${post.url}${post.image}`]
                 : [`${siteConfig.url}/favicon.png`],
-            datePublished: new Date(post.date).toISOString(),
+
             url: `${siteConfig.url}${post.url}`,
-            author: {
-                "@type": "Person",
-                name: post.author || systemConfig.user?.default,
-            },
+            license: license.url || license.name,
         };
+
+        if (post.date) {
+            creativeWork.datePublished = new Date(post.date).toISOString();
+        }
+
+        if (post.authors) {
+            let author = post.authors.map((author: any) =>
+                Object.assign(
+                    {
+                        "@type": "Person",
+                        name: author.name || author.account || author,
+                    },
+                    author.url
+                        ? {
+                              url: author.url,
+                          }
+                        : {},
+                ),
+            );
+            if (author.length === 1) {
+                author = author[0];
+            }
+            creativeWork.author = author;
+        }
+
         if (post.modified?.date) {
-            obj.dateModified = new Date(post.modified.date).toISOString();
+            creativeWork.dateModified = new Date(
+                post.modified.date,
+            ).toISOString();
         }
         if (post.summary) {
-            obj.description = post.summary;
-        }
-        if (post.review) {
-            obj.itemReviewed = {
-                "@type": post.review.item?.type,
-                name: post.review.item?.name,
-                url: post.review.item?.url,
-                image: post.review.item?.image,
-            };
-            obj.rating = {
-                "@type": "Rating",
-                ratingValue: post.review.rating,
-                bestRating: 10,
-                worstRating: 1,
-            };
-            obj.reviewBody = post.review.body || post.summary;
+            creativeWork.description = post.summary;
         }
 
         if (post.aggregateRating) {
-            obj.aggregateRating = {
+            creativeWork.aggregateRating = {
                 "@type": "AggregateRating",
                 ratingValue: post.aggregateRating.value,
                 reviewCount: post.aggregateRating.count,
@@ -74,14 +108,50 @@
                 worstRating: post.aggregateRating.worst || 1,
             };
         }
-        return Object.assign({}, ldjson, obj);
+
+        if (post.template == "item") {
+            if (post.review) {
+                creativeWork = Object.assign(creativeWork, {
+                    "@type": "Review",
+                    itemReviewed: {
+                        "@type": post.review.item?.type,
+                        name: post.review.item?.name,
+                        url: post.review.item?.url,
+                        image: post.review.item?.image,
+                    },
+                    reviewRating: {
+                        "@type": "Rating",
+                        ratingValue: post.review.rating,
+                        bestRating: 10,
+                        worstRating: 1,
+                    },
+                    reviewBody: post.review.body || post.summary,
+                } as Review);
+            } else {
+                creativeWork = Object.assign(creativeWork, {
+                    "@type": "Article",
+                } as SchemeArticle);
+            }
+        } else if (post.template == "links") {
+            creativeWork = creativeWork as WithContext<CreativeWork>;
+        } else if (post.template == "default") {
+            creativeWork = Object.assign(creativeWork, {
+                "@type": "WebPage",
+            } as WebPage);
+        } else {
+            creativeWork = creativeWork as WithContext<CreativeWork>;
+        }
+
+        let schema: WithContext<any> = Object.assign(creativeWork, {
+            "@context": "https://schema.org",
+        });
+
+        return schema;
     };
 </script>
 
 <Title value={post.title}></Title>
-{#if post.summary}
-    <DescriptionMeta value={post.summary}></DescriptionMeta>
-{/if}
+<DescriptionMeta value={post.summary}></DescriptionMeta>
 
 <svelte:head>
     {#if post.processMeta?.prism}
@@ -215,12 +285,19 @@
     {/if}
     {#if post.expired?.date}
         <meta
-            name="og:article:modified_time"
+            name="og:article:expired_time"
             content={new Date(post.expired.date).toISOString()}
         />
     {/if}
 
-    <meta name="author" content={post.author || systemConfig.user?.default} />
+    {#if post.authors}
+        {@const authorString = post.authors
+            .map((author) => author.name || author.account || author)
+            .join(",")}
+        <meta name="author" content={authorString} />
+        <meta name="author" content={authorString} />
+        <meta name="og:article:author" content={authorString} />
+    {/if}
 
     {#if post.robots}
         <meta name="robots" content={post.robots.join(",")} />
@@ -228,7 +305,7 @@
     {#if post.googlebot}
         <meta name="googlebot" content={post.googlebot} />
     {/if}
-    {#if post.googlebot}
+    {#if post.google}
         <meta name="google" content={post.google} />
     {/if}
     {#if post.rating}
@@ -244,6 +321,9 @@
             name="twitter:image"
             content="{siteConfig.url}{post.url}{post.image}"
         />
+        <meta name="twitter:card" content="summary_large_image" />
+    {:else}
+        <meta name="twitter:card" content="summary" />
     {/if}
 
     {#if post.video}
@@ -260,11 +340,6 @@
         />
     {/if}
 
-    {#if post.author}
-        <meta name="author" content={post.author} />
-        <meta name="og:article:author" content={post.author} />
-    {/if}
-
     {#if post.taxonomy?.category?.length > 0}
         <meta
             property="og:article:section"
@@ -276,13 +351,19 @@
             <meta property="og:article:tag" content={tag} />
         {/each}
     {/if}
+    {#if post.taxonomy?.series}
+        {#each post.taxonomy?.series as series}
+            <meta property="og:article:tag" content={series} />
+        {/each}
+    {/if}
 
-    {#if post.taxonomy?.category || post.taxonomy?.tag || post.keywords}
+    {#if post.taxonomy?.category || post.taxonomy?.tag || post.taxonomy?.series || post.keywords}
         <meta
             name="keywords"
             content={`${[
                 post.taxonomy?.category,
                 post.taxonomy?.tag,
+                post.taxonomy?.series,
                 post.keywords,
             ]
                 .filter((s) => !!s)
@@ -292,40 +373,34 @@
     {/if}
 
     {#if siteConfig.url}
-        <link rel="canonical" href="{siteConfig.url}{post.url}" />
+        {@const url = `${siteConfig.url}/${post.lang}${post.url}`}
+        <link rel="canonical" href={url} />
+        <meta property="og:url" content={url} />
+
         <link
             rel="alternate"
-            href="{siteConfig.url}{post.url}"
+            href={`${siteConfig.url}${post.url}`}
             hreflang="x-default"
         />
-        <meta property="og:url" content="{siteConfig.url}{post.url}" />
+
+        {#each post.langs || [] as value}
+            <link
+                rel="alternate"
+                href="{siteConfig.url}/{value}{post.url}"
+                hreflang={value}
+            />
+        {/each}
     {/if}
 
     <meta property="og:locale" content={post.lang} />
-
     {#each post.langs || [] as value}
-        <link
-            rel="alternate"
-            href="{siteConfig.url}/{value}{post.url}"
-            hreflang={value}
-        />
-        <meta property="og:locale:alternate" content={value} />
-    {:else}
-        <link
-            rel="alternate"
-            href="{siteConfig.url}{post.url}"
-            hreflang={systemConfig.locale?.default}
-        />
-        <meta
-            property="og:locale:alternate"
-            content={systemConfig.locale?.default}
-        />
+        {#if value !== $locale}
+            <meta property="og:locale:alternate" content={value} />
+        {/if}
     {/each}
 
-    {#if systemConfig.webmention?.enabled}{/if}
-
     {@html `<script type="application/ld+json">${JSON.stringify(
-        json(),
+        ldjson(),
     )}</script>`}
 </svelte:head>
 
@@ -347,7 +422,7 @@
                             )}</a
                         >{#if post.langs?.length > 1}{$t(
                                 "common.i18n_alert_message_b",
-                            )}{#each post.langs as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
+                            )}{#each post.langs || [] as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
                                         href="/{l}{post.url}"
                                         >{$t(`lang.${l}`)}</a
                                     >{#if index < post.langs.length - 2}{$t(
@@ -373,23 +448,25 @@
     <div class="discuss no-print">
         {#if post.comment?.enable}
             {#if citations?.length}
-                <h3 id="citations">
+                <h3 id="citations" style="text-align: center">
                     {$t("common.citations_lead_title")}
                     {#if citations.length}
                         ({citations.length})
                     {/if}
                 </h3>
-                <Citations comments={citations} />
+                <div class="comments-wrapper">
+                    <Mentions mentions={citations} />
+                </div>
             {/if}
             <h3 id="comments" style="text-align: center">
                 {$t("common.comment_lead_title")}
-                {#if commonComments.length}
+                {#if commonComments?.length}
                     ({commonComments.length})
                 {/if}
             </h3>
             <div class="comments-wrapper">
-                <Comments
-                    comments={commonComments}
+                <Replies
+                    replies={commonComments}
                     gravatarBase={systemConfig.gravatar?.base}
                     reply={post.comment?.reply}
                     {post}
