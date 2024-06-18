@@ -127,7 +127,6 @@
                 if (opts.wrapper) {
                     insertBefore(createNode(opts.wrapper.open + s + opts.wrapper.close), node);
                 } else {
-                    console.log('append', append);
                     insertBefore(document.createTextNode(append), node);
                 }
             }
@@ -153,7 +152,6 @@
                         insertBefore(createNode('' + opts.wrapper.open + s + opts.wrapper.close), node);
                     }
                     if (append) {
-                        console.log('append1', append);
                         insertBefore(document.createTextNode(append), node);
                     }
                 });
