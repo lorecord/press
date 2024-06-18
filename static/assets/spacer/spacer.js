@@ -21,7 +21,7 @@
     
     var IGNORED_TAGS = /^(script|link|style|code|meta)$/i;
     var BLOCK_TAGS = /^(div|p|h1|h2|h3|h4|h5|h6|blockqoute|pre|textarea|nav|header|main|footer|section|sidbar|aside|table|li|ul|ol|dl)$/i;
-    var SPACING_TAGS = /^(br|hr|img|video|audio|sup|sub|a)$/i;
+    var SPACING_TAGS = /^(br|hr|img|video|audio|sup|sub|a|code|span|strong|del|i)$/i;
     
     _core2.default.config({
         tagAttrMap: {
