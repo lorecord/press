@@ -117,6 +117,9 @@
                 });
             }
         }, function (c, opts) {
+            if(node.getAttribute('data-spacer-ignore') || node.getAttribute('data-spacer') === 'ignore'){
+                return;
+            }
             if (node.previousSibling && (!node.previousSibling.tagName || !BLOCK_TAGS.test(node.previousSibling.tagName) && !SPACING_TAGS.test(node.previousSibling.tagName)) && (!node.tagName || !BLOCK_TAGS.test(node.tagName) && !SPACING_TAGS.test(node.tagName))) {
                 return _core2.default.createSnippet(node.previousSibling.nodeType === Node.TEXT_NODE ? node.previousSibling.data : node.previousSibling.textContent);
             }

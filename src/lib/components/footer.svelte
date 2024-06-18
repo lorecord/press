@@ -48,7 +48,7 @@
             </span>
         {/if}
         {#if $locale == "zh-CN" && siteConfig.beian}
-            <span class="beian">
+            <span class="beian" data-spacer="ignore">
                 <a href="https://beian.miit.gov.cn/" rel="external nofollow"
                     >{siteConfig.beian}</a
                 >
