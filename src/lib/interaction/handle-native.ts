@@ -76,28 +76,45 @@ export function markdown(content: string, id: string, domain: string) {
                 let handleChildren = (children: any[]) => {
                     children.forEach((node: any) => {
                         if (node.type === 'element') {
+                            if (node.children) {
+                                handleChildren(node.children);
+                            }
                             if ('a' === node.tagName) {
+                                let theLink = node;
                                 if (node.children?.length) {
                                     let text = node.children[0].value;
-                                    if (text.match(/^(http|ftp|([\w-]+\.)+[a-zA-Z]{2,})|[a-zA-Z]+:\/\//)) {
+                                    if (text.match(/^(((http|ftp)s?:\/\/)|([\w-]+\.)+[a-zA-Z]{2,})|[a-zA-Z]+:\/\//)) {
                                         // text looks like a link
                                         if (node.properties?.href
-                                            && text !== node.properties?.href) {
+                                            && text !== node.properties?.href
+                                            && node.properties?.href.replace(/^(http|ftp)s?:\/\//, '') !== text) {
                                             // but not eq to href
-                                            node.children[0].value = `${text}(${node.properties.href})`;
+                                            node.children[0].value = `${text}`;
+
+                                            node.tagName = "span";
+                                            theLink = {
+                                                type: 'element',
+                                                tagName: 'a',
+                                                properties: { href: node.properties.href },
+                                                children: [{ type: 'text', value: node.properties?.href }]
+                                            };
+                                            delete node.properties?.href;
+                                            node.children.push({
+                                                type: 'element',
+                                                tagName: 'sub',
+                                                children: [{ type: 'text', value: "(" }, theLink, { type: 'text', value: ")" }]
+                                            })
                                         }
                                     }
                                 }
 
-                                if (node.properties?.href?.match(/^([a-zA-Z]+:)?\/\//) // is a aboslute link
-                                    && !node.properties?.href?.match(new RegExp(`^([a-zA-Z]+:)?\\/\\/${domain}`)) // is not internal link
+                                if (theLink.properties?.href?.match(/^([a-zA-Z]+:)?\/\//) // is a aboslute link
+                                    && !theLink.properties?.href?.match(new RegExp(`^([a-zA-Z]+:)?\\/\\/${domain}`)) // is not internal link
                                 ) {
-                                    node.properties.rel = 'external nofollow';
+                                    theLink.properties.rel = 'external nofollow';
                                 }
                             }
-                            if (node.children) {
-                                handleChildren(node.children);
-                            }
+
                         }
                     });
                 }
