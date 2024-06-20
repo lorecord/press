@@ -278,6 +278,10 @@
                     font-weight: lighter;
                 }
 
+                :global(a.heading-anchor-link::before) {
+                    content: "¶";
+                }
+
                 &:hover {
                     :global(a.heading-anchor-link) {
                         visibility: visible;

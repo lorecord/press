@@ -235,7 +235,6 @@
 
                 var link = document.createElement("a");
                 link.href = "#" + h.id;
-                link.innerText = "¶";
                 link.className = "heading-anchor-link";
                 h.prepend(link);
             }
