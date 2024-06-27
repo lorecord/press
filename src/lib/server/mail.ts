@@ -10,7 +10,8 @@ function getTransport(site: any) {
         port: systemConfig.private?.email?.smtp?.port,
         secure: !!systemConfig.private?.email?.smtp?.secure,
         auth: {
-            user: systemConfig.private?.email?.smtp?.user || systemConfig.private?.email?.smtp?.user,
+            type: 'login',
+            user: systemConfig.private?.email?.smtp?.user,
             pass: envConfig.private?.SMTP_PASS
         }
     });
