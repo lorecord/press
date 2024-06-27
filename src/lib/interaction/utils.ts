@@ -44,6 +44,7 @@ export function encrypt(site: any, value: string, encodedKey: string | undefined
         encrypted: Buffer.from(encrypted).toString('base64'),
         algorithm,
         iv: iv.toString('hex'),
+        version: '1'
     }
 }
 
@@ -56,18 +57,17 @@ export function decrypt(site: any, encrypted: EncryptedString, encodedKey: strin
         encryptedValue = encrypted;
         algorithm = 'aes-256-gcm';
     } else {
-        encryptedValue = Buffer.from(encrypted.encrypted, 'base64').toString('utf8');
+        encryptedValue = Buffer.from(encrypted.encrypted, 'base64').toString();
         algorithm = encrypted.algorithm;
     }
 
-    if (!encodedKey || !algorithm) {
+    if (!key || !algorithm) {
         return encryptedValue;
     }
 
     const decipher = crypto.createDecipheriv(algorithm, key, Buffer.from(encrypted.iv || '', 'hex'));
     let decrypted = decipher.update(encryptedValue, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-
+    // decrypted += decipher.final();
     return decrypted;
 }
 
