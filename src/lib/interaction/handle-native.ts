@@ -56,7 +56,7 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
 
     parsed.forEach((interaction: any) => {
         if (interaction.content) {
-            interaction.content = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
+            interaction.contentHTML = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
         }
     });
     return parsed.sort((a: NativeInteraction, b: NativeInteraction) => new Date(b.published).getTime() - new Date(a.published).getTime());
