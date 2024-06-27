@@ -1,37 +1,20 @@
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
-import { Client } from '@sendgrid/client/';
-import { MailService } from '@sendgrid/mail';
+import { createTransport } from 'nodemailer';
 
-function getSendgridClient(site: any) {
+function getTransport(site: any) {
 
     let systemConfig = getSystemConfig(site);
     let envConfig = getEnvConfig(site);
-
-    let smtpConfig = systemConfig.private?.email?.provider === "sendgrid"
-        ? {
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            auth: {
-                user: 'apikey',
-                pass: envConfig.private?.SENDGRID_API_KEY || process.env.SENDGRID_API_KEY
-            }
-        } : {
-            host: systemConfig.private?.email?.smtp?.host,
-            port: systemConfig.private?.email?.smtp?.port,
-            auth: {
-                user: systemConfig.private?.email?.smtp?.user,
-                pass: envConfig.private?.SMTP_PASS
-            }
-        };
-
-    let sendgridClient = new Client();
-    let sendgridService = new MailService();
-
-    sendgridService.setClient(sendgridClient);
-
-    sendgridService.setApiKey(systemConfig.private?.email?.sendgrid?.key || process.env.SENDGRID_API_KEY);
-
-    return sendgridService;
+    let transport = createTransport({
+        host: systemConfig.private?.email?.smtp?.host,
+        port: systemConfig.private?.email?.smtp?.port,
+        secure: !!systemConfig.private?.email?.smtp?.secure,
+        auth: {
+            user: systemConfig.private?.email?.smtp?.user || systemConfig.private?.email?.smtp?.user,
+            pass: envConfig.private?.SMTP_PASS
+        }
+    });
+    return transport;
 }
 
 export const sendNewCommentMail = async (site: any, post: any, comment: any) => {
@@ -41,8 +24,8 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     if (!systemConfig.private?.email) {
         return;
     }
-    const sendgrid = getSendgridClient(site);
-    sendgrid.send({
+    const transport = getTransport(site);
+    transport.sendMail({
         from: `${JSON.stringify(comment.author)} <${systemConfig.email.sender}>`,
         to: `${systemConfig.private?.email.admin}`,
         subject: `Reply <${post.title}> at ${siteConfig.title}`,
@@ -53,8 +36,9 @@ ${comment.text}
 view <${post.title}> at ${siteConfig.title}
 ${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
         // html: emailHtml,
+    }).then((result)=>{
+        console.log(`mail send, id: ${result.messageId}`);
     });
-
 }
 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
@@ -64,9 +48,9 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
     if (!systemConfig.private?.email) {
         return;
     }
-    const sendgrid = getSendgridClient(site);
     if (comment.reply) {
-        sendgrid.send({
+        const transport = getTransport(site);
+        transport.sendMail({
             from: `${JSON.stringify(comment.author)} <${systemConfig.email.sender}>`,
             to: `${replied.email}`,
             subject: `Reply <${post.title}> at ${siteConfig.title}`,
@@ -80,6 +64,8 @@ ${comment.text}
 view <${post.title}> at ${siteConfig.title}
 ${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
             // html: emailHtml,
+        }).then((result)=>{
+            console.log(`mail send, id: ${result.messageId}`);
         });
     }
 }
