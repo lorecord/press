@@ -62,6 +62,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
             to: `${JSON.stringify(replied.author?.name)} ${repliedEmail}`,
             subject: `Replied <${post.title}> at ${siteConfig.title}`,
             text: `Your comment:
+
 ${replied.content}
 
 has been replied by ${comment.author?.name || comment.author}:
