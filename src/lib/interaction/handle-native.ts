@@ -212,9 +212,7 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
             return filepath;
         }
     })();
-
-    console.log('filepath', filepath);
-
+    
     if (!filepath) {
         return;
     }
