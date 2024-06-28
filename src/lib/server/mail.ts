@@ -39,8 +39,8 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
-    let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
-    let text = get(l)(lang, `email.new_replied_mail_text`, params);
+    let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
+    let text = get(l)(lang, `email.new_reply_mail_text`, params);
 
     if (!systemConfig.private?.email?.admin?.value) {
         return;

@@ -1,18 +1,26 @@
 new_reply_mail_subject: '{{ site_title }} 上的 <{{ post_title }}> 有了新回复'
 new_reply_mail_text: "新回复来自 {{ comment_author }} ({{ comment_author_user }}):
 
+
   {{ comment_content }}
 
+
   到 {{ site_title }} 查看 <{{ post_title }}> 的评论详情
+
   {{ link }}"
 new_replied_mail_subject: 您在 {{ site_title }} 上的 <{{ post_title }}> 发表的评论有了新回复
 new_replied_mail_text: "您的评论: 
 
+
   {{ replied_content }}
+
 
   收到了新回复，来自 {{ comment_author }} ({{ comment_author_user }}):
 
+
   {{ comment_content }}
 
+
   到 {{ site_title }} 查看 <{{ post_title }}> 的评论详情
+
   {{ link }}"
