@@ -1,7 +1,7 @@
 import { deleteSession } from '$lib/server/session.js';
 import { user } from '$lib/stores.js';
 
-export async function POST({ url, locals, cookies }) {
+export async function GET({ url, locals, cookies }) {
     const { site } = locals as { site: any };
 
     let id = cookies.get('session');
@@ -14,5 +14,8 @@ export async function POST({ url, locals, cookies }) {
 
     return new Response(`<script>window.location.href = '/signin?logout';</script>`, {
         status: 200,
+        headers: {
+            'Content-Type': 'text/html'
+        }
     })
 }

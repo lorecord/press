@@ -85,4 +85,4 @@ function configInit() {
 
 configInit();
 
-export { getSystemConfig, getSiteAccounts, getSiteAccount, configInit };
+export {  getSiteAccounts, getSiteAccount, configInit };
