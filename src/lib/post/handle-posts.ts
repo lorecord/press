@@ -296,10 +296,10 @@ export function createMarkdownParser(options: any = {}) {
                     noteLabelPrefixText: get(l)(lang, 'common.footnote_ref_note'),
                 })
             },
-            footnoteLabelSupplier: (group) =>
+            footnoteLabelSupplier: (group:string) =>
                 get(l)(lang, `common.footnote_${group}`),
-            footnoteLabelIdSupplier: (group) => `footnote-label-${group}`,
-            footnoteRefPrefixSupplier: (group) =>
+            footnoteLabelIdSupplier: (group:string) => `footnote-label-${group}`,
+            footnoteRefPrefixSupplier: (group:string) =>
                 get(l)(lang, `common.footnote_ref_${group}`),
         })
         .use(rehypeCodeFilename)

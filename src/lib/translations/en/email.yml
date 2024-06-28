@@ -1,0 +1,26 @@
+new_reply_mail_subject: Reply <{{ post_title }}> at {{ site_title }}
+new_reply_mail_text: "New reply from {{ comment_author }} ({{ comment_author_user }}):
+
+
+  {{ comment_content }}
+
+
+  view <{{ post_title }}> at {{ site_title }}
+
+  {{ link }}"
+new_replied_mail_subject: Replied <{{ post_title }}> at {{ site_title }}
+new_replied_mail_text: "Your comment: 
+
+
+  {{ replied_content }}
+
+
+  has been replied by {{ comment_author }} ({{ comment_author_user }}):
+
+
+  {{ comment_content }}
+
+
+  view <{{ post_title }}> at {{ site_title }}
+
+  {{ link }}"

@@ -127,6 +127,7 @@ pre {
     overflow-x: auto;
     word-break: break-word;
     word-wrap: break-word;
+    white-space: preserve;
 
     code {
         background-color: transparent !important;
@@ -296,7 +297,7 @@ hr {
 }
 
 code[class*="language-"] {
-    white-space: pre-wrap !important;
+    white-space: pre;
 }
 
 .code-line {

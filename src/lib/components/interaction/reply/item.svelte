@@ -77,7 +77,7 @@
             </a>
         </div>
         <div class="comment-body">
-            {@html item.content}
+            {@html item.contentHTML}
         </div>
         <div class="comment-footer">
             <div class="extra">
