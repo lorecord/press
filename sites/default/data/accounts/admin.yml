@@ -1,0 +1,5 @@
+credentials:
+  password:
+    salt: hpkTpKLJe5Q++owLkEQV1g==
+    hash: 
+      sha256: 27afad8a4ad9e13c0259d4d39dae2eb7249aa3c2a0110821e59a0011853d9d9e

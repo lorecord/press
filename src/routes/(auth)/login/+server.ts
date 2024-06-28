@@ -16,9 +16,9 @@ export async function POST({ url, locals, request, cookies }) {
     console.log('account', JSON.stringify(account, null ,2));
 
     if(account?.credentials?.password?.hash?.sha256){
-        const hash = crypto.createHash('sha256').update(`${username}.${password}.${account.salt}`).digest('hex');
+        const hash = crypto.createHash('sha256').update(`${username}.${password}.${account?.credentials?.password?.salt}`).digest('hex');
 
-        if (hash == account?.credentials?.password?.hash?.sha256) {
+        if (hash === account?.credentials?.password?.hash?.sha256) {
             const session = createSession(username);
     
             cookies.set('session', session.id, {
@@ -33,7 +33,7 @@ export async function POST({ url, locals, request, cookies }) {
                     'Content-Type': 'text/html'
                 }
             });
-        }
+        }else{}
     }else{
         const salt = crypto.randomBytes(16).toString('base64');
         const hash = crypto.createHash('sha256').update(`${username}.${password}.${salt}`).digest('hex');
