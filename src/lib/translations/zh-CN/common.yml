@@ -6,7 +6,7 @@ footnote: 参考
 footnote_note: 注释
 footnote_default: 参考
 footnote_ref_note: 注
-footnote_ref_default: 
+footnote_ref_default: ''
 tag: 标签
 category: 分类
 series: 系列

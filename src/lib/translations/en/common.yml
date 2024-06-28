@@ -6,7 +6,7 @@ footnote: References
 footnote_note: Notes
 footnote_default: References
 footnote_ref_note: Note 
-footnote_ref_default: 
+footnote_ref_default: ''
 tag: Tag
 category: Category
 series: Series
