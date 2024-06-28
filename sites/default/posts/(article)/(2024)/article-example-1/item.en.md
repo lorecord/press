@@ -12,3 +12,10 @@ Example of  Markdown Typography.
 
 ===
 
+## blockquote
+
+```md
+> Knowledge is power, Frans is Becon.
+```
+
+> Knowledge is power, Frans is Becon.
