@@ -1,15 +1,18 @@
+
+import { createSession } from '$lib/server/session.js';
+
 export async function POST({ url, locals, request, cookies }) {
     const { site } = locals as { site: any };
 
     const form = await request.formData();
 
     const username = form.get("username")?.toString() || '';
-    const password = form.get("password")?.toString() || ''
+    const password = form.get("password")?.toString() || '';
 
     if (username === 'admin' && password === 'admin') {
-        const session = 'to_be_generated';
+        const session = createSession(username);
 
-        cookies.set('session', session, {
+        cookies.set('session', session.id, {
             path: '/',
             sameSite: 'strict',
             maxAge: 60 * 60 * 24 * 365

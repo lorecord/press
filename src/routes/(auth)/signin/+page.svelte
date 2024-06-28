@@ -19,7 +19,7 @@
         <label>
             <input
                 type="password"
-                name="username"
+                name="password"
                 placeholder={$t("auth.password")}
             />
             <div class="label">

@@ -1,7 +1,14 @@
+import { deleteSession } from '$lib/server/session.js';
 import { user } from '$lib/stores.js';
 
 export async function POST({ url, locals, cookies }) {
     const { site } = locals as { site: any };
+
+    let id = cookies.get('session');
+
+    if (id) {
+        deleteSession(id);
+    }
 
     cookies.delete('session', { path: '/' });
 
