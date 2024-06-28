@@ -37,7 +37,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
         to: `${adminEmail}`,
         subject: `Reply <${post.title}> at ${siteConfig.title}`,
-        text: `${comment.author?.name || comment.author} replied:
+        text: `New reply from ${comment.author?.name || comment.author} (${comment.author?.email?.hash?.md5}):
 
 ${comment.content}
 
@@ -65,7 +65,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
 
 ${replied.content}
 
-has been replied by ${comment.author?.name || comment.author}:
+has been replied by ${comment.author?.name || comment.author} (${comment.author?.email?.hash?.md5}):
 
 ${comment.content}
 
