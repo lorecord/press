@@ -3,12 +3,29 @@ import { saveNativeInteration, loadNativeInteration } from "$lib/interaction/han
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
+import { getSession } from "$lib/server/session.js";
+import { getSiteAccount } from "$lib/server/accouns.js";
+import { decrypt } from "$lib/interaction/utils.js";
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-    default: async ({ request, setHeaders, getClientAddress, params, locals }) => {
+    default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {
         const { site } = locals;
         const systemConfig = getSystemConfig(site);
+
+        const sessionId = cookies.get('session');
+        let username = '';
+        let email = '';
+        if (sessionId) {
+            let session = getSession(sessionId);
+            if (session) {
+                let account = getSiteAccount(site, session.username, '');
+                if (account) {
+                    email = decrypt(site, account.email.value);
+                }
+                username = session.username;
+            }
+        }
 
         let { route, locale } = params;
         if (route.endsWith('/')) {
@@ -28,7 +45,7 @@ export const actions = {
                     slug: route.toString(),
                     lang: locale || systemConfig.locale.default,
                     author: form.get("name")?.toString() || '',
-                    user: '',
+                    user: email === form.get("email")?.toString() ? username : '',
                     email: form.get("email")?.toString() || '',
                     url: form.get("website")?.toString() || '',
                     text: form.get("text")?.toString() || '',
