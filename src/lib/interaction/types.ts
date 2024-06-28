@@ -13,6 +13,7 @@ export interface EncryptedString {
     nonce?: string;
     iv?: string;
     algorithm?: string;
+    version?: string;
 }
 
 export type HashString = {

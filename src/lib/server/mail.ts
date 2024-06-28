@@ -1,85 +1,92 @@
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
-import { Client } from '@sendgrid/client/';
-import { MailService } from '@sendgrid/mail';
+import { createTransport } from 'nodemailer';
+import { decrypt } from "$lib/interaction/utils";
+import { t, l } from "$lib/translations";
+import { get } from "svelte/store";
 
-function getSendgridClient(site: any) {
+function getTransport(site: any) {
 
     let systemConfig = getSystemConfig(site);
     let envConfig = getEnvConfig(site);
-
-    let smtpConfig = systemConfig.private?.email?.provider === "sendgrid"
-        ? {
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            auth: {
-                user: 'apikey',
-                pass: envConfig.private?.SENDGRID_API_KEY || process.env.SENDGRID_API_KEY
-            }
-        } : {
-            host: systemConfig.private?.email?.smtp?.host,
-            port: systemConfig.private?.email?.smtp?.port,
-            auth: {
-                user: systemConfig.private?.email?.smtp?.user,
-                pass: envConfig.private?.SMTP_PASS
-            }
-        };
-
-    let sendgridClient = new Client();
-    let sendgridService = new MailService();
-
-    sendgridService.setClient(sendgridClient);
-
-    sendgridService.setApiKey(systemConfig.private?.email?.sendgrid?.key || process.env.SENDGRID_API_KEY);
-
-    return sendgridService;
+    let transport = createTransport({
+        host: systemConfig.private?.email?.smtp?.host,
+        port: systemConfig.private?.email?.smtp?.port,
+        secure: !!systemConfig.private?.email?.smtp?.secure,
+        auth: {
+            type: 'login',
+            user: systemConfig.private?.email?.smtp?.user,
+            pass: envConfig.private?.SMTP_PASS
+        },
+        ignoreTLS: true,
+        // tls: {
+        //     rejectUnauthorized: false,
+        //     ciphers: 'DEFAULT@SECLEVEL=0'
+        // },
+    });
+    return transport;
 }
 
 export const sendNewCommentMail = async (site: any, post: any, comment: any) => {
     let systemConfig = getSystemConfig(site);
-    let siteConfig = getSiteConfig(site, post.lang || systemConfig.locale.default || 'en');
+    let lang = post.lang || systemConfig.locale.default || 'en';
+    let siteConfig = getSiteConfig(site, lang);
 
-    if (!systemConfig.private?.email) {
+    let params: any = {
+        site_title: siteConfig.title,
+        post_title: post.title,
+        comment_author: comment.author?.name || comment.author,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_content: comment.content,
+        link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
+    }
+    let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
+    let text = get(l)(lang, `email.new_reply_mail_text`, params);
+
+    if (!systemConfig.private?.email?.admin?.value) {
         return;
     }
-    const sendgrid = getSendgridClient(site);
-    sendgrid.send({
-        from: `${JSON.stringify(comment.author)} <${systemConfig.email.sender}>`,
-        to: `${systemConfig.private?.email.admin}`,
-        subject: `Reply <${post.title}> at ${siteConfig.title}`,
-        text: `${comment.author} replied:
-
-${comment.text}
-
-view <${post.title}> at ${siteConfig.title}
-${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
+    const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
+    const transport = getTransport(site);
+    transport.sendMail({
+        from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
+        to: `${adminEmail}`,
+        subject,
+        text,
         // html: emailHtml,
+    }).then((result) => {
+        console.log(`new comment mail send, id: ${result.messageId}`);
     });
-
 }
 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
-    let siteConfig = getSiteConfig(site, post.lang || systemConfig.locale.default || 'en');
+    let lang = post.lang || systemConfig.locale.default || 'en';
+    let siteConfig = getSiteConfig(site, lang);
 
-    if (!systemConfig.private?.email) {
-        return;
+    let params: any = {
+        site_title: siteConfig.title,
+        post_title: post.title,
+        replied_content: replied.content,
+        comment_author: comment.author?.name || comment.author,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_content: comment.content,
+        link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
-    const sendgrid = getSendgridClient(site);
-    if (comment.reply) {
-        sendgrid.send({
-            from: `${JSON.stringify(comment.author)} <${systemConfig.email.sender}>`,
-            to: `${replied.email}`,
-            subject: `Reply <${post.title}> at ${siteConfig.title}`,
-            text: `Your comment:
-${replied.text}
+    let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
+    let text = get(l)(lang, `email.new_replied_mail_text`, params);
 
-has been replied by ${comment.author}:
+    const repliedEmail = decrypt(site, replied.author?.email?.value);
 
-${comment.text}
-
-view <${post.title}> at ${siteConfig.title}
-${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
+    if (comment.target) {
+        const transport = getTransport(site);
+        transport.sendMail({
+            from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
+            to: `${JSON.stringify(replied.author?.name)} ${repliedEmail}`,
+            subject,
+            text,
             // html: emailHtml,
+        }).then((result) => {
+            console.log(`new reply mail send, id: ${result.messageId}`);
         });
     }
 }

@@ -21,7 +21,7 @@
     
     var IGNORED_TAGS = /^(script|link|style|code|meta)$/i;
     var BLOCK_TAGS = /^(div|p|h1|h2|h3|h4|h5|h6|blockqoute|pre|textarea|nav|header|main|footer|section|sidbar|aside|table|li|ul|ol|dl)$/i;
-    var SPACING_TAGS = /^(br|hr|img|video|audio|sup|sub|a)$/i;
+    var SPACING_TAGS = /^(br|hr|img|video|audio|sup|sub|a|code|span|strong|del|i)$/i;
     
     _core2.default.config({
         tagAttrMap: {
@@ -117,6 +117,9 @@
                 });
             }
         }, function (c, opts) {
+            if(node.getAttribute('data-spacer-ignore') || node.getAttribute('data-spacer') === 'ignore'){
+                return;
+            }
             if (node.previousSibling && (!node.previousSibling.tagName || !BLOCK_TAGS.test(node.previousSibling.tagName) && !SPACING_TAGS.test(node.previousSibling.tagName)) && (!node.tagName || !BLOCK_TAGS.test(node.tagName) && !SPACING_TAGS.test(node.tagName))) {
                 return _core2.default.createSnippet(node.previousSibling.nodeType === Node.TEXT_NODE ? node.previousSibling.data : node.previousSibling.textContent);
             }
@@ -127,7 +130,6 @@
                 if (opts.wrapper) {
                     insertBefore(createNode(opts.wrapper.open + s + opts.wrapper.close), node);
                 } else {
-                    console.log('append', append);
                     insertBefore(document.createTextNode(append), node);
                 }
             }
@@ -153,7 +155,6 @@
                         insertBefore(createNode('' + opts.wrapper.open + s + opts.wrapper.close), node);
                     }
                     if (append) {
-                        console.log('append1', append);
                         insertBefore(document.createTextNode(append), node);
                     }
                 });
