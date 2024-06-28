@@ -3,9 +3,17 @@
 }
 
 @media print {
-    body {
+    html {
         font-size: 11pt;
+    }
+    body {
         background-color: unset;
+    }
+
+    [lang="zh"],
+    [lang^="zh-"] {
+        --font-text: Georgia, serif;
+        font-size: 10pt;
     }
 
     a[data-print-content]::after {
@@ -25,12 +33,49 @@
         }
     }
 
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        margin: 0.5em 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 1em 0 0.133em;
+    }
+
     h2,
     h3,
     h4,
     h5,
     h6 {
         page-break-after: avoid;
+    }
+
+    .typography {
+        h1 {
+            font-size: 2.333em;
+        }
+        h2 {
+            font-size: 2em;
+        }
+        h3 {
+            font-size: 1.667em;
+        }
+        h4 {
+            font-size: 1.444em;
+        }
+        h5 {
+            font-size: 1.222em;
+        }
     }
 
     .page-break {

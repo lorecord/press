@@ -3,7 +3,7 @@ import { locale } from '$lib/translations';
 
 /** @type {import('./$types').LayoutLoad} */
 export const load: Load = async ({ fetch, params, depends, parent, data }) => {
-    const { siteConfig, systemConfig } = await parent();
+    const { pathLocale, siteConfig, systemConfig } = await parent();
 
     depends('locale:locale');
 
@@ -13,13 +13,5 @@ export const load: Load = async ({ fetch, params, depends, parent, data }) => {
     })}`)
         .then((r) => r.json());
 
-    const ldjson: any = {
-        '@context': 'https://schema.org',
-    };
-
-    if (siteConfig?.issn) {
-        ldjson.issn = siteConfig?.issn;
-    }
-
-    return { posts, ldjson, siteConfig, systemConfig };
+    return { pathLocale, posts, siteConfig, systemConfig };
 }

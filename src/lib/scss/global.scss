@@ -1,6 +1,6 @@
 /** alert */
 $alert-info-color: #2a99ee;
-$alert-warning-color: #e1ee2a;
+$alert-warning-color: #eebe00;
 
 @mixin alert-type-style($color) {
     --alert-color: #{$color};

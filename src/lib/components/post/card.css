@@ -1,3 +1,11 @@
 article.post-card .content a {
     z-index: 1;
 }
+
+article.card .content .summary :first-child {
+    margin-top: 0;
+}
+
+article.card .content .summary :last-child {
+    margin-bottom: 0;
+}

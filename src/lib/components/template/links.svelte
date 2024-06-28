@@ -1,14 +1,19 @@
 <script lang="ts">
     export let post: any;
 
-    $: ({ title, summary_html, url, date, image, review, links } = post);
+    $: ({ title, summary_html, url, date, image, review, data } = post);
 </script>
 
 <div class="container">
     <h1>{post.title}</h1>
-    {@html post.content}
+    {#if post.content}
+        {@html post.content}
+    {/if}
     <ul>
-        {#each links || [] as link}
+        {#each (data.links || [])
+            .map((value) => ({ value, w: Math.random() }))
+            .sort((a, b) => a.w - b.w)
+            .map(({ value }) => value) as link}
             <li>
                 <a href={link.url}>{link.name}</a>
             </li>

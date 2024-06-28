@@ -9,7 +9,7 @@
         if (typeof styleObj === "string") {
             return styleObj;
         }
-        return Object.entries(style).reduce(
+        return Object.entries(styleObj).reduce(
             (acc, [key, value]) => `${acc} ${key}: ${value};`,
             "",
         );
@@ -57,7 +57,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 0;
+        padding: 1rem 0 0.667rem;
     }
 
     :global(.card .header > *) {
@@ -67,8 +67,8 @@
     @media screen and (max-width: 600px) {
         .header {
             flex-flow: column;
-            gap: 1rem;
             align-items: unset;
+            padding: 1rem 0 0;
         }
     }
 </style>

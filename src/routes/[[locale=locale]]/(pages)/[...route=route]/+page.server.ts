@@ -1,5 +1,5 @@
 import { getSystemConfig } from "$lib/server/config";
-import { saveComment, loadComment } from "$lib/handle-discuss";
+import { saveNativeInteration, loadNativeInteration } from "$lib/interaction/handle-native";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
@@ -35,12 +35,12 @@ export const actions = {
                     ip: getRealClientAddress({ request, getClientAddress }),
                     reply: form.get("reply")?.toString() || '',
                 };
-                let saved = saveComment(site, comment);
+                let saved = saveNativeInteration(site, comment);
 
                 sendNewCommentMail(site, post, saved);
 
                 if (comment.reply) {
-                    let replied = loadComment(site, { slug: route.toString(), id: comment.reply });
+                    let replied = loadNativeInteration(site, { slug: route.toString(), id: comment.reply });
                     if (replied) {
                         sendNewReplyMail(site, post, saved, replied);
                     }

@@ -2,7 +2,6 @@ export function getPreferredLang(acceptLanguages: string[], availableLangs: stri
 
     for (const locale of acceptLanguages) {
         if (availableLangs.includes(locale)) {
-            console.log('[getPreferredLang] found', locale);
             return locale;
         }
     }
@@ -10,14 +9,12 @@ export function getPreferredLang(acceptLanguages: string[], availableLangs: stri
         let lang = locale.split('-')[0];
         let fallbacked = availableLangs.find((l) => l?.startsWith(lang));
         if (fallbacked) {
-            console.log('[getPreferredLang] fallbacked', locale);
             return fallbacked;
         }
     }
     for (const locale of acceptLanguages) {
         let lang = locale.split('-')[0];
         if (availableLangs.includes(lang)) {
-            console.log('[getPreferredLang] fallbacked', lang);
             return lang;
         }
     }

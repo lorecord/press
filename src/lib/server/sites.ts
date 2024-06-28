@@ -12,9 +12,17 @@ export function loadConfig(path: string) {
         console.error(`No config file found for ${path}.`);
         return {};
     }
-    let file = fs.readFileSync(path, 'utf8');
-    let parsed = YAML.parse(file);
+    let parsed = loadData(path);
     return Object.assign({}, parsed.public, { private: parsed.private });
+}
+
+export function loadData(path: string) {
+    if (!fs.existsSync(path)) {
+        console.error(`No config file found for ${path}.`);
+        return {};
+    }
+    let file = fs.readFileSync(path, 'utf8');
+    return YAML.parse(file);
 }
 
 function matchSite(domain: string) {
@@ -27,15 +35,21 @@ function load() {
     }
 
     sites = fs.readdirSync(SITES_DIR).map((site) => {
+        if (site === '.DS_Store') {
+            return;
+        }
         const SITE_DIR = `${SITES_DIR}/${site}`;
         const POSTS_DIR = `${SITE_DIR}/posts`;
         const PUBLIC_DIR = `${SITE_DIR}/public`;
         const DATA_DIR = `${SITE_DIR}/data`;
-        const DISCUSS_DIR = `${DATA_DIR}/discuss`;
         const CONFIG_DIR = `${DATA_DIR}/config`;
+        const ACCOUNTS_DIR = `${DATA_DIR}/accounts`;
+
         const SYSTEM_CONFIG_FILE = `${CONFIG_DIR}/system.yml`;
+        const ENV_CONFIG_FILE = `${CONFIG_DIR}/env.yml`;
 
         const system = loadConfig(SYSTEM_CONFIG_FILE);
+        const env = loadConfig(ENV_CONFIG_FILE);
 
         return {
             unique: site,
@@ -44,11 +58,12 @@ function load() {
                 aliases: system.domains?.aliases || []
             },
             constants: {
-                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, DISCUSS_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE
+                SITE_DIR, POSTS_DIR, PUBLIC_DIR, DATA_DIR, CONFIG_DIR, SYSTEM_CONFIG_FILE, ACCOUNTS_DIR, ENV_CONFIG_FILE
             },
             system,
+            env
         }
-    });
+    }).filter(site => !!site);
 
     if (!sites.length) {
         console.error(`No sites found in SITES_DIR '${SITES_DIR}'.`);

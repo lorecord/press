@@ -67,29 +67,34 @@ export function findPath({ segments, dir, match }: { segments: string[], dir: st
 
 export function fetchPath(site: any, { route, lang, match }: { route: string, lang?: string, match: (file: string) => boolean }): { target: PathMeta | undefined, langMap: LangMap | undefined } {
     const { POSTS_DIR } = site.constants;
-    // route: `/a/b/c/` to ['a','b','c']
-    let segments = route.replace(/^\//, '').replace(/\/$/, '').split('/');
-    let results = findPath({
-        segments, dir: POSTS_DIR, match
-    });
-    if (results?.length) {
-        let langMap: LangMap = {};
-
-        results.forEach(r => {
-            // r: xx.en.md
-            let matcher = r.match(/^.*?\.(?:([^.]+)\.)?md$/);
-            if (matcher && matcher.length > 1) {
-                langMap[matcher[1]] = {
-                    file: r,
-                    lang: matcher[1]
-                };
-            }
+    if (route) {
+        if (!route.replace) {
+            console.error('route', route);
+        }
+        // route: `/a/b/c/` to ['a','b','c']
+        let segments = route.replace(/^\//, '').replace(/\/$/, '').split('/');
+        let results = findPath({
+            segments, dir: POSTS_DIR, match
         });
+        if (results?.length) {
+            let langMap: LangMap = {};
 
-        let pathMeta = langFallback(langMap, lang);
-        return {
-            target: pathMeta,
-            langMap
+            results.forEach(r => {
+                // r: xx.en.md
+                let matcher = r.match(/^.*?\.(?:([^.]+)\.)?md$/);
+                if (matcher && matcher.length > 1) {
+                    langMap[matcher[1]] = {
+                        file: r,
+                        lang: matcher[1]
+                    };
+                }
+            });
+
+            let pathMeta = langFallback(langMap, lang);
+            return {
+                target: pathMeta,
+                langMap
+            }
         }
     }
     return { target: undefined, langMap: undefined };

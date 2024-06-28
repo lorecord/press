@@ -31,7 +31,7 @@ export type Data = {
     image?: string[] | string | Image[] | Image;
     video?: string;
     audio?: string;
-    author?: string;
+    author?: string | string[] | any;
     article?: {
         published_time?: string | Date;
         modified_time?: string | Date;

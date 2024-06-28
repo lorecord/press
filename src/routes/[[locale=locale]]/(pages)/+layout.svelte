@@ -13,6 +13,7 @@
     import "$lib/scss/default.scss";
     import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";
+    import type { WebSite, WithContext } from "schema-dts";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -38,6 +39,33 @@
             loadingBar?.start();
         };
     });
+
+    let ldjson = () => {
+        let sameAs: string[] = [];
+        if (siteConfig["x.com"]?.username) {
+            sameAs.push(`https://x.com/${siteConfig["x.com"].username}`);
+        }
+        if (siteConfig.github?.home) {
+            sameAs.push(`https://github.com/${siteConfig.github.username}`);
+        }
+        let website: WebSite = {
+            "@type": "WebSite",
+            name: siteConfig.title,
+            url: `${siteConfig.url}`,
+            image: `${siteConfig.url}/favicon.png`,
+            sameAs,
+        };
+
+        if (siteConfig.issn) {
+            website.issn = siteConfig.issn;
+        }
+
+        let schema: WithContext<any> = Object.assign(website, {
+            "@context": "https://schema.org",
+        });
+
+        return schema;
+    };
 </script>
 
 <svelte:window
@@ -46,13 +74,13 @@
 />
 
 <svelte:head>
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="generator" content="LorePress 0.0.1-alpha" />
     <meta property="og:site_name" content={siteConfig.title} />
 
     {#if siteConfig.issn}
         <meta name="citation_issn" content={siteConfig.issn} />
     {/if}
-
-    <meta name="twitter:card" content="summary" />
 
     {#if siteConfig["x.com"]?.username}
         <meta name="twitter:site" content={siteConfig["x.com"].username} />
@@ -186,9 +214,79 @@
             />
         {/if}
     {/if}
+
+    {@html `<script type="application/ld+json">${JSON.stringify(
+        ldjson(),
+    )}</script>`}
+
+    <link href="/assets/spacer/spacer.min.css" rel="stylesheet" />
+    <script async src="/assets/spacer/spacer.js"></script>
+    <script>
+        (() => {
+            let spacer = { spacePace: () => {} };
+            let options = {
+                // wrapper: {
+                //     open: "<spacer>",
+                //     close: "</spacer>",
+                // },
+                spacingContent: " ",
+                handleOriginalSpace: true,
+                forceUnifiedSpacing: true,
+            };
+            let observeSpacer = once(() => {
+                var observer = new MutationObserver(function (mutations) {
+                    observer.disconnect();
+                    if (mutations && mutations.length > 0) {
+                        mutations.forEach((m) => {
+                            if (m.type === "childList") {
+                                spacer.spacePage(m.addedNodes, {}, false);
+                            } else if (m.type === "characterData") {
+                                spacer.spacePage(m.target.parent || m.target, {}, false);
+                            }
+                        });
+                    }
+                    connect();
+                });
+
+                var config = {
+                    characterData: true,
+                    childList: true,
+                    attributes: true,
+                    subtree: true,
+                };
+                function connect() {
+                    observer.observe(document, config);
+                }
+                connect();
+            });
+
+            let initSpacer = once(() => {
+                spacer = new Spacer(options);
+                spacer.spacePage(document);
+            });
+
+            let startSpacer = once(() => {
+                initSpacer();
+                observeSpacer();
+                return true;
+            });
+
+            window.whenLoad(handleSpacer);
+
+            function handleSpacer() {
+                if (window.Spacer) {
+                    startSpacer();
+                } else {
+                    setTimeout(handleSpacer, 100);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", handleSpacer, false);
+        })();
+    </script>
 </svelte:head>
 
-<div class="layout">
+<div class="layout" lang={$locale}>
     <LoadingBar bind:this={loadingBar} />
     <Header
         {posts}

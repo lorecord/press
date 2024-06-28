@@ -4,23 +4,47 @@
         --bg-color: #111;
         --text-color: rgba(255, 255, 255, 0.667);
         --text-color-primary: rgba(255, 255, 255, 0.833);
-        --text-color-tertiary: rgba(255, 255, 255, 0.333);
         --text-color-secondary: rgba(255, 255, 255, 0.5);
+        --text-color-tertiary: rgba(255, 255, 255, 0.333);
+        --text-color-quaternary: rgba(255, 255, 255, 0.25);
+        --text-color-quinary: rgba(255, 255, 255, 0.167);
+        --text-color-senary: rgba(255, 255, 255, 0.083);
         --text-color-success: #109510;
 
         --link-color: #2a99ee;
 
         --content-bg-color: #fff1;
 
-        --pane-bg-color: rgba(0, 0, 0, 0.167);
+        --pane-bg-color: rgba(255, 255, 255, 0.083);
+        --blockquote-border-color: rgba(255, 255, 255, 0.167);
 
         --button-text-color: var(--text-color-primary);
 
         --code-bg-color: #000000aa;
         --code-color: var(--text-color);
+
+        --input-border: none;
     }
 
     :root {
         --content-border: unset;
+    }
+
+    blockquote {
+        border-right: 0;
+        border-top: 0;
+        border-bottom: 0;
+    }
+
+    .code-line {
+        transition: background-color 0.2s ease;
+        transition: filter 0.2s ease;
+
+        &:not(.highlight-line):not(.inserted):not(.deleted):hover {
+            background-color: #ffffff0f;
+        }
+        &:hover {
+            filter: brightness(125%);
+        }
     }
 }

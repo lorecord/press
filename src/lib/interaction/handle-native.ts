@@ -9,7 +9,10 @@ import rehypeRaw from 'rehype-raw';
 import { rehypePrism } from '$lib/markdown/rehype-prism';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-import { getSystemConfig } from './server/config';
+import { getSystemConfig } from '../server/config';
+import type { NativeInteraction } from './types';
+import { commentToInteraction, getInteractionsFoler } from './utils';
+import path from 'path';
 
 export interface Comment {
     slug: string;
@@ -24,66 +27,42 @@ export interface Comment {
     type: string;
 }
 
-export function loadComment(site: any, { slug, id }: { slug: string, id: string }) {
-    const { DISCUSS_DIR } = site.constants;
-    const systemConfig = getSystemConfig(site);
-
-    let path = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
-    if (!fs.existsSync(path)) {
-        console.error(`No discuss file found for ${slug}.`);
-        return [];
+export function getNativeInteractionsFolder(site: any, { slug }: { slug: string }) {
+    const folder = getInteractionsFoler(site, { slug });
+    if (folder) {
+        const filepath = path.join(folder, 'native.yml');
+        if (fs.existsSync(filepath)) {
+            return filepath;
+        }
     }
-    let file = fs.readFileSync(path, 'utf8');
-    let parsed = YAML.parse(file);
-
-    parsed.comments?.forEach((comment: any) => {
-        if (comment.email) {
-            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
-        }
-        if (!comment.id) {
-            comment.id = calcCommentId(comment, true);
-        } else {
-            comment.id += '';
-        }
-        comment.text = commentMarkdown(comment.text, comment.id, systemConfig.domains?.primary);
-    });
-
-    let comment = parsed.comments?.find((comment: any) => comment.id === id);
-    return comment;
 }
 
-export function loadComments(site: any, { slug }: { slug: string }) {
-
-    const { DISCUSS_DIR } = site.constants;
-    const systemConfig = getSystemConfig(site);
-
-    let path = `${DISCUSS_DIR}/${systemConfig.locale?.default}/${slug}.yaml`;
-    if (!fs.existsSync(path)) {
-        console.error(`No discuss file found for ${slug}.`);
-        return [];
-    }
-    let file = fs.readFileSync(path, 'utf8');
-    let parsed = YAML.parse(file);
-
-    parsed.comments?.forEach((comment: any) => {
-        if (comment.email) {
-            comment.email_md5 = Crypto.createHash('md5').update(comment.email).digest('hex');
-            delete comment.email;
-        }
-        if (!comment.id) {
-            comment.id = calcCommentId(comment, true);
-        } else {
-            comment.id += '';
-        }
-        delete comment.secret;
-        delete comment.ip;
-        comment.text = commentMarkdown(comment.text, comment.id, systemConfig.domains?.primary);
-    });
-    parsed.comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.sdate).getTime());
-    return parsed.comments;
+export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+    return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
 }
 
-export function commentMarkdown(content: string, id: string, domain: string) {
+export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
+
+    let filepath = getNativeInteractionsFolder(site, { slug });
+
+    if (!filepath) {
+        return [];
+    }
+
+    let file = fs.readFileSync(filepath, 'utf8');
+    let parsed = YAML.parse(file);
+
+    const systemConfig = getSystemConfig(site);
+
+    parsed.forEach((interaction: any) => {
+        if (interaction.content) {
+            interaction.content = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
+        }
+    });
+    return parsed.sort((a: NativeInteraction, b: NativeInteraction) => new Date(b.published).getTime() - new Date(a.published).getTime());
+}
+
+export function markdown(content: string, id: string, domain: string) {
     const parser = unified()
         .use(remarkParse)
         .use(remarkGfm)
@@ -167,31 +146,84 @@ export function commentMarkdown(content: string, id: string, domain: string) {
     // result = result.replace(/^<html><head><\/head><body>/, '');
     return result;
 }
+export function saveNativeInterationNew(site: any, { slug }: { slug: string }, interaction: NativeInteraction) {
+    let filepath = (() => {
+        const folder = getInteractionsFoler(site, { slug });
+        if (folder) {
+            const filepath = path.join(folder, 'native.yml');
+            return filepath;
+        }
+    })();
 
-export function saveComment(site: any, { slug, lang, author, user, email, url, text, ip, reply }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string }) {
+    if (!filepath) {
+        return;
+    }
 
-    const { DISCUSS_DIR } = site.constants;
-    const systemConfig = getSystemConfig(site);
+    let folder = path.dirname(filepath);
 
-    let folder = `${DISCUSS_DIR}/${lang || systemConfig.locale?.default}`;
-    let path = `${folder}/${slug}.yaml`;
+    let interactions: any = [];
     if (!fs.existsSync(folder)) {
         // create
         fs.mkdirSync(folder, { recursive: true });
+    } else if (fs.existsSync(filepath)) {
+        interactions = YAML.parse(fs.readFileSync(filepath, 'utf8'))
     }
-    let parsed = fs.existsSync(path) ? YAML.parse(fs.readFileSync(path, 'utf8')) : { lang, comments: [] };
+
+    if (!interaction.id) {
+        interaction.id = calcCommentId(interaction, true);
+        console.log('new interaction', interaction);
+    }
+    if (!interaction.published) {
+        interaction.published = new Date().toISOString();
+    }
+
+    // TODO Attributes
+
+    interactions = interactions.filter((i: any) => i.id !== interaction.id);
+    interactions.push(interaction);
+
+    fs.writeFileSync(filepath, YAML.stringify(interactions.sort((a: NativeInteraction, b: NativeInteraction) => new Date(a.published).getTime() - new Date(b.published).getTime())));
+
+    return interaction;
+}
+export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply, type }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string }) {
+
+    let filepath = (() => {
+        const folder = getInteractionsFoler(site, { slug });
+        if (folder) {
+            const filepath = path.join(folder, 'native.yml');
+            return filepath;
+        }
+    })();
+
+    console.log('filepath', filepath);
+
+    if (!filepath) {
+        return;
+    }
+
+    let folder = path.dirname(filepath);
+
+    let interactions: any = [];
+    if (!fs.existsSync(folder)) {
+        // create
+        fs.mkdirSync(folder, { recursive: true });
+    } else if (fs.existsSync(filepath)) {
+        interactions = YAML.parse(fs.readFileSync(filepath, 'utf8'))
+    }
 
     let comment: any = {
-        author, user, email, url, text, ip, reply, date: new Date()
+        type, author, user, email, url, text, ip, reply, date: new Date()
     };
 
     comment.id = calcCommentId(comment, true);
 
-    parsed.comments.push(comment);
+    interactions.push(commentToInteraction(site, comment));
 
-    fs.writeFileSync(path, YAML.stringify(parsed));
+    console.log('write file', filepath);
+    fs.writeFileSync(filepath, YAML.stringify(interactions));
 
-    return comment;
+    return commentToInteraction(site, comment);
 }
 
 export function calcCommentId(comment: any, force: boolean = false) {

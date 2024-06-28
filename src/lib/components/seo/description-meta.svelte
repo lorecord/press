@@ -1,11 +1,15 @@
 <script lang="ts">
-    export let value: string;
+    import { trancateText } from "../post/utils";
+
+    export let value: string | undefined = undefined;
+
+    $: trancated = trancateText(value);
 </script>
 
 <svelte:head>
-{#if value}
-    <meta name="description" content={value} />
-    <meta name="twitter:description" content={value} />
-    <meta name="og:description" content={value} />
-{/if}
+    {#if trancated}
+        <meta name="description" content={trancated} />
+        <meta name="twitter:description" content={trancated} />
+        <meta name="og:description" content={trancated} />
+    {/if}
 </svelte:head>

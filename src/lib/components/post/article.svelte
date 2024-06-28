@@ -2,6 +2,8 @@
     import { t, locale } from "$lib/translations/index.js";
     import Rating from "$lib/ui/rating/index.svelte";
     import License from "$lib/components/license/index.svelte";
+    import Cite from "$lib/components/cite/index.svelte";
+    import Time from "$lib/ui/time/index.svelte";
 
     import { IconLanguage } from "@tabler/icons-svelte";
 
@@ -10,7 +12,7 @@
     export let siteConfig: any;
 </script>
 
-<article class="h-entry e-content">
+<article class="typography">
     <div class="article-header container">
         {#if post.image}
             <img
@@ -20,48 +22,52 @@
                 style="max-width: 100%"
             />
         {/if}
+
         <h1 class="p-name">{post.title}</h1>
+
         {#if post.template == "item"}
             <div class="article-meta">
-                {#if post.author && post.author != systemConfig.user?.default}
-                    <span>{post.author}</span>
+                {#if post.authors && !post.isDefaultAuthor}
+                    {#each post.authors as author}
+                        <span>{author.name || author.account || author}</span>
+                    {/each}
                 {/if}
 
                 {#if post.review}
-                    {$t("common.review")}
-                    {#if post.review.item?.url}
-                        <a
-                            style={post.review.rating > 6
-                                ? ""
-                                : "color: var(--text-color-tertiary)"}
-                            href={post.review.item.url}
-                            rel={post.review.rating > 6 ? "" : "nofollow"}
-                            >{post.review.item.name}</a
-                        >
-                    {:else}
-                        <span>{post.review.item.name}</span>
-                    {/if}
+                    <div>
+                        {$t("common.review")}
+                        {#if post.review.item?.url}
+                            <a
+                                class="u-review-of"
+                                style={post.review.rating > 6
+                                    ? ""
+                                    : "color: var(--text-color-tertiary)"}
+                                href={post.review.item.url}
+                                rel={post.review.rating > 6 ? "" : "nofollow"}
+                                >{post.review.item.name}</a
+                            >
+                        {:else}
+                            <span>{post.review.item.name}</span>
+                        {/if}
 
-                    <Rating value={post.review.rating} />
+                        <Rating value={post.review.rating} />
+                    </div>
                 {/if}
 
-                <time
-                    class="dt-published"
-                    datetime={new Date(post.date).toISOString()}
-                >
-                    {new Intl.DateTimeFormat($locale, {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                    }).format(new Date(post.date))}
-                </time>
+                <Time date={post.date} class="dt-published" locale={$locale} />
             </div>
         {/if}
+
+        <div style="display:none">
+            <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
+            <p class="p-summary">{post.summary}</p>
+        </div>
     </div>
     <div class="article-body container">
         <div class="article-aside no-print">
             {#if post.toc && post.headings}
                 <aside class="article-toc">
-                    <details>
+                    <details open>
                         <summary>
                             <h3>{$t("common.toc")}</h3>
                         </summary>
@@ -76,55 +82,73 @@
                 </aside>
             {/if}
         </div>
-        <div class="article-content">
+        <div class="e-content article-content">
             {@html post.content}
         </div>
     </div>
     <div class="article-footer container">
         {#if post.template == "item"}
             <div class="article-extra">
-                {#if post.license || systemConfig.license?.default}
-                    <div class="article-license">
-                        <div class="article-license-base-info">
-                            <div><strong>{post.title}</strong></div>
-                            <div>
-                                <a
-                                    class="link"
-                                    href={post.url}
-                                    data-print-content-none
-                                    >{siteConfig.url}{post.url}</a
-                                >
-                            </div>
+                <div class="article-license">
+                    <div class="article-license-base-info">
+                        <div><strong>{post.title}</strong></div>
+                        <div>
+                            <a
+                                class="link"
+                                href={post.url}
+                                data-print-content-none
+                                >{siteConfig.url}{post.url}</a
+                            >
                         </div>
-                        <div class="article-license-meta">
-                            {#if post.author || systemConfig.user?.default}
-                                <div class="article-license-meta-item">
-                                    <div class="label">
-                                        {$t("common.author")}
-                                    </div>
-                                    <div class="value">
-                                        {post.author ||
-                                            systemConfig.user.default}
-                                    </div>
-                                </div>
-                            {/if}
+                    </div>
+                    <div class="article-license-meta">
+                        {#if post.authors}
                             <div class="article-license-meta-item">
                                 <div class="label">
-                                    {$t("common.publish_date")}
+                                    {$t("common.author")}
                                 </div>
                                 <div class="value">
-                                    <time
-                                        class="dt-published"
-                                        datetime={new Date(
-                                            post.date,
-                                        ).toISOString()}
-                                    >
-                                        {new Intl.DateTimeFormat(
-                                            $locale,
-                                        ).format(new Date(post.date))}
-                                    </time>
+                                    {#each post.authors as author}
+                                        <p
+                                            style="margin:0"
+                                            class="h-card p-author"
+                                        >
+                                            <a
+                                                class="p-name u-url"
+                                                rel="author"
+                                                href={author.url ||
+                                                    siteConfig.url}
+                                                >{author.name ||
+                                                    author.account ||
+                                                    author}</a
+                                            >
+                                            <img
+                                                style="display:none"
+                                                alt={author.name ||
+                                                    author.account ||
+                                                    author}
+                                                class="u-photo"
+                                                src={siteConfig.url +
+                                                    "/favicon.png"}
+                                            />
+                                        </p>
+                                    {/each}
                                 </div>
                             </div>
+                        {/if}
+                        <div class="article-license-meta-item">
+                            <div class="label">
+                                {$t("common.publish_date")}
+                            </div>
+                            <div class="value">
+                                <Time
+                                    date={post.date}
+                                    class="dt-published"
+                                    locale={$locale}
+                                />
+                            </div>
+                        </div>
+                        {#if post.license || systemConfig.license?.default}
                             <div class="article-license-meta-item">
                                 <div class="label">
                                     {$t("common.license")}
@@ -136,80 +160,75 @@
                                     />
                                 </div>
                             </div>
+                        {/if}
+                    </div>
+                    <details style="padding: 1rem" class="no-print">
+                        <summary>
+                            {$t("common.cite")}
+                        </summary>
+                        <div style="padding-left: 2rem">
+                            <Cite
+                                {post}
+                                site={siteConfig.title}
+                                base={siteConfig.url}
+                            />
+                            <details>
+                                <summary>CFF</summary>
+                                <a href="./CITATION.cff">CITATION.cff</a>
+                            </details>
                         </div>
-                    </div>
-                {/if}
-                <details style="padding: 1rem">
-                    <summary>
-                        {$t("common.cite")}
-                    </summary>
-                    <div style="padding-left: 2rem">
-                        <details>
-                            <summary>APA</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. (${new Date(post.date).toISOString().split("T")[0]}). ${siteConfig.title}. ${post.title} [Blog post]. ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>MLA</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. "${post.title}." ${siteConfig.title}, ${new Date(post.date).toISOString().split("T")[0]} ${siteConfig.url}${post.url}. Accessed ${new Date().toISOString().split("T")[0]}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Chicago (CMS)</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. "${post.title}." ${siteConfig.title} (Blog), ${new Date(post.date).toISOString().split("T")[0]} ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Harvard</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. (${new Date(post.date).getFullYear()}). ${post.title}. ${siteConfig.title}. ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Vancouver</summary>
-                            <pre>{`${post.author || systemConfig.user.default}. ${post.title}. ${siteConfig.title} [Internet]. ${new Date(post.date).toISOString().split("T")[0]}; Available from: ${siteConfig.url}${post.url}`}</pre>
-                        </details>
-                        <details>
-                            <summary>Bibtex</summary>
-                            <pre>{`@online{${post.author || systemConfig.user.default}_${new Date(post.date).getFullYear()}_${post.title},
-author  = {${post.author || systemConfig.user.default}},
-title   = {{${post.title}}},
-journal = {${siteConfig.title}},
-type    = {Blog},
-doi     = {${siteConfig.url}${post.url}},
-urldate = {${new Date().toISOString().split("T")[0]}},
-date    = {${new Date(post.date).toISOString().split("T")[0]}},
-year    = {${new Date(post.date).getFullYear()}},
-month   = {${new Date(post.date).getMonth()}},
-day     = {${new Date(post.date).getDate()}}
-}`}</pre>
-                        </details>
-                        <details>
-                            <summary>CFF</summary>
-                            <a href="./CITATION.cff">CITATION.cff</a>
-                        </details>
-                    </div>
-                </details>
+                    </details>
+                </div>
                 {#if post.taxonomy || post.langs?.length > 0}
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
                             <div class="article-taxonomy">
-                                {#if post.taxonomy?.category?.length}
+                                {#if post.taxonomy?.series?.length}
                                     <ul>
-                                        {#each post.taxonomy.category as category}
+                                        {#each post.taxonomy.series as series}
                                             <li>
                                                 <a
-                                                    class="p-category"
-                                                    href="/category/{category.toLowerCase()}/"
-                                                    >/{category}</a
+                                                    class="p-series series"
+                                                    href="/series/{series
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{series}</a
                                                 >
                                             </li>
                                         {/each}
                                     </ul>
                                 {/if}
-
+                                {#if post.taxonomy?.category?.length}
+                                    <ul>
+                                        {#each post.taxonomy.category as category}
+                                            <li>
+                                                <a
+                                                    class="p-category category"
+                                                    href="/category/{category
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{category}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
                                 {#if post.taxonomy?.tag?.length}
                                     <ul>
                                         {#each post.taxonomy.tag as tag}
                                             <li>
                                                 <a
-                                                    href="/tag/{tag.toLowerCase()}/"
-                                                    >#{tag}</a
+                                                    class="p-tag tag"
+                                                    href="/tag/{tag
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{tag}</a
                                                 >
                                             </li>
                                         {/each}
@@ -217,7 +236,7 @@ day     = {${new Date(post.date).getDate()}}
                                 {/if}
                             </div>
                         {/if}
-                        {#if post.langs?.length > 0}
+                        {#if post.langs?.length > 1}
                             <div class="article-lang">
                                 <IconLanguage size={20} />
                                 <ul>
@@ -238,23 +257,6 @@ day     = {${new Date(post.date).getDate()}}
     </div>
 </article>
 
-<div style="display:none">
-    <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-    <p class="h-card p-author">
-        {#each [post.author || systemConfig.user.default].flat() as author}
-            <a class="p-name u-url" rel="author" href={siteConfig.url}
-                >{author}</a
-            >
-            <img
-                alt={author}
-                class="u-photo"
-                src={siteConfig.url + "/favicon.png"}
-            />
-        {/each}
-    </p>
-    <p class="p-summary">{post.summary}</p>
-</div>
-
 <style lang="scss">
     :global(article) {
         :global(.article-content) {
@@ -266,12 +268,14 @@ day     = {${new Date(post.date).getDate()}}
                 position: relative;
 
                 :global(a.heading-anchor-link) {
+                    --width: 1.33ch;
                     visibility: hidden;
                     opacity: 0;
                     transition: opacity 0.3s ease-in-out;
                     position: absolute;
-                    left: -1rem;
-                    width: 1rem;
+                    left: calc(var(--width) * -1);
+                    width: var(--width);
+                    font-weight: lighter;
                 }
 
                 &:hover {
@@ -290,9 +294,13 @@ day     = {${new Date(post.date).getDate()}}
         color: var(--text-color-secondary);
 
         :global(~ ol) {
-            font-size: 90%;
+            font-size: 85%;
             color: var(--text-color-secondary);
         }
+    }
+
+    :global([id^="fn-"] p) {
+        margin: 0.333em 0;
     }
 
     article {
@@ -330,14 +338,16 @@ day     = {${new Date(post.date).getDate()}}
             overflow: hidden;
         }
 
-        .article-header {
+        > :first-child {
             border-top-left-radius: var(--article-border-radius);
             border-top-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
-        .article-footer {
+        > :last-child {
             border-bottom-left-radius: var(--article-border-radius);
             border-bottom-right-radius: var(--article-border-radius);
+            min-height: var(--article-border-radius);
         }
 
         .article-body {
@@ -376,23 +386,39 @@ day     = {${new Date(post.date).getDate()}}
 
         .article-meta {
             color: var(--text-color-tertiary);
+
+            display: flex;
+            gap: 1em;
+            justify-content: center;
         }
 
-        .article-content {
+        .article-content,
+        .article-toc {
             padding: var(--content-padding);
+
+            @media screen {
+                :global(> *:first-child) {
+                    margin-top: 0;
+                }
+            }
 
             @media print {
                 padding: 0;
             }
         }
 
-        .article-toc {
-            padding: var(--content-padding);
+        @media screen {
+            .article-toc {
+                h3 {
+                    margin-top: 0;
+                }
+            }
         }
 
         .article-extra {
             display: flex;
             flex-flow: column;
+            flex-wrap: wrap;
 
             ul {
                 display: flex;
@@ -433,6 +459,7 @@ day     = {${new Date(post.date).getDate()}}
                 .article-license-meta {
                     display: flex;
                     gap: 1rem;
+                    flex-wrap: wrap;
                 }
 
                 .article-license-meta-item {
@@ -456,6 +483,16 @@ day     = {${new Date(post.date).getDate()}}
 
                 a {
                     color: var(--text-color-tertiary);
+                }
+
+                .series::before {
+                    content: "+";
+                }
+                .category::before {
+                    content: "/";
+                }
+                .tag::before {
+                    content: "#";
                 }
             }
 

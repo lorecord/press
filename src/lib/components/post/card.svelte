@@ -1,6 +1,7 @@
 <script lang="ts">
     import { t, locale } from "$lib/translations/index.js";
     import Card from "$lib/ui/card/index.svelte";
+    import Time from "$lib/ui/time/index.svelte";
     import "./card.css";
     import Rating from "$lib/ui/rating/index.svelte";
 
@@ -16,12 +17,7 @@
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
-            <time class="dt-published" datetime={new Date(date).toISOString()}>
-                {new Intl.DateTimeFormat($locale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                }).format(new Date(date))}
-            </time>
+            <Time {date} class="dt-published" locale={$locale} />
         </div>
     </svelte:fragment>
     {#if showContent}
@@ -34,7 +30,9 @@
             {/if}
             <div>
                 {#if review}
-                    <div style="color: var(--text-color-tertiary); font-size: 90%">
+                    <div
+                        style="color: var(--text-color-tertiary); font-size: 90%"
+                    >
                         <span>{$t("common.review")}</span>
 
                         <span>{review.item.name}</span>
@@ -60,6 +58,12 @@
 
     h2 {
         margin-bottom: 0;
+        flex: 1;
+        font-size: 1.33rem;
+
+        @media screen and (max-width: 600px) {
+            font-size: 1.222rem;
+        }
 
         a {
             &::before {
@@ -94,7 +98,7 @@
 
     @media screen and (max-width: 600px) {
         .article-meta {
-            margin-bottom: 1rem;
+            padding-top: 0;
         }
         .content {
             flex-flow: column;

@@ -15,3 +15,31 @@
         padding-left: var(--content-padding);
     }
 }
+
+/**
+ * Read container
+ * https://www.joshwcomeau.com/css/full-bleed/
+ */
+.read-container {
+    max-width: 86ch;
+
+    .read-content {
+        padding: 3ch;
+    }
+}
+
+.grid-container {
+    --grid-column-gap: 3ch;
+    display: grid;
+    grid-template-columns: 1fr min(86ch, calc(100% - var(--grid-column-gap) * 2)) 1fr;
+    grid-column-gap: var(--grid-column-gap);
+
+    > * {
+        grid-column: 2;
+    }
+
+    .full-width {
+        width: 100%;
+        grid-column: 1 / -1;
+    }
+}

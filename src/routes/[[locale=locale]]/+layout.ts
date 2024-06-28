@@ -2,6 +2,7 @@ import type { Load } from '@sveltejs/kit';
 import { loadTranslations, locale } from '$lib/translations';
 import { get } from 'svelte/store';
 import { selectedLocale } from '$lib/stores';
+import { dev } from "$app/environment";
 
 export const load: Load = async ({ url, parent, data }) => {
     const { siteConfig, systemConfig } = await parent();
@@ -17,13 +18,16 @@ export const load: Load = async ({ url, parent, data }) => {
     let $cookieLang = get(selectedLocale) || cookieLang;
 
     if (pathLang && !locale.get()) {
-        console.debug('loading with pathLang', pathLang);
+        if (dev) {
+            console.debug('loading with pathLang', pathLang);
+        }
         await loadTranslations(pathLang, url.pathname);
     } else {
         // auto mode
         let finnalLang = $cookieLang || acceptLang || currentLang || defaultLang || fallbackLang;
 
-        console.debug(`
+        if (dev) {
+            console.debug(`
         $cookieLang: ${$cookieLang} / ${cookieLang}
         acceptLang: ${acceptLang}
         currentLang: ${currentLang}
@@ -32,9 +36,10 @@ export const load: Load = async ({ url, parent, data }) => {
         -> finnalLang: ${finnalLang}
         `);
 
-        console.debug('loading lang auto', finnalLang);
+            console.debug('loading lang auto', finnalLang);
+        }
         await loadTranslations(finnalLang, url.pathname);
     }
 
-    return { siteConfig, systemConfig };
+    return { pathLocale: pathLang, siteConfig, systemConfig };
 }
