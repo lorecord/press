@@ -1,6 +1,8 @@
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { createTransport } from 'nodemailer';
 import { decrypt } from "$lib/interaction/utils";
+import { t, l } from "$lib/translations";
+import { get } from "svelte/store";
 
 function getTransport(site: any) {
 
@@ -26,7 +28,19 @@ function getTransport(site: any) {
 
 export const sendNewCommentMail = async (site: any, post: any, comment: any) => {
     let systemConfig = getSystemConfig(site);
-    let siteConfig = getSiteConfig(site, post.lang || systemConfig.locale.default || 'en');
+    let lang = post.lang || systemConfig.locale.default || 'en';
+    let siteConfig = getSiteConfig(site, lang);
+
+    let params: any = {
+        site_title: siteConfig.title,
+        post_title: post.title,
+        comment_author: comment.author?.name || comment.author,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_content: comment.content,
+        link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
+    }
+    let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
+    let text = get(l)(lang, `email.new_replied_mail_text`, params);
 
     if (!systemConfig.private?.email?.admin?.value) {
         return;
@@ -36,13 +50,8 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     transport.sendMail({
         from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
         to: `${adminEmail}`,
-        subject: `Reply <${post.title}> at ${siteConfig.title}`,
-        text: `New reply from ${comment.author?.name || comment.author} (${comment.author?.email?.hash?.md5}):
-
-${comment.content}
-
-view <${post.title}> at ${siteConfig.title}
-${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
+        subject,
+        text,
         // html: emailHtml,
     }).then((result) => {
         console.log(`new comment mail send, id: ${result.messageId}`);
@@ -51,7 +60,20 @@ ${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`,
 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
-    let siteConfig = getSiteConfig(site, post.lang || systemConfig.locale.default || 'en');
+    let lang = post.lang || systemConfig.locale.default || 'en';
+    let siteConfig = getSiteConfig(site, lang);
+
+    let params: any = {
+        site_title: siteConfig.title,
+        post_title: post.title,
+        replied_content: replied.content,
+        comment_author: comment.author?.name || comment.author,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_content: comment.content,
+        link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
+    }
+    let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
+    let text = get(l)(lang, `email.new_replied_mail_text`, params);
 
     const repliedEmail = decrypt(site, replied.author?.email?.value);
 
@@ -60,17 +82,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         transport.sendMail({
             from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
             to: `${JSON.stringify(replied.author?.name)} ${repliedEmail}`,
-            subject: `Replied <${post.title}> at ${siteConfig.title}`,
-            text: `Your comment:
-
-${replied.content}
-
-has been replied by ${comment.author?.name || comment.author} (${comment.author?.email?.hash?.md5}):
-
-${comment.content}
-
-view <${post.title}> at ${siteConfig.title}
-${siteConfig.url}${post.url}#comment-${comment.id?.substr(-8)}`,
+            subject,
+            text,
             // html: emailHtml,
         }).then((result) => {
             console.log(`new reply mail send, id: ${result.messageId}`);

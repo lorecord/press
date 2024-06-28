@@ -8,7 +8,7 @@ const config: Config = ({
         en: { lang },
         'zh-CN': { lang }
     },
-    loaders: createLoaders(['en', 'zh-CN'], ['common'])
+    loaders: createLoaders(['en', 'zh-CN'], ['common', 'email'])
 });
 
 async function importExternalYAML(filepath: string) {
