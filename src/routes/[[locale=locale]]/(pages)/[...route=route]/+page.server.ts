@@ -10,21 +10,17 @@ import { decrypt } from "$lib/interaction/utils.js";
 /** @type {import('./$types').Actions} */
 export const actions = {
     default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {
-        const { site } = locals;
+        const { site, session } = locals;
         const systemConfig = getSystemConfig(site);
 
-        const sessionId = cookies.get('session');
         let username = '';
         let email = '';
-        if (sessionId) {
-            let session = getSession(sessionId);
-            if (session) {
-                let account = getSiteAccount(site, session.username, '');
-                if (account) {
-                    email = decrypt(site, account.email.value);
-                }
-                username = session.username;
+        if (session) {
+            let account = getSiteAccount(site, session.username, '');
+            if (account) {
+                email = decrypt(site, account.email.value);
             }
+            username = session.username;
         }
 
         let { route, locale } = params;

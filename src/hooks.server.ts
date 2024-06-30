@@ -8,6 +8,7 @@ import { matchSite } from '$lib/server/sites';
 import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { getEnvConfig } from '$lib/server/config';
+import { getSession } from '$lib/server/session';
 
 {
     const currentLocale = locale.get();
@@ -163,21 +164,34 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
         }
     }
 
-    const session = event.cookies.get('session');
-
-    if (event.url.pathname.startsWith('/admin') && !session) {
-        return new Response(`<script>window.location.href = '/signin?continue=${encodeURIComponent(event.url.pathname)}';</script>`, {
-            status: 401,
-            headers: {
-                'Content-Type': 'text/html'
-            }
-        });
-    }
-
     const response = await resolve(event, {
         transformPageChunk: ({ html }) => html.replace('%lang%', pathLang || locale.get() || system.locale?.default)
     });
     return response;
+}
+
+export const handleCookieSession: Handle = async ({ event, resolve }) => {
+    let session = null;
+    const sessionId = event.cookies.get('session');
+
+    if (sessionId) {
+        session = getSession(sessionId);
+    }
+
+    (event.locals as any).session = session;
+
+    if (event.url.pathname.startsWith('/admin')) {
+        if (!session) {
+            return new Response(`<script>window.location.href = '/signin?continue=${encodeURIComponent(event.url.pathname)}';</script>`, {
+                status: 401,
+                headers: {
+                    'Content-Type': 'text/html'
+                }
+            });
+        }
+    }
+
+    return await resolve(event);
 }
 
 export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
@@ -194,4 +208,4 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 };
 
-export const handle = sequence(handleSite, handleCommon, handleIndexNowKeyFile);
+export const handle = sequence(handleSite, handleCookieSession, handleCommon, handleIndexNowKeyFile);
