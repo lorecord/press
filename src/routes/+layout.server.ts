@@ -6,8 +6,10 @@ import { selectedLocale } from '$lib/stores';
 export const load = async ({ url, params, cookies, request, locals }) => {
 
     const site = locals.site;
+    const session = locals.session;
 
     return {
-        site
+        site,
+        session
     };
 }

@@ -20,7 +20,7 @@
 
     let loadingBar: LoadingBar;
 
-    $: ({ posts, systemConfig, siteConfig, currentRoute } = data);
+    $: ({ posts, systemConfig, siteConfig, currentRoute, session } = data);
     $: ({ seo } = $page.data);
 
     onMount(() => {
@@ -109,14 +109,14 @@
     {/each}
 
     {#if !dev}
-        {#if systemConfig.domains?.primary && systemConfig.plausible?.enabled && systemConfig.plausible?.domain}
+        {#if !session && systemConfig.domains?.primary && systemConfig.plausible?.enabled && systemConfig.plausible?.domain}
             <script
                 defer
                 data-domain={systemConfig.domains?.primary}
                 src={`//${systemConfig.plausible?.domain}/js/script.js`}
             ></script>
         {/if}
-        {#if systemConfig.clarity?.enabled && systemConfig.clarity?.project}
+        {#if !session && systemConfig.clarity?.enabled && systemConfig.clarity?.project}
             {@html `<script type="text/javascript">
                 (function(c,l,a,r,i,t,y){
                     c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};

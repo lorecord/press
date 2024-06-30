@@ -5,6 +5,7 @@ import { selectedLocale } from '$lib/stores';
 /** @type {import('./$types').LayoutServerLoad} */
 export const load = async ({ url, params, cookies, request, locals, parent }) => {
     const site = locals.site;
+    const session = locals.session;
 
     const { system } = site;
 
@@ -29,6 +30,7 @@ export const load = async ({ url, params, cookies, request, locals, parent }) =>
             fallbackLang,
             currentLang
         },
-        site
+        site,
+        session
     };
 }
