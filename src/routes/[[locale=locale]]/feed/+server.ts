@@ -51,6 +51,8 @@ export async function GET({ request, locals }) {
 
 /**
  * https://www.rssboard.org/rss-specification
+ * 
+ * 1. pubDate: https://www.w3.org/Protocols/rfc822/
  * @param posts 
  * @param lang 
  * @returns 
@@ -70,7 +72,7 @@ ${posts.map((post: any) => `
         <title>${post.title}</title>
         <link>${siteConfig.url}${post.url}</link>
         <description><![CDATA[${post.content}]]></description>
-        <pubDate>${new Date(post.date).toISOString()}</pubDate>
+        <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
         ? post.taxonomy.category
             .map((category: any) => `<category>${category}</category>`).join('\n')
