@@ -489,7 +489,7 @@ export function convertToPostForFeed(site: any, raw: Raw) {
         <ul>
         ${headings.map((heading: any) => `
         <li style="margin-left: ${heading.level * 10 - 20}px">
-            <a href="${siteConfig.url}${raw.attributes.url}#${heading.id} "}>${heading.text}</a>
+            <a href="${siteConfig.url}${raw.attributes.url}#${heading.id}">${heading.text}</a>
         </li>
         `).join('')}
         </ul>
