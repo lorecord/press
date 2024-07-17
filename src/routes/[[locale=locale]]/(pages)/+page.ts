@@ -9,5 +9,7 @@ export async function load({ params, parent, fetch, data }) {
         limit: 8,
     })}`).then((r) => r.json());
 
-    return { posts, pathLocale, siteConfig, systemConfig };
-}
+    let home = await fetch(`/api/v1/post/home`).then((r) => r.json());
+
+    return { home, posts, pathLocale, siteConfig, systemConfig };
+} 

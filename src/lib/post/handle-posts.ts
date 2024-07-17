@@ -188,7 +188,7 @@ export function loadFrontMatterRaw(site: any, filepath: string): Raw | undefined
     }
 
     attributes.url = url_trailing_slash;
-    attributes.slug = slug;
+    attributes.slug = attributes.slug || slug;
 
     if (stat) {
         if (!attributes.date) {
@@ -208,7 +208,7 @@ export function loadFrontMatterRaw(site: any, filepath: string): Raw | undefined
     const template = attributes.template || 'default';
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[template], attributes);
 
-    cache.raw[`${attributes.lang}-${slug}`] = { path: filepath, attributes, body };
+    cache.raw[`${attributes.lang}-${attributes.slug}`] = { path: filepath, attributes, body };
 
     return { path: filepath, attributes, body };
 }

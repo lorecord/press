@@ -7,7 +7,7 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ posts, pathLocale, siteConfig, systemConfig } = data);
+    $: ({ home, posts, pathLocale, siteConfig, systemConfig } = data);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -88,7 +88,26 @@
     {@html `<script type="application/ld+json">${JSON.stringify(
         ldjson(),
     )}</script>`}
+
+    {#if home?.head}
+        {@html home.head}
+    {/if}
+
+    {#if home?.style}
+        <style type="text/css">
+            {home.style}
+        </style>
+    {/if}
+    {#if home?.script}
+        {@html `<script type="text/javascript">${home.script}</script>`}
+    {/if}
 </svelte:head>
+
+{#if home}
+    <div class="home container">
+        {@html home.content}
+    </div>
+{/if}
 
 <div class="articles container">
     {#each posts as post, index}
@@ -105,6 +124,9 @@
 </div>
 
 <style lang="scss">
+    .home {
+        padding: 1rem 0 0 0;
+    }
     .articles {
         display: flex;
         flex-flow: column;
