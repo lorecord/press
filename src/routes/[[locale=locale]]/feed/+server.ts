@@ -3,6 +3,7 @@ import { getSiteAccount } from "$lib/server/accouns.js";
 import { getSystemConfig, getSiteConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
 import { locales, locale } from "$lib/translations";
+import querystring from 'querystring';
 
 import { get } from "svelte/store";
 
@@ -59,9 +60,8 @@ export async function GET({ request, locals }) {
  * @returns 
  */
 const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0">
 <channel>
-    <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
     <title>${siteConfig.title}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
@@ -73,7 +73,7 @@ ${posts.map((post: any) => `
         <guid isPermaLink="true">${siteConfig.url}${post.url}</guid>
         <title>${post.title}</title>
         <link>${siteConfig.url}${post.url}</link>
-        <description><![CDATA[${post.content}]]></description>
+        <description><![CDATA[${querystring.escape(post.content)}]]></description>
         <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
         ? post.taxonomy.category
@@ -138,8 +138,8 @@ ${posts.map((post: any) => `
         </contributor>
             `)
             : ``}
-        <summary><![CDATA[${post.summary}]]></summary>
-        <content type="html"><![CDATA[${post.content}]]></content>
+        <summary><![CDATA[${querystring.escape(post.summary)}]]></summary>
+        <content type="html"><![CDATA[${querystring.escape(post.content)}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
                 .map((category: any) => `<category>${category}</category>`).join('\n')
