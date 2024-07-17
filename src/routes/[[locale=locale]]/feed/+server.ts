@@ -108,7 +108,8 @@ ${posts.map((post: any) => `
  * @returns 
  */
 const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
-<feed version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>${siteConfig.url}</id>
     <title type="text">${siteConfig.title}</title>
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
