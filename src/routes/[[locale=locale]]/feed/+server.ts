@@ -53,13 +53,15 @@ export async function GET({ request, locals }) {
  * https://www.rssboard.org/rss-specification
  * 
  * 1. pubDate: https://www.w3.org/Protocols/rfc822/
+ * 2. check: https://validator.w3.org/feed/
  * @param posts 
  * @param lang 
  * @returns 
  */
 const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
+    <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
     <title>${siteConfig.title}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
