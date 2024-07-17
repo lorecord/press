@@ -3,7 +3,6 @@ import { getSiteAccount } from "$lib/server/accouns.js";
 import { getSystemConfig, getSiteConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
 import { locales, locale } from "$lib/translations";
-import querystring from 'querystring';
 
 import { get } from "svelte/store";
 
@@ -50,6 +49,15 @@ export async function GET({ request, locals }) {
     });
 }
 
+function escapeHtml(unsafe: string) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 /**
  * https://www.rssboard.org/rss-specification
  * 
@@ -76,8 +84,8 @@ ${posts.map((post: any) => `
         <guid isPermaLink="true">${siteConfig.url}${post.url}</guid>
         <title>${post.title}</title>
         <link>${siteConfig.url}${post.url}</link>
-        <description><![CDATA[${querystring.escape(post.summary)}]]></description>
-        <content:encoded><![CDATA[${querystring.escape(post.content)}]]></content:encoded>
+        <description><![CDATA[${escapeHtml(post.summary)}]]></description>
+        <content:encoded><![CDATA[${escapeHtml(post.content)}]]></content:encoded>
         <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
         ? post.taxonomy.category
@@ -142,8 +150,8 @@ ${posts.map((post: any) => `
         </contributor>
             `)
             : ``}
-        <summary><![CDATA[${querystring.escape(post.summary)}]]></summary>
-        <content type="html"><![CDATA[${querystring.escape(post.content)}]]></content>
+        <summary><![CDATA[${escapeHtml(post.summary)}]]></summary>
+        <content type="html"><![CDATA[${escapeHtml(post.content)}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
                 .map((category: any) => `<category>${category}</category>`).join('\n')
