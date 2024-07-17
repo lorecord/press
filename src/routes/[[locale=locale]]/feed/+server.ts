@@ -60,8 +60,9 @@ export async function GET({ request, locals }) {
  * @returns 
  */
 const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
+<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
+    <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
     <title>${siteConfig.title}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
@@ -73,7 +74,8 @@ ${posts.map((post: any) => `
         <guid isPermaLink="true">${siteConfig.url}${post.url}</guid>
         <title>${post.title}</title>
         <link>${siteConfig.url}${post.url}</link>
-        <description><![CDATA[${querystring.escape(post.content)}]]></description>
+        <description><![CDATA[${querystring.escape(post.summary)}]]></description>
+        <content:encoded><![CDATA[${querystring.escape(post.content)}]]></content:encoded>
         <pubDate>${new Date(post.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
         ? post.taxonomy.category
