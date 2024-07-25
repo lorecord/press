@@ -117,7 +117,7 @@
                 });
             }
         }, function (c, opts) {
-            if(node.getAttribute && node.getAttribute('data-spacer-ignore') || node.getAttribute('data-spacer') === 'ignore'){
+            if(node.getAttribute && (node.getAttribute('data-spacer-ignore') || node.getAttribute('data-spacer') === 'ignore')){
                 return;
             }
             if (node.previousSibling && (!node.previousSibling.tagName || !BLOCK_TAGS.test(node.previousSibling.tagName) && !SPACING_TAGS.test(node.previousSibling.tagName)) && (!node.tagName || !BLOCK_TAGS.test(node.tagName) && !SPACING_TAGS.test(node.tagName))) {
