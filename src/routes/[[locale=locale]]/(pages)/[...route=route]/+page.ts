@@ -39,10 +39,7 @@ export async function load({ params, fetch, parent }) {
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
-            return r.json().then((json) => {
-                console.log('earlier', json);
-                return json;
-            })
+            return r.json();
         }
     });
 
