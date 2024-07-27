@@ -15,6 +15,7 @@
     } from "schema-dts";
     import Mentions from "$lib/components/interaction/mention/mentions.svelte";
     import spdxLicenseList from "spdx-license-list";
+    import { browser } from "$app/environment";
 
     export let data;
 
@@ -28,16 +29,22 @@
         pathLocale,
     } = data);
 
-    $: commonComments = Promise.resolve(interactions).then((interactions) =>
-        interactions.replies?.filter((r: any) => r.type === "reply"),
-    );
+    $: commonComments = browser
+        ? Promise.resolve(interactions.replies).then((replies) =>
+              replies.filter((r: any) => r.type === "reply"),
+          )
+        : interactions.replies.filter((r: any) => r.type === "reply");
 
-    $: citations = Promise.resolve(interactions).then(
-        (interactions) =>
-            interactions.mentions?.filter(
-                (r: any) => r.type === "mention" || r.type === "citation",
-            ) || [],
-    );
+    $: citations = browser
+        ? Promise.resolve(interactions.mentions).then(
+              (mentions) =>
+                  mentions.filter(
+                      (r: any) => r.type === "mention" || r.type === "citation",
+                  ) || [],
+          )
+        : interactions.mentions.filter(
+              (r: any) => r.type === "mention" || r.type === "citation",
+          ) || [];
 
     const templates: any = {
         default: TemplatePage,

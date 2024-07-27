@@ -25,7 +25,10 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    const interactions: { replies: [], mentions: [] } = post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json());
+    const interactions = post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json());
+
+    const replies = Promise.resolve(interactions).then(interactions => interactions?.replies || []);
+    const mentions = Promise.resolve(interactions).then(interactions => interactions?.mentions || []);
 
     let newer = post.newer && fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
@@ -47,6 +50,9 @@ export async function load({ params, fetch, parent }) {
         post,
         newer: browser ? newer : await newer,
         earlier: browser ? earlier : await earlier,
-        interactions: browser ? interactions : await interactions
+        interactions: {
+            mentions: browser ? mentions : await mentions,
+            replies: browser ? replies : await replies
+        }
     };
 }
