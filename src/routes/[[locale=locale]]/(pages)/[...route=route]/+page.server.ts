@@ -6,9 +6,9 @@ import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { getSession } from "$lib/server/session.js";
 import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
+import type { Actions } from "@sveltejs/kit";
 
-/** @type {import('./$types').Actions} */
-export const actions = {
+export const actions:Actions = {
     default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {
         const { site, session } = locals;
         const systemConfig = getSystemConfig(site);
