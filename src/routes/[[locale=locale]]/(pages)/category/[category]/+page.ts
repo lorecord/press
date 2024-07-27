@@ -5,19 +5,17 @@ import { error } from '@sveltejs/kit';
 export async function load({ params, fetch, parent }) {
     await parent();
     let { category } = params;
-    const posts = await fetch(`/api/v1/post?${new URLSearchParams({
+    const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
         category
-    })}`).then((r) => r.json());
+    })}`).then((r) => {
+        if (r.ok) {
+            return r.json();
+        } else {
+            error(r.status);
+        }
+    });
 
-    let label = posts?.length
-        ? posts[0].taxonomy?.category?.find((c: string) => c.toLowerCase().replace(/\s+/gm, '-') === category.toLowerCase().replace(/\s+/gm, '-'))
-        : category;
-
-    if (!posts?.length) {
-        error(404);
-    }
-
-    return { posts, category, label };
+    return { category, posts: await posts };
 }

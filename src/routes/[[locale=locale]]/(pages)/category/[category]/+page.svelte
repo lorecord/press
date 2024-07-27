@@ -7,9 +7,17 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ category, posts, label, siteConfig, pathLocale } = data);
+    $: ({ category, posts, siteConfig, pathLocale } = data);
 
-    let ldjson = () => {
+    $: label = posts?.length
+        ? posts[0].taxonomy?.category?.find(
+              (c: string) =>
+                  c.toLowerCase().replace(/\s+/gm, "-") ===
+                  category.toLowerCase().replace(/\s+/gm, "-"),
+          )
+        : category;
+
+    $: ldjson = () => {
         let creativeWork: WebPage = {
             "@type": "WebPage",
             keywords: label,
@@ -73,7 +81,11 @@
 <div class="container archives">
     <h1>{$t("common.category")}: {label}</h1>
 
-    <PostTimeline {posts} />
+    {#await posts}
+        <p>Loading...</p>
+    {:then value}
+        <PostTimeline posts={value} />
+    {/await}
 </div>
 
 <style>
