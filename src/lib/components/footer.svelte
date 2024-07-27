@@ -49,24 +49,29 @@
         {/if}
         {#if $locale == "zh-CN" && siteConfig.beian}
             <span class="beian">
-                <a href="https://beian.miit.gov.cn/" data-spacer="ignore" rel="external nofollow"
-                    >{siteConfig.beian}</a
+                <a
+                    href="https://beian.miit.gov.cn/"
+                    data-spacer="ignore"
+                    rel="external nofollow">{siteConfig.beian}</a
                 >
             </span>
         {/if}
-        {#if posts?.some && posts.some((p) => p.menu.footer)}
-            <ul class="menu">
-                {#each posts as p}
-                    {#if p.menu?.footer}
-                        <li class="nav-item">
-                            <a href={p.url} class="nav-link"
-                                >{p.menu.label || p.title}</a
-                            >
-                        </li>
-                    {/if}
-                {/each}
-            </ul>
-        {/if}
+        {#await posts then value}
+            {#if value?.some && value.some((p) => p.menu.footer)}
+                <ul class="menu">
+                    {#each value as p}
+                        {#if p.menu?.footer}
+                            <li class="nav-item">
+                                <a href={p.url} class="nav-link"
+                                    >{p.menu.label || p.title}</a
+                                >
+                            </li>
+                        {/if}
+                    {/each}
+                </ul>
+            {/if}
+        {/await}
+
         <span class="locale">
             <IconLanguage size={20} />
             <select value={$locale} on:change={handleLocaleSelect}>

@@ -59,18 +59,20 @@
                         >{$t("common.archives")}</a
                     >
                 </li>
-                {#each posts as p}
-                    {#if p.menu?.header}
-                        <li class="nav-item">
-                            <a
-                                href={p.url}
-                                class="nav-link"
-                                on:click={handleClick}
-                                >{p.menu.label || p.title}</a
-                            >
-                        </li>
-                    {/if}
-                {/each}
+                {#await posts then value}
+                    {#each value as p}
+                        {#if p.menu?.header}
+                            <li class="nav-item">
+                                <a
+                                    href={p.url}
+                                    class="nav-link"
+                                    on:click={handleClick}
+                                    >{p.menu.label || p.title}</a
+                                >
+                            </li>
+                        {/if}
+                    {/each}
+                {/await}
             </ul>
 
             <div class="sm">
