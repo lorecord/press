@@ -1,6 +1,7 @@
 import { error } from "@sveltejs/kit";
 import { locale } from "$lib/translations";
 import { derived, get, writable } from "svelte/store";
+import { browser } from "$app/environment";
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ params, fetch, parent }) {
@@ -14,42 +15,41 @@ export async function load({ params, fetch, parent }) {
         route = route.substring(0, route.length - 1);
     }
 
-    const newer = writable();
-    const earlier = writable();
-
-    const { status, json: post }: { status: number, json: any } = await fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
+    const post = await fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
-            return r.json().then(json => ({ status: r.status, json }));
+            return r.json();
         } else {
-            return { status: r.status, json: {} };
+            error(r.status);
         }
     });
 
-    if (!post || status > 299 || status < 200) {
-        error(status);
-    }
+    const interactions: { replies: [], mentions: [] } = post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json());
 
-    const { replies, mentions } = post?.comment?.enable ? await fetch(`/api/v1/interaction/${route}`).then((r) => r.json()) : { replies: [], mentions: [] };
-
-    post.newer && await fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
+    let newer = post.newer && fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json()
         }
-    }).then(json => newer.set(json));
+    });
 
-    post.earlier && await fetch(`/api/v1/post/${post.earlier}${get(derivedLang) ? '?' + new URLSearchParams({
+    let earlier = post.earlier && fetch(`/api/v1/post/${post.earlier}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
-            return r.json()
+            return r.json().then((json) => {
+                console.log('earlier', json);
+                return json;
+            })
         }
-    }).then(json => earlier.set(json));
+    });
 
     return {
-        post, newer, earlier, interactions: { replies, mentions }
+        post,
+        newer: browser ? newer : await newer,
+        earlier: browser ? earlier : await earlier,
+        interactions: browser ? interactions : await interactions
     };
 }

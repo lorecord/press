@@ -19,33 +19,37 @@
 <Article {post} {systemConfig} {siteConfig} />
 
 <div class="article-nav container no-print">
-    {#if post.template == "item" && ($newer || $earlier)}
+    {#if post.template == "item" && (newer || earlier)}
         <div class="sublings">
             <div class="newer">
-                {#if $newer}
-                    <a href={`${$newer.url}`}>
-                        <h4>
-                            <div>
-                                <IconArrowNarrowLeft size={24} />
-                                {$t("common.newer")}
-                            </div>
-                            {$newer.title}
-                        </h4>
-                    </a>
-                {/if}
+                {#await newer then value}
+                    {#if value}
+                        <a href={`${value.url}`}>
+                            <h4>
+                                <div>
+                                    <IconArrowNarrowRight size={24} />
+                                    {$t("common.newer")}
+                                </div>
+                                {value.title}
+                            </h4>
+                        </a>
+                    {/if}
+                {/await}
             </div>
             <div class="earlier">
-                {#if $earlier}
-                    <a href={`${$earlier.url}`}>
-                        <h4>
-                            <div>
-                                {$t("common.earlier")}
-                                <IconArrowNarrowRight size={24} />
-                            </div>
-                            {$earlier.title}
-                        </h4>
-                    </a>
-                {/if}
+                {#await earlier then value}
+                    {#if value}
+                        <a href={`${value.url}`}>
+                            <h4>
+                                <div>
+                                    {$t("common.earlier")}
+                                    <IconArrowNarrowRight size={24} />
+                                </div>
+                                {value.title}
+                            </h4>
+                        </a>
+                    {/if}
+                {/await}
             </div>
         </div>
     {/if}

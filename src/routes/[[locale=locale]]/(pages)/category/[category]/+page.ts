@@ -1,5 +1,6 @@
 import { locale } from '$lib/translations';
 import { error } from '@sveltejs/kit';
+import { browser } from '$app/environment';
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ params, fetch, parent }) {
@@ -17,5 +18,5 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    return { category, posts: await posts };
+    return { category, posts: browser ? posts : await posts };
 }
