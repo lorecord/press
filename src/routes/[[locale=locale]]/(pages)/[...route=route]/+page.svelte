@@ -28,13 +28,16 @@
         pathLocale,
     } = data);
 
-    $: commonComments = interactions.replies?.filter(
-        (r: any) => r.type === "reply",
+    $: commonComments = Promise.resolve(interactions).then((interactions) =>
+        interactions.replies?.filter((r: any) => r.type === "reply"),
     );
-    $: citations =
-        interactions.mentions?.filter(
-            (r: any) => r.type === "mention" || r.type === "citation",
-        ) || [];
+
+    $: citations = Promise.resolve(interactions).then(
+        (interactions) =>
+            interactions.mentions?.filter(
+                (r: any) => r.type === "mention" || r.type === "citation",
+            ) || [],
+    );
 
     const templates: any = {
         default: TemplatePage,
@@ -446,32 +449,39 @@
 
     <div class="discuss no-print">
         {#if post.comment?.enable}
-            {#if citations?.length}
-                <h3 id="citations" style="text-align: center">
-                    {$t("common.citations_lead_title")}
-                    {#if citations.length}
-                        ({citations.length})
-                    {/if}
-                </h3>
-                <div class="comments-wrapper">
-                    <Mentions mentions={citations} />
-                </div>
-            {/if}
+            {#await citations then value}
+                {#if value?.length}
+                    <h3 id="citations" style="text-align: center">
+                        {$t("common.citations_lead_title")}
+                        {#if value.length}
+                            ({value.length})
+                        {/if}
+                    </h3>
+                    <div class="comments-wrapper">
+                        <Mentions mentions={value} />
+                    </div>
+                {/if}
+            {/await}
+
             <h3 id="comments" style="text-align: center">
                 {$t("common.comment_lead_title")}
-                {#if commonComments?.length}
-                    ({commonComments.length})
-                {/if}
+                {#await commonComments then commonComments}
+                    {#if commonComments}
+                        ({commonComments.length})
+                    {/if}
+                {/await}
             </h3>
             <div class="comments-wrapper">
-                <Replies
-                    replies={commonComments}
-                    gravatarBase={systemConfig.gravatar?.base}
-                    reply={post.comment?.reply}
-                    {post}
-                    postUrl={siteConfig.url + post.url}
-                    webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
-                />
+                {#await commonComments then commonComments}
+                    <Replies
+                        replies={commonComments}
+                        gravatarBase={systemConfig.gravatar?.base}
+                        reply={post.comment?.reply}
+                        {post}
+                        postUrl={siteConfig.url + post.url}
+                        webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
+                    />
+                {/await}
             </div>
         {/if}
     </div>
