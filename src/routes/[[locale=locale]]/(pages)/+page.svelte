@@ -3,6 +3,8 @@
     import { locales, t, locale } from "$lib/translations";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import Card from "$lib/ui/card/index.svelte";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -89,38 +91,97 @@
         ldjson(),
     )}</script>`}
 
-    {#if home?.head}
-        {@html home.head}
-    {/if}
+    {#await home then home}
+        {#if home?.head}
+            {@html home.head}
+        {/if}
 
-    {#if home?.style}
-        <style type="text/css">
+        {#if home?.style}
+            <style type="text/css">
             {home.style}
-        </style>
-    {/if}
-    {#if home?.script}
-        {@html `<script type="text/javascript">${home.script}</script>`}
-    {/if}
+            </style>
+        {/if}
+        {#if home?.script}
+            {@html `<script type="text/javascript">${home.script}</script>`}
+        {/if}
+    {/await}
 </svelte:head>
 
-{#if home}
+{#await home}
     <div class="home container">
-        {@html home.content}
+        <h1><Skeleton width="18em" /></h1>
+        <p><Skeleton width="100%" /></p>
+        <p><Skeleton width="33%" /></p>
     </div>
-{/if}
+{:then home}
+    {#if home}
+        <div class="home container">
+            {@html home.content}
+        </div>
+    {/if}
+{/await}
 
 <div class="articles container">
-    {#each posts as post, index}
-        <PostCard {post} showContent={true} />
-    {/each}
+    {#await posts}
+        {#each { length: 3 } as _, i}
+            <Card tag="article" class="article">
+                <svelte:fragment slot="header">
+                    <h2><Skeleton width="20em" /></h2>
+                </svelte:fragment>
+                <svelte:fragment slot="header-extra">
+                    <div class="article-meta">
+                        <Skeleton width="8em" />
+                    </div>
+                </svelte:fragment>
 
-    <a
-        href="/archives/"
-        style="display: block;
-    text-align: center;
-    padding: 1rem;
-    color: var(--text-color);">{$t("common.find_more")}</a
-    >
+                <div class="content">
+                    {#if i === 1}
+                        <div class="feature_image">
+                            <Skeleton width="100%" height="100%" />
+                        </div>
+                    {/if}
+                    <div>
+                        {#if i === 2}
+                            <div
+                                style="color: var(--text-color-tertiary); font-size: 90%"
+                            >
+                                <span><Skeleton width="4em" /></span>
+
+                                <span><Skeleton width="15em" /></span>
+
+                                <Skeleton width="5em" />
+                            </div>
+                        {/if}
+                        <div class="summary">
+                            <p><Skeleton width="100%" /></p>
+                            <p><Skeleton width="100%" /></p>
+                            <p><Skeleton width="33%" /></p>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        {/each}
+        <div
+            style="display: block;
+        text-align: center;"
+        >
+            <Skeleton height="auto" width="12em"
+                ><div style="padding: 1rem;"></div></Skeleton
+            >
+        </div>
+    {:then posts}
+        {#each posts as post, index}
+            <PostCard {post} showContent={true} />
+        {/each}
+
+        <a
+            href="/archives/"
+            style="display: block;
+text-align: center;
+padding: 1rem;
+color: var(--text-color);">{$t("common.find_more")}</a
+        >
+    {/await}
 </div>
 
 <style lang="scss">

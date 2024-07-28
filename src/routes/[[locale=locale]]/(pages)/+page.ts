@@ -1,15 +1,26 @@
+import { browser } from '$app/environment';
 import { locale } from '$lib/translations';
+import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ params, parent, fetch, data }) {
+export const load: PageLoad = async ({ params, parent, fetch, data }) => {
     const { pathLocale, siteConfig, systemConfig } = await parent();
-    let posts = await fetch(`/api/v1/post?${new URLSearchParams({
+    let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
         limit: 8,
-    })}`).then((r) => r.json());
+    })}`).then((r) => {
+        if (r.ok) {
+            return r.json();
+        } else {
+            error(r.status);
+        }
+    });
 
-    let home = await fetch(`/api/v1/post/home`).then((r) => r.json());
+    const home = fetch(`/api/v1/post/home`).then((r) => r.json());
 
-    return { home, posts, pathLocale, siteConfig, systemConfig };
+    return {
+        home: browser ? home : await home,
+        posts: browser ? posts : await posts, pathLocale, siteConfig, systemConfig
+    };
 } 
