@@ -8,7 +8,7 @@ export const load: PageLoad = async ({ params, parent, fetch, data }) => {
     let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
-        limit: 8,
+        limit: '8',
     })}`).then((r) => {
         if (r.ok) {
             return r.json();
