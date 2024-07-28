@@ -19,7 +19,7 @@
     
     function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
     
-    var IGNORED_TAGS = /^(script|link|style|code|meta|tr|td|th)$/i;
+    var IGNORED_TAGS = /^(script|link|style|code|meta|tr|td|th|tbody|thead|table)$/i;
     var BLOCK_TAGS = /^(div|p|h1|h2|h3|h4|h5|h6|blockqoute|pre|textarea|nav|header|main|footer|section|sidbar|aside|table|li|ul|ol|dl)$/i;
     var SPACING_TAGS = /^(br|hr|img|video|audio|sup|sub|a|code|span|strong|del|i)$/i;
     

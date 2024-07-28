@@ -220,7 +220,7 @@
     )}</script>`}
 
     <link href="/assets/spacer/spacer.min.css" rel="stylesheet" />
-    <script async src="/assets/spacer/spacer.js?v=20240728"></script>
+    <script async src="/assets/spacer/spacer.js?v=20240729"></script>
     <script>
         (() => {
             let spacer = { spacePace: () => {} };
