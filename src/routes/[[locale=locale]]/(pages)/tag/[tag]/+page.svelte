@@ -3,19 +3,25 @@
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import { browser } from "$app/environment";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
     $: ({ tag, posts, siteConfig, pathLocale } = data);
 
-    $: label = posts?.length
-        ? posts[0].taxonomy?.tag?.find(
-              (t: string) =>
-                  t.toLowerCase().replace(/\s+/gm, "-") ===
-                  tag.toLowerCase().replace(/\s+/gm, "-"),
-          )
-        : tag;
+    const resolveLabel = (posts: any[]) =>
+        posts?.length
+            ? posts[0].taxonomy?.tag?.find(
+                  (t: string) =>
+                      t.toLowerCase().replace(/\s+/gm, "-") ===
+                      tag.toLowerCase().replace(/\s+/gm, "-"),
+              )
+            : tag;
+    $: label = browser
+        ? Promise.resolve(posts).then(resolveLabel)
+        : resolveLabel(posts);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -31,18 +37,22 @@
     };
 </script>
 
-<Title value={`${$t("common.tag")}: ${label}`}></Title>
-<DescriptionMeta value={`${$t("common.tag")}: ${label}`}></DescriptionMeta>
+{#await label then label}
+    <Title value={`${$t("common.tag")}: ${label}`}></Title>
+    <DescriptionMeta value={`${$t("common.tag")}: ${label}`}></DescriptionMeta>
+{/await}
 
 <svelte:head>
-    {#if siteConfig.keywords}
-        <meta
-            name="keywords"
-            content={`${label},${siteConfig.keywords.join(",")}`}
-        />
-    {:else}
-        <meta name="keywords" content={`${label}`} />
-    {/if}
+    {#await label then label}
+        {#if siteConfig.keywords}
+            <meta
+                name="keywords"
+                content={`${label},${siteConfig.keywords.join(",")}`}
+            />
+        {:else}
+            <meta name="keywords" content={`${label}`} />
+        {/if}
+    {/await}
 
     {#if siteConfig.url}
         {@const url = `${siteConfig.url}/${pathLocale || $locale}/tag/${tag}/`}
@@ -78,8 +88,17 @@
 </svelte:head>
 
 <div class="container archives">
-    <h1>{$t("common.tag")}: {label}</h1>
-    <PostTimeline {posts} />
+    {#await label}
+        <Skeleton width="50%" />
+    {:then label}
+        <h1>{$t("common.tag")}: {label}</h1>
+    {/await}
+    {#await posts}
+        <Skeleton width="33%" />
+        <Skeleton width="33%" />
+    {:then posts}
+        <PostTimeline {posts} />
+    {/await}
 </div>
 
 <style>

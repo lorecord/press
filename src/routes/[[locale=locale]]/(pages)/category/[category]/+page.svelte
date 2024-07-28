@@ -4,6 +4,7 @@
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
     import { browser } from "$app/environment";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -36,7 +37,7 @@
     };
 </script>
 
-{#await posts then posts}
+{#await label then label}
     <Title value={`${$t("common.category")}: ${label}`}></Title>
     <DescriptionMeta value={`${$t("common.category")}: ${label}`}
     ></DescriptionMeta>
@@ -89,12 +90,15 @@
 </svelte:head>
 
 <div class="container archives">
-    {#await label then label}
+    {#await label}
+        <Skeleton width="50%" />
+    {:then label}
         <h1>{$t("common.category")}: {label}</h1>
     {/await}
 
     {#await posts}
-        <p>Loading...</p>
+        <Skeleton width="33%" />
+        <Skeleton width="33%" />
     {:then value}
         <PostTimeline posts={value} />
     {/await}

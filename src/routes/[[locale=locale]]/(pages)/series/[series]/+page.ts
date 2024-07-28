@@ -6,7 +6,7 @@ import { error } from "@sveltejs/kit";
 export async function load({ params, fetch, parent }) {
     await parent();
     let { series } = params;
-    const posts = await fetch(`/api/v1/post?${new URLSearchParams({
+    const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
         series

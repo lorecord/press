@@ -6,7 +6,7 @@ import { error } from "@sveltejs/kit";
 export async function load({ params, fetch, parent }) {
     await parent();
     let { tag } = params;
-    const posts = await fetch(`/api/v1/post?${new URLSearchParams({
+    const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
         tag
@@ -17,10 +17,6 @@ export async function load({ params, fetch, parent }) {
             error(r.status);
         }
     });
-
-    if (!posts?.length) {
-        error(404);
-    }
 
     return { tag, posts: browser ? posts : await posts };
 }
