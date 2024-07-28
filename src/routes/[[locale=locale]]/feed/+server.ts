@@ -6,11 +6,13 @@ import { locales, locale } from "$lib/translations";
 
 import { get } from "svelte/store";
 
-export async function GET({ request, locals }) {
+export async function GET({ request, locals, params }) {
     const { site } = locals;
     const systemConfig = getSystemConfig(site);
 
-    let lang = locale.get() || systemConfig.locale?.default || 'en';
+    const { locale: localParam } = params;
+
+    let lang = localParam || locale.get() || systemConfig.locale?.default || 'en';
 
     const siteConfig = getSiteConfig(site, lang);
 
@@ -51,11 +53,11 @@ export async function GET({ request, locals }) {
 
 function escapeHtml(unsafe: string) {
     return unsafe
-        // .replace(/&/g, "&amp;")
-        // .replace(/</g, "&lt;")
-        // .replace(/>/g, "&gt;")
-        // .replace(/"/g, "&quot;")
-        // .replace(/'/g, "&#039;");
+    // .replace(/&/g, "&amp;")
+    // .replace(/</g, "&lt;")
+    // .replace(/>/g, "&gt;")
+    // .replace(/"/g, "&quot;")
+    // .replace(/'/g, "&#039;");
 }
 
 /**
