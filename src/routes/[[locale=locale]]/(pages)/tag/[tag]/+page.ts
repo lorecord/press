@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { locale } from '$lib/translations';
 import { error } from "@sveltejs/kit";
 
@@ -9,15 +10,17 @@ export async function load({ params, fetch, parent }) {
         template: 'item',
         lang: locale.get(),
         tag
-    })}`).then((r) => r.json());
+    })}`).then((r) => {
+        if (r.ok) {
+            return r.json();
+        } else {
+            error(r.status);
+        }
+    });
 
-    let label = posts?.length
-        ? posts[0].taxonomy?.tag?.find((t: string) => t.toLowerCase().replace(/\s+/gm, '-') === tag.toLowerCase().replace(/\s+/gm, '-'))
-        : tag;
-
-    if(!posts?.length){
+    if (!posts?.length) {
         error(404);
     }
 
-    return { posts, tag, label };
+    return { tag, posts: browser ? posts : await posts };
 }

@@ -29,35 +29,33 @@
         pathLocale,
     } = data);
 
+    const commonCommentsFilter = (replies: any[]) =>
+        replies.filter((r: any) => r.type === "reply");
     $: commonComments = browser
-        ? Promise.resolve(interactions.replies).then((replies) =>
-              replies.filter((r: any) => r.type === "reply"),
-          )
-        : interactions.replies.filter((r: any) => r.type === "reply");
+        ? Promise.resolve(interactions.replies).then(commonCommentsFilter)
+        : commonCommentsFilter(interactions.replies);
 
+    const citationsFilter = (mentions: any[]) =>
+        mentions.filter(
+            (r: any) => r.type === "mention" || r.type === "citation",
+        ) || [];
     $: citations = browser
-        ? Promise.resolve(interactions.mentions).then(
-              (mentions) =>
-                  mentions.filter(
-                      (r: any) => r.type === "mention" || r.type === "citation",
-                  ) || [],
-          )
-        : interactions.mentions.filter(
-              (r: any) => r.type === "mention" || r.type === "citation",
-          ) || [];
+        ? Promise.resolve(interactions.mentions).then(citationsFilter)
+        : citationsFilter(interactions.mentions);
 
     const templates: any = {
         default: TemplatePage,
         item: TemplatePost,
         links: TemplateLinks,
     };
-
-    let templateComponent: any;
-
-    $: templateComponent =
+    const solveTemplate = (post: any) =>
         templates[(post.template as string) || "default"] || templates.default;
 
-    let ldjson = () => {
+    $: templateComponent = browser
+        ? Promise.resolve(post).then(solveTemplate)
+        : solveTemplate(post);
+
+    const ldjsonCreater = (post: any) => () => {
         const license = ((l) => {
             if (spdxLicenseList[l]) {
                 return { licenseId: l, ...spdxLicenseList[l] };
@@ -158,340 +156,355 @@
 
         return schema;
     };
+    $: ldjson = browser
+        ? Promise.resolve(post).then(ldjsonCreater)
+        : ldjsonCreater(post);
 </script>
 
-<Title value={post.title}></Title>
-<DescriptionMeta value={post.summary}></DescriptionMeta>
+{#await post then post}
+    <Title value={post.title}></Title>
+    <DescriptionMeta value={post.summary}></DescriptionMeta>
+{/await}
 
 <svelte:head>
-    {#if post.processMeta?.prism}
-        <link rel="stylesheet" href="/assets/prism/themes/dark.css" />
-        <link rel="stylesheet" href="/assets/prism/rehype-prism-plus.css" />
-    {/if}
-    {#if post.processMeta?.katex}
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
-        />
-    {/if}
+    {#await post then post}
+        {#if post.processMeta?.prism}
+            <link rel="stylesheet" href="/assets/prism/themes/dark.css" />
+            <link rel="stylesheet" href="/assets/prism/rehype-prism-plus.css" />
+        {/if}
+        {#if post.processMeta?.katex}
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+            />
+        {/if}
 
-    {#if post.processMeta?.mermaid}
-        <link rel="stylesheet" href="/assets/mermaid/dark.css" />
-        <script
-            async
-            src="https://unpkg.com/mermaid/dist/mermaid.min.js"
-        ></script>
+        {#if post.processMeta?.mermaid}
+            <link rel="stylesheet" href="/assets/mermaid/dark.css" />
+            <script
+                async
+                src="https://unpkg.com/mermaid/dist/mermaid.min.js"
+            ></script>
+            <script>
+                (() => {
+                    let observeMermaid = once(() => {
+                        var observer = new MutationObserver(function (
+                            mutations,
+                        ) {
+                            if (
+                                mutations &&
+                                mutations.some((m) => {
+                                    for (n of m.addedNodes) {
+                                        if (n.classList?.contains("mermaid")) {
+                                            return true;
+                                        }
+                                    }
+                                })
+                            ) {
+                                initMermaid();
+                            }
+                        });
+
+                        var config = { childList: true, subtree: true };
+                        observer.observe(document.body, config);
+                    });
+
+                    function initMermaid() {
+                        mermaid && mermaid.init(undefined, ".mermaid");
+                        return true;
+                    }
+
+                    let startMermaid = single(() => {
+                        observeMermaid();
+                        return initMermaid();
+                    });
+
+                    window.whenLoad(handleMermaid);
+
+                    function handleMermaid() {
+                        if (window.mermaid) {
+                            startMermaid();
+                        } else {
+                            setTimeout(handleMermaid, 100);
+                        }
+                    }
+
+                    document.addEventListener(
+                        "DOMContentLoaded",
+                        handleMermaid,
+                        false,
+                    );
+                })();
+            </script>
+        {/if}
+
         <script>
             (() => {
-                let observeMermaid = once(() => {
+                let selector = [2, 3, 4, 5, 6]
+                    .map((i) => `.article-content h${i}`)
+                    .join(",");
+
+                function addAnchorLink(h) {
+                    if (!h.id || h.querySelector(".heading-anchor-link")) {
+                        return;
+                    }
+
+                    var link = document.createElement("a");
+                    link.href = "#" + h.id;
+                    link.className = "heading-anchor-link";
+                    h.prepend(link);
+                }
+
+                let observeAnchorLink = once(() => {
                     var observer = new MutationObserver(function (mutations) {
-                        if (
-                            mutations &&
-                            mutations.some((m) => {
-                                for (n of m.addedNodes) {
-                                    if (n.classList?.contains("mermaid")) {
-                                        return true;
-                                    }
-                                }
-                            })
-                        ) {
-                            initMermaid();
-                        }
+                        mutations.forEach(function (mutation) {
+                            mutation.addedNodes.forEach(function (node) {
+                                document
+                                    .querySelectorAll(selector)
+                                    .forEach(addAnchorLink);
+                            });
+                        });
                     });
 
                     var config = { childList: true, subtree: true };
                     observer.observe(document.body, config);
                 });
 
-                function initMermaid() {
-                    mermaid && mermaid.init(undefined, ".mermaid");
-                    return true;
+                function initAnchorLink() {
+                    observeAnchorLink();
+                    document.querySelectorAll(selector).forEach(addAnchorLink);
                 }
 
-                let startMermaid = single(() => {
-                    observeMermaid();
-                    return initMermaid();
-                });
-
-                window.whenLoad(handleMermaid);
-
-                function handleMermaid() {
-                    if (window.mermaid) {
-                        startMermaid();
-                    } else {
-                        setTimeout(handleMermaid, 100);
-                    }
-                }
-
-                document.addEventListener(
-                    "DOMContentLoaded",
-                    handleMermaid,
-                    false,
-                );
+                window.whenLoad(initAnchorLink);
             })();
         </script>
-    {/if}
 
-    <script>
-        (() => {
-            let selector = [2, 3, 4, 5, 6]
-                .map((i) => `.article-content h${i}`)
-                .join(",");
+        {#if post.template == "item"}
+            <meta property="og:type" content="article" />
+        {:else}
+            <meta property="og:type" content="website" />
+        {/if}
 
-            function addAnchorLink(h) {
-                if (!h.id || h.querySelector(".heading-anchor-link")) {
-                    return;
-                }
+        {#if post.date}
+            <meta
+                name="og:article:published_time"
+                content={new Date(post.date).toISOString()}
+            />
+        {/if}
 
-                var link = document.createElement("a");
-                link.href = "#" + h.id;
-                link.className = "heading-anchor-link";
-                h.prepend(link);
-            }
+        {#if post.modified?.date}
+            <meta
+                name="og:article:modified_time"
+                content={new Date(post.modified.date).toISOString()}
+            />
+        {/if}
+        {#if post.expired?.date}
+            <meta
+                name="og:article:expired_time"
+                content={new Date(post.expired.date).toISOString()}
+            />
+        {/if}
 
-            let observeAnchorLink = once(() => {
-                var observer = new MutationObserver(function (mutations) {
-                    mutations.forEach(function (mutation) {
-                        mutation.addedNodes.forEach(function (node) {
-                            document
-                                .querySelectorAll(selector)
-                                .forEach(addAnchorLink);
-                        });
-                    });
-                });
+        {#if post.authors}
+            {@const authorString = post.authors
+                .map((author) => author.name || author.account || author)
+                .join(",")}
+            <meta name="author" content={authorString} />
+            <meta name="author" content={authorString} />
+            <meta name="og:article:author" content={authorString} />
+        {/if}
 
-                var config = { childList: true, subtree: true };
-                observer.observe(document.body, config);
-            });
+        {#if post.robots}
+            <meta name="robots" content={post.robots.join(",")} />
+        {/if}
+        {#if post.googlebot}
+            <meta name="googlebot" content={post.googlebot} />
+        {/if}
+        {#if post.google}
+            <meta name="google" content={post.google} />
+        {/if}
+        {#if post.rating}
+            <meta name="rating" content={post.rating} />
+        {/if}
 
-            function initAnchorLink() {
-                observeAnchorLink();
-                document.querySelectorAll(selector).forEach(addAnchorLink);
-            }
+        {#if post.image}
+            <meta
+                property="og:image"
+                content="{siteConfig.url}{post.url}{post.image}"
+            />
+            <meta
+                name="twitter:image"
+                content="{siteConfig.url}{post.url}{post.image}"
+            />
+            <meta name="twitter:card" content="summary_large_image" />
+        {:else}
+            <meta name="twitter:card" content="summary" />
+        {/if}
 
-            window.whenLoad(initAnchorLink);
-        })();
-    </script>
+        {#if post.video}
+            <meta
+                property="og:video"
+                content="{siteConfig.url}{post.url}{post.video}"
+            />
+        {/if}
 
-    {#if post.template == "item"}
-        <meta property="og:type" content="article" />
-    {:else}
-        <meta property="og:type" content="website" />
-    {/if}
+        {#if post.audio}
+            <meta
+                property="og:audio"
+                content="{siteConfig.url}{post.url}{post.audio}"
+            />
+        {/if}
 
-    {#if post.date}
-        <meta
-            name="og:article:published_time"
-            content={new Date(post.date).toISOString()}
-        />
-    {/if}
+        {#if post.taxonomy?.category?.length > 0}
+            <meta
+                property="og:article:section"
+                content={post.taxonomy?.category[0]}
+            />
+        {/if}
+        {#if post.taxonomy?.tag}
+            {#each post.taxonomy?.tag as tag}
+                <meta property="og:article:tag" content={tag} />
+            {/each}
+        {/if}
+        {#if post.taxonomy?.series}
+            {#each post.taxonomy?.series as series}
+                <meta property="og:article:tag" content={series} />
+            {/each}
+        {/if}
 
-    {#if post.modified?.date}
-        <meta
-            name="og:article:modified_time"
-            content={new Date(post.modified.date).toISOString()}
-        />
-    {/if}
-    {#if post.expired?.date}
-        <meta
-            name="og:article:expired_time"
-            content={new Date(post.expired.date).toISOString()}
-        />
-    {/if}
+        {#if post.taxonomy?.category || post.taxonomy?.tag || post.taxonomy?.series || post.keywords}
+            <meta
+                name="keywords"
+                content={`${[
+                    post.taxonomy?.category,
+                    post.taxonomy?.tag,
+                    post.taxonomy?.series,
+                    post.keywords,
+                ]
+                    .filter((s) => !!s)
+                    .flat()
+                    .join(",")}`}
+            />
+        {/if}
 
-    {#if post.authors}
-        {@const authorString = post.authors
-            .map((author) => author.name || author.account || author)
-            .join(",")}
-        <meta name="author" content={authorString} />
-        <meta name="author" content={authorString} />
-        <meta name="og:article:author" content={authorString} />
-    {/if}
+        {#if siteConfig.url}
+            {@const url = `${siteConfig.url}/${post.lang}${post.url}`}
+            <link rel="canonical" href={url} />
+            <meta property="og:url" content={url} />
 
-    {#if post.robots}
-        <meta name="robots" content={post.robots.join(",")} />
-    {/if}
-    {#if post.googlebot}
-        <meta name="googlebot" content={post.googlebot} />
-    {/if}
-    {#if post.google}
-        <meta name="google" content={post.google} />
-    {/if}
-    {#if post.rating}
-        <meta name="rating" content={post.rating} />
-    {/if}
-
-    {#if post.image}
-        <meta
-            property="og:image"
-            content="{siteConfig.url}{post.url}{post.image}"
-        />
-        <meta
-            name="twitter:image"
-            content="{siteConfig.url}{post.url}{post.image}"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-    {:else}
-        <meta name="twitter:card" content="summary" />
-    {/if}
-
-    {#if post.video}
-        <meta
-            property="og:video"
-            content="{siteConfig.url}{post.url}{post.video}"
-        />
-    {/if}
-
-    {#if post.audio}
-        <meta
-            property="og:audio"
-            content="{siteConfig.url}{post.url}{post.audio}"
-        />
-    {/if}
-
-    {#if post.taxonomy?.category?.length > 0}
-        <meta
-            property="og:article:section"
-            content={post.taxonomy?.category[0]}
-        />
-    {/if}
-    {#if post.taxonomy?.tag}
-        {#each post.taxonomy?.tag as tag}
-            <meta property="og:article:tag" content={tag} />
-        {/each}
-    {/if}
-    {#if post.taxonomy?.series}
-        {#each post.taxonomy?.series as series}
-            <meta property="og:article:tag" content={series} />
-        {/each}
-    {/if}
-
-    {#if post.taxonomy?.category || post.taxonomy?.tag || post.taxonomy?.series || post.keywords}
-        <meta
-            name="keywords"
-            content={`${[
-                post.taxonomy?.category,
-                post.taxonomy?.tag,
-                post.taxonomy?.series,
-                post.keywords,
-            ]
-                .filter((s) => !!s)
-                .flat()
-                .join(",")}`}
-        />
-    {/if}
-
-    {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${post.lang}${post.url}`}
-        <link rel="canonical" href={url} />
-        <meta property="og:url" content={url} />
-
-        <link
-            rel="alternate"
-            href={`${siteConfig.url}${post.url}`}
-            hreflang="x-default"
-        />
-
-        {#each post.langs || [] as value}
             <link
                 rel="alternate"
-                href="{siteConfig.url}/{value}{post.url}"
-                hreflang={value}
+                href={`${siteConfig.url}${post.url}`}
+                hreflang="x-default"
             />
-        {/each}
-    {/if}
 
-    <meta property="og:locale" content={post.lang} />
-    {#each post.langs || [] as value}
-        {#if value !== $locale}
-            <meta property="og:locale:alternate" content={value} />
+            {#each post.langs || [] as value}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/{value}{post.url}"
+                    hreflang={value}
+                />
+            {/each}
         {/if}
-    {/each}
 
-    {@html `<script type="application/ld+json">${JSON.stringify(
-        ldjson(),
-    )}</script>`}
+        <meta property="og:locale" content={post.lang} />
+        {#each post.langs || [] as value}
+            {#if value !== $locale}
+                <meta property="og:locale:alternate" content={value} />
+            {/if}
+        {/each}
+
+        {#await ldjson then ldjson}
+            {@html `<script type="application/ld+json">${JSON.stringify(
+                ldjson(),
+            )}</script>`}
+        {/await}
+    {/await}
 </svelte:head>
 
 <div class="h-entry">
-    <div class="page-wrapper">
-        {#if post.lang && post.lang != $locale}
-            <div class="container">
-                <div class="alert alert-info no-print">
-                    <strong
-                        style="display: flex; align-items: center; gap: .25rem;"
-                        ><IconLanguage size={18} />
-                        {$t("common.i18n_alert_title")}</strong
-                    >
-                    <span>
-                        {$t("common.i18n_alert_message_a")}<a
-                            href="/{post.lang}{post.url}"
-                            >{$t(
-                                `lang.${post.lang || systemConfig.locale.default}`,
-                            )}</a
-                        >{#if post.langs?.length > 1}{$t(
-                                "common.i18n_alert_message_b",
-                            )}{#each post.langs || [] as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
-                                        href="/{l}{post.url}"
-                                        >{$t(`lang.${l}`)}</a
-                                    >{#if index < post.langs.length - 2}{$t(
-                                            "common.comma",
-                                        )}{/if}{/if}{/each}{$t(
-                                "common.i18n_alert_message_c",
-                            )}{/if}
-                    </span>
-                </div>
-            </div>
-        {/if}
-
-        <svelte:component
-            this={templateComponent}
-            {post}
-            {siteConfig}
-            {systemConfig}
-            {newer}
-            {earlier}
-        />
-    </div>
-
-    <div class="discuss no-print">
-        {#if post.comment?.enable}
-            {#await citations then value}
-                {#if value?.length}
-                    <h3 id="citations" style="text-align: center">
-                        {$t("common.citations_lead_title")}
-                        {#if value.length}
-                            ({value.length})
-                        {/if}
-                    </h3>
-                    <div class="comments-wrapper">
-                        <Mentions mentions={value} />
+    {#await post then post}
+        <div class="page-wrapper">
+            {#if post.lang && post.lang != $locale}
+                <div class="container">
+                    <div class="alert alert-info no-print">
+                        <strong
+                            style="display: flex; align-items: center; gap: .25rem;"
+                            ><IconLanguage size={18} />
+                            {$t("common.i18n_alert_title")}</strong
+                        >
+                        <span>
+                            {$t("common.i18n_alert_message_a")}<a
+                                href="/{post.lang}{post.url}"
+                                >{$t(
+                                    `lang.${post.lang || systemConfig.locale.default}`,
+                                )}</a
+                            >{#if post.langs?.length > 1}{$t(
+                                    "common.i18n_alert_message_b",
+                                )}{#each post.langs || [] as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
+                                            href="/{l}{post.url}"
+                                            >{$t(`lang.${l}`)}</a
+                                        >{#if index < post.langs.length - 2}{$t(
+                                                "common.comma",
+                                            )}{/if}{/if}{/each}{$t(
+                                    "common.i18n_alert_message_c",
+                                )}{/if}
+                        </span>
                     </div>
-                {/if}
-            {/await}
+                </div>
+            {/if}
 
-            <h3 id="comments" style="text-align: center">
-                {$t("common.comment_lead_title")}
-                {#await commonComments then commonComments}
-                    {#if commonComments}
-                        ({commonComments.length})
+            {#await templateComponent then templateComponent}
+                <svelte:component
+                    this={templateComponent}
+                    {post}
+                    {siteConfig}
+                    {systemConfig}
+                    {newer}
+                    {earlier}
+                />
+            {/await}
+        </div>
+
+        <div class="discuss no-print">
+            {#if post.comment?.enable}
+                {#await citations then value}
+                    {#if value?.length}
+                        <h3 id="citations" style="text-align: center">
+                            {$t("common.citations_lead_title")}
+                            {#if value.length}
+                                ({value.length})
+                            {/if}
+                        </h3>
+                        <div class="comments-wrapper">
+                            <Mentions mentions={value} />
+                        </div>
                     {/if}
                 {/await}
-            </h3>
-            <div class="comments-wrapper">
-                {#await commonComments then commonComments}
-                    <Replies
-                        replies={commonComments}
-                        gravatarBase={systemConfig.gravatar?.base}
-                        reply={post.comment?.reply}
-                        {post}
-                        postUrl={siteConfig.url + post.url}
-                        webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
-                    />
-                {/await}
-            </div>
-        {/if}
-    </div>
+
+                <h3 id="comments" style="text-align: center">
+                    {$t("common.comment_lead_title")}
+                    {#await commonComments then commonComments}
+                        {#if commonComments}
+                            ({commonComments.length})
+                        {/if}
+                    {/await}
+                </h3>
+                <div class="comments-wrapper">
+                    {#await commonComments then commonComments}
+                        <Replies
+                            replies={commonComments}
+                            gravatarBase={systemConfig.gravatar?.base}
+                            reply={post.comment?.reply}
+                            {post}
+                            postUrl={siteConfig.url + post.url}
+                            webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
+                        />
+                    {/await}
+                </div>
+            {/if}
+        </div>
+    {/await}
 </div>
 
 <style lang="scss">

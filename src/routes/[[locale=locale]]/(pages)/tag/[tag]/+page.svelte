@@ -7,7 +7,15 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ label, tag, posts, siteConfig, pathLocale } = data);
+    $: ({ tag, posts, siteConfig, pathLocale } = data);
+
+    $: label = posts?.length
+        ? posts[0].taxonomy?.tag?.find(
+              (t: string) =>
+                  t.toLowerCase().replace(/\s+/gm, "-") ===
+                  tag.toLowerCase().replace(/\s+/gm, "-"),
+          )
+        : tag;
 
     let ldjson = () => {
         let creativeWork: WebPage = {

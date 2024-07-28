@@ -3,11 +3,24 @@
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
+    import { browser } from "$app/environment";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ label, series, posts, siteConfig, pathLocale } = data);
+    $: ({ series, posts, siteConfig, pathLocale } = data);
+
+    const resolveLabel = (posts: any[]) =>
+        posts?.length
+            ? posts[0].taxonomy?.series?.find(
+                  (t: string) =>
+                      t.toLowerCase().replace(/\s+/gm, "-") ===
+                      series.toLowerCase().replace(/\s+/gm, "-"),
+              )
+            : series;
+    $: label = browser
+        ? Promise.resolve(posts).then(resolveLabel)
+        : resolveLabel(posts);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -23,18 +36,23 @@
     };
 </script>
 
-<Title value={`${$t("common.series")}: ${label}`}></Title>
-<DescriptionMeta value={`${$t("common.series")}: ${label}`}></DescriptionMeta>
+{#await posts then posts}
+    <Title value={`${$t("common.series")}: ${label}`}></Title>
+    <DescriptionMeta value={`${$t("common.series")}: ${label}`}
+    ></DescriptionMeta>
+{/await}
 
 <svelte:head>
-    {#if siteConfig.keywords}
-        <meta
-            name="keywords"
-            content={`${label},${siteConfig.keywords.join(",")}`}
-        />
-    {:else}
-        <meta name="keywords" content={`${label}`} />
-    {/if}
+    {#await label then label}
+        {#if siteConfig.keywords}
+            <meta
+                name="keywords"
+                content={`${label},${siteConfig.keywords.join(",")}`}
+            />
+        {:else}
+            <meta name="keywords" content={`${label}`} />
+        {/if}
+    {/await}
 
     {#if siteConfig.url}
         {@const url = `${siteConfig.url}/${pathLocale || $locale}/series/${series}/`}
@@ -70,8 +88,14 @@
 </svelte:head>
 
 <div class="container archives">
-    <h1>{$t("common.series")}: {label}</h1>
-    <PostTimeline {posts} />
+    {#await label then label}
+        <h1>{$t("common.series")}: {label}</h1>
+    {/await}
+    {#await posts}
+        <p>Loading...</p>
+    {:then posts}
+        <PostTimeline {posts} />
+    {/await}
 </div>
 
 <style>

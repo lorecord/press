@@ -3,19 +3,24 @@
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
+    import { browser } from "$app/environment";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
 
     $: ({ category, posts, siteConfig, pathLocale } = data);
 
-    $: label = posts?.length
-        ? posts[0].taxonomy?.category?.find(
-              (c: string) =>
-                  c.toLowerCase().replace(/\s+/gm, "-") ===
-                  category.toLowerCase().replace(/\s+/gm, "-"),
-          )
-        : category;
+    const resolveLabel = (posts: any[]) =>
+        posts?.length
+            ? posts[0].taxonomy?.category?.find(
+                  (c: string) =>
+                      c.toLowerCase().replace(/\s+/gm, "-") ===
+                      category.toLowerCase().replace(/\s+/gm, "-"),
+              )
+            : category;
+    $: label = browser
+        ? Promise.resolve(posts).then(resolveLabel)
+        : resolveLabel(posts);
 
     $: ldjson = () => {
         let creativeWork: WebPage = {
@@ -31,18 +36,23 @@
     };
 </script>
 
-<Title value={`${$t("common.category")}: ${label}`}></Title>
-<DescriptionMeta value={`${$t("common.category")}: ${label}`}></DescriptionMeta>
+{#await posts then posts}
+    <Title value={`${$t("common.category")}: ${label}`}></Title>
+    <DescriptionMeta value={`${$t("common.category")}: ${label}`}
+    ></DescriptionMeta>
+{/await}
 
 <svelte:head>
-    {#if siteConfig.keywords}
-        <meta
-            name="keywords"
-            content={`${label},${siteConfig.keywords.join(",")}`}
-        />
-    {:else}
-        <meta name="keywords" content={`${label}`} />
-    {/if}
+    {#await label then label}
+        {#if siteConfig.keywords}
+            <meta
+                name="keywords"
+                content={`${label},${siteConfig.keywords.join(",")}`}
+            />
+        {:else}
+            <meta name="keywords" content={`${label}`} />
+        {/if}
+    {/await}
 
     {#if siteConfig.url}
         {@const url = `${siteConfig.url}/${pathLocale || $locale}/category/${category}/`}
@@ -79,7 +89,9 @@
 </svelte:head>
 
 <div class="container archives">
-    <h1>{$t("common.category")}: {label}</h1>
+    {#await label then label}
+        <h1>{$t("common.category")}: {label}</h1>
+    {/await}
 
     {#await posts}
         <p>Loading...</p>

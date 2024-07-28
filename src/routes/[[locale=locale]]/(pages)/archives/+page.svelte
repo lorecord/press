@@ -67,7 +67,11 @@
 <div class="container archives">
     <h1>{$t("common.archives")}</h1>
 
-    <PostTimeline {posts} />
+    {#await posts}
+        <p>Loading...</p>
+    {:then value}
+        <PostTimeline posts={value} />
+    {/await}
 </div>
 
 <style lang="scss">

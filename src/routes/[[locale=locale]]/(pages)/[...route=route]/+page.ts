@@ -15,7 +15,7 @@ export async function load({ params, fetch, parent }) {
         route = route.substring(0, route.length - 1);
     }
 
-    const post = await fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
+    const post = fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
@@ -25,29 +25,31 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    const interactions = post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json());
+    const interactions = Promise.resolve(post).then((post) =>
+        post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json())
+    );
 
     const replies = Promise.resolve(interactions).then(interactions => interactions?.replies || []);
     const mentions = Promise.resolve(interactions).then(interactions => interactions?.mentions || []);
 
-    let newer = post.newer && fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
+    const newer = Promise.resolve(post).then((post) => post.newer && fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json()
         }
-    });
+    }));
 
-    let earlier = post.earlier && fetch(`/api/v1/post/${post.earlier}${get(derivedLang) ? '?' + new URLSearchParams({
+    const earlier = Promise.resolve(post).then((post) => post.earlier && fetch(`/api/v1/post/${post.earlier}${get(derivedLang) ? '?' + new URLSearchParams({
         lang: get(derivedLang)
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json();
         }
-    });
+    }));
 
     return {
-        post,
+        post: browser ? post : await post,
         newer: browser ? newer : await newer,
         earlier: browser ? earlier : await earlier,
         interactions: {
