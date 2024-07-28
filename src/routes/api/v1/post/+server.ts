@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { getPublicPosts } from "$lib/server/posts";
 import { getSystemConfig } from '$lib/server/config.js';
 
-export function GET({ url, locals }) {
+export async function GET({ url, locals }) {
     const { site } = locals as { site: any };
     const systemConfig = getSystemConfig(site);
 

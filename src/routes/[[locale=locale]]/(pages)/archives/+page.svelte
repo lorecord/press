@@ -3,6 +3,7 @@
     import PostTimeline from "$lib/components/post/timeline.svelte";
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -68,7 +69,9 @@
     <h1>{$t("common.archives")}</h1>
 
     {#await posts}
-        <p>Loading...</p>
+        <h3><Skeleton width="18em" /></h3>
+        <h3><Skeleton width="13em" /></h3>
+        <h3><Skeleton width="16em" /></h3>
     {:then value}
         <PostTimeline posts={value} />
     {/await}

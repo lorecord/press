@@ -37,7 +37,9 @@
     };
 </script>
 
-{#await label then label}
+{#await label}
+    <Title value={`${$t("common.category")}: ${category}`}></Title>
+{:then label}
     <Title value={`${$t("common.category")}: ${label}`}></Title>
     <DescriptionMeta value={`${$t("common.category")}: ${label}`}
     ></DescriptionMeta>
@@ -91,14 +93,15 @@
 
 <div class="container archives">
     {#await label}
-        <Skeleton width="50%" />
+        <h1><Skeleton width="12em" /></h1>
     {:then label}
         <h1>{$t("common.category")}: {label}</h1>
     {/await}
 
     {#await posts}
-        <Skeleton width="33%" />
-        <Skeleton width="33%" />
+        <h3><Skeleton width="18em" /></h3>
+        <h3><Skeleton width="13em" /></h3>
+        <h3><Skeleton width="16em" /></h3>
     {:then value}
         <PostTimeline posts={value} />
     {/await}
