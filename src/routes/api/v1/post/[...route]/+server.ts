@@ -33,5 +33,7 @@ export async function GET({ params, url, locals }) {
         post.related = related;
     }
 
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     return json(post);
 }

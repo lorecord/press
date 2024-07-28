@@ -16,6 +16,7 @@
     import Mentions from "$lib/components/interaction/mention/mentions.svelte";
     import spdxLicenseList from "spdx-license-list";
     import { browser } from "$app/environment";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
 
     export let data;
 
@@ -423,7 +424,34 @@
 </svelte:head>
 
 <div class="h-entry">
-    {#await post then post}
+    {#await post}
+        <div class="page-wrapper">
+            <article class="typography">
+                <div class="article-header container">
+                    <h1 class="p-name" style="text-align: center">
+                        <Skeleton width="50%" />
+                    </h1>
+                    <div class="article-meta" style="text-align: center">
+                        <Skeleton width="8rem" />
+                    </div>
+                </div>
+                <div class="article-body container">
+                    <div class="e-content article-content">
+                        <p>
+                            <Skeleton width="100%" />
+                            <Skeleton width="100%" />
+                            <Skeleton width="67%" />
+                        </p>
+                        <p>
+                            <Skeleton width="100%" />
+                            <Skeleton width="100%" />
+                            <Skeleton width="33%" />
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    {:then post}
         <div class="page-wrapper">
             {#if post.lang && post.lang != $locale}
                 <div class="container">

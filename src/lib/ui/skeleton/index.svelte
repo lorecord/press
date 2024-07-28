@@ -8,13 +8,18 @@
     <slot style="visibility: hidden;"></slot>
 </div>
 
-<style>
+<style lang="scss">
     .skeleton {
-        background-color: #e0e0e0;
+        background-color: rgb(222, 222, 222);
         border-radius: 4px;
         margin: 8px 0;
         overflow: hidden;
         position: relative;
+        display: inline-block;
+
+        @media (prefers-color-scheme: dark) {
+            background-color: rgb(55, 55, 55);
+        }
     }
     .skeleton::after {
         content: "";
@@ -27,7 +32,7 @@
         background: linear-gradient(
             90deg,
             rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.2) 50%,
             rgba(255, 255, 255, 0) 100%
         );
         animation: loading 1.5s infinite;
