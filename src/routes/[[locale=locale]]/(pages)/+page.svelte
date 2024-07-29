@@ -5,6 +5,7 @@
     import type { WebPage, WithContext } from "schema-dts";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import Card from "$lib/ui/card/index.svelte";
+    import Article from "$lib/components/post/article.svelte";
 
     /** @type {import('./$types').PageData} */
     export let data: any;
@@ -108,15 +109,25 @@
 </svelte:head>
 
 {#await home}
-    <div class="home container">
-        <h1><Skeleton width="18em" /></h1>
-        <p><Skeleton width="100%" /></p>
-        <p><Skeleton width="33%" /></p>
+    <div class="page-wrapper">
+        <div class="home container">
+            <h1><Skeleton width="18em" /></h1>
+            <p><Skeleton width="100%" /></p>
+            <p><Skeleton width="33%" /></p>
+        </div>
     </div>
 {:then home}
     {#if home}
-        <div class="home container">
-            {@html home.content}
+        <div class="page-wrapper">
+            <div class="home container">
+                <Article
+                    post={home}
+                    header={false}
+                    footer={false}
+                    {siteConfig}
+                    {systemConfig}
+                />
+            </div>
         </div>
     {/if}
 {/await}
@@ -185,13 +196,18 @@ color: var(--text-color);">{$t("common.find_more")}</a
 </div>
 
 <style lang="scss">
-    .home {
-        padding: 1rem 0 0 0;
-    }
     .articles {
         display: flex;
         flex-flow: column;
         gap: 1rem;
         padding: 1rem 0;
+    }
+
+    .page-wrapper {
+        padding: 1rem 0;
+
+        @media print {
+            padding: 0;
+        }
     }
 </style>

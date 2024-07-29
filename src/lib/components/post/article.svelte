@@ -10,59 +10,73 @@
     export let post: any;
     export let systemConfig: any;
     export let siteConfig: any;
+
+    export let header = true;
+    export let footer = true;
 </script>
 
-<article class="typography">
-    <div class="article-header container">
-        {#if post.image}
-            <img
-                class="no-print"
-                src={post.image}
-                alt=""
-                style="max-width: 100%"
-            />
-        {/if}
+<article class="typography" style="--article-bg-color: transparent">
+    {#if header}
+        <div class="article-header container">
+            {#if post.image}
+                <img
+                    class="no-print"
+                    src={post.image}
+                    alt=""
+                    style="max-width: 100%"
+                />
+            {/if}
 
-        <h1 class="p-name">{post.title}</h1>
+            <h1 class="p-name">{post.title}</h1>
 
-        {#if post.template == "item"}
-            <div class="article-meta">
-                {#if post.authors && !post.isDefaultAuthor}
-                    {#each post.authors as author}
-                        <span>{author.name || author.account || author}</span>
-                    {/each}
-                {/if}
-
-                {#if post.review}
-                    <div>
-                        {$t("common.review")}
-                        {#if post.review.item?.url}
-                            <a
-                                class="u-review-of"
-                                style={post.review.rating > 6
-                                    ? ""
-                                    : "color: var(--text-color-tertiary)"}
-                                href={post.review.item.url}
-                                rel={post.review.rating > 6 ? "" : "nofollow"}
-                                >{post.review.item.name}</a
+            {#if post.template == "item"}
+                <div class="article-meta">
+                    {#if post.authors && !post.isDefaultAuthor}
+                        {#each post.authors as author}
+                            <span
+                                >{author.name || author.account || author}</span
                             >
-                        {:else}
-                            <span>{post.review.item.name}</span>
-                        {/if}
+                        {/each}
+                    {/if}
 
-                        <Rating value={post.review.rating} />
-                    </div>
-                {/if}
+                    {#if post.review}
+                        <div>
+                            {$t("common.review")}
+                            {#if post.review.item?.url}
+                                <a
+                                    class="u-review-of"
+                                    style={post.review.rating > 6
+                                        ? ""
+                                        : "color: var(--text-color-tertiary)"}
+                                    href={post.review.item.url}
+                                    rel={post.review.rating > 6
+                                        ? ""
+                                        : "nofollow"}>{post.review.item.name}</a
+                                >
+                            {:else}
+                                <span>{post.review.item.name}</span>
+                            {/if}
 
-                <Time date={post.date} class="dt-published" locale={$locale} />
+                            <Rating value={post.review.rating} />
+                        </div>
+                    {/if}
+
+                    <Time
+                        date={post.date}
+                        class="dt-published"
+                        locale={$locale}
+                    />
+                </div>
+            {/if}
+
+            <div style="display:none">
+                <a class="u-url" href={siteConfig.url + post.url}
+                    >{post.title}</a
+                >
+                <p class="p-summary">{post.summary}</p>
             </div>
-        {/if}
-
-        <div style="display:none">
-            <a class="u-url" href={siteConfig.url + post.url}>{post.title}</a>
-            <p class="p-summary">{post.summary}</p>
         </div>
-    </div>
+    {/if}
     <div class="article-body container">
         <div class="article-aside no-print">
             {#if post.toc && post.headings}
@@ -86,175 +100,177 @@
             {@html post.content}
         </div>
     </div>
-    <div class="article-footer container">
-        {#if post.template == "item"}
-            <div class="article-extra">
-                <div class="article-license">
-                    <div class="article-license-base-info">
-                        <div><strong>{post.title}</strong></div>
-                        <div>
-                            <a
-                                class="link"
-                                href={post.url}
-                                data-print-content-none
-                                >{siteConfig.url}{post.url}</a
-                            >
+    {#if footer}
+        <div class="article-footer container">
+            {#if post.template == "item"}
+                <div class="article-extra">
+                    <div class="article-license">
+                        <div class="article-license-base-info">
+                            <div><strong>{post.title}</strong></div>
+                            <div>
+                                <a
+                                    class="link"
+                                    href={post.url}
+                                    data-print-content-none
+                                    >{siteConfig.url}{post.url}</a
+                                >
+                            </div>
                         </div>
-                    </div>
-                    <div class="article-license-meta">
-                        {#if post.authors}
-                            <div class="article-license-meta-item">
-                                <div class="label">
-                                    {$t("common.author")}
-                                </div>
-                                <div class="value">
-                                    {#each post.authors as author}
-                                        <p
-                                            style="margin:0"
-                                            class="h-card p-author"
-                                        >
-                                            <a
-                                                class="p-name u-url"
-                                                rel="author"
-                                                href={author.url ||
-                                                    siteConfig.url}
-                                                >{author.name ||
-                                                    author.account ||
-                                                    author}</a
+                        <div class="article-license-meta">
+                            {#if post.authors}
+                                <div class="article-license-meta-item">
+                                    <div class="label">
+                                        {$t("common.author")}
+                                    </div>
+                                    <div class="value">
+                                        {#each post.authors as author}
+                                            <p
+                                                style="margin:0"
+                                                class="h-card p-author"
                                             >
-                                            <img
-                                                style="display:none"
-                                                alt={author.name ||
-                                                    author.account ||
-                                                    author}
-                                                class="u-photo"
-                                                src={siteConfig.url +
-                                                    "/favicon.png"}
-                                            />
-                                        </p>
-                                    {/each}
+                                                <a
+                                                    class="p-name u-url"
+                                                    rel="author"
+                                                    href={author.url ||
+                                                        siteConfig.url}
+                                                    >{author.name ||
+                                                        author.account ||
+                                                        author}</a
+                                                >
+                                                <img
+                                                    style="display:none"
+                                                    alt={author.name ||
+                                                        author.account ||
+                                                        author}
+                                                    class="u-photo"
+                                                    src={siteConfig.url +
+                                                        "/favicon.png"}
+                                                />
+                                            </p>
+                                        {/each}
+                                    </div>
                                 </div>
-                            </div>
-                        {/if}
-                        <div class="article-license-meta-item">
-                            <div class="label">
-                                {$t("common.publish_date")}
-                            </div>
-                            <div class="value">
-                                <Time
-                                    date={post.date}
-                                    class="dt-published"
-                                    locale={$locale}
-                                />
-                            </div>
-                        </div>
-                        {#if post.license || systemConfig.license?.default}
+                            {/if}
                             <div class="article-license-meta-item">
                                 <div class="label">
-                                    {$t("common.license")}
+                                    {$t("common.publish_date")}
                                 </div>
                                 <div class="value">
-                                    <License
-                                        license={post.license ||
-                                            systemConfig.license?.default}
+                                    <Time
+                                        date={post.date}
+                                        class="dt-published"
+                                        locale={$locale}
                                     />
                                 </div>
                             </div>
-                        {/if}
-                    </div>
-                    <details style="padding: 1rem" class="no-print">
-                        <summary>
-                            {$t("common.cite")}
-                        </summary>
-                        <div style="padding-left: 2rem">
-                            <Cite
-                                {post}
-                                site={siteConfig.title}
-                                base={siteConfig.url}
-                            />
-                            <details>
-                                <summary>CFF</summary>
-                                <a href="./CITATION.cff">CITATION.cff</a>
-                            </details>
+                            {#if post.license || systemConfig.license?.default}
+                                <div class="article-license-meta-item">
+                                    <div class="label">
+                                        {$t("common.license")}
+                                    </div>
+                                    <div class="value">
+                                        <License
+                                            license={post.license ||
+                                                systemConfig.license?.default}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
                         </div>
-                    </details>
-                </div>
-                {#if post.taxonomy || post.langs?.length > 0}
-                    <div class="article-taxonomy-and-lang no-print">
-                        {#if post.taxonomy}
-                            <div class="article-taxonomy">
-                                {#if post.taxonomy?.series?.length}
-                                    <ul>
-                                        {#each post.taxonomy.series as series}
-                                            <li>
-                                                <a
-                                                    class="p-series series"
-                                                    href="/series/{series
-                                                        .toLowerCase()
-                                                        .replace(
-                                                            /\s+/gm,
-                                                            '-',
-                                                        )}/">{series}</a
-                                                >
-                                            </li>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                                {#if post.taxonomy?.category?.length}
-                                    <ul>
-                                        {#each post.taxonomy.category as category}
-                                            <li>
-                                                <a
-                                                    class="p-category category"
-                                                    href="/category/{category
-                                                        .toLowerCase()
-                                                        .replace(
-                                                            /\s+/gm,
-                                                            '-',
-                                                        )}/">{category}</a
-                                                >
-                                            </li>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                                {#if post.taxonomy?.tag?.length}
-                                    <ul>
-                                        {#each post.taxonomy.tag as tag}
-                                            <li>
-                                                <a
-                                                    class="p-tag tag"
-                                                    href="/tag/{tag
-                                                        .toLowerCase()
-                                                        .replace(
-                                                            /\s+/gm,
-                                                            '-',
-                                                        )}/">{tag}</a
-                                                >
-                                            </li>
-                                        {/each}
-                                    </ul>
-                                {/if}
+                        <details style="padding: 1rem" class="no-print">
+                            <summary>
+                                {$t("common.cite")}
+                            </summary>
+                            <div style="padding-left: 2rem">
+                                <Cite
+                                    {post}
+                                    site={siteConfig.title}
+                                    base={siteConfig.url}
+                                />
+                                <details>
+                                    <summary>CFF</summary>
+                                    <a href="./CITATION.cff">CITATION.cff</a>
+                                </details>
                             </div>
-                        {/if}
-                        {#if post.langs?.length > 1}
-                            <div class="article-lang">
-                                <IconLanguage size={20} />
-                                <ul>
-                                    {#each post.langs as lang}
-                                        <li>
-                                            <a href="/{lang}{post.url}"
-                                                >{$t(`lang.${lang}`)}</a
-                                            >
-                                        </li>
-                                    {/each}
-                                </ul>
-                            </div>
-                        {/if}
+                        </details>
                     </div>
-                {/if}
-            </div>
-        {/if}
-    </div>
+                    {#if post.taxonomy || post.langs?.length > 0}
+                        <div class="article-taxonomy-and-lang no-print">
+                            {#if post.taxonomy}
+                                <div class="article-taxonomy">
+                                    {#if post.taxonomy?.series?.length}
+                                        <ul>
+                                            {#each post.taxonomy.series as series}
+                                                <li>
+                                                    <a
+                                                        class="p-series series"
+                                                        href="/series/{series
+                                                            .toLowerCase()
+                                                            .replace(
+                                                                /\s+/gm,
+                                                                '-',
+                                                            )}/">{series}</a
+                                                    >
+                                                </li>
+                                            {/each}
+                                        </ul>
+                                    {/if}
+                                    {#if post.taxonomy?.category?.length}
+                                        <ul>
+                                            {#each post.taxonomy.category as category}
+                                                <li>
+                                                    <a
+                                                        class="p-category category"
+                                                        href="/category/{category
+                                                            .toLowerCase()
+                                                            .replace(
+                                                                /\s+/gm,
+                                                                '-',
+                                                            )}/">{category}</a
+                                                    >
+                                                </li>
+                                            {/each}
+                                        </ul>
+                                    {/if}
+                                    {#if post.taxonomy?.tag?.length}
+                                        <ul>
+                                            {#each post.taxonomy.tag as tag}
+                                                <li>
+                                                    <a
+                                                        class="p-tag tag"
+                                                        href="/tag/{tag
+                                                            .toLowerCase()
+                                                            .replace(
+                                                                /\s+/gm,
+                                                                '-',
+                                                            )}/">{tag}</a
+                                                    >
+                                                </li>
+                                            {/each}
+                                        </ul>
+                                    {/if}
+                                </div>
+                            {/if}
+                            {#if post.langs?.length > 1}
+                                <div class="article-lang">
+                                    <IconLanguage size={20} />
+                                    <ul>
+                                        {#each post.langs as lang}
+                                            <li>
+                                                <a href="/{lang}{post.url}"
+                                                    >{$t(`lang.${lang}`)}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                </div>
+                            {/if}
+                        </div>
+                    {/if}
+                </div>
+            {/if}
+        </div>
+    {/if}
 </article>
 
 <style lang="scss">
