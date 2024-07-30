@@ -2,7 +2,7 @@ import { locale } from '$lib/translations';
 import { awaitChecker } from '$lib/browser';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = async ({ fetch, params, depends, parent, data }) => {
+export const load: LayoutLoad = async ({ fetch, depends }) => {
     depends('locale:locale');
 
     const posts = fetch(`/api/v1/post?${new URLSearchParams({
