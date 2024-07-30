@@ -1,10 +1,10 @@
 <script>
-    export let type = "skeleton-line"; // Default type
+    export let type = "line"; // Default type
     export let height = "1em"; // Default height
     export let width = "100%"; // Default width
 </script>
 
-<div class="skeleton {type}" style="height: {height}; width: {width};">
+<div class="skeleton skeleton-{type}" style="height: {height}; width: {width}; ">
     <slot style="visibility: hidden;"></slot>
 </div>
 
@@ -49,8 +49,8 @@
         height: 1em;
     }
     .skeleton-avatar {
-        height: 3em;
-        width: 3em;
+        height: 3em !important;
+        width: 3em !important;
         border-radius: 50%;
     }
 </style>

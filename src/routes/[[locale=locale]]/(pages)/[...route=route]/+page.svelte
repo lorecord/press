@@ -512,14 +512,38 @@
 
                 <h3 id="comments" style="text-align: center">
                     {$t("common.comment_lead_title")}
-                    {#await commonComments then commonComments}
+                    {#await commonComments}
+                        (<Skeleton width="2em" />)
+                    {:then commonComments}
                         {#if commonComments}
                             ({commonComments.length})
                         {/if}
                     {/await}
                 </h3>
                 <div class="comments-wrapper">
-                    {#await commonComments then commonComments}
+                    {#await commonComments}
+                        <div
+                            style="display: flex; flex-flow: column; gap: 1rem;"
+                        >
+                            {#each { length: 3 } as _, i}
+                                <div
+                                    style="display: flex; flex-flow: row; gap: 0.25rem;"
+                                >
+                                    <Skeleton type="avatar" />
+                                    <div
+                                        style="display: flex; flex-flow: column; gap: 0.25rem; flex: 1"
+                                    >
+                                        <div>
+                                            <Skeleton width="4em" />
+                                            <Skeleton width="10em" />
+                                        </div>
+                                        <Skeleton width="100%" />
+                                        <Skeleton width="67%" />
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    {:then commonComments}
                         <Replies
                             replies={commonComments}
                             gravatarBase={systemConfig.gravatar?.base}
