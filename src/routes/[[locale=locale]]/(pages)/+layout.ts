@@ -7,7 +7,7 @@ export const load: LayoutLoad = async ({ fetch, params, depends, parent, data })
 
     depends('locale:locale');
 
-    let posts = fetch(`/api/v1/post?${new URLSearchParams({
+    const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'default|links',
         lang: locale.get()
     })}`)
