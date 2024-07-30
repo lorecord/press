@@ -1,10 +1,10 @@
 import { error } from "@sveltejs/kit";
 import { locale } from "$lib/translations";
 import { derived, get, writable } from "svelte/store";
-import { browser } from "$app/environment";
+import type { PageLoad } from "./$types";
+import { awaitChecker } from "$lib/browser";
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ params, fetch, parent }) {
+export const load: PageLoad = async ({ params, fetch, parent }) => {
     const { } = await parent();
 
     let { route } = params;
@@ -26,7 +26,13 @@ export async function load({ params, fetch, parent }) {
     });
 
     const interactions = Promise.resolve(post).then((post) =>
-        post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => r.json())
+        post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => {
+            if (r.ok) {
+                return r.json();
+            } else {
+                return { replies: [], mentions: [] };
+            }
+        })
     );
 
     const replies = Promise.resolve(interactions).then(interactions => interactions?.replies || []);
@@ -37,6 +43,8 @@ export async function load({ params, fetch, parent }) {
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json()
+        } else {
+            return {};
         }
     }));
 
@@ -45,16 +53,20 @@ export async function load({ params, fetch, parent }) {
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json();
+        } else {
+            return {};
         }
     }));
 
+    const needAwait = awaitChecker();
+
     return {
-        post: browser ? post : await post,
-        newer: browser ? newer : await newer,
-        earlier: browser ? earlier : await earlier,
+        post: needAwait ? await post : post,
+        newer: needAwait ? await newer : newer,
+        earlier: needAwait ? await earlier : earlier,
         interactions: {
-            mentions: browser ? mentions : await mentions,
-            replies: browser ? replies : await replies
+            mentions: needAwait ? await mentions : mentions,
+            replies: needAwait ? await replies : replies
         }
     };
 }

@@ -1,7 +1,7 @@
-import { browser } from '$app/environment';
 import { locale } from '$lib/translations';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
+import { awaitChecker } from '$lib/browser';
 
 export const load: PageLoad = async ({ params, parent, fetch, data }) => {
     const { pathLocale, siteConfig, systemConfig } = await parent();
@@ -19,8 +19,10 @@ export const load: PageLoad = async ({ params, parent, fetch, data }) => {
 
     const home = fetch(`/api/v1/post/home`).then((r) => r.json());
 
+    const needAwait = awaitChecker();
+
     return {
-        home: browser ? home : await home,
-        posts: browser ? posts : await posts, pathLocale, siteConfig, systemConfig
+        home: needAwait ? await home : home,
+        posts: needAwait ? await posts : posts, pathLocale, siteConfig, systemConfig
     };
 } 

@@ -1,6 +1,6 @@
 import type { Load } from '@sveltejs/kit';
 import { locale } from '$lib/translations';
-import { browser } from '$app/environment';
+import { awaitChecker } from '$lib/browser';
 
 /** @type {import('./$types').LayoutLoad} */
 export const load: Load = async ({ fetch, params, depends, parent, data }) => {
@@ -12,7 +12,9 @@ export const load: Load = async ({ fetch, params, depends, parent, data }) => {
         template: 'default|links',
         lang: locale.get()
     })}`)
-        .then((r) => r.json());
+        .then((r) => r.ok ? r.json() : []);
 
-    return { pathLocale, posts: browser ? posts : await posts, siteConfig, systemConfig };
+    const needAwait = awaitChecker();
+
+    return { pathLocale, posts: needAwait ? await posts : posts, siteConfig, systemConfig };
 }

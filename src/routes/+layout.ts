@@ -8,6 +8,7 @@ export const load: Load = async ({ url, fetch, depends }) => {
     const { systemConfig, siteConfig } = await fetch(`/api/v1/config?${new URLSearchParams({
         lang
     })}`).then((r) => r.json());
+
     return { systemConfig, siteConfig, currentRoute: pathname };
 }
 

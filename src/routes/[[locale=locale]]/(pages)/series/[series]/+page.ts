@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { awaitChecker } from '$lib/browser';
 import { locale } from '$lib/translations';
 import { error } from "@sveltejs/kit";
 
@@ -18,5 +18,7 @@ export async function load({ params, fetch, parent }) {
         }
     });
 
-    return { series, posts: browser ? posts : await posts };
+    const needAwait = awaitChecker();
+
+    return { series, posts: needAwait ? await posts : posts };
 }
