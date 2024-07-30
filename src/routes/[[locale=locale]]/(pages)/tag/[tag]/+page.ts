@@ -1,3 +1,4 @@
+import { awaitChecker } from '$lib/browser';
 import { locale } from '$lib/translations';
 import { error } from "@sveltejs/kit";
 

@@ -1,9 +1,8 @@
-import type { Load } from '@sveltejs/kit';
 import { locale } from '$lib/translations';
 import { awaitChecker } from '$lib/browser';
+import type { LayoutLoad } from './$types';
 
-/** @type {import('./$types').LayoutLoad} */
-export const load: Load = async ({ fetch, params, depends, parent, data }) => {
+export const load: LayoutLoad = async ({ fetch, params, depends, parent, data }) => {
     const { pathLocale, siteConfig, systemConfig } = await parent();
 
     depends('locale:locale');
