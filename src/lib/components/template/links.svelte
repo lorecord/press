@@ -10,7 +10,7 @@
         {@html post.content}
     {/if}
     <ul>
-        {#each (data.links || [])
+        {#each (data?.links || [])
             .map((value) => ({ value, w: Math.random() }))
             .sort((a, b) => a.w - b.w)
             .map(({ value }) => value) as link}
