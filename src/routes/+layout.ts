@@ -1,13 +1,20 @@
 import { locale } from '$lib/translations';
-import type { Load } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
+import type { LayoutLoad } from './$types';
 
-export const load: Load = async ({ url, fetch, depends }) => {
+export const load: LayoutLoad = async ({ url, fetch, depends }) => {
     const { pathname } = url;
     depends('locale:locale');
     let lang = locale.get();
     const { systemConfig, siteConfig } = await fetch(`/api/v1/config?${new URLSearchParams({
         lang
-    })}`).then((r) => r.json());
+    })}`).then((r) => {
+        if (r.ok) {
+            return r.json();
+        } else {
+            error(r.status);
+        }
+    });
 
     return { systemConfig, siteConfig, currentRoute: pathname };
 }

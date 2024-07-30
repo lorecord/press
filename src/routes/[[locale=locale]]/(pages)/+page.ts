@@ -4,7 +4,7 @@ import type { PageLoad } from './$types';
 import { awaitChecker } from '$lib/browser';
 
 export const load: PageLoad = async ({ params, parent, fetch, data }) => {
-    const { pathLocale, siteConfig, systemConfig } = await parent();
+    
     let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: locale.get(),
@@ -23,6 +23,6 @@ export const load: PageLoad = async ({ params, parent, fetch, data }) => {
 
     return {
         home: needAwait ? await home : home,
-        posts: needAwait ? await posts : posts, pathLocale, siteConfig, systemConfig
+        posts: needAwait ? await posts : posts
     };
 } 

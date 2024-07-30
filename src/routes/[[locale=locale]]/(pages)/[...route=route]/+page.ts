@@ -4,9 +4,8 @@ import { derived, get, writable } from "svelte/store";
 import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
 
-export const load: PageLoad = async ({ params, fetch, parent }) => {
-    const { } = await parent();
-
+export const load: PageLoad = async ({ params, fetch, depends}) => {
+    depends('locale:locale');
     let { route } = params;
     let lang = params.locale || locale.get();
     const derivedLang = derived(locale, ($locale) => params.locale || $locale);

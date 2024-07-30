@@ -1,10 +1,10 @@
 import { awaitChecker } from '$lib/browser';
 import { locale } from '$lib/translations';
 import { error } from "@sveltejs/kit";
+import type { PageLoad } from './$types';
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ params, fetch, parent }) {
-    await parent();
+export const load: PageLoad = async ({ params, fetch, depends }) => {
+    depends('locale:locale');
     let { tag } = params;
     const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',

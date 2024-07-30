@@ -14,9 +14,9 @@
     import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";
     import type { WebSite, WithContext } from "schema-dts";
+    import type { PageData } from "./$types";
 
-    /** @type {import('./$types').PageData} */
-    export let data: any;
+    export let data: PageData;
 
     let loadingBar: LoadingBar;
 

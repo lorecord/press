@@ -1,11 +1,10 @@
-import type { Load } from '@sveltejs/kit';
 import { loadTranslations, locale } from '$lib/translations';
 import { get } from 'svelte/store';
 import { selectedLocale } from '$lib/stores';
 import { dev } from "$app/environment";
+import type { LayoutLoad } from './$types';
 
-export const load: Load = async ({ url, parent, data }) => {
-    const { siteConfig, systemConfig } = await parent();
+export const load: LayoutLoad = async ({ url, parent, data }) => {
     let {
         cookieLang,
         pathLang,
@@ -41,5 +40,5 @@ export const load: Load = async ({ url, parent, data }) => {
         await loadTranslations(finnalLang, url.pathname);
     }
 
-    return { pathLocale: pathLang, siteConfig, systemConfig };
+    return { pathLocale: pathLang };
 }
