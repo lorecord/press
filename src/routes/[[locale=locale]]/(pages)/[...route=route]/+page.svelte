@@ -512,11 +512,9 @@
 
                 <h3 id="comments" style="text-align: center">
                     {$t("common.comment_lead_title")}
-                    {#await commonComments}
-                        (<Skeleton width="2em" />)
-                    {:then commonComments}
+                    {#await commonComments then commonComments}
                         {#if commonComments}
-                            ({commonComments.length})
+                            ({commonComments.length} <Skeleton width="2em" />)
                         {/if}
                     {/await}
                 </h3>
