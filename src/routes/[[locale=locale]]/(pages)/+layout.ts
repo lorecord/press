@@ -14,7 +14,7 @@ export const load: Load = async ({ fetch, params, depends, parent, data }) => {
     })}`)
         .then((r) => r.ok ? r.json() : []);
 
-    const needAwait = awaitChecker();
+    const needAwait = awaitChecker('layout');
 
     return { pathLocale, posts: needAwait ? await posts : posts, siteConfig, systemConfig };
 }
