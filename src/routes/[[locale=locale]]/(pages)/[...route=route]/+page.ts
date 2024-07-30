@@ -60,6 +60,8 @@ export const load: PageLoad = async ({ params, fetch, parent }) => {
 
     const needAwait = awaitChecker();
 
+    console.log('needAwait', needAwait);
+
     return {
         post: needAwait ? await post : post,
         newer: needAwait ? await newer : newer,
