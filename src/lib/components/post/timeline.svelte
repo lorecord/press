@@ -122,6 +122,10 @@
             text-align: right;
             color: var(--color);
         }
+
+        a:hover {
+            text-decoration: underline;
+        }
     }
 
     @media screen and (max-width: 600px) {
