@@ -17,7 +17,11 @@ export const load: PageLoad = async ({ params, parent, fetch, data }) => {
         }
     });
 
-    const home = fetch(`/api/v1/post/home`).then((r) => r.json());
+    const home = fetch(`/api/v1/post/home`).then((r) => {
+        if(r.ok){
+            return r.json();
+        }
+    });
 
     const needAwait = awaitChecker();
 
