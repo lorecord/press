@@ -43,7 +43,9 @@
 
                 {#if summary_html}
                     <div class="summary">
-                        {@html summary_html}
+                        {#key summary_html}
+                            {@html summary_html}
+                        {/key}
                     </div>
                 {/if}
             </div>
