@@ -514,7 +514,7 @@
                     {$t("common.comment_lead_title")}
                     {#await commonComments then commonComments}
                         {#if commonComments}
-                            ({commonComments.length} <Skeleton width="2em" />)
+                            ({commonComments.length})
                         {/if}
                     {/await}
                 </h3>

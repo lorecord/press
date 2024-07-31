@@ -124,6 +124,7 @@
                     post={home}
                     header={false}
                     footer={false}
+                    type="none"
                     {siteConfig}
                     {systemConfig}
                 />

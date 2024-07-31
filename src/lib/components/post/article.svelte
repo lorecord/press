@@ -13,9 +13,11 @@
 
     export let header = true;
     export let footer = true;
+
+    export let type: "paper" | "none" = "paper";
 </script>
 
-<article class="typography" style="--article-bg-color: transparent">
+<article class="typography type-{type}">
     {#if header}
         <div class="article-header container">
             {#if post.image}
@@ -330,6 +332,11 @@
         --article-border: var(--content-border);
 
         border-radius: var(--article-border-radius);
+
+        &.type-none{
+            --article-bg-color: transparent;
+            --article-border: none;
+        }
 
         @media print {
             --article-border: none;
