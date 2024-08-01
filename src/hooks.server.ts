@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { fetchRaw, fetchPostPath } from "$lib/post/handle-posts";
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
-import { locale, locales, loadTranslations } from "$lib/translations";
+import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
 import { getPreferredLangFromHeader } from '$lib/translations/utils';
 import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
@@ -9,21 +9,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { getEnvConfig } from '$lib/server/config';
 import { getSession } from '$lib/server/session';
-
-{
-    const currentLocale = locale.get();
-    for (let item of locales.get()) {
-        if (item === currentLocale) {
-            continue;
-        }
-        await loadTranslations(item);
-    }
-    if (currentLocale) {
-        await loadTranslations(currentLocale);
-    } else {
-        await loadTranslations('en');
-    }
-}
+import { match as matchLocale } from './params/locale';
 
 export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
@@ -31,45 +17,64 @@ export const handleSite: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 }
 
-export const handleCommon: Handle = async ({ event, resolve }) => {
+export const handleLanguage: Handle = async ({ event, resolve }) => {
     const { site } = event.locals as any;
     const { system } = site;
-    const { PUBLIC_DIR } = site.constants;
 
-    let pathLang: string | undefined = '';
+    let pathLocale;
+    let pathLocaleParam;
+
+    let cookieLocale = event.cookies.get('locale');
 
     if (!event.url.pathname.startsWith('/api')
         && event.url.pathname !== '/') {
 
-        console.log('event.url.pathname', event.url.pathname);
         let segments = event.url.pathname.split('/');
-        if (segments?.length > 1 && /^\w{2,3}(-\w{2,6})?$/.test(segments[1])) {
-            segments[0] = segments[1];
-            pathLang = (() => {
-                let pathLangFoo = segments.shift();
+        if (segments?.length > 1 && matchLocale(segments[1])) {
 
-                pathLangFoo = locales.get().find(locale => locale.split('-')[0] === pathLangFoo?.split('-')[0]) || '';
-                return pathLangFoo;
-            })();
+            let pathLocaleParam = segments[1];
 
-            segments[0] = '';
+            let matchedLocale = locales.get().find(locale => locale.split('-')[0] === pathLocaleParam?.split('-')[0]);
+
+            if (pathLocaleParam !== matchedLocale) {
+                console.log(`path lang param ${pathLocaleParam} matched locale ${matchedLocale}`);
+            }
         }
+    }
 
-        let cookieLang = event.cookies.get('locale');
+    let acceptLanguageHeader = event.request.headers.get('accept-language');
+    let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
 
-        event.locals.cookieLocale = cookieLang;
+    const localeData = {
+        pathLocale,
+        pathLocaleParam,
+        cookieLocale,
+        uiLocale: cookieLocale || pathLocale || preferedLanguage,
+        contentLocale: pathLocale || cookieLocale || preferedLanguage
+    };
 
-        let acceptLanguageHeader = event.request.headers.get('accept-language');
-        let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
+    (event.locals as any).localeData = localeData;
 
-        console.debug('hook.server.ts preferedLanguage', preferedLanguage);
+    await loadTranslations(localeData.uiLocale);
+
+    locale.set(localeData.uiLocale);
+
+    return await resolve(event);
+}
+
+export const handleCommon: Handle = async ({ event, resolve }) => {
+    const { site, localeData } = event.locals as any;
+    const { system } = site;
+    const { PUBLIC_DIR } = site.constants;
+
+    if (!event.url.pathname.startsWith('/api')
+        && event.url.pathname !== '/') {
+        const effectedPathname = localeData.pathLocaleParam ? event.url.pathname.replace(`^/${localeData.pathLocaleParam}`, '') : event.url.pathname;
 
         let { target: targetPostMeta } = fetchPostPath(site, {
-            route: segments.join('/'),
-            lang: pathLang || cookieLang || locale.get() || system.locale?.default || 'en',
+            route: effectedPathname,
+            lang: localeData.contentLocale,
         });
-
-        console.log('targetPostMeta.lang', targetPostMeta?.lang);
 
         if (targetPostMeta) {
             if (!event.url.pathname.endsWith('/')) {
@@ -85,18 +90,19 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
                     });
             }
         } else {
+            let segments = effectedPathname.split('/');
             let fileName = segments.pop();
             let filePath = '';
             let postExsits = false;
 
-
             let { target: targetMeta } = fetchPath(site, {
-                route: event.url.pathname, lang: locale.get(), match: (file) => {
+                route: event.url.pathname, lang: localeData.contentLocale, match: (file) => {
                     return false;
                 }
             });
 
             console.log(`segments`, segments);
+
             while (segments.length) {
                 let path = segments.join('/').replace(/^\//, '');
                 let lang = targetPostMeta?.lang || locale.get() || system.locale?.default;
@@ -130,7 +136,6 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
                 }
             }
 
-
             if (finalFilePath) {
                 // return file response
                 let buffer = fs.readFileSync(finalFilePath);
@@ -163,12 +168,14 @@ export const handleCommon: Handle = async ({ event, resolve }) => {
             }
         }
     }
-
-    const response = await resolve(event, {
-        transformPageChunk: ({ html }) => html.replace('%lang%', pathLang || locale.get() || system.locale?.default)
-    });
-    return response;
+    return await resolve(event);
 }
+
+export const handleHtmlLangAttr: Handle = async ({ event, resolve }) => {
+    return await resolve(event, {
+        transformPageChunk: ({ html }) => html.replace('%lang%', locale.get())
+    });
+};
 
 export const handleCookieSession: Handle = async ({ event, resolve }) => {
     let session = null;
@@ -208,4 +215,4 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 };
 
-export const handle = sequence(handleSite, handleCookieSession, handleCommon, handleIndexNowKeyFile);
+export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleCommon, handleHtmlLangAttr);

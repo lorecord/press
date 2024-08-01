@@ -1,56 +1,58 @@
 import i18n, { type Config } from "sveltekit-i18n";
-import YAML from 'yaml';
-import fs from 'fs';
 import lang from './lang.yml';
 import { browser } from "$app/environment";
 
-const config: Config = ({
-    fallbackLocale: 'en',
-    translations: Object.keys(lang)
-        .map((key) => ({ key, value: lang[key] }))
-        .reduce((acc: any, { key, value }) => {
-            acc[key] = value;
-            return acc;
-        }, {}),
-    loaders: createLoaders(['en', 'zh-CN'], ['common', 'email'])
-});
+export const knownLocales = Object.keys(lang);
 
-async function importExternalYAML(filepath: string) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filepath, 'utf8', (err, data) => {
-            if (err) {
-                console.error(err);
-                reject();
-                return;
-            }
-            if (!data) {
-                resolve({});
-                return;
-            }
-            let parsed = YAML.parse(data);
-            resolve(parsed);
-        });
-    })
-}
+const availableLocales = ((glob) => {
+    const locales = new Set<string>();
 
-function createLoaders(locales: string[], keys: string[]) {
-    const loaders = [];
-    for (let locale of locales) {
-        for (let key of keys) {
-            loaders.push({
-                locale,
-                key,
-                loader: async () => (await import(`./${locale}/${key}.yml`) as any).default
-            });
+    Object.keys(glob).forEach((key) => {
+        // ./en/common.yml -> en
+        let locale = key.split('/')[1];
+        locales.add(locale);
+    });
+    return [...locales];
+})(import.meta.glob('./*/*.yml'));
+
+console.log('availableLocales', availableLocales);
+
+const config: Config = (() => {
+    const keys = ['common', 'email'];
+
+    function createLoaders(locales: string[], keys: string[]) {
+        const loaders = [];
+
+        for (let locale of locales) {
+            for (let key of keys) {
+                loaders.push({
+                    locale,
+                    key,
+                    loader: async () => (await import(`./${locale}/${key}.yml`) as any).default
+                });
+            }
         }
+        return loaders;
     }
-    return loaders;
-}
+
+    return {
+        fallbackLocale: 'en',
+        translations: availableLocales
+            .reduce((acc: any, key) => {
+                acc[key] = lang;
+                return acc;
+            }, {}),
+        loaders: createLoaders(availableLocales, keys)
+    };
+})();
 
 export const { t, l, locale, locales, loading, translations, loadTranslations, setLocale } = new i18n(config);
 
+Promise.all(locales.get()
+    .map((locale) => loadTranslations(locale)));
+
 locale.subscribe((value) => {
     if (browser) {
-        console.log("locale changed: ", value);
+        console.log("locale changed to", value);
     }
 });

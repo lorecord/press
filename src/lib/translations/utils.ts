@@ -1,3 +1,7 @@
+
+import YAML from 'yaml';
+import fs from 'fs';
+
 export function getPreferredLang(acceptLanguages: string[], availableLangs: string[], defaultLanguage: string) {
 
     for (const locale of acceptLanguages) {
@@ -28,4 +32,22 @@ export function getPreferredLangFromHeader(acceptLanguageHeader: string, availab
     });
     acceptLanguages.sort((a, b) => b.q - a.q);
     return getPreferredLang(acceptLanguages.map((l) => l.locale), availableLangs, defaultLanguage);
+}
+
+async function importExternalYAML(filepath: string) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filepath, 'utf8', (err, data) => {
+            if (err) {
+                console.error(err);
+                reject();
+                return;
+            }
+            if (!data) {
+                resolve({});
+                return;
+            }
+            let parsed = YAML.parse(data);
+            resolve(parsed);
+        });
+    })
 }
