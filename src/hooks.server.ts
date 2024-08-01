@@ -62,113 +62,91 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 }
 
-export const handleCommon: Handle = async ({ event, resolve }) => {
+export const handleAssets: Handle = async ({ event, resolve }) => {
     const { site, localeData } = event.locals as any;
     const { system } = site;
     const { PUBLIC_DIR } = site.constants;
 
-    if (!event.url.pathname.startsWith('/api')
-        && event.url.pathname !== '/') {
+    const response = await resolve(event);
+
+    if (response.status === 404) {
+
         const effectedPathname = localeData.pathLocaleParam ? event.url.pathname.replace(`^/${localeData.pathLocaleParam}`, '') : event.url.pathname;
 
-        let { target: targetPostMeta } = fetchPostPath(site, {
-            route: effectedPathname,
-            lang: localeData.contentLocale,
-        });
+        let segments = effectedPathname.split('/');
+        let fileName = segments.pop();
+        let filePath = '';
+        let postExsits = false;
 
-        if (targetPostMeta) {
-            if (!event.url.pathname.endsWith('/')) {
-                // add slash to end
-                return new Response(undefined,
-                    {
-                        status: 308,
-                        headers: {
-                            'x-sveltekit-normalize': '1',
-                            Location: (event.url.pathname.startsWith('//') ? event.url.origin + event.url.pathname + '/' : event.url.pathname + '/') +
-                                (event.url.search === '?' ? '' : event.url.search)
-                        }
-                    });
+        while (segments.length) {
+            let path = segments.join('/').replace(/^\//, '');
+            let lang = localeData.contentLocale;
+            let raw = await fetchRaw(`${lang}-${path}`);
+
+            if (raw) {
+                postExsits = true;
+                let segs = raw.path.split('/');
+                segs.pop();
+                let folder = segs.join('/');
+                filePath = folder + '/' + fileName;
+                break;
             }
-        } else {
-            let segments = effectedPathname.split('/');
-            let fileName = segments.pop();
-            let filePath = '';
-            let postExsits = false;
+            segments.pop();
+        }
 
-            let { target: targetMeta } = fetchPath(site, {
-                route: event.url.pathname, lang: localeData.contentLocale, match: (file) => {
-                    return false;
-                }
-            });
+        let finalFilePath = '';
 
-            console.log(`segments`, segments);
-
-            while (segments.length) {
-                let path = segments.join('/').replace(/^\//, '');
-                let lang = targetPostMeta?.lang || locale.get() || system.locale?.default;
-                let raw = await fetchRaw(`${lang}-${path}`);
-
-                if (raw) {
-                    postExsits = true;
-                    let segs = raw.path.split('/');
-                    segs.pop();
-                    let folder = segs.join('/');
-                    filePath = folder + '/' + fileName;
-                    break;
-                }
-                segments.pop();
-            }
-
-            let finalFilePath = '';
-
-            console.log('[hooks.server.ts] filePath', filePath);
-
-            if (postExsits && fs.existsSync(filePath)) {
-                let stat = fs.statSync(filePath);
-                if (!stat.isDirectory()) {
-                    finalFilePath = filePath;
-                }
-            }
-
-            if (!finalFilePath) {
-                if (fs.existsSync(PUBLIC_DIR + event.url.pathname)) {
-                    finalFilePath = PUBLIC_DIR + event.url.pathname;
-                }
-            }
-
-            if (finalFilePath) {
-                // return file response
-                let buffer = fs.readFileSync(finalFilePath);
-
-                let type: any = {};
-                if (finalFilePath.match(/.*\.[\w-_]+$/)) {
-                    type = await fileTypeFromFile(finalFilePath);
-                } else {
-                    type = await fileTypeFromBuffer(buffer);
-                }
-
-                if (type?.mime?.match(/^(image|video|text|audio|font)\/.*/)) {
-                    return new Response(buffer,
-                        {
-                            status: 200,
-                            headers: {
-                                'Content-Type': type?.mime,
-                            }
-                        });
-                } else {
-                    return new Response(buffer,
-                        {
-                            status: 200,
-                            headers: {
-                                'Content-Type': type?.mime || 'application/octet-stream',
-                                'Content-Disposition': `attachment; filename="${fileName}"`
-                            }
-                        });
+        if (postExsits && fs.existsSync(filePath)) {
+            let stat = fs.statSync(filePath);
+            if (!stat.isDirectory()) {
+                finalFilePath = filePath;
+            } else {
+                let indexFilePath = filePath + '/index.html';
+                if (fs.existsSync(indexFilePath)) {
+                    finalFilePath = indexFilePath;
                 }
             }
         }
+
+        if (!finalFilePath) {
+            if (fs.existsSync(PUBLIC_DIR + event.url.pathname)) {
+                // TODO resolve assets locale with localeData.uiLocale
+                finalFilePath = PUBLIC_DIR + event.url.pathname;
+            }
+        }
+
+        if (finalFilePath) {
+            // return file response
+            let buffer = fs.readFileSync(finalFilePath);
+
+            let type: any = {};
+            if (finalFilePath.match(/.*\.[\w-_]+$/)) {
+                type = await fileTypeFromFile(finalFilePath);
+            } else {
+                type = await fileTypeFromBuffer(buffer);
+            }
+
+            if (type?.mime?.match(/^(image|video|text|audio|font)\/.*/)) {
+                return new Response(buffer,
+                    {
+                        status: 200,
+                        headers: {
+                            'Content-Type': type?.mime,
+                        }
+                    });
+            } else {
+                return new Response(buffer,
+                    {
+                        status: 200,
+                        headers: {
+                            'Content-Type': type?.mime || 'application/octet-stream',
+                            'Content-Disposition': `attachment; filename="${fileName}"`
+                        }
+                    });
+            }
+        }
     }
-    return await resolve(event);
+    return response;
 }
 
 export const handleHtmlLangAttr: Handle = async ({ event, resolve }) => {
@@ -215,4 +193,4 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 };
 
-export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleCommon, handleHtmlLangAttr);
+export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleAssets, handleHtmlLangAttr);
