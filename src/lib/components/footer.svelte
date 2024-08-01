@@ -5,7 +5,6 @@
 
     locale.subscribe((value) => {
         if (browser) {
-            console.log("locale changed: ", value);
             invalidate("locale:locale");
         }
     });

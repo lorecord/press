@@ -2,6 +2,7 @@ import i18n, { type Config } from "sveltekit-i18n";
 import YAML from 'yaml';
 import fs from 'fs';
 import lang from './lang.yml';
+import { browser } from "$app/environment";
 
 const config: Config = ({
     translations: {
@@ -44,3 +45,9 @@ function createLoaders(locales: string[], keys: string[]) {
 }
 
 export const { t, l, locale, locales, loading, translations, loadTranslations, setLocale } = new i18n(config);
+
+locale.subscribe((value) => {
+    if (browser) {
+        console.log("locale changed: ", value);
+    }
+});
