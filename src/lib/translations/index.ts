@@ -46,10 +46,10 @@ const config: Config = (() => {
     };
 })();
 
-export const { t, l, locale, locales, loading, translations, loadTranslations, setLocale } = new i18n(config);
+export const { t, l, locale, locales, loading, translations, loadTranslations, addTranslations, getTranslationProps, setLocale } = new i18n(config);
 
 Promise.all(locales.get()
-    .map((locale) => loadTranslations(locale)));
+    .map((locale) => addTranslations(getTranslationProps(locale))));
 
 locale.subscribe((value) => {
     if (browser) {

@@ -11,9 +11,8 @@
 </script>
 
 <script lang="ts">
-    import { t, locales } from "$lib/translations";
+    import { t, locales, setLocale } from "$lib/translations";
     import { IconLanguage } from "@tabler/icons-svelte";
-    import { selectedLocale } from "$lib/stores";
 
     export let posts: any[];
 
@@ -21,10 +20,7 @@
 
     const handleLocaleSelect = (e: any) => {
         document.cookie = `locale=${e?.target?.value};path=/;max-age=31536000`;
-
-        locale.set(e?.target?.value);
-
-        selectedLocale.set(e?.target?.value);
+        setLocale(e?.target?.value);
     };
 </script>
 

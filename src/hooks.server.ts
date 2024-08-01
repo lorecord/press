@@ -45,7 +45,7 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
     let acceptLanguageHeader = event.request.headers.get('accept-language');
     let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
 
-    const localeData = {
+    const localeContext = {
         pathLocale,
         pathLocaleParam,
         cookieLocale,
@@ -53,25 +53,22 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
         contentLocale: pathLocale || cookieLocale || preferedLanguage
     };
 
-    (event.locals as any).localeData = localeData;
+    (event.locals as any).localeContext = localeContext;
 
-    await loadTranslations(localeData.uiLocale);
-
-    locale.set(localeData.uiLocale);
+    await loadTranslations(localeContext.uiLocale);
 
     return await resolve(event);
 }
 
 export const handleAssets: Handle = async ({ event, resolve }) => {
-    const { site, localeData } = event.locals as any;
-    const { system } = site;
+    const { site, localeContext } = event.locals as any;
     const { PUBLIC_DIR } = site.constants;
 
     const response = await resolve(event);
 
     if (response.status === 404) {
 
-        const effectedPathname = localeData.pathLocaleParam ? event.url.pathname.replace(`^/${localeData.pathLocaleParam}`, '') : event.url.pathname;
+        const effectedPathname = localeContext.pathLocaleParam ? event.url.pathname.replace(`^/${localeContext.pathLocaleParam}`, '') : event.url.pathname;
 
         let segments = effectedPathname.split('/');
         let fileName = segments.pop();
@@ -80,7 +77,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
         while (segments.length) {
             let path = segments.join('/').replace(/^\//, '');
-            let lang = localeData.contentLocale;
+            let lang = localeContext.contentLocale;
             let raw = await fetchRaw(`${lang}-${path}`);
 
             if (raw) {
@@ -110,7 +107,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
         if (!finalFilePath) {
             if (fs.existsSync(PUBLIC_DIR + event.url.pathname)) {
-                // TODO resolve assets locale with localeData.uiLocale
+                // TODO resolve assets locale with localeContext.uiLocale
                 finalFilePath = PUBLIC_DIR + event.url.pathname;
             }
         }
