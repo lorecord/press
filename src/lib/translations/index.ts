@@ -5,10 +5,13 @@ import lang from './lang.yml';
 import { browser } from "$app/environment";
 
 const config: Config = ({
-    translations: {
-        en: { lang },
-        'zh-CN': { lang }
-    },
+    fallbackLocale: 'en',
+    translations: Object.keys(lang)
+        .map((key) => ({ key, value: lang[key] }))
+        .reduce((acc: any, { key, value }) => {
+            acc[key] = value;
+            return acc;
+        }, {}),
     loaders: createLoaders(['en', 'zh-CN'], ['common', 'email'])
 });
 
