@@ -34,12 +34,12 @@ const config: Config = (() => {
         }
         return loaders;
     }
-
+    
     return {
         fallbackLocale: 'en',
         translations: availableLocales
             .reduce((acc: any, key) => {
-                acc[key] = lang;
+                acc[key] = { lang };
                 return acc;
             }, {}),
         loaders: createLoaders(availableLocales, keys)
