@@ -7,7 +7,7 @@ import { locales, locale } from "$lib/translations";
 import { get } from "svelte/store";
 
 export async function GET({ request, locals, params }) {
-    const { site } = locals;
+    const { site } = locals as any;
     const systemConfig = getSystemConfig(site);
 
     const { locale: localParam } = params;
