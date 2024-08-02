@@ -1,11 +1,13 @@
+import { dev } from "$app/environment";
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async ({ url, params, cookies, request, locals, parent }) => {
+export const load: LayoutServerLoad = async ({ params, locals }) => {
     const { localeContext } = locals as any;
 
-    const { locale: pathLocaleParam } = params;
-
-    console.log('[[locale=locale]] => pathLocaleParam', pathLocaleParam);
+    if (dev) {
+        const { locale: pathLocaleParam } = params;
+        console.log('[routes/[[locale=locale]]/+layout.server.ts] pathLocaleParam', pathLocaleParam);
+    }
 
     return {
         localeContext

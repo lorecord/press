@@ -20,7 +20,7 @@ export const load: PageLoad = async ({ depends, fetch, data }) => {
     const home = fetch(`/api/v1/post/home${locale.get() ? '?' + new URLSearchParams({
         lang: locale.get()
     }) : ''}`).then((r) => {
-        if (r.ok) {
+        if(r.ok){
             return r.json();
         }
     });

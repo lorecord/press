@@ -467,16 +467,19 @@
                                 >{$t(
                                     `lang.${post.lang || systemConfig.locale.default}`,
                                 )}</a
-                            >{#if post.langs?.length > 1}{$t(
-                                    "common.i18n_alert_message_b",
-                                )}{#each post.langs || [] as l, index}{#if l !== (post.lang || systemConfig.locale.default)}<a
-                                            href="/{l}{post.url}"
+                            >{#if post.langs?.length > 1}
+                                {$t("common.i18n_alert_message_b")}
+                                {#each post.langs || [] as l, index}
+                                    {#if l !== (post.lang || systemConfig.locale.default)}
+                                        <a href="/{l}{post.url}"
                                             >{$t(`lang.${l}`)}</a
-                                        >{#if index < post.langs.length - 2}{$t(
-                                                "common.comma",
-                                            )}{/if}{/if}{/each}{$t(
-                                    "common.i18n_alert_message_c",
-                                )}{/if}
+                                        >
+                                        {#if index < post.langs.length - 2}
+                                            {$t("common.comma")}
+                                        {/if}
+                                    {/if}
+                                {/each}
+                                {$t("common.i18n_alert_message_c")}{/if}
                         </span>
                     </div>
                 </div>

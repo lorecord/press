@@ -1,9 +1,10 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
-    const { site, session } = locals as any;
+    const { site, session, localeContext } = locals as any;
     return {
         site,
-        session
+        session,
+        localeContext
     };
 }

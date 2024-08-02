@@ -4,18 +4,15 @@ import { derived, get, writable } from "svelte/store";
 import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
 
-export const load: PageLoad = async ({ params, fetch, depends}) => {
+export const load: PageLoad = async ({ params, fetch, depends }) => {
     depends('locale:locale');
-    let { route } = params;
-    let lang = params.locale || locale.get();
-    const derivedLang = derived(locale, ($locale) => params.locale || $locale);
+    const { route, locale: localParam } = params;
+    let lang = localParam || locale.get();
 
-    if (route?.endsWith('/')) {
-        route = route.substring(0, route.length - 1);
-    }
+    let effectedRoute = route?.endsWith('/') ? route.substring(0, route.length - 1) : route;
 
-    const post = fetch(`/api/v1/post/${route}${lang ? '?' + new URLSearchParams({
-        lang: get(derivedLang)
+    const post = fetch(`/api/v1/post/${effectedRoute}${lang ? '?' + new URLSearchParams({
+        lang
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json();
@@ -25,7 +22,7 @@ export const load: PageLoad = async ({ params, fetch, depends}) => {
     });
 
     const interactions = Promise.resolve(post).then((post) =>
-        post?.comment?.enable && fetch(`/api/v1/interaction/${route}`).then((r) => {
+        post?.comment?.enable && fetch(`/api/v1/interaction/${effectedRoute}`).then((r) => {
             if (r.ok) {
                 return r.json();
             } else {
@@ -37,8 +34,8 @@ export const load: PageLoad = async ({ params, fetch, depends}) => {
     const replies = Promise.resolve(interactions).then(interactions => interactions?.replies || []);
     const mentions = Promise.resolve(interactions).then(interactions => interactions?.mentions || []);
 
-    const newer = Promise.resolve(post).then((post) => post.newer && fetch(`/api/v1/post/${post.newer}${get(derivedLang) ? '?' + new URLSearchParams({
-        lang: get(derivedLang)
+    const newer = Promise.resolve(post).then((post) => post.newer && fetch(`/api/v1/post/${post.newer}${lang ? '?' + new URLSearchParams({
+        lang
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json()
@@ -47,8 +44,8 @@ export const load: PageLoad = async ({ params, fetch, depends}) => {
         }
     }));
 
-    const earlier = Promise.resolve(post).then((post) => post.earlier && fetch(`/api/v1/post/${post.earlier}${get(derivedLang) ? '?' + new URLSearchParams({
-        lang: get(derivedLang)
+    const earlier = Promise.resolve(post).then((post) => post.earlier && fetch(`/api/v1/post/${post.earlier}${lang ? '?' + new URLSearchParams({
+        lang
     }) : ''}`).then((r) => {
         if (r.ok) {
             return r.json();

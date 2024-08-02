@@ -8,9 +8,9 @@ import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 
-export const actions:Actions = {
+export const actions: Actions = {
     default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {
-        const { site, session } = locals;
+        const { site, session } = locals as any;
         const systemConfig = getSystemConfig(site);
 
         let username = '';
@@ -24,7 +24,7 @@ export const actions:Actions = {
         }
 
         let { route, locale } = params;
-        if (route.endsWith('/')) {
+        if (route?.endsWith('/')) {
             route = route.substring(0, route.length - 1);
         }
         const post = await loadPost(site, { route, lang: locale || undefined });
