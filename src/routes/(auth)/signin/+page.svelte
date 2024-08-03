@@ -27,13 +27,26 @@
             </div>
         </label>
     </div>
-    <div>
-        <button type="submit">{$t("auth.signin")}</button>
+    <div
+        class="form-row"
+        style="justify-content: space-between; align-items: center;"
+    >
+        <span style="color: var(--text-color-secondary)"
+            >{$t("auth.auth_tips")}</span
+        >
+        <button
+            type="submit"
+            class="button-xs-block"
+            style="padding-left: 3rem; padding-right: 3rem"
+            >{$t("auth.signin")}</button
+        >
     </div>
 </form>
 
 <style lang="scss">
     .auth-form {
+        max-width: 600px;
+        min-width: 300px;
         display: flex;
         flex-flow: column;
         gap: 0.5rem;
