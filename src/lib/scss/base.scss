@@ -183,7 +183,7 @@ radio,
 checkbox,
 button,
 input {
-    padding: 1rem 1rem 0.5rem;
+    padding: 1.5rem 1rem 0.5rem;
     border-radius: 0.25rem;
     border: var(--input-border);
     background-color: var(--content-bg-color);
@@ -218,9 +218,10 @@ button {
     --button-bg-color: #105795;
     --button-height: 2.5rem;
 
+    width: auto;
     margin: 0;
     height: var(--button-height);
-    padding: 0 0.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     border: none;
     white-space: nowrap;
@@ -233,6 +234,7 @@ button {
     text-align: center;
     cursor: pointer;
     text-decoration: none;
+    font-size: 100%;
     user-select: none;
     gap: calc(var(--button-height) / 6);
 
@@ -242,6 +244,10 @@ button {
     &.text {
         --button-bg-color: transparent;
         color: var(--text-color);
+    }
+
+    &.button-block{
+        width: 100%;
     }
 }
 

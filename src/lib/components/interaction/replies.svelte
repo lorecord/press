@@ -1,8 +1,9 @@
 <script lang="ts">
     import { t } from "$lib/translations";
-    import { IconBrandX, IconX } from "@tabler/icons-svelte";
+    import { IconBrandX, IconMarkdown } from "@tabler/icons-svelte";
     import RepliesList from "./reply/list.svelte";
     import ReplyItem from "./reply/item.svelte";
+    import { autogrow } from "$lib/ui/actions/textarea";
 
     export let replies: any[];
     export let reply: false;
@@ -107,7 +108,10 @@
         <summary><h4>{$t("common.comment_form")}</h4></summary>
         {#if replyToReply}
             <div class="reply-to">
-                <div class="reply-to-content" style="padding: 1rem; padding-left: calc(var(--avatar-size) + var(--avatar-gap));">
+                <div
+                    class="reply-to-content"
+                    style="padding: 1rem; padding-left: calc(var(--avatar-size) + var(--avatar-gap));"
+                >
                     <ReplyItem
                         {gravatarBase}
                         item={replyToReply}
@@ -154,8 +158,6 @@
                         {$t("common.comment_email")}
                     </div>
                 </label>
-            </div>
-            <div class="form-row">
                 <label>
                     <input
                         type="text"
@@ -166,6 +168,25 @@
                         {$t("common.comment_url")}
                     </div>
                 </label>
+            </div>
+            <div class="form-row">
+                <label>
+                    <textarea
+                        name="text"
+                        placeholder={$t("common.comment_text")}
+                        use:autogrow
+                    />
+                    <div class="label">
+                        {$t("common.comment_text")}
+                    </div>
+                    <div
+                        style="position: absolute; top: 0; right: 0; padding: .25rem .5rem; color: var(--text-color-secondary)"
+                    >
+                        <IconMarkdown />
+                    </div>
+                </label>
+            </div>
+            <div class="form-row">
                 <label style="display:none">
                     <input
                         type="text"
@@ -179,14 +200,18 @@
                     </div>
                 </label>
             </div>
-            <label>
-                <textarea name="text" placeholder={$t("common.comment_text")} />
-                <div class="label">
-                    {$t("common.comment_text")}
-                </div>
-            </label>
-            <div>
-                <button type="submit">{$t("common.comment_submit")}</button>
+            <div
+                class="form-row"
+                style="justify-content: space-between; align-items: center;"
+            >
+                <span style="color: var(--text-color-secondary)"
+                    >{$t("common.comment_tips")}</span
+                >
+                <button
+                    type="submit"
+                    style="padding-left: 3rem; padding-right: 3rem"
+                    >{$t("common.comment_submit")}</button
+                >
             </div>
         </form>
     </details>

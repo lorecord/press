@@ -17,6 +17,7 @@ comment_author: Name
 comment_email: Email
 comment_url: Website
 comment_text: Comment
+comment_tips: '* You will be notified by email when there is a new reply.'
 comment_submit: Submit
 comment_lead_title: Discussion
 comment_captcha: Captcha
