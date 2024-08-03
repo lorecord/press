@@ -54,7 +54,7 @@
                 gap: 0;
                 font-size: 0.9em;
                 align-items: baseline;
-                margin: 0.5em;
+                margin: 1em;
 
                 h4 {
                     margin: 0;

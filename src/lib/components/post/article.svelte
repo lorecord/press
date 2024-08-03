@@ -333,7 +333,7 @@
 
         border-radius: var(--article-border-radius);
 
-        &.type-none{
+        &.type-none {
             --article-bg-color: transparent;
             --article-border: none;
         }
@@ -500,6 +500,10 @@
             .article-taxonomy-and-lang {
                 display: flex;
                 justify-content: space-between;
+
+                @media screen and (max-width: 600px) {
+                    flex-flow: column;
+                }
             }
 
             .article-taxonomy {
