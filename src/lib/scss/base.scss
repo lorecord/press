@@ -127,7 +127,11 @@ pre {
     overflow-x: auto;
     word-break: break-word;
     word-wrap: break-word;
-    white-space: preserve;
+    white-space: pre-wrap; /* no scroll x*/
+
+    &.scroll-x{
+        white-space: pre;
+    }
 
     @media screen and (max-width: 600px) {
         font-size: 80%;
@@ -137,6 +141,10 @@ pre {
         background-color: transparent !important;
         border-radius: 0 !important;
         padding: 0 !important;
+
+        .code-line:not(:last-child) {
+            margin-bottom: 0.25rem;
+        }
     }
 
     cite {
@@ -351,8 +359,13 @@ hr {
     white-space: nowrap;
 }
 
+/* no srcoll x*/
 code[class*="language-"] {
-    white-space: pre;
+    white-space: pre-wrap;
+
+    &.scroll-x{
+        white-space: pre;
+    }
 }
 
 .code-line {
