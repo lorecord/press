@@ -129,6 +129,10 @@ pre {
     word-wrap: break-word;
     white-space: preserve;
 
+    @media screen and (max-width: 600px) {
+        font-size: 80%;
+    }
+
     code {
         background-color: transparent !important;
         border-radius: 0 !important;
@@ -168,8 +172,8 @@ label {
 
     .label {
         position: absolute;
-        top: 10px;
-        padding: 0 18px;
+        top: 0.5rem;
+        padding: 0 1rem;
         pointer-events: none;
         display: block;
         transition: 0.2s ease all;
@@ -183,8 +187,9 @@ radio,
 checkbox,
 button,
 input {
-    padding: 1.5rem 1rem 0.5rem;
-    border-radius: 0.25rem;
+    padding: 1rem 1rem 0.3rem;
+    border-radius: 0.3rem;
+    font-size: 1rem;
     border: var(--input-border);
     background-color: var(--content-bg-color);
     color: var(--text-color);
@@ -207,7 +212,7 @@ input {
     &:not([placeholder])[required]:valid,
     &[placeholder]:not(:placeholder-shown) {
         ~ .label {
-            top: 3px;
+            top: 0.125rem;
             font-size: 66.67%;
             color: var(--text-color-tertiary);
         }
@@ -221,8 +226,7 @@ button {
     width: auto;
     margin: 0;
     height: var(--button-height);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    padding: 0.5rem 3rem;
     border: none;
     white-space: nowrap;
     position: relative;
@@ -246,8 +250,53 @@ button {
         color: var(--text-color);
     }
 
-    &.button-block{
+    &.button-block {
         width: 100%;
+    }
+
+    &.button-thin {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    @media screen and (max-width: 600px) {
+        &.button-xs-block {
+            width: 100%;
+        }
+
+        &.button-xs-thin {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    }
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > *:not(:first-child):not(:last-child) {
+        border-left: none;
+        border-right: none;
+        border-radius: none;
+    }
+
+    :first-child {
+        border-right: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    > * {
+        flex: 1;
+    }
+
+    :last-child {
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        flex: 0;
     }
 }
 

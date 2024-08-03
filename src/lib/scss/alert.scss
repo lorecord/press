@@ -18,9 +18,10 @@ $alert-warning-color: #eebe00;
     border-left-width: 1px !important;
 
     @media screen and (max-width: 600px) {
-        flex-flow: column;
-        margin-right: 0.5rem;
-        margin-left: 0.5rem;
+        display: block;
+        strong {
+            margin-right: 0.5rem;
+        }
     }
 
     > strong:first-child {
@@ -33,5 +34,12 @@ $alert-warning-color: #eebe00;
 
     &.alert-warning {
         @include alert-type-style($alert-warning-color);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .container > .alert {
+        margin-right: 0.5rem;
+        margin-left: 0.5rem;
     }
 }

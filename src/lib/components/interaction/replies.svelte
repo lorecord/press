@@ -71,18 +71,28 @@
             >
                 <input type="hidden" name="source" value="" />
                 <div class="form-row">
-                    <label>
-                        <input
-                            type="url"
-                            name="source"
-                            placeholder="URL"
-                            required
-                        />
-                        <input type="hidden" name="target" value={postUrl} />
-                        <div class="label">URL</div>
-                    </label>
+                    <div class="input-group" style="width: 100%">
+                        <label>
+                            <input
+                                type="url"
+                                name="source"
+                                placeholder="URL"
+                                required
+                            />
+                            <input
+                                type="hidden"
+                                name="target"
+                                value={postUrl}
+                            />
+                            <div class="label">URL</div>
+                        </label>
+                        <button
+                            type="submit"
+                            class="button-xs-thin"
+                            >{$t("common.comment_send")}</button
+                        >
+                    </div>
                 </div>
-                <button type="submit">{$t("common.comment_send")}</button>
             </form>
         </details>
     {/if}
@@ -209,6 +219,7 @@
                 >
                 <button
                     type="submit"
+                    class="button-xs-block"
                     style="padding-left: 3rem; padding-right: 3rem"
                     >{$t("common.comment_submit")}</button
                 >
