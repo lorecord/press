@@ -12,12 +12,15 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     }
 
     if (localeContext.uiLocale && !locale.get()) {
+        if (dev) {
+            console.log('trying to set locale', localeContext.uiLocale);
+        }
         await setLocale(localeContext.uiLocale);
     }
 
     depends('locale:locale');
 
-    let lang = locale.get();
+    let lang = locale.get() || localeContext.uiLocale;
 
     if (dev) {
         console.log('[routes/+layout.ts] => localeContext', localeContext.uiLocale);
