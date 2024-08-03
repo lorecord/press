@@ -516,7 +516,7 @@
                 <h3 id="comments" style="text-align: center">
                     {$t("common.comment_lead_title")}
                     {#await commonComments then commonComments}
-                        {#if commonComments}
+                        {#if commonComments?.length}
                             ({commonComments.length})
                         {/if}
                     {/await}
