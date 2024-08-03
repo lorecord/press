@@ -15,7 +15,7 @@
 <ul
     class="comments"
     class:replying
-    class:replying-one={effectedComments.length === 1}
+    class:replying-one={replying && effectedComments.length === 1}
     class:reverse
 >
     {#each effectedComments as comment}
@@ -34,7 +34,7 @@
                 {commentHelper}
                 {showReplies}
                 {replying}
-                replyingOne={effectedComments.length === 1}
+                replyingOne={replying && effectedComments.length === 1}
             />
         </li>
     {/each}
