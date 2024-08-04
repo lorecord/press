@@ -9,6 +9,7 @@
                 type="text"
                 name="username"
                 placeholder={$t("auth.username")}
+                required
             />
             <div class="label">
                 {$t("auth.username")}
@@ -20,6 +21,7 @@
             <input
                 type="password"
                 name="password"
+                required
                 placeholder={$t("auth.password")}
             />
             <div class="label">
