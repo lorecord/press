@@ -1,4 +1,4 @@
-export function autogrow(textarea) {
+export function autogrow(textarea: HTMLTextAreaElement) {
   function adjustHeight() {
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';

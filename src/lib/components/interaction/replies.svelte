@@ -4,6 +4,7 @@
     import RepliesList from "./reply/list.svelte";
     import ReplyItem from "./reply/item.svelte";
     import { autogrow } from "$lib/ui/actions/textarea";
+    import { onMount } from "svelte";
 
     export let replies: any[];
     export let reply: false;
@@ -12,6 +13,20 @@
     export let postUrl: string;
 
     export let gravatarBase: string;
+
+    let form: HTMLFormElement;
+    let textarea: HTMLTextAreaElement;
+
+    onMount(() => {
+        textarea.addEventListener("keydown", handleKeyDown);
+    });
+
+    function handleKeyDown(event: KeyboardEvent) {
+        if (event.ctrlKey && event.key === "Enter") {
+            event.preventDefault();
+            form.submit();
+        }
+    }
 
     function buildReplyTree(replies: any[]): any[] {
         let tree: any[] = [];
@@ -86,9 +101,7 @@
                             />
                             <div class="label">URL</div>
                         </label>
-                        <button
-                            type="submit"
-                            class="button-xs-thin"
+                        <button type="submit" class="button-xs-thin"
                             >{$t("common.comment_send")}</button
                         >
                     </div>
@@ -143,7 +156,7 @@
                 </h3>
             </div>
         {/if}
-        <form method="post" class="form form-reply">
+        <form method="post" class="form form-reply" bind:this={form}>
             <input type="hidden" name="slug" value={post.slug} />
             <input type="hidden" name="lang" value={post.lang} />
             <input type="hidden" name="reply" value={target} />
@@ -185,6 +198,7 @@
                         name="text"
                         placeholder={$t("common.comment_text")}
                         use:autogrow
+                        bind:this={textarea}
                     />
                     <div class="label">
                         {$t("common.comment_text")}
