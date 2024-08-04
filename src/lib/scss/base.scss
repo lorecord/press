@@ -129,7 +129,7 @@ pre {
     word-wrap: break-word;
     white-space: pre-wrap; /* no scroll x*/
 
-    &.scroll-x{
+    &.scroll-x {
         white-space: pre;
     }
 
@@ -212,8 +212,8 @@ input {
     }
     &:focus {
         outline: none;
-        border-color: rgba(16, 87, 149, 1);
-        box-shadow: 0 0 0 0.25rem rgba(16, 87, 149, 0.667);
+        border-color: rgba(16, 87, 149, 0.667);
+        box-shadow: 0 0 0 0.125rem rgba(16, 87, 149, 0.333);
     }
 
     &:focus,
@@ -253,6 +253,8 @@ button {
     color: var(--button-text-color);
     background-color: var(--button-bg-color);
 
+    transition: transform 0.3s ease;
+
     &.text {
         --button-bg-color: transparent;
         color: var(--text-color);
@@ -276,6 +278,11 @@ button {
             padding-left: 1rem;
             padding-right: 1rem;
         }
+    }
+
+    &:hover {
+        transform: scale(1.05);
+        transform-origin: center;
     }
 }
 
@@ -363,7 +370,7 @@ hr {
 code[class*="language-"] {
     white-space: pre-wrap;
 
-    &.scroll-x{
+    &.scroll-x {
         white-space: pre;
     }
 }
