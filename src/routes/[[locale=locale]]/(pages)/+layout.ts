@@ -2,12 +2,17 @@ import { locale } from '$lib/translations';
 import { awaitChecker } from '$lib/browser';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = async ({ fetch, depends }) => {
+export const load: LayoutLoad = async ({ fetch, depends, data }) => {
     depends('locale:locale');
+
+    const { localeContext } = data;
+    let {
+        uiLocale
+    } = localeContext;
 
     const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'default|links',
-        lang: locale.get()
+        lang: locale.get() || localeContext.uiLocale
     })}`)
         .then((r) => r.ok ? r.json() : []);
 
