@@ -18,7 +18,7 @@ const availableLocales = ((glob) => {
 console.log('availableLocales', availableLocales);
 
 const config: Config = (() => {
-    const keys = ['common', 'email'];
+    const keys = ['common', 'email', 'auth'];
 
     function createLoaders(locales: string[], keys: string[]) {
         const loaders = [];

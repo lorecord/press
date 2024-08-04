@@ -36,8 +36,7 @@
         >
         <button
             type="submit"
-            class="button-xs-block"
-            style="padding-left: 3rem; padding-right: 3rem"
+            class="button-xs-block button-thin"
             >{$t("auth.signin")}</button
         >
     </div>

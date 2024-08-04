@@ -1,3 +1,4 @@
 username: "用户名/Email"
 password: "密码"
 signin: "登入"
+auth_tips: "* 需要使用 Cookie"

@@ -1,3 +1,4 @@
 username: "Username / Email"
 password: "Password"
 signin: "Sign In"
+auth_tips: "* Cookie needed"
