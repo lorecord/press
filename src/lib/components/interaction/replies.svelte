@@ -11,6 +11,7 @@
     export let post: { slug: string; lang: string; "x.com"?: any; nostr?: any };
     export let webmentionEndpoint: string = "";
     export let postUrl: string;
+    export let reverse: boolean = false;
 
     export let gravatarBase: string;
 
@@ -243,7 +244,7 @@
 {/if}
 
 {#if !replyToReply}
-    <RepliesList comments={tree} {gravatarBase} {commentHelper} />
+    <RepliesList comments={tree} {gravatarBase} {commentHelper} {reverse} />
 {/if}
 
 <style lang="scss">

@@ -549,6 +549,7 @@
                             replies={commonComments}
                             gravatarBase={systemConfig.gravatar?.base}
                             reply={post.comment?.reply}
+                            reverse={post.comment?.reverse}
                             {post}
                             postUrl={siteConfig.url + post.url}
                             webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
