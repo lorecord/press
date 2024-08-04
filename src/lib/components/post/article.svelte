@@ -104,8 +104,8 @@
     </div>
     {#if footer}
         <div class="article-footer container">
-            {#if post.template == "item"}
-                <div class="article-extra">
+            <div class="article-extra">
+                {#if post.template == "item"}
                     <div class="article-license">
                         <div class="article-license-base-info">
                             <div><strong>{post.title}</strong></div>
@@ -196,81 +196,81 @@
                             </div>
                         </details>
                     </div>
-                    {#if post.taxonomy || post.langs?.length > 0}
-                        <div class="article-taxonomy-and-lang no-print">
-                            {#if post.taxonomy}
-                                <div class="article-taxonomy">
-                                    {#if post.taxonomy?.series?.length}
-                                        <ul>
-                                            {#each post.taxonomy.series as series}
-                                                <li>
-                                                    <a
-                                                        class="p-series series"
-                                                        href="/series/{series
-                                                            .toLowerCase()
-                                                            .replace(
-                                                                /\s+/gm,
-                                                                '-',
-                                                            )}/">{series}</a
-                                                    >
-                                                </li>
-                                            {/each}
-                                        </ul>
-                                    {/if}
-                                    {#if post.taxonomy?.category?.length}
-                                        <ul>
-                                            {#each post.taxonomy.category as category}
-                                                <li>
-                                                    <a
-                                                        class="p-category category"
-                                                        href="/category/{category
-                                                            .toLowerCase()
-                                                            .replace(
-                                                                /\s+/gm,
-                                                                '-',
-                                                            )}/">{category}</a
-                                                    >
-                                                </li>
-                                            {/each}
-                                        </ul>
-                                    {/if}
-                                    {#if post.taxonomy?.tag?.length}
-                                        <ul>
-                                            {#each post.taxonomy.tag as tag}
-                                                <li>
-                                                    <a
-                                                        class="p-tag tag"
-                                                        href="/tag/{tag
-                                                            .toLowerCase()
-                                                            .replace(
-                                                                /\s+/gm,
-                                                                '-',
-                                                            )}/">{tag}</a
-                                                    >
-                                                </li>
-                                            {/each}
-                                        </ul>
-                                    {/if}
-                                </div>
-                            {/if}
-                            {#if post.langs?.length > 1}
-                                <div class="article-lang">
-                                    <IconLanguage size={20} />
+                {/if}
+                {#if post.taxonomy || post.langs?.length > 0}
+                    <div class="article-taxonomy-and-lang no-print">
+                        {#if post.taxonomy}
+                            <div class="article-taxonomy">
+                                {#if post.taxonomy?.series?.length}
                                     <ul>
-                                        {#each post.langs as lang}
+                                        {#each post.taxonomy.series as series}
                                             <li>
-                                                <a href="/{lang}{post.url}"
-                                                    >{$t(`lang.${lang}`)}</a
+                                                <a
+                                                    class="p-series series"
+                                                    href="/series/{series
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{series}</a
                                                 >
                                             </li>
                                         {/each}
                                     </ul>
-                                </div>
-                            {/if}
-                        </div>
-                    {/if}
-                </div>
-            {/if}
+                                {/if}
+                                {#if post.taxonomy?.category?.length}
+                                    <ul>
+                                        {#each post.taxonomy.category as category}
+                                            <li>
+                                                <a
+                                                    class="p-category category"
+                                                    href="/category/{category
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{category}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
+                                {#if post.taxonomy?.tag?.length}
+                                    <ul>
+                                        {#each post.taxonomy.tag as tag}
+                                            <li>
+                                                <a
+                                                    class="p-tag tag"
+                                                    href="/tag/{tag
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/gm,
+                                                            '-',
+                                                        )}/">{tag}</a
+                                                >
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
+                            </div>
+                        {/if}
+                        {#if post.langs?.length > 1}
+                            <div class="article-lang">
+                                <IconLanguage size={20} />
+                                <ul>
+                                    {#each post.langs as lang}
+                                        <li>
+                                            <a href="/{lang}{post.url}"
+                                                >{$t(`lang.${lang}`)}</a
+                                            >
+                                        </li>
+                                    {/each}
+                                </ul>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
         </div>
     {/if}
 </article>
