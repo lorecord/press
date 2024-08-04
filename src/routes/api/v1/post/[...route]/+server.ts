@@ -1,15 +1,20 @@
 import { json } from '@sveltejs/kit';
 import { loadPost } from "$lib/post/handle-posts";
 import { getPublicPosts, findRelatedPosts } from "$lib/server/posts";
+import { getSystemConfig } from '$lib/server/config';
 
 export async function GET({ params, url, locals }) {
     const { site } = locals as { site: any };
+    const systemConfig = getSystemConfig(site);
 
     let { route } = params;
     if (route.endsWith('/')) {
         route = route.substring(0, route.length - 1);
     }
-    const lang = url.searchParams.get('lang');
+    let lang = url.searchParams.get('lang');
+    if (!lang || lang === 'undefined' || lang === 'null') {
+        lang = systemConfig.locale?.default || 'en';
+    }
     const post = await loadPost(site, { route, lang: lang || undefined });
 
     if (!post || !post.published) {

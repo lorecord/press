@@ -1,7 +1,7 @@
 import { getSystemConfig } from "$lib/server/config";
 
 export function GET({ locals }) {
-    const { site } = locals;
+    const { site } = locals as any;
     let systemConfig = getSystemConfig(site);
 
     delete systemConfig.private;

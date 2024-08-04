@@ -2,7 +2,7 @@ import { loadNativeInteractions } from "$lib/interaction/handle-native";
 import { loadWebmentions } from "$lib/interaction/handle-webmention";
 
 export function GET({ params, locals }) {
-    const { site } = locals;
+    const { site } = locals as any;
     const { slug } = params;
 
     const nativeInteractions = loadNativeInteractions(site, { slug });
