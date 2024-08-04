@@ -12,9 +12,9 @@ export const load: LayoutLoad = async ({ fetch, depends, data }) => {
 
     const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'default|links',
-        lang: locale.get() || localeContext.uiLocale
+        lang: locale.get() || uiLocale
     })}`)
-        .then((r) => r.ok ? r.json() : []);
+        .then((r: Response) => r.ok ? r.json() : []);
 
     const needAwait = awaitChecker('layout');
 

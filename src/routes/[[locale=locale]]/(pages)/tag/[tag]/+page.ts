@@ -3,12 +3,14 @@ import { locale } from '$lib/translations';
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ params, fetch, depends }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data }) => {
     depends('locale:locale');
-    let { tag } = params;
+    const { localeContext } = data;
+    const { tag, locale: localeParam } = params;
+    let lang = localeParam || locale.get() || localeContext.contentLocale;
     const posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
-        lang: locale.get(),
+        lang,
         tag
     })}`).then((r) => {
         if (r.ok) {

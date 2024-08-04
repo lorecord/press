@@ -10,6 +10,7 @@ import type { Handle } from '@sveltejs/kit';
 import { getEnvConfig } from '$lib/server/config';
 import { getSession } from '$lib/server/session';
 import { match as matchLocale } from './params/locale';
+import { dev } from '$app/environment';
 
 export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
@@ -22,7 +23,7 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
     const { system } = site;
 
     let pathLocale;
-    let pathLocaleParam;
+    let pathLocaleParam: string | undefined = undefined;
 
     let cookieLocale = event.cookies.get('locale');
 
@@ -30,15 +31,22 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
         && event.url.pathname !== '/') {
 
         let segments = event.url.pathname.split('/');
+
+        if (dev) {
+            console.log('segments[1]', segments[1]);
+            console.log('matchLocale(segments[1])', matchLocale(segments[1]))
+        }
         if (segments?.length > 1 && matchLocale(segments[1])) {
 
-            let pathLocaleParam = segments[1];
+            pathLocaleParam = segments[1];
 
             let matchedLocale = locales.get().find(locale => locale.split('-')[0] === pathLocaleParam?.split('-')[0]);
 
             if (pathLocaleParam !== matchedLocale) {
                 console.log(`path lang param ${pathLocaleParam} matched locale ${matchedLocale}`);
             }
+
+            pathLocale = matchedLocale;
         }
     }
 

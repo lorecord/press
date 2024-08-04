@@ -3,11 +3,13 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import { awaitChecker } from '$lib/browser';
 
-export const load: PageLoad = async ({ depends, fetch, data }) => {
+export const load: PageLoad = async ({ depends, fetch, params, data }) => {
+    const { locale: pathLocaleParam } = params;
+    const { localeContext } = data;
     depends('locale:locale');
     let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
-        lang: locale.get(),
+        lang: pathLocaleParam || locale.get() || localeContext.contentLocale,
         limit: '8',
     })}`).then((r) => {
         if (r.ok) {
@@ -18,9 +20,9 @@ export const load: PageLoad = async ({ depends, fetch, data }) => {
     });
 
     const home = fetch(`/api/v1/post/home${locale.get() ? '?' + new URLSearchParams({
-        lang: locale.get()
+        lang: pathLocaleParam || locale.get()
     }) : ''}`).then((r) => {
-        if(r.ok){
+        if (r.ok) {
             return r.json();
         }
     });

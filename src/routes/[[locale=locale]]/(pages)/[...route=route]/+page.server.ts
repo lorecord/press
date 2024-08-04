@@ -7,6 +7,15 @@ import { getSession } from "$lib/server/session.js";
 import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async ({ locals }) => {
+    const { localeContext } = locals as any;
+
+    return {
+        localeContext
+    };
+}
 
 export const actions: Actions = {
     default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {

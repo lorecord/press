@@ -4,10 +4,11 @@ import { derived, get, writable } from "svelte/store";
 import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
 
-export const load: PageLoad = async ({ params, fetch, depends }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data }) => {
     depends('locale:locale');
-    const { route, locale: localParam } = params;
-    let lang = localParam || locale.get();
+    const { route, locale: localeParam } = params;
+    const { localeContext } = data;
+    let lang = localeParam || locale.get() || localeContext.contentLocale;
 
     let effectedRoute = route?.endsWith('/') ? route.substring(0, route.length - 1) : route;
 
