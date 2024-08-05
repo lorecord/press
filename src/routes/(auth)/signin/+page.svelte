@@ -1,8 +1,28 @@
 <script lang="ts">
     import { t } from "$lib/translations";
+    import { loading } from "$lib/ui/actions/button";
+
+    let signingIn = false;
+
+    function handleLogin(event: Event) {
+        console.log("Login form submitting");
+        event.preventDefault();
+        signingIn = true;
+        console.log("Login form submitted");
+
+        setTimeout(() => {
+            signingIn = false;
+        }, 5000);
+    }
 </script>
 
-<form method="post" class="auth-form" action="/login">
+<form
+    method="post"
+    class="auth-form loadable"
+    action="/login"
+    on:submit|preventDefault={handleLogin}
+    use:loading={signingIn}
+>
     <div class="form-row">
         <label>
             <input
@@ -33,13 +53,13 @@
         class="form-row"
         style="justify-content: space-between; align-items: center;"
     >
-        <span style="color: var(--text-color-secondary)"
+        <span style="color: var(--text-color-secondary);font-size: 67%"
             >{$t("auth.auth_tips")}</span
         >
         <button
             type="submit"
-            class="button-xs-block button-thin"
-            >{$t("auth.signin")}</button
+            class="button-xs-block button-thin button-pill"
+            use:loading={signingIn}>{$t("auth.signin")}</button
         >
     </div>
 </form>

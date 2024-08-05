@@ -268,6 +268,9 @@ button {
         padding-left: 1rem;
         padding-right: 1rem;
     }
+    &.button-pill {
+        border-radius: calc(var(--button-height) / 2);
+    }
 
     @media screen and (max-width: 600px) {
         &.button-xs-block {
@@ -291,6 +294,43 @@ button {
     }
 
     &.loading {
+        --loading-mask-bg: rgba(255, 255, 255, 0.0667);
+
+        overflow: hidden;
+        cursor: wait;
+        position: relative;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, 0.0667),
+                rgba(255, 255, 255, 0.0667) 25%,
+                rgba(0, 0, 0, 0.0667) 25%,
+                rgba(0, 0, 0, 0.0667) 50%
+            );
+            background-repeat: repeat-x;
+            background-size: var(--button-height) var(--button-height);
+            z-index: 1;
+            animation: run 2s ease infinite;
+        }
+
+        @keyframes run {
+            100% {
+                background-position: var(--button-height) 0;
+            }
+        }
+    }
+}
+
+.loadable {
+    --loading-mask-bg: transparent;
+
+    &.loading {
         overflow: hidden;
         cursor: wait;
         position: relative;
@@ -302,54 +342,34 @@ button {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.25) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
+            background: var(--loading-mask-bg);
             z-index: 1;
         }
+    }
 
-        &::after {
-            content: "";
-            position: absolute;
-            width: 0.5em;
-            height: 0.5em;
-            background: #fff;
-            border-radius: 50%;
-            z-index: 1;
-            animation:
-                move 1s linear infinite,
-                breathe 1s ease-in-out infinite;
-        }
+    &.loadable-visual {
+        --loading-mask-bg: rgba(255, 255, 255, 0.1667);
 
-        @keyframes move {
-            0%,
-            50%,
-            100% {
-                transform: translateY(-50%);
-                left: calc(50% - 0.5em);
-            }
-            50% {
-                transform: translateY(50%);
-            }
-            25% {
-                left: 1em;
-            }
-            75% {
-                left: calc(100% - 1em - 0.5em);
-            }
-        }
-
-        @keyframes breathe {
-            0%,
-            100% {
-                transform: scale(1);
+        &.loading {
+            &::after {
+                content: "";
+                position: absolute;
+                width: 2em;
+                height: 2em;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                border-top-color: transparent;
+                border-radius: 50%;
+                z-index: 1;
+                animation: spin 2s ease-in-out infinite;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
-            50% {
-                transform: scale(1.5);
+            @keyframes spin {
+                to {
+                    transform: translate(-50%, -50%) rotate(360deg);
+                }
             }
         }
     }

@@ -1,15 +1,25 @@
-export function loading(button: HTMLButtonElement, loading: boolean) {
-    button.classList.toggle('loading', loading);
-    button.disabled = loading;
+export function loading(element: HTMLElement, loading: boolean) {
+
+    let originalDisabled = element.getAttribute('disabled');
+
+    let update = (loading: boolean) => {
+        element.classList.toggle('loading', loading);
+
+        if (element instanceof HTMLButtonElement) {
+            element.disabled = loading;
+        }
+    }
+
+    update(loading);
 
     return {
-        update() {
-            button.classList.toggle('loading', loading);
-            button.disabled = loading
-        },
+        update,
         destroy() {
-            button.classList.remove('loading');
-            button.disabled = false;
+            element.classList.remove('loading');
+
+            if (originalDisabled) {
+                element.setAttribute('disabled', originalDisabled);
+            }
         }
     };
 }

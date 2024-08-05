@@ -230,12 +230,12 @@
                 class="form-row"
                 style="justify-content: space-between; align-items: center;"
             >
-                <span style="color: var(--text-color-secondary)"
+                <span style="color: var(--text-color-secondary); font-size: 67%"
                     >{$t("common.comment_tips")}</span
                 >
                 <button
                     type="submit"
-                    class="button-xs-block"
+                    class="button-xs-block button-pill"
                     use:loading={false}
                     style="padding-left: 3rem; padding-right: 3rem"
                     >{$t("common.comment_submit")}</button
