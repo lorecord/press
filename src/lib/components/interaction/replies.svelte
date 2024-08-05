@@ -4,6 +4,7 @@
     import RepliesList from "./reply/list.svelte";
     import ReplyItem from "./reply/item.svelte";
     import { autogrow } from "$lib/ui/actions/textarea";
+    import { loading } from "$lib/ui/actions/button";
     import { onMount } from "svelte";
 
     export let replies: any[];
@@ -235,6 +236,7 @@
                 <button
                     type="submit"
                     class="button-xs-block"
+                    use:loading={false}
                     style="padding-left: 3rem; padding-right: 3rem"
                     >{$t("common.comment_submit")}</button
                 >

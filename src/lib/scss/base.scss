@@ -213,7 +213,7 @@ input {
     &:focus {
         outline: none;
         border-color: rgba(16, 87, 149, 0.667);
-        box-shadow: 0 0 0 0.125rem rgba(16, 87, 149, 0.333);
+        box-shadow: 0 0 0 0.125rem rgba(16, 87, 149, 0.5);
     }
 
     &:focus,
@@ -280,9 +280,77 @@ button {
         }
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
         transform: scale(1.05);
         transform-origin: center;
+    }
+
+    &:disabled:not(.loading) {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &.loading {
+        overflow: hidden;
+        cursor: wait;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.25) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            z-index: 1;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            width: 0.5em;
+            height: 0.5em;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 1;
+            animation:
+                move 1s linear infinite,
+                breathe 1s ease-in-out infinite;
+        }
+
+        @keyframes move {
+            0%,
+            50%,
+            100% {
+                transform: translateY(-50%);
+                left: calc(50% - 0.5em);
+            }
+            50% {
+                transform: translateY(50%);
+            }
+            25% {
+                left: 1em;
+            }
+            75% {
+                left: calc(100% - 1em - 0.5em);
+            }
+        }
+
+        @keyframes breathe {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.5);
+            }
+        }
     }
 }
 
