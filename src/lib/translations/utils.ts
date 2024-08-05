@@ -26,12 +26,18 @@ export function getPreferredLang(acceptLanguages: string[], availableLangs: stri
 }
 
 export function getPreferredLangFromHeader(acceptLanguageHeader: string, availableLangs: string[], defaultLanguage: string) {
+    return getPreferredLang(getAcceptLanguages(acceptLanguageHeader), availableLangs, defaultLanguage);
+}
+
+export function getAcceptLanguages(acceptLanguageHeader: string) {
     const acceptLanguages = acceptLanguageHeader.split(',').map((lang) => {
         const [locale, q = '1'] = lang.trim().split(';q=');
         return { locale, q: parseFloat(q) };
     });
+
     acceptLanguages.sort((a, b) => b.q - a.q);
-    return getPreferredLang(acceptLanguages.map((l) => l.locale), availableLangs, defaultLanguage);
+
+    return acceptLanguages.map((l) => l.locale);
 }
 
 async function importExternalYAML(filepath: string) {

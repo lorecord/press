@@ -2,7 +2,7 @@ import fs from 'fs';
 import { fetchRaw, fetchPostPath } from "$lib/post/handle-posts";
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
-import { getPreferredLangFromHeader } from '$lib/translations/utils';
+import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
 import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -57,6 +57,8 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
         pathLocale,
         pathLocaleParam,
         cookieLocale,
+        preferedLanguage,
+        acceptLanguages: acceptLanguageHeader ? getAcceptLanguages(acceptLanguageHeader) : [],
         uiLocale: cookieLocale || pathLocale || preferedLanguage,
         contentLocale: pathLocale || cookieLocale || preferedLanguage
     };

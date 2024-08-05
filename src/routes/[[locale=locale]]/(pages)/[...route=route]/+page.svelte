@@ -17,6 +17,7 @@
     import spdxLicenseList from "spdx-license-list";
     import { browser } from "$app/environment";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import TranslationTips from "$lib/components/translations/tips.svelte";
 
     export let data;
 
@@ -27,7 +28,7 @@
         siteConfig,
         newer,
         earlier,
-        pathLocale,
+        localeContext,
     } = data);
 
     const commonCommentsFilter = (replies: any[]) =>
@@ -453,37 +454,7 @@
         </div>
     {:then post}
         <div class="page-wrapper">
-            {#if post.lang && post.lang != $locale}
-                <div class="container">
-                    <div class="alert alert-info no-print">
-                        <strong
-                            style="display: flex; align-items: center; gap: .25rem;"
-                            ><IconLanguage size={18} />
-                            {$t("common.i18n_alert_title")}</strong
-                        >
-                        <span>
-                            {$t("common.i18n_alert_message_a")}<a
-                                href="/{post.lang}{post.url}"
-                                >{$t(
-                                    `lang.${post.lang || systemConfig.locale.default}`,
-                                )}</a
-                            >{#if post.langs?.length > 1}
-                                {$t("common.i18n_alert_message_b")}
-                                {#each post.langs || [] as l, index}
-                                    {#if l !== (post.lang || systemConfig.locale.default)}
-                                        <a href="/{l}{post.url}"
-                                            >{$t(`lang.${l}`)}</a
-                                        >
-                                        {#if index < post.langs.length - 2}
-                                            {$t("common.comma")}
-                                        {/if}
-                                    {/if}
-                                {/each}
-                                {$t("common.i18n_alert_message_c")}{/if}
-                        </span>
-                    </div>
-                </div>
-            {/if}
+            <TranslationTips {post} {localeContext} />
 
             {#await templateComponent then templateComponent}
                 <svelte:component
