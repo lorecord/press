@@ -77,5 +77,9 @@
         display: flex;
         flex-flow: row;
         gap: 0.5rem;
+
+        @media screen and (max-width: 600px) {
+            flex-flow: column-reverse;
+        }
     }
 </style>
