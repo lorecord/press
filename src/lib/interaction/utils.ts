@@ -49,6 +49,9 @@ export function encrypt(site: any, value: string, encodedKey: string | undefined
 }
 
 export function decrypt(site: any, encrypted: EncryptedString, encodedKey: string | undefined = undefined): string {
+    if (!encrypted) {
+        return '';
+    }
     const key = resolveKey(site, encodedKey);
 
     let encryptedValue;
