@@ -31,6 +31,8 @@
         localeContext,
     } = data);
 
+    let replyCounter = 0;
+
     const commonCommentsFilter = (replies: any[]) =>
         replies.filter((r: any) => r.type === "reply");
     $: commonComments = browser
@@ -487,8 +489,8 @@
                 <h3 id="comments" style="text-align: center">
                     {$t("common.comment_lead_title")}
                     {#await commonComments then commonComments}
-                        {#if commonComments?.length}
-                            ({commonComments.length})
+                        {#if commonComments?.length || replyCounter}
+                            ({(commonComments.length || 0) + replyCounter})
                         {/if}
                     {/await}
                 </h3>
@@ -523,6 +525,7 @@
                             reverse={post.comment?.reverse}
                             {post}
                             postUrl={siteConfig.url + post.url}
+                            on:reply={() => replyCounter++}
                             webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
                         />
                     {/await}

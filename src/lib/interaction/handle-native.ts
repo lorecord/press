@@ -37,7 +37,7 @@ export function getNativeInteractionsFolder(site: any, { slug }: { slug: string 
     }
 }
 
-export function loadNativeInteration(site: any, { slug, id }: { slug: string, id: string }) {
+export function loadNativeInteraction(site: any, { slug, id }: { slug: string, id: string }) {
     return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
 }
 

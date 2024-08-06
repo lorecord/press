@@ -5,7 +5,9 @@
     import ReplyItem from "./reply/item.svelte";
     import { autogrow } from "$lib/ui/actions/textarea";
     import { loading } from "$lib/ui/actions/button";
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+
+    const dispatch = createEventDispatcher();
 
     export let replies: any[];
     export let reply: false;
@@ -19,8 +21,27 @@
     let form: HTMLFormElement;
     let textarea: HTMLTextAreaElement;
 
+    let submmiting = false;
+
     onMount(() => {
         textarea.addEventListener("keydown", handleKeyDown);
+
+        // load {name, email, website} from locale store
+        let name = form.querySelector("input[name=name]") as HTMLInputElement;
+        let email = form.querySelector("input[name=email]") as HTMLInputElement;
+        let website = form.querySelector(
+            "input[name=website]",
+        ) as HTMLInputElement;
+
+        if (name) {
+            name.value = localStorage.getItem("comment-name") || "";
+        }
+        if (email) {
+            email.value = localStorage.getItem("comment-email") || "";
+        }
+        if (website) {
+            website.value = localStorage.getItem("comment-website") || "";
+        }
     });
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -28,6 +49,53 @@
             event.preventDefault();
             form.submit();
         }
+    }
+
+    function handleReplySubmit() {
+        submmiting = true;
+
+        // save {name, email, website} to locale store
+        let name = form.querySelector("input[name=name]") as HTMLInputElement;
+        let email = form.querySelector("input[name=email]") as HTMLInputElement;
+        let website = form.querySelector(
+            "input[name=website]",
+        ) as HTMLInputElement;
+
+        if (name) {
+            localStorage.setItem("comment-name", name.value);
+        }
+        if (email) {
+            localStorage.setItem("comment-email", email.value);
+        }
+        if (website) {
+            localStorage.setItem("comment-website", website.value);
+        }
+
+        fetch(`/api/v1/interaction/${post.slug}`, {
+            method: "POST",
+            body: new FormData(form),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    //form.reset();
+                    textarea.value = "";
+                    textarea.dispatchEvent(new Event("change"));
+
+                    replies = [data, ...replies];
+
+                    // dispath component event to update comments count
+                    dispatch("reply", {});
+                }
+            })
+            .catch((error) => {
+                alert(error);
+            })
+            .finally(() => {
+                submmiting = false;
+            });
     }
 
     function buildReplyTree(replies: any[]): any[] {
@@ -158,7 +226,13 @@
                 </h3>
             </div>
         {/if}
-        <form method="post" class="form form-reply" bind:this={form}>
+        <form
+            method="post"
+            class="form form-reply"
+            bind:this={form}
+            use:loading={submmiting}
+            on:submit|preventDefault={handleReplySubmit}
+        >
             <input type="hidden" name="slug" value={post.slug} />
             <input type="hidden" name="lang" value={post.lang} />
             <input type="hidden" name="reply" value={target} />
@@ -198,6 +272,7 @@
                 <label>
                     <textarea
                         name="text"
+                        required
                         placeholder={$t("common.comment_text")}
                         use:autogrow
                         bind:this={textarea}
@@ -236,7 +311,7 @@
                 <button
                     type="submit"
                     class="button-xs-block button-pill"
-                    use:loading={false}
+                    use:loading={submmiting}
                     style="padding-left: 3rem; padding-right: 3rem"
                     >{$t("common.comment_submit")}</button
                 >

@@ -6,13 +6,15 @@ export function autogrow(textarea: HTMLTextAreaElement) {
   }
 
   textarea.addEventListener('input', adjustHeight);
+  // it will catch when  `textarea.value = 'new value'`
+  textarea.addEventListener('change', adjustHeight);
 
-  // 调整初始高度
   adjustHeight();
 
   return {
     destroy() {
       textarea.removeEventListener('input', adjustHeight);
+      textarea.addEventListener('change', adjustHeight);
     }
   };
 }
