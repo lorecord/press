@@ -1,14 +1,14 @@
-new_reply_mail_subject: Reply <{{ post_title }}> at {{ site_title }}
+new_reply_mail_subject: "[{{ site_title }}] New Reply on <{{ post_title }}>"
 new_reply_mail_text: "New reply from {{ comment_author }} ({{ comment_author_user }}):
 
 
   {{ comment_content }}
 
 
-  view <{{ post_title }}> at {{ site_title }}
+  View <{{ post_title }}> at {{ site_title }}
 
   {{ link }}"
-new_replied_mail_subject: Replied <{{ post_title }}> at {{ site_title }}
+new_replied_mail_subject: "[{{ site_title }}] Replied on <{{ post_title }}>"
 new_replied_mail_text: "Your comment: 
 
 
@@ -21,6 +21,6 @@ new_replied_mail_text: "Your comment:
   {{ comment_content }}
 
 
-  view <{{ post_title }}> at {{ site_title }}
+  View <{{ post_title }}> at {{ site_title }}
 
   {{ link }}"
