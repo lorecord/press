@@ -18,14 +18,15 @@
                     href="/{post.lang}{post.url}">{$t(`lang.${post.lang}`)}</a
                 >{#if post.langs?.length > 1}
                     {$t("common.i18n_alert_message_b")}
-                    {#each (post.langs || []).filter((lang) => {
+                    {@const postLangs = (post.langs || []).filter((lang) => {
                         return localeContext.acceptLanguages
                             .map((l) => l.split("-")[0])
                             .includes(lang.split("-")[0]);
-                    }) as l, index}
+                    })}
+                    {#each postLangs as l, index}
                         {#if l !== post.lang}
                             <a href="/{l}{post.url}">{$t(`lang.${l}`)}</a>
-                            {#if index < post.langs.length - 2}
+                            {#if index < postLangs.length - 2}
                                 {$t("common.comma")}
                             {/if}
                         {/if}
