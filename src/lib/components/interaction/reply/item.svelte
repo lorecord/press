@@ -154,6 +154,13 @@
     .comment-avatar {
         --border-size: 3px;
 
+        width: calc(var(--avatar-size));
+        height: calc(var(--avatar-size));
+        border-radius: 50%;
+        background: var(--bg-color);
+
+        overflow: hidden;
+
         position: absolute;
         margin-left: calc(-1 * (var(--avatar-size) + var(--avatar-gap)));
         padding-top: calc(var(--avatar-gap) / 3);
