@@ -35,14 +35,14 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         site_title: siteConfig.title,
         post_title: post.title,
         comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
-        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
     let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
     let text = get(l)(lang, `email.new_reply_mail_text`, params);
 
-    if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5) {
+    if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256) {
         return;
     }
     const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
@@ -68,12 +68,14 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         post_title: post.title,
         replied_content: replied.content,
         comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
-        comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
+        comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
 
-    if (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5) {
+    if (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5
+        || replied.author?.email?.hash?.sha256 === comment.author?.email?.hash?.sha256
+    ) {
         return;
     }
 

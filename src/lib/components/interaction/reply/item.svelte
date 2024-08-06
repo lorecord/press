@@ -71,7 +71,8 @@
                     {/if}
                 {:else}
                     <span style="color: var(--text-color-quaternary)"
-                        >{item.author?.email?.hash?.md5
+                        >{item.author?.email?.hash?.sha256 ||
+                            item.author?.email?.hash?.md5
                             ? $t("common.comment_nobody")
                             : $t("common.comment_anonymous")}</span
                     >

@@ -85,7 +85,7 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
         return {
             type: 'mention',
             channel: 'native',
-            id: comment.id || crypto.createHash('md5').update(comment.url).digest('hex'),
+            id: comment.id || crypto.createHash('sha256').update(comment.url).digest('hex'),
             published: comment.date,
             url: comment.url,
             content: comment.text,
@@ -95,6 +95,7 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
                 value: encrypt(site, comment.email),
                 hash: {
                     md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
+                    sha256: crypto.createHash('sha256').update(comment.email).digest('hex'),
                 }
             })),)
         } as NativeMention;
@@ -113,6 +114,7 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
                 value: encrypt(site, comment.email),
                 hash: {
                     md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
+                    sha256: crypto.createHash('sha256').update(comment.email).digest('hex'),
                 }
             })),
         ),

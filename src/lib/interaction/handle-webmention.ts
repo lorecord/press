@@ -30,7 +30,7 @@ export function loadWebmentions(site: any, postPath: string) {
 
     return parsed.map((mention: any) => {
         const webmentionReply: WebmentionReply = {
-            id: Crypto.createHash('md5').update(JSON.stringify({
+            id: Crypto.createHash('sha256').update(JSON.stringify({
                 source: mention.source,
                 target: mention.target
             })).digest('hex'),
