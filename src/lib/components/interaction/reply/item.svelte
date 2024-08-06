@@ -155,7 +155,7 @@
         --border-size: 3px;
 
         width: calc(var(--avatar-size));
-        height: calc(var(--avatar-size));
+        height: calc(calc(var(--avatar-size) + var(--avatar-gap) / 3 * 2));
         border-radius: 50%;
         background: var(--bg-color);
 
