@@ -86,6 +86,8 @@
 
                     replies = [data, ...replies];
 
+                    commentHelper.cancelReply();
+
                     // dispath component event to update comments count
                     dispatch("reply", {});
                 }
