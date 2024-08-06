@@ -34,7 +34,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     let params: any = {
         site_title: siteConfig.title,
         post_title: post.title,
-        comment_author: comment.author?.name || comment.author,
+        comment_author: comment.author?.name || comment.author || get(l)(lang, `common.comment_anonymous`),
         comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
@@ -42,13 +42,13 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
     let text = get(l)(lang, `email.new_reply_mail_text`, params);
 
-    if (!systemConfig.private?.email?.admin?.value) {
+    if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5) {
         return;
     }
     const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
     const transport = getTransport(site);
     transport.sendMail({
-        from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
+        from: `${JSON.stringify(comment.author?.name || comment.author || get(l)(lang, `common.comment_anonymous`))} <${systemConfig.email.sender}>`,
         to: `${adminEmail}`,
         subject,
         text,
@@ -67,11 +67,16 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         site_title: siteConfig.title,
         post_title: post.title,
         replied_content: replied.content,
-        comment_author: comment.author?.name || comment.author,
+        comment_author: comment.author?.name || comment.author || get(l)(lang, `common.comment_anonymous`),
         comment_author_user: comment.author?.user || comment.author?.email?.hash?.md5,
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
+
+    if (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5) {
+        return;
+    }
+
     let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
     let text = get(l)(lang, `email.new_replied_mail_text`, params);
 
@@ -80,8 +85,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
     if (comment.target) {
         const transport = getTransport(site);
         transport.sendMail({
-            from: `${JSON.stringify(comment.author?.name || comment.author)} <${systemConfig.email.sender}>`,
-            to: `${JSON.stringify(replied.author?.name)} ${repliedEmail}`,
+            from: `${JSON.stringify(comment.author?.name || comment.author || get(l)(lang, `common.comment_anonymous`))} <${systemConfig.email.sender}>`,
+            to: `${JSON.stringify(replied.author?.name || comment.author || get(l)(lang, `common.comment_anonymous`))} ${repliedEmail}`,
             subject,
             text,
             // html: emailHtml,
