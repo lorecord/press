@@ -7,10 +7,14 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     const { pathname } = url;
     const { localeContext } = data;
 
-    console.log('[routes/+layout.ts] => localeContext', localeContext);
+    if (dev) {
+        console.log('[routes/+layout.ts] => localeContext', localeContext);
+    }
 
     if (localeContext.uiLocale && !locale.get()) {
-        console.log('trying to set locale', localeContext.uiLocale);
+        if (dev) {
+            console.log('trying to set locale', localeContext.uiLocale);
+        }
         await setLocale(localeContext.uiLocale);
     }
 
@@ -18,8 +22,10 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
 
     let lang = locale.get() || localeContext.uiLocale;
 
-    console.log('[routes/+layout.ts] => localeContext', localeContext.uiLocale);
-    console.log('[routes/+layout.ts] => lang', lang);
+    if (dev) {
+        console.log('[routes/+layout.ts] => localeContext', localeContext.uiLocale);
+        console.log('[routes/+layout.ts] => lang', lang);
+    }
 
     const { systemConfig, siteConfig } = await fetch(`/api/v1/config?${new URLSearchParams({
         lang

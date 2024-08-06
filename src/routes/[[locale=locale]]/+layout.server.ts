@@ -5,7 +5,10 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
     const { localeContext } = locals as any;
 
     const { locale: pathLocaleParam } = params;
-    console.log('[routes/[[locale=locale]]/+layout.server.ts] pathLocaleParam', pathLocaleParam);
+
+    if (dev) {
+        console.log('[routes/[[locale=locale]]/+layout.server.ts] pathLocaleParam', pathLocaleParam);
+    }
 
     return {
         localeContext

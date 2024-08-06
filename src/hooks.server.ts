@@ -43,7 +43,9 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
             let matchedLocale = locales.get().find(locale => locale.split('-')[0] === pathLocaleParam?.split('-')[0]);
 
             if (pathLocaleParam !== matchedLocale) {
-                console.log(`path lang param ${pathLocaleParam} matched locale ${matchedLocale}`);
+                if (dev) {
+                    console.log(`path lang param ${pathLocaleParam} matched locale ${matchedLocale}`);
+                }
             }
 
             pathLocale = matchedLocale;
