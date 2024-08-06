@@ -36,6 +36,7 @@ export async function POST({ url, locals, request }) {
 
     const postRoute = payload.target.replace(`${siteConfig.url}/`, '').replace(/\/$/, '');
 
+    // TODO lang ?
     const postRaw = await loadPostRaw(site, { route: postRoute, lang: 'en' });
 
     if (!postRaw) {

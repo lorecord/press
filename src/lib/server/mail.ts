@@ -60,7 +60,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
-    let lang = post.lang || systemConfig.locale.default || 'en';
+    let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
     let params: any = {

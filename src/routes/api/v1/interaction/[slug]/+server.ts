@@ -46,9 +46,10 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         return json;
     })();
 
-    const { type, email, name, website, text, locale, reply } = json;
+    const { type, email, name, website, text, lang, reply } = json;
 
-    const post = await loadPost(site, { route: slug, lang: locale });
+    // TODO lang fallback
+    const post = await loadPost(site, { route: slug, lang });
 
     let status = 400;
     let error = null;
@@ -75,7 +76,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             type,
             author: name,
             slug,
-            lang: locale,
+            lang,
             email,
             url: website,
             text,
