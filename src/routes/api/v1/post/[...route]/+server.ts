@@ -26,7 +26,7 @@ export async function GET({ params, url, locals }) {
     }
 
     const posts = getPublicPosts(site);
-    const postInCollection = posts.find((p: any) => p.slug === post.slug);
+    const postInCollection = posts.find((p: any) => p.slug === post.slug && p.lang === post.lang);
 
     if (postInCollection) {
         post.earlier = postInCollection.earlier;
