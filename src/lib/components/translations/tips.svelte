@@ -6,7 +6,7 @@
     export let post: any;
 </script>
 
-{#if (post.lang && post.lang != ($locale || localeContext.contentLang)) || ($locale || localeContext.contentLang) != localeContext.preferredLang}
+{#if (post.lang && post.lang != ($locale || localeContext.contentLocale)) || ($locale || localeContext.contentLocale) != localeContext.preferedLanguage}
     <div class="container">
         <div class="alert alert-info no-print">
             <strong style="display: flex; align-items: center; gap: .25rem;"
