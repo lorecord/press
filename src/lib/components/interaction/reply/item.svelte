@@ -27,7 +27,7 @@
 >
     {#if item.author?.email?.hash?.md5 || item.author?.avatar}
         <div class="comment-avatar">
-            {#if item.author?.url}
+            {#if item.author?.url && item.author?.email?.hash?.md5}
                 <a href={item.author?.url} rel="external nofollow">
                     <img
                         class="avatar rounded-circle"
@@ -36,7 +36,7 @@
                         alt={item.author?.name}
                     />
                 </a>
-            {:else}
+            {:else if item.author?.email?.hash?.md5}
                 <img
                     class="avatar rounded-circle"
                     src={item.author?.avatar ||
@@ -59,7 +59,9 @@
                     {/if}
                 {:else}
                     <span style="color: var(--text-color-quaternary)"
-                        >{$t("common.comment_anonymous")}</span
+                        >{item.author?.email?.hash?.md5
+                            ? $t("common.comment_nobody")
+                            : $t("common.comment_anonymous")}</span
                     >
                 {/if}
                 {#if item.author?.user}
