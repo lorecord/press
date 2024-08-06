@@ -49,12 +49,18 @@
     <div class="comment-main">
         <div class="comment-header">
             <span class="comment-author">
-                {#if item.author?.url}
-                    <a href={item.author?.url} rel="external nofollow"
-                        >{item.author?.name}</a
-                    >
+                {#if item.author?.name}
+                    {#if item.author?.url}
+                        <a href={item.author?.url} rel="external nofollow"
+                            >{item.author?.name}</a
+                        >
+                    {:else}
+                        {item.author?.name}
+                    {/if}
                 {:else}
-                    {item.author?.name}
+                    <span style="color: var(--text-color-quaternary)"
+                        >{$t("common.comment_anonymous")}</span
+                    >
                 {/if}
                 {#if item.author?.user}
                     <IconDiscountCheckFilled class="user-verified" size={18} />
