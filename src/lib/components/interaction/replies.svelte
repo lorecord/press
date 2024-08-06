@@ -113,6 +113,12 @@
         }, {});
 
         replies.forEach((reply) => {
+            if (reply.replies?.length) {
+                reply.replies = [];
+            }
+        });
+
+        replies.forEach((reply) => {
             let parent = reply.target;
 
             if (parent) {
