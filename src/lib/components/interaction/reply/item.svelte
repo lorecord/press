@@ -9,6 +9,7 @@
     import CommentList from "./list.svelte";
     import Time from "$lib/ui/time/index.svelte";
     import "./reply.css";
+    import AuthorAvatar from "./author-avatar.svelte";
 
     export let item: any;
     export let gravatarBase: string;
@@ -25,27 +26,38 @@
     class:replying
     class:replying-one={replyingOne}
 >
-    {#if item.author?.email?.hash?.md5 || item.author?.avatar}
-        <div class="comment-avatar">
-            {#if item.author?.url && item.author?.email?.hash?.md5}
-                <a href={item.author?.url} rel="external nofollow">
-                    <img
-                        class="avatar rounded-circle"
-                        src={item.author?.avatar ||
-                            `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
-                        alt={item.author?.name}
-                    />
-                </a>
-            {:else if item.author?.email?.hash?.md5}
-                <img
-                    class="avatar rounded-circle"
-                    src={item.author?.avatar ||
-                        `${gravatarBase || "//gravatar.com"}/avatar/${item.author?.email?.hash?.md5}?s=48`}
+    <div class="comment-avatar">
+        {#if item.author?.url && (item.author?.email?.hash?.sha256 || item.author?.email?.hash?.md5 || item.id)}
+            <a href={item.author?.url} rel="external nofollow">
+                <AuthorAvatar
+                    avatar={item.author?.avatar}
+                    {gravatarBase}
                     alt={item.author?.name}
+                    hash={item.author?.email?.hash?.sha256 ||
+                        item.author?.email?.hash?.md5 ||
+                        item.id}
                 />
-            {/if}
-        </div>
-    {/if}
+            </a>
+        {:else if item.author?.email?.hash?.sha256 || item.author?.email?.hash?.md5 || item.id}
+            <AuthorAvatar
+                avatar={item.author?.avatar}
+                {gravatarBase}
+                alt={item.author?.name}
+                hash={item.author?.email?.hash?.sha256 ||
+                    item.author?.email?.hash?.md5 ||
+                    item.id}
+            />
+        {:else}
+            <AuthorAvatar
+                {gravatarBase}
+                alt={item.author?.name}
+                hash={item.author?.email?.hash?.sha256 ||
+                    item.author?.email?.hash?.md5 ||
+                    item.id}
+            />
+        {/if}
+    </div>
+
     <div class="comment-main">
         <div class="comment-header">
             <span class="comment-author">
@@ -172,15 +184,6 @@
         position: absolute;
         margin-left: calc(-1 * (var(--avatar-size) + var(--avatar-gap)));
         padding-top: calc(var(--avatar-gap) / 3);
-
-        img {
-            border: var(--border-size) solid var(--bg-color);
-            border-radius: 50%;
-            width: calc(var(--avatar-size));
-            height: calc(var(--avatar-size));
-            background: var(--bg-color);
-            object-fit: cover;
-        }
     }
 
     .comment-main {
