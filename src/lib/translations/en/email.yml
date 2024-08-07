@@ -36,7 +36,7 @@ new_replied_mail_text: "{{ comment_content }}
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  by {{ comment_author }} ({{ comment_author_user }}):
+  by {{ comment_author }} ({{ comment_author_user }})
 
 
   {{ replied_author }}:

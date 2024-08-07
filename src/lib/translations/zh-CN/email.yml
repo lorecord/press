@@ -2,7 +2,7 @@ new_reply_mail_subject: "[{{ site_title }}] 《{{ post_title }}》 的新回复"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  来自 {{ comment_author }} ({{ comment_author_user }}):
+  来自 {{ comment_author }} ({{ comment_author_user }})
 
 
   到 {{ site_title }} 查看 《{{ post_title }}》 的评论详情
@@ -11,7 +11,7 @@ new_reply_mail_text: "{{ comment_content }}
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  来自 {{ comment_author }} ({{ comment_author_user }}):
+  来自 {{ comment_author }} ({{ comment_author_user }})
 
 
   如果您想回应，可以直接回复此电子邮件！:)
@@ -22,7 +22,7 @@ new_replied_mail_subject: "Re: [{{ site_title }}] 《{{ post_title }}》"
 new_replied_mail_text: "{{ comment_content }}
 
 
-  来自 {{ comment_author }} ({{ comment_author_user }}):
+  来自 {{ comment_author }} ({{ comment_author_user }})
 
 
   {{ replied_author }}:
@@ -36,7 +36,7 @@ new_replied_mail_text: "{{ comment_content }}
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  来自 {{ comment_author }} ({{ comment_author_user }}):
+  来自 {{ comment_author }} ({{ comment_author_user }})
 
 
   {{ replied_author }}:
