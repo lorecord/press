@@ -7,6 +7,8 @@ import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
+
+
     const { site } = locals as any;
     const { slug } = params;
 
@@ -26,9 +28,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
     const mentions = [...nativeInteractions.filter((comment: any) => comment.type === "mention"), ...webmentions.filter((mention: any) => mention.type === "mention")]
 
-    let body = JSON.stringify({ replies, mentions });
-
-    return json(body, { status: 200 });
+    return json({ replies, mentions }, { status: 200 });
 }
 
 export const POST: RequestHandler = async ({ params, locals, request, getClientAddress }) => {
