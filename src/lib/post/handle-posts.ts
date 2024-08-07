@@ -380,7 +380,6 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
         const post = convertToPost(site, rawObject);
         return post;
     }
-    return {};
 }
 
 export function convertToPost(site: any, raw: Raw) {

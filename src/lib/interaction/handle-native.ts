@@ -36,7 +36,13 @@ export interface Comment {
 }
 
 export function getNativeInteraction(site: any, id: string) {
-    return cacheById[id];
+    let cached = cacheById[id];
+
+    if (!cached) {
+        console.warn('cache miss', id);
+    }
+
+    return cached;
 }
 
 export function getNativeInteractionsFilePath(site: any, { slug }: { slug: string }) {
@@ -212,7 +218,7 @@ export function saveNativeInterationNew(site: any, { slug }: { slug: string }, i
 
     return interaction;
 }
-export function saveNativeInteration(site: any, { slug, channel, lang, author, user, email, url, text, ip, reply, type }: { slug: string, lang: string, channel: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string }) {
+export function saveNativeInteration(site: any, { slug, channel, lang, author, user, email, url, text, ip, reply, type, id, verified }: { slug: string, lang: string, channel: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string, id: string, verified: boolean }) {
 
     let filepath = getNativeInteractionsFilePath(site, { slug });
 
@@ -231,10 +237,10 @@ export function saveNativeInteration(site: any, { slug, channel, lang, author, u
     }
 
     let comment: any = {
-        channel, lang, type, author, user, email, url, text, ip, reply, date: new Date()
+        channel, lang, type, author, user, email, url, text, ip, reply, date: new Date(), id, verified
     };
 
-    comment.id = calcCommentId(comment, true);
+    comment.id = calcCommentId(comment, false);
 
     interactions.push(commentToInteraction(site, comment));
 
