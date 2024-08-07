@@ -34,7 +34,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         return;
     }
 
-    let allowReply = !!systemConfig.postal;
+    let allowReply = !!systemConfig.postal?.enabled;
     let lang = post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -80,7 +80,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         return;
     }
 
-    let allowReply = !!systemConfig.postal;
+    let allowReply = !!systemConfig.postal?.enabled;
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -88,7 +88,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         site_title: siteConfig.title,
         post_title: post.title,
         replied_author: '> ' + (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
-        replied_content: replied.content.replace(/\n/g, '\n> '),
+        replied_content: '> ' + replied.content.replace(/\n/g, '\n> '),
         comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
         comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
         comment_content: comment.content,
