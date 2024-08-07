@@ -60,12 +60,22 @@ export const actions: Actions = {
                 let saved = saveNativeInteration(site, comment);
 
                 if (saved) {
-                    sendNewCommentMail(site, post, saved);
+                    let replyContext = {
+                        is: false,
+                        replied: {}
+                    };
+
                     if (comment.reply) {
                         let replied = loadNativeInteraction(site, { slug: route.toString(), id: comment.reply });
                         if (replied) {
-                            sendNewReplyMail(site, post, saved, replied);
+                            replyContext.is = true;
+                            replyContext.replied = replied;
                         }
+                    }
+                    if (replyContext.is) {
+                        sendNewReplyMail(site, post, saved, replyContext.replied);
+                    } else {
+                        sendNewCommentMail(site, post, saved);
                     }
                 }
             }
