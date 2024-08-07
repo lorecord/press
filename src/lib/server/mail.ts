@@ -61,6 +61,10 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
+    if (!systemConfig.email) {
+        console.log('email not configured, skip');
+        return;
+    }
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -88,12 +92,12 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
     if (comment.target) {
         const transport = getTransport(site);
         let options: any = {
-            from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email.sender}>`,
+            from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email?.sender}>`,
             to: `${JSON.stringify(replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} ${repliedEmail}`,
             subject,
             text,
-            messageId: `<${comment.id}@${systemConfig.email.sender.split('@')[1]}>`,
-            inReplyTo: `<${replied.id}@${systemConfig.email.sender.split('@')[1]}>`,
+            messageId: `<${comment.id}@${systemConfig.email?.sender.split('@')[1]}>`,
+            inReplyTo: `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`,
             // html: emailHtml,
         };
 

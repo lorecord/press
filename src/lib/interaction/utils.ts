@@ -102,7 +102,7 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
     }
     return Object.assign({
         type: 'reply',
-        channel: 'native',
+        channel: comment.channel || 'native',
         id: comment.id,
         author: Object.assign({
             name: comment.author,

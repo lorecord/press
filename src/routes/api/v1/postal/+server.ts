@@ -42,7 +42,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
 
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/);
-    const [, messageUnique] = payload.message_id.match(/<?(.*)@.*>?/);
+    const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/);
     const [, reply] = payload.in_reply_to.match(/<?(.*)@.*>?/);
 
     const slug = (() => {
@@ -92,6 +92,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         email,
         text: payload.plain_body,
         reply,
+        id: mesasgeUnique
     };
 
     let saved = saveNativeInteration(site, interaction as any);
