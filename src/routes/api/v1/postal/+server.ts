@@ -15,6 +15,14 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const payload = await request.json();
 
+    if (payload.auto_submitted == 'auto-reply') {
+        return json(null);
+    }
+
+    if (!payload.plain_body) {
+        return json(null);
+    }
+
     console.log('[interaction/postal] POST', payload);
 
     if (systemConfig.postal?.enabled !== true) {
@@ -43,7 +51,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
     const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
-const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
+    const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
     const slug = (() => {
         if (reply) {
