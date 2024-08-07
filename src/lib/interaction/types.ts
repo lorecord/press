@@ -6,6 +6,7 @@ interface Base {
     author?: Author;
     url?: string;
     target?: string;
+    lang?: string;
 }
 
 export interface EncryptedString {
@@ -64,10 +65,17 @@ export type NativeBase = {
     secret?: HashString;
 }
 
+export type EmailBase = {
+    channel: 'email';
+}
+
 export type NativeReply = NativeBase & Reply;
 export type NativeMention = NativeBase & Mention;
 
 export type NativeInteraction = NativeReply | NativeMention;
+
+export type EmailReply = EmailBase & Reply;
+export type EmailInteraction = EmailReply;
 
 export interface Like extends Base {
     type: 'like';
