@@ -39,8 +39,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
 
-    const [_, author, email = payload.form] = payload.from.match(/(.*?)\s*<(.*)>/);
-    const [_, reply] = payload.in_reply_to.match(/(.*)@.*/);
+    const [, author, email = payload.form] = payload.from.match(/(.*?)\s*<(.*)>/);
+    const [, reply] = payload.in_reply_to.match(/(.*)@.*/);
 
     const slug = (() => {
         if (reply) {
@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
             return slug;
         } else {
             if (payload.subject) {
-                const [_, slug] = payload.subject.match(/Re: .*\((.*)\)/);
+                const [, slug] = payload.subject.match(/Re: .*\((.*)\)/);
                 return slug;
             }
         }
