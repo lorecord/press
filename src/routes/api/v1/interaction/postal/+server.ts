@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
 
-    const [, author, email = payload.form] = payload.from.match(/(.*?)\s*<(.*)>/);
+    const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/);
     const [, reply] = payload.in_reply_to.match(/(.*)@.*/);
 
     const slug = (() => {
