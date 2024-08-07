@@ -1,3 +1,4 @@
+import { getNativeInteractionsFilePath, loadNativeInteractions } from "$lib/interaction/handle-native";
 import { convertToPreview, loadAllPostRaws, type Raw } from "$lib/post/handle-posts";
 import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
@@ -51,6 +52,19 @@ function load() {
                     dataFolder: site.constants.DATA_DIR
                 });
             }
+
+            // unique slugs array
+            const slugs = Array.from(new Set(postRaws.map((raw: any) => raw.attributes?.slug)));
+
+            slugs.forEach((slug: string) => {
+                function loadForSlug() {
+                    loadNativeInteractions(site, { slug });
+                }
+                let interactionsFilePath = getNativeInteractionsFilePath(site, { slug });
+                if (interactionsFilePath) {
+                    fileWatch(interactionsFilePath, loadForSlug, `${site.unique}-${slug}-load-interactions`);
+                }
+            });
         }
 
         loadForSite();
