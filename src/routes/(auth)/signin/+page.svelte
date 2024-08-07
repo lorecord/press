@@ -80,6 +80,7 @@
 
         @media screen and (max-width: 600px) {
             flex-flow: column-reverse;
+            align-items: unset !important;
         }
     }
 </style>

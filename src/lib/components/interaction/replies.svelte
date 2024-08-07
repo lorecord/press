@@ -338,20 +338,23 @@
                 <span style="color: var(--text-color-secondary); font-size: 67%"
                     >{$t("common.comment_tips")}</span
                 >
-                {#if mailto.enabled}
-                    <a
-                        href={mailToLink}
-                        style="display: flex; align-items: center; gap: .25em"
-                        ><IconMailUp /> {$t("common.reply_via_email")}</a
+                <div class="form-row">
+                    {#if mailto.enabled}
+                        <a
+                            class="button button-xs-block button-pill button-text"
+                            href={mailToLink}
+                            style="display: flex; align-items: center; gap: .25em"
+                            ><IconMailUp /> {$t("common.reply_via_email")}</a
+                        >
+                    {/if}
+                    <button
+                        type="submit"
+                        class="button-xs-block button-pill"
+                        use:loading={submmiting}
+                        style="padding-left: 2rem; padding-right: 3rem"
+                        ><IconSend /> {$t("common.comment_submit")}</button
                     >
-                {/if}
-                <button
-                    type="submit"
-                    class="button-xs-block button-pill"
-                    use:loading={submmiting}
-                    style="padding-left: 3rem; padding-right: 3rem"
-                    ><IconSend /> {$t("common.comment_submit")}</button
-                >
+                </div>
             </div>
         </form>
     </details>
@@ -373,9 +376,11 @@
         display: flex;
         flex-flow: row;
         gap: 0.5rem;
+        align-items: center;
 
         @media screen and (max-width: 600px) {
-            flex-flow: column;
+            flex-flow: column-reverse;
+            align-items: unset !important;
         }
     }
 </style>

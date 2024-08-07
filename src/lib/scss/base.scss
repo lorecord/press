@@ -190,6 +190,7 @@ select,
 radio,
 checkbox,
 button,
+.button,
 input {
     padding: 1rem 1rem 0.3rem;
     border-radius: 0.3rem;
@@ -223,7 +224,8 @@ input {
     }
 }
 
-button {
+button,
+.button {
     --button-bg-color: #105795;
     --button-height: 2.5rem;
 
@@ -266,6 +268,9 @@ button {
     }
     &.button-pill {
         border-radius: calc(var(--button-height) / 2);
+    }
+    &.button-text{
+        background-color: transparent;
     }
 
     @media screen and (max-width: 600px) {
@@ -465,8 +470,8 @@ code[class*="language-"] {
     transition: background-color 0.2s ease;
     transition: filter 0.2s ease;
 
-    padding-top: .25rem;
-    padding-bottom: .25rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
 
     &:not(.highlight-line):not(.inserted):not(.deleted):hover {
         background-color: #ffffff88;
