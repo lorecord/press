@@ -82,8 +82,6 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // TODO check attachments
 
-    // TODO new id and message id
-
     const interaction = {
         channel: 'email',
         author,
