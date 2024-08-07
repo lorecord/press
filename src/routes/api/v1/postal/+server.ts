@@ -41,9 +41,9 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
 
-    const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/);
-    const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/);
-    const [, reply] = payload.in_reply_to.match(/<?(.*)@.*>?/);
+    const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
+    const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
+    const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || [];
 
     const slug = (() => {
         if (reply) {
@@ -51,7 +51,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
             return slug;
         } else {
             if (payload.subject) {
-                const [, slug] = payload.subject.match(/Re: .*\((.*)\)/);
+                const [, slug] = payload.subject.match(/.*\((.*)\)\s*$/) || [];
                 return slug;
             }
         }
@@ -92,7 +92,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         email,
         text: payload.plain_body,
         reply,
-        id: mesasgeUnique
+        id: mesasgeUnique,
+        verified: true
     };
 
     let saved = saveNativeInteration(site, interaction as any);

@@ -28,6 +28,12 @@ function getTransport(site: any) {
 
 export const sendNewCommentMail = async (site: any, post: any, comment: any) => {
     let systemConfig = getSystemConfig(site);
+
+    if (!systemConfig.email) {
+        console.log('email not configured, skip send new comment mail');
+        return;
+    }
+
     let lang = post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -62,7 +68,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
-        console.log('email not configured, skip');
+        console.log('email not configured, skip send new reply mail');
         return;
     }
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';

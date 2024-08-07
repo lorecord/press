@@ -38,7 +38,7 @@ export type Author = {
         value?: EncryptedString;
         hash: HashString
     };
-    verifed?: boolean;
+    verified?: boolean;
 }
 
 export interface WebmentionRaw {

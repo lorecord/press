@@ -106,7 +106,7 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
         id: comment.id,
         author: Object.assign({
             name: comment.author,
-            verifed: comment.verified,
+            verified: comment.verified,
         },
             optional(comment.user, 'user'),
             optional(comment.url, 'url'),
