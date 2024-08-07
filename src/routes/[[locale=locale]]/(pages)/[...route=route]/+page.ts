@@ -1,8 +1,8 @@
 import { error } from "@sveltejs/kit";
 import { locale } from "$lib/translations";
-import { derived, get, writable } from "svelte/store";
 import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
+import { browser } from "$app/environment";
 
 export const load: PageLoad = async ({ params, fetch, depends, data }) => {
     depends('locale:locale');
@@ -57,7 +57,9 @@ export const load: PageLoad = async ({ params, fetch, depends, data }) => {
 
     const needAwait = awaitChecker();
 
-    console.log('needAwait', needAwait);
+    if (browser) {
+        console.log('needAwait', needAwait);
+    }
 
     return {
         post: needAwait ? await post : post,
