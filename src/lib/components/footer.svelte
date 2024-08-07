@@ -71,7 +71,11 @@
             <IconLanguage size={20} />
             <select value={$locale} on:change={handleLocaleSelect}>
                 {#each $locales as value}
-                    <option {value}>{$t(`lang.${value}`)}</option>
+                    <option
+                        {value}
+                        on:click={handleLocaleSelect}
+                        >{$t(`lang.${value}`)}</option
+                    >
                 {/each}
             </select>
         </span>
