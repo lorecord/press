@@ -14,6 +14,14 @@ import type { NativeInteraction } from './types';
 import { commentToInteraction, getInteractionsFoler } from './utils';
 import path from 'path';
 
+let cacheById: {
+    [id: string]: {
+        slug: string;
+        interaction: NativeInteraction
+    }
+} = {};
+
+
 export interface Comment {
     slug: string;
     lang: string;
@@ -27,13 +35,15 @@ export interface Comment {
     type: string;
 }
 
-export function getNativeInteractionsFolder(site: any, { slug }: { slug: string }) {
+export function getNativeInteraction(site: any, id: string) {
+    return cacheById[id];
+}
+
+export function getNativeInteractionsFilePath(site: any, { slug }: { slug: string }) {
     const folder = getInteractionsFoler(site, { slug });
     if (folder) {
         const filepath = path.join(folder, 'native.yml');
-        if (fs.existsSync(filepath)) {
-            return filepath;
-        }
+        return filepath;
     }
 }
 
@@ -43,9 +53,9 @@ export function loadNativeInteraction(site: any, { slug, id }: { slug: string, i
 
 export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
 
-    let filepath = getNativeInteractionsFolder(site, { slug });
+    let filepath = getNativeInteractionsFilePath(site, { slug });
 
-    if (!filepath) {
+    if (!filepath || !fs.existsSync(filepath)) {
         return [];
     }
 
@@ -58,7 +68,12 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
         if (interaction.content) {
             interaction.contentHTML = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
         }
+        cacheById[interaction.id] = {
+            slug,
+            interaction
+        };
     });
+
     return parsed.sort((a: NativeInteraction, b: NativeInteraction) => new Date(b.published).getTime() - new Date(a.published).getTime());
 }
 
@@ -164,13 +179,7 @@ export function markdown(content: string, id: string, domain: string) {
     return result;
 }
 export function saveNativeInterationNew(site: any, { slug }: { slug: string }, interaction: NativeInteraction) {
-    let filepath = (() => {
-        const folder = getInteractionsFoler(site, { slug });
-        if (folder) {
-            const filepath = path.join(folder, 'native.yml');
-            return filepath;
-        }
-    })();
+    let filepath = getNativeInteractionsFilePath(site, { slug });
 
     if (!filepath) {
         return;
@@ -203,16 +212,10 @@ export function saveNativeInterationNew(site: any, { slug }: { slug: string }, i
 
     return interaction;
 }
-export function saveNativeInteration(site: any, { slug, lang, author, user, email, url, text, ip, reply, type }: { slug: string, lang: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string }) {
+export function saveNativeInteration(site: any, { slug, channel, lang, author, user, email, url, text, ip, reply, type }: { slug: string, lang: string, channel: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type: string }) {
 
-    let filepath = (() => {
-        const folder = getInteractionsFoler(site, { slug });
-        if (folder) {
-            const filepath = path.join(folder, 'native.yml');
-            return filepath;
-        }
-    })();
-    
+    let filepath = getNativeInteractionsFilePath(site, { slug });
+
     if (!filepath) {
         return;
     }
@@ -228,7 +231,7 @@ export function saveNativeInteration(site: any, { slug, lang, author, user, emai
     }
 
     let comment: any = {
-        type, author, user, email, url, text, ip, reply, date: new Date()
+        channel, lang, type, author, user, email, url, text, ip, reply, date: new Date()
     };
 
     comment.id = calcCommentId(comment, true);
