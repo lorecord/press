@@ -34,6 +34,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         return;
     }
 
+    let allowReply = !!systemConfig.postal;
     let lang = post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -46,7 +47,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
     let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
-    let text = get(l)(lang, `email.new_reply_mail_text`, params);
+    let text = get(l)(lang, allowReply ? `email.new_reply_mail_text_allow_reply` : `email.new_reply_mail_text`, params);
 
     if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256) {
         return;
@@ -68,16 +69,26 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
 export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
-        console.log('email not configured, skip send new reply mail');
+        console.log('email not configured, skip send replied mail');
         return;
     }
+
+    const repliedEmail = decrypt(site, replied.author?.email?.value);
+
+    if (!repliedEmail) {
+        console.log('replied email not found, skip send replied mail');
+        return;
+    }
+
+    let allowReply = !!systemConfig.postal;
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
     let params: any = {
         site_title: siteConfig.title,
         post_title: post.title,
-        replied_content: replied.content,
+        replied_author: '> ' + (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
+        replied_content: replied.content.replace(/\n/g, '\n> '),
         comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
         comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
         comment_content: comment.content,
@@ -91,9 +102,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
     }
 
     let subject = get(l)(lang, `email.new_replied_mail_subject`, params);
-    let text = get(l)(lang, `email.new_replied_mail_text`, params);
-
-    const repliedEmail = decrypt(site, replied.author?.email?.value);
+    let text = get(l)(lang, allowReply ? `email.new_replied_mail_text_allow_reply` : `email.new_replied_mail_text`, params);
 
     if (comment.target) {
         const transport = getTransport(site);
