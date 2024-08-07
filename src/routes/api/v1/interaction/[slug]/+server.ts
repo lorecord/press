@@ -49,6 +49,10 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
 
     const { type, email, name, website, text, lang, reply } = payload;
 
+    if(!text){
+        error(400, { message: "Text is required" });
+    }
+
     // TODO lang fallback
     const post = await loadPost(site, { route: slug, lang });
 
