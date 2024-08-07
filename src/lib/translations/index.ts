@@ -1,6 +1,6 @@
 import i18n, { type Config } from "sveltekit-i18n";
 import lang from './lang.yml';
-import { browser } from "$app/environment";
+import { browser, dev } from "$app/environment";
 
 export const knownLocales = Object.keys(lang);
 
@@ -10,6 +10,9 @@ const availableLocales = ((glob) => {
     Object.keys(glob).forEach((key) => {
         // ./en/common.yml -> en
         let locale = key.split('/')[1];
+        if(dev){
+            console.log('[lib/translations/index.ts] find locale', locale);
+        }
         locales.add(locale);
     });
     return [...locales];
@@ -34,7 +37,7 @@ const config: Config = (() => {
         }
         return loaders;
     }
-    
+
     return {
         fallbackLocale: 'en',
         translations: availableLocales
@@ -49,10 +52,15 @@ const config: Config = (() => {
 export const { t, l, locale, locales, loading, translations, loadTranslations, addTranslations, getTranslationProps, setLocale } = new i18n(config);
 
 Promise.all(locales.get()
-    .map((locale) => addTranslations(getTranslationProps(locale))));
+    .map((locale) => {
+        if (dev) {
+            console.log('[lib/translations/index.ts] loading locale', locale);
+        }
+        return addTranslations(getTranslationProps(locale));
+    }));
 
 locale.subscribe((value) => {
-    if (browser) {
+    if (dev || browser) {
         console.log("locale changed to", value);
     }
 });

@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { getPublicPosts } from "$lib/server/posts";
 import { getSystemConfig } from '$lib/server/config.js';
+import { dev } from '$app/environment';
 
 export async function GET({ url, locals }) {
     const { site } = locals as { site: any };
@@ -12,6 +13,10 @@ export async function GET({ url, locals }) {
     const series = url.searchParams.get('series');
     const limit = url.searchParams.get('limit');
     let lang: string | null = url.searchParams.get('lang');
+
+    if(dev){
+        console.log('[api/v1/post] GET', { template, tag, category, series, limit, lang });
+    }
 
     let collection = getPublicPosts(site);
 

@@ -27,7 +27,14 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
 
     let cookieLocale = event.cookies.get('locale');
 
-    if (!event.url.pathname.startsWith('/api')
+    if (dev) {
+        console.log('event.url', event.url.toString());
+    }
+
+    let acceptLanguageHeader = event.request.headers.get('accept-language');
+    let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
+
+    if (!event.url.pathname.startsWith('/api/')
         && event.url.pathname !== '/') {
 
         let segments = event.url.pathname.split('/');
@@ -52,22 +59,25 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
         }
     }
 
-    let acceptLanguageHeader = event.request.headers.get('accept-language');
-    let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
+    if (!event.isSubRequest) {
+        const localeContext = {
+            pathLocale,
+            pathLocaleParam,
+            cookieLocale,
+            preferedLanguage,
+            acceptLanguages: acceptLanguageHeader ? getAcceptLanguages(acceptLanguageHeader) : [],
+            uiLocale: cookieLocale || pathLocale || preferedLanguage,
+            contentLocale: pathLocale || cookieLocale || preferedLanguage
+        };
 
-    const localeContext = {
-        pathLocale,
-        pathLocaleParam,
-        cookieLocale,
-        preferedLanguage,
-        acceptLanguages: acceptLanguageHeader ? getAcceptLanguages(acceptLanguageHeader) : [],
-        uiLocale: cookieLocale || pathLocale || preferedLanguage,
-        contentLocale: pathLocale || cookieLocale || preferedLanguage
-    };
+        (event.locals as any).localeContext = localeContext;
 
-    (event.locals as any).localeContext = localeContext;
-
-    await loadTranslations(localeContext.uiLocale);
+        if (dev) {
+            console.log('localeContext', localeContext);
+            console.log('loadTranslations', localeContext.uiLocale);
+        }
+        await loadTranslations(localeContext.uiLocale);
+    }
 
     return await resolve(event);
 }
