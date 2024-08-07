@@ -45,3 +45,4 @@ webmention: Webmention
 comment_send: Send
 comment_anonymous: Anonymous
 comment_nobody: Nobody
+reply_via_email: Reply via Email

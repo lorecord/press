@@ -519,6 +519,15 @@
                         </div>
                     {:then commonComments}
                         <Replies
+                            mailto={{
+                                enabled:
+                                    systemConfig.postal?.enabled &&
+                                    systemConfig.email?.sender,
+                                email: systemConfig.email?.sender,
+                                site: siteConfig.title,
+                                title: post.title,
+                                slug: post.slug,
+                            }}
                             replies={commonComments}
                             gravatarBase={systemConfig.gravatar?.base}
                             reply={post.comment?.reply}

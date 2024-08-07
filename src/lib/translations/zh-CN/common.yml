@@ -45,3 +45,4 @@ webmention: Webmention
 comment_send: 发送
 comment_anonymous: 匿名
 comment_nobody: 无名氏
+reply_via_email: 发信回应

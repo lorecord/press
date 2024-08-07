@@ -1,6 +1,11 @@
 <script lang="ts">
     import { t } from "$lib/translations";
-    import { IconBrandX, IconMarkdown } from "@tabler/icons-svelte";
+    import {
+        IconBrandX,
+        IconMarkdown,
+        IconSend,
+        IconMailUp,
+    } from "@tabler/icons-svelte";
     import RepliesList from "./reply/list.svelte";
     import ReplyItem from "./reply/item.svelte";
     import { autogrow } from "$lib/ui/actions/textarea";
@@ -15,11 +20,25 @@
     export let webmentionEndpoint: string = "";
     export let postUrl: string;
     export let reverse: boolean = false;
+    export let mailto: {
+        enabled: boolean;
+        email: string;
+        site: string;
+        title: string;
+        slug: string;
+    } = {
+        enabled: false,
+        email: "",
+        site: "",
+        title: "",
+        slug: "",
+    };
 
     export let gravatarBase: string;
 
     let form: HTMLFormElement;
     let textarea: HTMLTextAreaElement;
+    let text: string;
 
     let submmiting = false;
 
@@ -151,6 +170,8 @@
     };
 
     $: replyToReply = replies?.find((reply) => reply.id === target);
+
+    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.slug}${replyToReply ? `#${replyToReply.id}` : ""})`)}&body=${encodeURI(text || "")}`;
 </script>
 
 {#if reply}
@@ -282,6 +303,7 @@
                         name="text"
                         required
                         placeholder={$t("common.comment_text")}
+                        bind:value={text}
                         use:autogrow
                         bind:this={textarea}
                     />
@@ -316,12 +338,19 @@
                 <span style="color: var(--text-color-secondary); font-size: 67%"
                     >{$t("common.comment_tips")}</span
                 >
+                {#if mailto.enabled}
+                    <a
+                        href={mailToLink}
+                        style="display: flex; align-items: center; gap: .25em"
+                        ><IconMailUp /> {$t("common.reply_via_email")}</a
+                    >
+                {/if}
                 <button
                     type="submit"
                     class="button-xs-block button-pill"
                     use:loading={submmiting}
                     style="padding-left: 3rem; padding-right: 3rem"
-                    >{$t("common.comment_submit")}</button
+                    ><IconSend /> {$t("common.comment_submit")}</button
                 >
             </div>
         </form>

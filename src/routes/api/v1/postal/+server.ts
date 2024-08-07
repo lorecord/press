@@ -43,7 +43,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
     const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
-    const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || [];
+const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
     const slug = (() => {
         if (reply) {
