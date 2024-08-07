@@ -1,3 +1,4 @@
+import { translations } from '$lib/translations';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -5,6 +6,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
     return {
         site,
         session,
-        localeContext
+        localeContext,
+        translations: translations.get()
     };
 }

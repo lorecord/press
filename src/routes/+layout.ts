@@ -1,11 +1,13 @@
-import { locale, setLocale } from '$lib/translations';
+import { locale, setLocale, addTranslations } from '$lib/translations';
 import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 import { dev } from '$app/environment';
 
 export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     const { pathname } = url;
-    const { localeContext } = data;
+    const { localeContext, translations } = data;
+
+    addTranslations(translations);
 
     if (dev) {
         console.log('[routes/+layout.ts] => localeContext', localeContext);
