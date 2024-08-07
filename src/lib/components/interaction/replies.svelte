@@ -64,9 +64,18 @@
     });
 
     function handleKeyDown(event: KeyboardEvent) {
-        if (event.ctrlKey && event.key === "Enter") {
+        // Ctrl+Enter or Cmd+Enter
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
             event.preventDefault();
-            form.submit();
+            // trigger submit event
+            if (form.reportValidity()) {
+                form.dispatchEvent(
+                    new Event("submit", {
+                        bubbles: true,
+                        cancelable: true,
+                    }),
+                );
+            }
         }
     }
 
@@ -90,33 +99,38 @@
             localStorage.setItem("comment-website", website.value);
         }
 
-        fetch(`/api/v1/interaction/${post.slug}`, {
-            method: "POST",
-            body: new FormData(form),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    //form.reset();
-                    textarea.value = "";
-                    textarea.dispatchEvent(new Event("change"));
-
-                    replies = [data, ...replies];
-
-                    commentHelper.cancelReply();
-
-                    // dispath component event to update comments count
-                    dispatch("reply", {});
-                }
+        try {
+            fetch(`/api/v1/interaction/${post.slug}`, {
+                method: "POST",
+                body: new FormData(form),
             })
-            .catch((error) => {
-                alert(error);
-            })
-            .finally(() => {
-                submmiting = false;
-            });
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        //form.reset();
+                        textarea.value = "";
+                        textarea.dispatchEvent(new Event("change"));
+
+                        replies = [data, ...replies];
+
+                        commentHelper.cancelReply();
+
+                        // dispath component event to update comments count
+                        dispatch("reply", {});
+                    }
+                })
+                .catch((error) => {
+                    alert(error);
+                })
+                .finally(() => {
+                    submmiting = false;
+                });
+        } catch (error) {
+            form.submit();
+            submmiting = false;
+        }
     }
 
     function buildReplyTree(replies: any[]): any[] {
@@ -306,6 +320,7 @@
                         bind:value={text}
                         use:autogrow
                         bind:this={textarea}
+                        on:keydown={handleKeyDown}
                     />
                     <div class="label">
                         {$t("common.comment_text")}
