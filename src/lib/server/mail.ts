@@ -52,6 +52,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         to: `${adminEmail}`,
         subject,
         text,
+        messageId: `<${comment.id}@${systemConfig.email.sender.split('@')[1]}>`,
         // html: emailHtml,
     }).then((result) => {
         console.log(`new comment mail send, id: ${result.messageId}`);
@@ -86,13 +87,25 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
 
     if (comment.target) {
         const transport = getTransport(site);
-        transport.sendMail({
+        let options: any = {
             from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email.sender}>`,
             to: `${JSON.stringify(replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} ${repliedEmail}`,
             subject,
             text,
+            messageId: `<${comment.id}@${systemConfig.email.sender.split('@')[1]}>`,
+            inReplyTo: `<${replied.id}@${systemConfig.email.sender.split('@')[1]}>`,
             // html: emailHtml,
-        }).then((result) => {
+        };
+
+        const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
+
+        if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256 || systemConfig.private?.email?.admin?.hash?.md5 === replied.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === replied.author?.email?.hash?.sha256) {
+            // do nothing
+        } else {
+            options.bcc = adminEmail;
+        }
+
+        transport.sendMail(options).then((result) => {
             console.log(`new reply mail send, id: ${result.messageId}`);
         });
     }
