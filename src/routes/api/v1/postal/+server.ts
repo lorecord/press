@@ -82,11 +82,10 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         error(403, "Comment is disabled");
     }
 
-    // TODO solve the issue of the website
+    // solve the website from the mail signature
+    let [, website] = payload.replies_from_plain_body.match(/(https?:\/\/[^\s>"']+)>?/) || [];
 
     // TODO text or html
-
-    // TODO check payload.auto_submitted == auto-reply
 
     // TODO check attachments
 
@@ -99,6 +98,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         text: payload.plain_body,
         reply,
         id: mesasgeUnique,
+        url: website,
         verified: true
     };
 
