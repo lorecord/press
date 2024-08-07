@@ -12,11 +12,17 @@
 
 <style lang="scss">
     img {
+        &::before {
+            content: "";
+        }
         border: var(--border-size) solid var(--bg-color);
         border-radius: 50%;
         width: calc(var(--avatar-size));
         height: calc(var(--avatar-size));
         background: var(--text-color-quinary);
         object-fit: cover;
+
+        display: inline-block;
+        overflow: hidden;
     }
 </style>
