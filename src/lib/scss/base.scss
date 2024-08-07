@@ -141,10 +141,6 @@ pre {
         background-color: transparent !important;
         border-radius: 0 !important;
         padding: 0 !important;
-
-        .code-line:not(:last-child) {
-            margin-bottom: 0.25rem;
-        }
     }
 
     cite {
@@ -457,16 +453,20 @@ hr {
 
 /* no srcoll x*/
 code[class*="language-"] {
-    white-space: pre-wrap;
+    white-space: pre-wrap !important;
+    line-height: 1 !important;
 
     &.scroll-x {
-        white-space: pre;
+        white-space: pre !important;
     }
 }
 
 .code-line {
     transition: background-color 0.2s ease;
     transition: filter 0.2s ease;
+
+    padding-top: .25rem;
+    padding-bottom: .25rem;
 
     &:not(.highlight-line):not(.inserted):not(.deleted):hover {
         background-color: #ffffff88;
