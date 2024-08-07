@@ -5,6 +5,7 @@ import Crypto from 'crypto';
 import { getNativeInteraction, loadNativeInteraction, saveNativeInteration } from "$lib/interaction/handle-native";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { loadPost } from "$lib/post/handle-posts";
+import { dev } from "$app/environment";
 
 export const POST: RequestHandler = async ({ url, locals, request }) => {
     const { site } = locals as any;
@@ -17,10 +18,11 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     console.log('[interaction/postal] POST', payload);
 
     if (systemConfig.postal?.enabled !== true) {
+        console.log('Postal disabled');
         error(404);
     }
 
-    {
+    if (!dev || secretParam !== 'letmein') {
         const secret = systemConfig.postal?.secret;
         if (typeof secret === 'string') {
             if (secret !== secretParam) {
@@ -40,7 +42,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
 
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/);
-    const [, reply] = payload.in_reply_to.match(/(.*)@.*/);
+    const [, messageUnique] = payload.message_id.match(/<?(.*)@.*>?/);
+    const [, reply] = payload.in_reply_to.match(/<?(.*)@.*>?/);
 
     const slug = (() => {
         if (reply) {
@@ -79,6 +82,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // TODO check attachments
 
+    // TODO new id and message id
+
     const interaction = {
         channel: 'email',
         author,
@@ -86,7 +91,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         lang,
         email,
         text: payload.plain_body,
-        reply
+        reply,
     };
 
     let saved = saveNativeInteration(site, interaction as any);
