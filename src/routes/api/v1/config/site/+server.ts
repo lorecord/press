@@ -1,4 +1,5 @@
 import { getSiteConfig, getSystemConfig } from "$lib/server/config";
+import { json } from "@sveltejs/kit";
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = ({ url, locals }) => {
@@ -9,9 +10,8 @@ export const GET: RequestHandler = ({ url, locals }) => {
         lang = systemConfig.locale?.default || 'en';
     }
     let siteConfig = getSiteConfig(site, lang || 'en');
+    siteConfig = Object.assign({}, siteConfig);
     delete siteConfig.private;
 
-    let body = JSON.stringify(siteConfig);
-
-    return new Response(body, { status: 200 });
+    return json(siteConfig, { status: 200 });
 }

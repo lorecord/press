@@ -1,4 +1,5 @@
 import { getSiteConfig, getSystemConfig } from "$lib/server/config";
+import { json } from "@sveltejs/kit";
 
 export function GET({ url, locals }) {
     const { site } = locals as any;
@@ -19,7 +20,5 @@ export function GET({ url, locals }) {
 
     delete siteConfig.private;
 
-    let body = JSON.stringify({ systemConfig, siteConfig });
-
-    return new Response(body, { status: 200 });
+    return json({ systemConfig, siteConfig }, { status: 200 });
 }

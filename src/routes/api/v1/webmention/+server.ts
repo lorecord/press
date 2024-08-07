@@ -19,7 +19,7 @@ export async function POST({ url, locals, request }) {
     const post = await loadPost(site, { route: postRoute, lang: undefined });
 
     if (!post) {
-        return new Response('{}', { status: 404 });
+        error(404);
     }
 
     // TODO start verifying source

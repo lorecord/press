@@ -2,9 +2,10 @@ import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { loadPost } from "$lib/post/handle-posts";
 import { locale } from "$lib/translations";
 import YAML from 'yaml';
+import { error } from "@sveltejs/kit";
 
 export async function GET({ locals, params }) {
-    const { site } = locals;
+    const { site } = locals as any;
 
     let lang = params.locale || locale.get();
 
@@ -15,7 +16,7 @@ export async function GET({ locals, params }) {
     }
     const post = await loadPost(site, { route, lang: lang || undefined });
     if (!post || !post.content) {
-        return new Response('{}', { status: 404 });
+        error(404);
     }
 
     const siteConfig = getSiteConfig(site, 'en');

@@ -19,14 +19,14 @@ export async function POST({ url, locals, request }) {
         const secret = systemConfig.webmention?.callback?.secret;
         if (typeof secret === 'string') {
             if (secret !== payload.secret) {
-                return new Response('{}', { status: 401 });
+                error(401);
             }
         } else if (secret.hash?.md5
             && secret.hash?.md5?.toLowerCase() !== Crypto.createHash('md5').update(`${payload.secret}${secret.hash.salt || ''}`).digest('hex').toLowerCase()) {
-            return new Response('{}', { status: 401 });
+            error(401);
         } else if (secret.hash?.sha256
             && secret.hash?.sha256?.toLowerCase() !== Crypto.createHash('sha256').update(`${payload.secret}${secret.hash.salt || ''}`).digest('hex').toLowerCase()) {
-            return new Response('{}', { status: 401 });
+            error(401);
         }
     }
 
@@ -40,18 +40,16 @@ export async function POST({ url, locals, request }) {
     const postRaw = await loadPostRaw(site, { route: postRoute, lang: 'en' });
 
     if (!postRaw) {
-        return new Response('{}', { status: 404 });
+        return error(404);
     }
 
     if (!payload.deleted) {
         console.log('new webmention from ', payload.source, 'to', payload.target);
         saveWebmention(site, postRoute, payload);
-        return new Response('{}', { status: 202 });
+        return json({}, { status: 202 });
     } else {
         console.log('webmention from ', payload.source, 'to', payload.target, 'deleted');
         deleteWebmention(site, postRoute, payload);
-        return new Response('{}', { status: 202 });
+        return json({}, { status: 202 });
     }
-
-    return json('ok');
 }

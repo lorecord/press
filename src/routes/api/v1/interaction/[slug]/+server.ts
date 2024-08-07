@@ -3,6 +3,7 @@ import { loadWebmentions } from "$lib/interaction/handle-webmention";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
+import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
@@ -27,47 +28,47 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
     let body = JSON.stringify({ replies, mentions });
 
-    return new Response(body, { status: 200 });
+    return json(body, { status: 200 });
 }
 
 export const POST: RequestHandler = async ({ params, locals, request, getClientAddress }) => {
     const { site } = locals as any;
     const { slug } = params;
 
-    let json: any = await (async () => {
-        let json = {};
+    let payload: any = await (async () => {
+        let payload = {};
         if (request.headers.get("content-type")?.includes("multipart/form-data")) {
             // formData  to json
-            json = Object.fromEntries([...(await request.formData()).entries()]);
+            payload = Object.fromEntries([...(await request.formData()).entries()]);
 
         } else if (request.headers.get("content-type")?.includes("application/json")) {
-            json = await request.json();
+            payload = await request.json();
         }
-        return json;
+        return payload;
     })();
 
-    const { type, email, name, website, text, lang, reply } = json;
+    const { type, email, name, website, text, lang, reply } = payload;
 
     // TODO lang fallback
     const post = await loadPost(site, { route: slug, lang });
 
     let status = 400;
-    let error = null;
+    let message = '';
 
     do {
         if (!post) {
-            error = "Post not found";
+            message = "Post not found";
             status = 404;
             break;
         }
         if (!post.comment?.enable) {
-            error = "Comment is disabled";
+            message = "Comment is disabled";
             status = 403;
             break;
         }
 
         if (email && !email.toLowerCase().match(/[\w](([\w+-_.]+)?[\w])?@([\w](([\w-]+)?[\w])?\.)[a-z]{2,}/)) {
-            error = "Invalid email";
+            message = "Invalid email";
             status = 400;
             break;
         }
@@ -106,9 +107,9 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             }
             delete newInteraction.ip;
 
-            return new Response(JSON.stringify(newInteraction), { status: 201 });
+            return json(newInteraction, { status: 201 });
         }
     } while (false);
 
-    return new Response(JSON.stringify({ error }), { status });
+    error(status, { message });
 }
