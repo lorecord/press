@@ -34,7 +34,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         return;
     }
 
-    let allowReply = !!systemConfig.postal?.enabled;
+    let allowReply = !!systemConfig.postal?.enabled && comment.author?.email?.value;
     let lang = post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -49,7 +49,10 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     let subject = get(l)(lang, `email.new_reply_mail_subject`, params);
     let text = get(l)(lang, allowReply ? `email.new_reply_mail_text_allow_reply` : `email.new_reply_mail_text`, params);
 
-    if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256) {
+    if (!systemConfig.private?.email?.admin?.value
+        || (systemConfig.private?.email?.admin?.hash?.md5 && systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5)
+        || (systemConfig.private?.email?.admin?.hash?.sha256 && systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256)) {
+        console.log('admin email not found or comment author is admin, skip send new comment mail', systemConfig.private?.email?.admin?.hash, comment.author?.email?.hash);
         return;
     }
     const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
@@ -80,7 +83,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         return;
     }
 
-    let allowReply = !!systemConfig.postal?.enabled;
+    // TODO check other emails in thread
+    let allowReply = !!systemConfig.postal?.enabled && comment.author?.email?.value;
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -98,6 +102,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
     if (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5
         || replied.author?.email?.hash?.sha256 === comment.author?.email?.hash?.sha256
     ) {
+        console.log('replied author is the same as comment author, skip send replied mail');
         return;
     }
 

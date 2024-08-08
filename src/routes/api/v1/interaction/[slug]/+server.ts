@@ -91,6 +91,8 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
 
         let saved = saveNativeInteration(site, interaction as any);
 
+        console.log('new comment saved', saved?.id);
+
         if (saved) {
             let replyContext = {
                 is: false,
