@@ -34,7 +34,7 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
         return;
     }
 
-    let allowReply = !!systemConfig.postal?.enabled && comment.author?.email?.value;
+    let allowReply = !!systemConfig.postal?.enabled;
     let lang = post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
@@ -83,8 +83,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         return;
     }
 
-    // TODO check other emails in thread
-    let allowReply = !!systemConfig.postal?.enabled && comment.author?.email?.value;
+    let allowReply = !!systemConfig.postal?.enabled;
     let lang = replied.lang || post.lang || systemConfig.locale.default || 'en';
     let siteConfig = getSiteConfig(site, lang);
 
