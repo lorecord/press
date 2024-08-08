@@ -138,7 +138,7 @@ export function getPublicPosts(site: any) {
 }
 
 export function getAllPosts(site: any) {
-    return postsOfSite[site.unique] || [];
+    return postsOfSite[site?.unique] || [];
 }
 
 export function findRelatedPosts(site: any, post: any, limit = 3) {
