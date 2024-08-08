@@ -313,6 +313,7 @@
         display: flex;
         flex-direction: column;
         min-height: 100svh;
+        min-width: 300px;
     }
 
     .trunk {
