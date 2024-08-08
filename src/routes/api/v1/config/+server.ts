@@ -1,7 +1,9 @@
 import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { json } from "@sveltejs/kit";
 
-export function GET({ url, locals }) {
+import crypto from 'crypto';
+
+export function GET({ url, locals, request }) {
     const { site } = locals as any;
     let lang = url.searchParams.get('lang');
 
@@ -20,5 +22,22 @@ export function GET({ url, locals }) {
 
     delete siteConfig.private;
 
-    return json({ systemConfig, siteConfig }, { status: 200 });
+    const etag = crypto.createHash('md5').update(JSON.stringify({ systemConfig, siteConfig })).digest('hex');
+
+    const ifNoneMatch = request.headers.get('if-none-match');
+    if (etag === ifNoneMatch) {
+        return new Response(null, {
+            status: 304, headers: {
+                'Cache-Control': 'public, max-age=0',
+                'ETag': etag
+            }
+        });
+    }
+
+    return json({ systemConfig, siteConfig }, {
+        status: 200, headers: {
+            'Cache-Control': 'public, max-age=0',
+            'ETag': etag
+        }
+    });
 }
