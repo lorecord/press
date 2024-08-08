@@ -29,8 +29,7 @@ export const handleSite: Handle = async ({ event, resolve }) => {
 }
 
 export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
-    if (event.url.pathname.startsWith('/api/')
-        && !event.isSubRequest) {
+    if (event.url.pathname.startsWith('/api/') && event.request.method === 'POST' && !event.isSubRequest) {
         const ip = getRealClientAddress(event);
         if (!apiRateLimiter.consume(ip)) {
             console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
