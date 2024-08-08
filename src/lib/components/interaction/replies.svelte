@@ -356,7 +356,7 @@
                 <div class="form-row">
                     {#if mailto.enabled}
                         <a
-                            class="button button-xs-block button-pill button-text"
+                            class="button button-xs-block button-pill button-quaternary button-thin"
                             href={mailToLink}
                             style="display: flex; align-items: center; gap: .25em"
                             ><IconMailUp /> {$t("common.reply_via_email")}</a

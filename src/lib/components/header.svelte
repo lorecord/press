@@ -76,7 +76,7 @@
             </ul>
 
             <div class="sm">
-                <button id="button" class="text" on:click={handleReponsive}>
+                <button id="button" class="button-text button-thin text" on:click={handleReponsive}>
                     {#if reponsive}
                         <IconX size={18} />
                     {:else}

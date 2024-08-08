@@ -262,15 +262,33 @@ button,
         width: 100%;
     }
 
-    &.button-thin {
+    &.button-thin,
+    &.button-text {
         padding-left: 1rem;
         padding-right: 1rem;
     }
     &.button-pill {
         border-radius: calc(var(--button-height) / 2);
     }
-    &.button-text{
+    &.button-text {
         background-color: transparent;
+        &:active,
+        &:focus {
+            outline: none;
+            border: none;
+            box-shadow: none;
+        }
+    }
+
+    &.button-tertiary, &.button-3{
+        --button-bg-color: var(--text-color-quaternary);
+    }
+
+    &.button-quaternary, &.button-4{
+        --button-bg-color: transparent;
+        &:hover{
+            --button-bg-color: var(--text-color-quaternary);
+        }
     }
 
     @media screen and (max-width: 600px) {
