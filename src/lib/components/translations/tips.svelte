@@ -8,25 +8,35 @@
     export let post: any;
     let show: boolean = true;
 
-    $: suggestions = Array.from(
-        new Set<string>(
-            (localeContext.acceptLanguages || []).map((lang: string) => {
-                return (
-                    (post.langs || []).find((l: string) => l === lang) ||
-                    (post.langs || [])
-                        .map((l: string) => l.split("-")[0])
-                        .find((l: string) => l === lang.split("-")[0])
-                );
-            }),
-        ),
-    );
+    $: suggestions = (post.langs || [])
+        .map((lang: string) => ({
+            lang,
+            score: ((acceptLanguages) => {
+                let s = 0;
+                const index = acceptLanguages.indexOf(lang);
+                if (index > -1) {
+                    s += (acceptLanguages.length - index) * 2;
+                } else {
+                    const langPrefix = lang.split("-")[0];
+                    let prefixMatchedIndex = acceptLanguages.findIndex(
+                        (l: string) => l.split("-")[0] === langPrefix,
+                    );
+
+                    if (prefixMatchedIndex > -1) {
+                        s += acceptLanguages.length - prefixMatchedIndex;
+                    }
+                }
+            })(localeContext.acceptLanguages || []),
+        }))
+        .sort((a: any, b: any) => b.score - a.score)
+        .map((s: any) => s.lang);
 
     $: currentPageLocale = $locale || localeContext.uiLocale;
     $: currentContentLocale = post.lang || localeContext.contentLocale;
     $: suggectionLocale =
         localeContext.cookieLocale ||
-        suggestions.find((l: string) => $locales.includes(l)) ||
         $locales.find((l: string) => l === localeContext.preferedLanguage) ||
+        suggestions.find((l: string) => $locales.includes(l)) ||
         currentPageLocale;
     $: {
         if (dev) {
@@ -46,7 +56,7 @@
     }
 </script>
 
-{#if show && (currentPageLocale !== currentContentLocale || (suggestions.length > 0 && !suggestions.includes(currentContentLocale)) || currentContentLocale !== localeContext.preferedLanguage)}
+{#if show && (currentPageLocale !== currentContentLocale || (suggestions.length > 0 && currentContentLocale != localeContext.preferedLanguage) || (suggestions.length > 0 && !suggestions.includes(currentContentLocale)))}
     <div
         class="container"
         in:fade|global={{ duration: 150, delay: 150 }}
@@ -88,16 +98,15 @@
 <style lang="scss">
     .alert {
         position: relative;
+        padding-right: 3rem;
+
+        @media screen and (max-width: 768px) {
+            padding-right: 1rem;
+            flex-flow: column;
+        }
     }
     .button-close {
         position: absolute;
         right: 0;
-
-        &:active,
-        &:focus {
-            outline: none;
-            border: none;
-            box-shadow: none;
-        }
     }
 </style>
