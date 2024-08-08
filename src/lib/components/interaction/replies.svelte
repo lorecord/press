@@ -177,6 +177,7 @@
     let commentHelper = {
         replyTo(id: string) {
             target = id;
+            textarea.focus();
         },
         cancelReply() {
             target = "";
