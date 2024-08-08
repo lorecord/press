@@ -6,11 +6,16 @@ import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translation
 import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { getEnvConfig } from '$lib/server/config';
 import { getSession } from '$lib/server/session';
 import { match as matchLocale } from './params/locale';
 import { dev } from '$app/environment';
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Promise Rejection:', reason);
+
+});
 
 export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
@@ -90,7 +95,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
     if (response.status === 404) {
 
-        const effectedPathname = localeContext.pathLocaleParam ? event.url.pathname.replace(`^/${localeContext.pathLocaleParam}`, '') : event.url.pathname;
+        const effectedPathname = localeContext?.pathLocaleParam ? event.url.pathname.replace(`^/${localeContext?.pathLocaleParam}`, '') : event.url.pathname;
 
         let segments = effectedPathname.split('/');
         let fileName = segments.pop();
@@ -99,7 +104,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
         while (segments.length) {
             let path = segments.join('/').replace(/^\//, '');
-            let lang = localeContext.contentLocale;
+            let lang = localeContext?.contentLocale;
             let raw = await fetchRaw(`${lang}-${path}`);
 
             if (raw) {
@@ -212,4 +217,8 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 };
 
-export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleAssets, handleHtmlLangAttr);
+export const handleError: HandleServerError = async ({ error, event }) => {
+    console.error(error);
+}
+
+export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleHtmlLangAttr, handleAssets);
