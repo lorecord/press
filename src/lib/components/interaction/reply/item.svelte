@@ -5,6 +5,7 @@
         IconMessageCircle,
         IconExternalLink,
         IconAlien,
+        IconDog,
     } from "@tabler/icons-svelte";
     import CommentList from "./list.svelte";
     import Time from "$lib/ui/time/index.svelte";
@@ -17,6 +18,23 @@
     export let showReplies = true;
     export let replying = false;
     export let replyingOne = false;
+
+    $: hasEmail =
+        item.author?.email?.hash?.sha256 || item.author?.email?.hash?.md5;
+    $: finalAvatarHash =
+        item.author?.email?.hash?.sha256 ||
+        item.author?.email?.hash?.md5 ||
+        item.id;
+    $: finalName =
+        item.author?.name ||
+        (hasEmail
+            ? $t("common.comment_nobody")
+            : $t("common.comment_anonymous"));
+    $: nameSource = item.author?.name
+        ? "name"
+        : hasEmail
+          ? "nobody"
+          : "anounymous";
 </script>
 
 <article
@@ -27,33 +45,20 @@
     class:replying-one={replyingOne}
 >
     <div class="comment-avatar">
-        {#if item.author?.url && (item.author?.email?.hash?.sha256 || item.author?.email?.hash?.md5 || item.id)}
+        {#if item.author?.url && hasEmail}
             <a href={item.author?.url} rel="external nofollow">
                 <AuthorAvatar
                     avatar={item.author?.avatar}
                     {gravatarBase}
                     alt={item.author?.name}
-                    hash={item.author?.email?.hash?.sha256 ||
-                        item.author?.email?.hash?.md5 ||
-                        item.id}
+                    hash={finalAvatarHash}
                 />
             </a>
-        {:else if item.author?.email?.hash?.sha256 || item.author?.email?.hash?.md5 || item.id}
-            <AuthorAvatar
-                avatar={item.author?.avatar}
-                {gravatarBase}
-                alt={item.author?.name}
-                hash={item.author?.email?.hash?.sha256 ||
-                    item.author?.email?.hash?.md5 ||
-                    item.id}
-            />
         {:else}
             <AuthorAvatar
                 {gravatarBase}
                 alt={item.author?.name}
-                hash={item.author?.email?.hash?.sha256 ||
-                    item.author?.email?.hash?.md5 ||
-                    item.id}
+                hash={finalAvatarHash}
             />
         {/if}
     </div>
@@ -61,26 +66,50 @@
     <div class="comment-main">
         <div class="comment-header">
             <span class="comment-author">
-                {#if item.author?.name}
-                    {#if item.author?.url}
-                        <a href={item.author?.url} rel="external nofollow"
-                            >{item.author?.name}</a
-                        >
-                    {:else}
-                        {item.author?.name}
-                    {/if}
-                {:else}
-                    <span style="color: var(--text-color-quaternary)"
-                        >{item.author?.email?.hash?.sha256 ||
-                            item.author?.email?.hash?.md5
-                            ? $t("common.comment_nobody")
-                            : $t("common.comment_anonymous")}</span
+                {#if item.author?.url}
+                    <a href={item.author?.url} rel="external nofollow"
+                        ><span class={`name-${nameSource}`}>{finalName}</span
+                        ></a
                     >
+                {:else}
+                    <span class={`name-${nameSource} `}>{finalName}</span>
                 {/if}
                 {#if item.author?.user}
-                    <IconDiscountCheckFilled class="user-verified" size={18} />
+                    <span
+                        title="Profile Verified"
+                        style="display:flex; align-items: center"
+                    >
+                        <IconDiscountCheckFilled
+                            class="user-verified"
+                            size={18}
+                        />
+                    </span>
                 {:else if item.author?.verified}
-                    <IconDiscountCheckFilled class="email-verified" size={18} />
+                    <span
+                        title="Email Verified"
+                        style="display:flex; align-items: center"
+                    >
+                        <IconDiscountCheckFilled
+                            class="email-verified"
+                            size={18}
+                        />
+                    </span>
+                {:else if !hasEmail}
+                    {#if nameSource === "name"}
+                        <span
+                            title="Disguised by surfing dog"
+                            style="display:flex; align-items: center; color:var(--text-color-quaternary)"
+                        >
+                            <IconDog class="disguised" size={18} />
+                        </span>
+                    {:else}
+                        <span
+                            title="Anonymous"
+                            style="display:flex; align-items: center; color:var(--text-color-quaternary)"
+                        >
+                            <IconAlien class="anonymouse" size={18} />
+                        </span>
+                    {/if}
                 {/if}
             </span>
             <a
@@ -104,7 +133,8 @@
             <div class="extra">
                 {#if item.channel !== "native"}
                     <div class="via">
-                        <IconAlien size={12} /> via {item.channel}
+                        <IconAlien size={12} /> <span class="tip">via</span>
+                        {item.channel}
                     </div>
                 {/if}
             </div>
@@ -139,6 +169,10 @@
 {/if}
 
 <style lang="scss">
+    .name-nobody,
+    .name-anounymous {
+        color: var(--text-color-quaternary);
+    }
     article {
         position: relative;
 
@@ -209,6 +243,16 @@
                 color: var(--text-color-secondary);
             }
         }
+
+        @media screen and (max-width: 400px) {
+            flex-flow: column;
+            gap: 0.125rem;
+            align-items: flex-start;
+
+            .comment-permalink {
+                font-size: 67%;
+            }
+        }
     }
 
     .comment-footer {
@@ -223,6 +267,11 @@
                 display: flex;
                 align-items: center;
                 gap: 0.125rem;
+                color: var(--text-color-quaternary);
+
+                .tip {
+                    color: var(--text-color-quinary);
+                }
             }
         }
         .action {
