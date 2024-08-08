@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json(null);
     }
 
-    if (!payload.plain_body) {
+    if (!payload.plain_body || payload.plain_body.trim() === '') {
         return json(null);
     }
 

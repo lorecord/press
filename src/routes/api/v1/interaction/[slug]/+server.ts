@@ -49,7 +49,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
 
     const { type, email, name, website, text, lang, reply } = payload;
 
-    if(!text){
+    if (!text || text.trim() === '') {
         error(400, { message: "Text is required" });
     }
 
