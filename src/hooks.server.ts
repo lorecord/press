@@ -1,25 +1,47 @@
 import fs from 'fs';
-import { fetchRaw, fetchPostPath } from "$lib/post/handle-posts";
+import { fetchRaw } from "$lib/post/handle-posts";
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
 import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
-import { fetchPath } from '$lib/handle-path';
 import { matchSite } from '$lib/server/sites';
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import { json, type Handle, type HandleServerError } from '@sveltejs/kit';
 import { getEnvConfig } from '$lib/server/config';
 import { getSession } from '$lib/server/session';
 import { match as matchLocale } from './params/locale';
 import { dev } from '$app/environment';
+import { RateLimiter } from '$lib/server/rate-limit';
+import { getRealClientAddress } from '$lib/server/event-utils';
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Promise Rejection:', reason);
+});
 
+const apiRateLimiter = new RateLimiter({
+    limit: 20,
+    duration: 60 * 1000
 });
 
 export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
     (event.locals as any).site = site;
+    return await resolve(event);
+}
+
+export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
+    if (event.url.pathname.startsWith('/api/')
+        && !event.isSubRequest) {
+        const ip = getRealClientAddress(event);
+        if (!apiRateLimiter.consume(ip)) {
+            console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
+            return json('Rate limit exceeded', {
+                status: 429,
+                headers: {
+                    'Retry-After': '60'
+                }
+            })
+        }
+    }
     return await resolve(event);
 }
 
@@ -221,4 +243,4 @@ export const handleError: HandleServerError = async ({ error, event }) => {
     console.error(error);
 }
 
-export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleHtmlLangAttr, handleAssets);
+export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleApiRateLimit, handleHtmlLangAttr, handleAssets);
