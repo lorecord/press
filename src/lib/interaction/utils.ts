@@ -113,8 +113,8 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
             optional(comment.email, 'email', () => ({
                 value: encrypt(site, comment.email),
                 hash: {
-                    md5: comment.email_md5 || crypto.createHash('md5').update(comment.email).digest('hex'),
-                    sha256: crypto.createHash('sha256').update(comment.email).digest('hex'),
+                    md5: comment.email_md5 || crypto.createHash('md5').update(comment.email.trim().toLowerCase()).digest('hex'),
+                    sha256: crypto.createHash('sha256').update(comment.email.trim().toLowerCase()).digest('hex'),
                 }
             })),
         ),
