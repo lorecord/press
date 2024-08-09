@@ -12,13 +12,14 @@ import { match as matchLocale } from './params/locale';
 import { dev } from '$app/environment';
 import { RateLimiter } from '$lib/server/rate-limit';
 import { getRealClientAddress } from '$lib/server/event-utils';
+import { error } from '@sveltejs/kit';
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Promise Rejection:', reason);
 });
 
 const apiRateLimiter = new RateLimiter({
-    limit: 20,
+    limit: 1000,
     duration: 60 * 1000
 });
 
@@ -29,18 +30,29 @@ export const handleSite: Handle = async ({ event, resolve }) => {
 }
 
 export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
-    if (event.url.pathname.startsWith('/api/') && event.request.method === 'POST' && !event.isSubRequest) {
-        const ip = getRealClientAddress(event);
-        if (!apiRateLimiter.consume(ip)) {
-            console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
-            return json('Rate limit exceeded', {
-                status: 429,
-                headers: {
-                    'Retry-After': '60'
-                }
-            })
+    const {site} = event.locals as any;
+
+    if(!event.isSubRequest){
+        const envConfig = getEnvConfig(site);
+
+        let volume = 1;
+        if(event.url.pathname.startsWith('/api/')) {
+            volume = 10;
+
+            if(event.request.method === 'POST') {
+                volume = 100;
+            }
+        }else if(event.url.pathname.match(/^\/(sitemap\.|).*/)){
+            volume = 50;
         }
-    }
+
+        const ip = getRealClientAddress(event);
+        if (!envConfig.private.IP_LIMIT_WHITE_LIST?.split(',').includes(ip) &&  !apiRateLimiter.inflood(ip, volume)) {
+            console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
+            error(429, 'Rate limit exceeded');
+        }
+    }    
+
     return await resolve(event);
 }
 

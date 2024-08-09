@@ -21,7 +21,7 @@ export class RateLimiter {
         return new RateLimiter({ limit, duration });
     }
 
-    consume(key: string) {
+    inflood(key: string,volume: number = 1) {
         const now = Date.now();
 
         const bucket = this.get(key);
@@ -35,7 +35,7 @@ export class RateLimiter {
         bucket.last = now;
 
         if (bucket.water < this.limit) {
-            bucket.water += 1;
+            bucket.water += volume;
             return true;
         }
 
