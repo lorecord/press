@@ -1,9 +1,8 @@
 import { getSystemConfig } from "$lib/server/config";
-import { saveNativeInteration, loadNativeInteraction } from "$lib/interaction/handle-native";
+import { loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
-import { getSession } from "$lib/server/session.js";
 import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
@@ -18,7 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-    default: async ({ request, setHeaders, getClientAddress, params, locals, cookies }) => {
+    default: async ({ request, getClientAddress, params, locals }) => {
         const { site, session } = locals as any;
         const systemConfig = getSystemConfig(site);
 
@@ -33,9 +32,13 @@ export const actions: Actions = {
         }
 
         let { route, locale } = params;
+        if (!route) {
+            return;
+        }
         if (route?.endsWith('/')) {
             route = route.substring(0, route.length - 1);
         }
+
         const post = await loadPost(site, { route, lang: locale || undefined });
         if (post && post.comment?.enable) {
             const form = await request.formData();
@@ -47,7 +50,6 @@ export const actions: Actions = {
                     || form.get("email")?.toString().match(/^(http)/))) {
 
                 let comment = {
-                    slug: route.toString(),
                     lang: locale || systemConfig.locale.default,
                     author: form.get("name")?.toString() || '',
                     user: email === form.get("email")?.toString() ? username : '',
@@ -57,7 +59,7 @@ export const actions: Actions = {
                     ip: getRealClientAddress({ request, getClientAddress }),
                     reply: form.get("reply")?.toString() || '',
                 };
-                let saved = saveNativeInteration(site, comment);
+                let saved = saveNativeInteraction(site, { slug: route.toString() }, createNativeInteractionReply(site, comment));
 
                 if (saved) {
                     let replyContext = {

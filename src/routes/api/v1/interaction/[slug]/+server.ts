@@ -1,4 +1,4 @@
-import { loadNativeInteractions, loadNativeInteraction, saveNativeInteration } from "$lib/interaction/handle-native";
+import { loadNativeInteractions, loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
 import { loadWebmentions } from "$lib/interaction/handle-webmention";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
@@ -89,7 +89,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             reply
         };
 
-        let saved = saveNativeInteration(site, interaction as any);
+        let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
 
         console.log('new comment saved', saved?.id);
 

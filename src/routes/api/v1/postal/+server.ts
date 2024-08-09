@@ -2,7 +2,7 @@ import { getSystemConfig } from "$lib/server/config";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import Crypto from 'crypto';
-import { getNativeInteraction, loadNativeInteraction, saveNativeInteration } from "$lib/interaction/handle-native";
+import { createNativeInteractionReply, getNativeInteraction, loadNativeInteraction, saveNativeInteraction } from "$lib/interaction/handle-native";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { loadPost } from "$lib/post/handle-posts";
 import { dev } from "$app/environment";
@@ -103,7 +103,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         verified: true
     };
 
-    let saved = saveNativeInteration(site, interaction as any);
+    let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
 
     if (saved) {
         if (interaction.reply && replied) {

@@ -30,6 +30,10 @@ function genKey() {
     return encodedKey;
 }
 
+export function hashEmailSha256(value: string) {
+    return crypto.createHash('sha256').update(value.trim().toLowerCase()).digest('hex');
+}
+
 export function encrypt(site: any, value: string, encodedKey: string | undefined = undefined, algorithm: string | undefined = undefined): EncryptedString | undefined {
     if (!value) {
         return;
@@ -123,4 +127,14 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
         ip: encrypt(site, comment.ip),
     }, optional(comment.reply, 'target')) as NativeReply;
 
+}
+
+export function calcInteractionId(interaction: any, force: boolean = false) {
+    if (interaction.id && !force) {
+        return interaction.id + '';
+    }
+    if (!interaction.secret) {
+        interaction.secret = crypto.createHash('sha1').update(JSON.stringify(interaction)).digest('hex');
+    }
+    return crypto.createHash('sha1').update(`${interaction.secret}`).digest('hex');
 }
