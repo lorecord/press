@@ -42,7 +42,19 @@
 
     let submmiting = false;
 
+    function saveText() {
+        let key = `comment-craft:${post.slug}`;
+        if (text) {
+            localStorage.setItem(key, text);
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
+
     onMount(() => {
+        textarea.addEventListener("change", saveText);
+        textarea.addEventListener("input", saveText);
+
         textarea.addEventListener("keydown", handleKeyDown);
 
         // load {name, email, website} from locale store
@@ -53,14 +65,23 @@
         ) as HTMLInputElement;
 
         if (name) {
-            name.value = localStorage.getItem("comment-name") || "";
+            name.value =
+                name.value || localStorage.getItem("comment-name") || "";
         }
         if (email) {
-            email.value = localStorage.getItem("comment-email") || "";
+            email.value =
+                email.value || localStorage.getItem("comment-email") || "";
         }
         if (website) {
-            website.value = localStorage.getItem("comment-website") || "";
+            website.value =
+                website.value || localStorage.getItem("comment-website") || "";
         }
+
+        // load text from locale store to textarea
+        textarea.value =
+            textarea.value ||
+            localStorage.getItem(`comment-craft:${post.slug}`) ||
+            "";
     });
 
     function handleKeyDown(event: KeyboardEvent) {
