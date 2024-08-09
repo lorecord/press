@@ -6,6 +6,7 @@ import { createNativeInteractionReply, getNativeInteraction, loadNativeInteracti
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { loadPost } from "$lib/post/handle-posts";
 import { dev } from "$app/environment";
+import type { Reply } from "$lib/interaction/types";
 
 export const POST: RequestHandler = async ({ url, locals, request }) => {
     const { site } = locals as any;
@@ -50,11 +51,11 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
     const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
-    const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
+    const [, target] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
     const slug: string | undefined = (() => {
-        if (reply) {
-            const { slug } = getNativeInteraction(site, reply);
+        if (target) {
+            const { slug } = getNativeInteraction(site, target);
             return slug;
         } else {
             if (payload.subject) {
@@ -68,7 +69,16 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         error(400, 'Invalid Post');
     }
 
-    let replied = loadNativeInteraction(site, { slug, id: reply });
+    let replyContext: {
+        is?: boolean,
+        replied?: Reply
+    } = {};
+
+    let replied = loadNativeInteraction(site, { slug, id: target });
+    if (replied && replied.type === 'reply') {
+        replyContext.is = true;
+        replyContext.replied = replied;
+    }
 
     let lang = replied?.lang || systemConfig.locale?.default || 'en';
 
@@ -97,7 +107,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         lang,
         email,
         text: payload.plain_body,
-        reply,
+        target,
         id: mesasgeUnique,
         url: website,
         verified: true
@@ -106,8 +116,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
 
     if (saved) {
-        if (interaction.reply && replied) {
-            sendNewReplyMail(site, post, saved, replied);
+        if (replyContext.is && replyContext.replied) {
+            sendNewReplyMail(site, post, saved, replyContext.replied);
         } else {
             sendNewCommentMail(site, post, saved);
         }

@@ -7,6 +7,7 @@ import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import type { Reply } from "$lib/interaction/types";
 
 export const load: PageServerLoad = async ({ locals }) => {
     const { localeContext } = locals as any;
@@ -57,24 +58,24 @@ export const actions: Actions = {
                     url: form.get("website")?.toString() || '',
                     text: form.get("text")?.toString() || '',
                     ip: getRealClientAddress({ request, getClientAddress }),
-                    reply: form.get("reply")?.toString() || '',
+                    target: form.get("target")?.toString() || '',
                 };
                 let saved = saveNativeInteraction(site, { slug: route.toString() }, createNativeInteractionReply(site, comment));
 
                 if (saved) {
-                    let replyContext = {
-                        is: false,
-                        replied: {}
-                    };
+                    let replyContext: {
+                        is?: boolean,
+                        replied?: Reply
+                    } = {};
 
-                    if (comment.reply) {
-                        let replied = loadNativeInteraction(site, { slug: route.toString(), id: comment.reply });
-                        if (replied) {
+                    if (comment.target) {
+                        let replied = loadNativeInteraction(site, { slug: route.toString(), id: comment.target });
+                        if (replied && replied.type === 'reply') {
                             replyContext.is = true;
                             replyContext.replied = replied;
                         }
                     }
-                    if (replyContext.is) {
+                    if (replyContext.is && replyContext.replied) {
                         sendNewReplyMail(site, post, saved, replyContext.replied);
                     } else {
                         sendNewCommentMail(site, post, saved);

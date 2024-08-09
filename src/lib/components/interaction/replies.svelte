@@ -279,7 +279,7 @@
         >
             <input type="hidden" name="slug" value={post.slug} />
             <input type="hidden" name="lang" value={post.lang} />
-            <input type="hidden" name="reply" value={target} />
+            <input type="hidden" name="target" value={target} />
             <div class="form-row">
                 <label>
                     <input

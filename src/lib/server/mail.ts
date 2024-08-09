@@ -3,6 +3,7 @@ import { createTransport } from 'nodemailer';
 import { decrypt } from "$lib/interaction/utils";
 import { t, l } from "$lib/translations";
 import { get } from "svelte/store";
+import type { Interaction, Reply } from "$lib/interaction/types";
 
 function getTransport(site: any) {
 
@@ -26,7 +27,7 @@ function getTransport(site: any) {
     return transport;
 }
 
-export const sendNewCommentMail = async (site: any, post: any, comment: any) => {
+export const sendNewCommentMail = async (site: any, post: any, comment: Reply) => {
     let systemConfig = getSystemConfig(site);
 
     if (!systemConfig.email) {
@@ -69,14 +70,14 @@ export const sendNewCommentMail = async (site: any, post: any, comment: any) => 
     });
 }
 
-export const sendNewReplyMail = async (site: any, post: any, comment: any, replied: any) => {
+export const sendNewReplyMail = async (site: any, post: any, comment: Reply, replied: Reply) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
         console.log('email not configured, skip send replied mail');
         return;
     }
 
-    const repliedEmail = decrypt(site, replied.author?.email?.value);
+    const repliedEmail = replied.author?.email?.value && decrypt(site, replied.author?.email?.value);
 
     if (!repliedEmail) {
         console.log('replied email not found, skip send replied mail');
@@ -91,7 +92,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: any, repli
         site_title: siteConfig.title,
         post_title: post.title,
         replied_author: '> ' + (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
-        replied_content: '> ' + replied.content.replace(/\n/g, '\n> '),
+        replied_content: '> ' + (replied.content && replied.content.replace(/\n/g, '\n> ')),
         comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
         comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
         comment_content: comment.content,

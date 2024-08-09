@@ -17,17 +17,18 @@ export interface EncryptedString {
     version?: string;
 }
 
-export type HashString = {
-    salt?: string;
-    i?: number;
-} & ({
+export type HashValue = ({
     md5: string;
 } | {
     sha256: string;
 } | {
     sha1: string;
-});
+})
 
+export type HashString = {
+    salt?: string;
+    i?: number;
+} & HashValue;
 
 export type Author = {
     name?: string;
@@ -55,7 +56,7 @@ export interface Reply extends Base {
     approved?: boolean; // default value?
 }
 
-export interface WebmentionBase extends Base{
+export interface WebmentionBase extends Base {
     channel: 'webmention';
     webmention: WebmentionRaw;
 }

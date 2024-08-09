@@ -63,7 +63,7 @@ export function loadNativeInteraction(site: any, { slug, id }: { slug: string, i
     return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
 }
 
-export function loadNativeInteractions(site: any, { slug }: { slug: string }) {
+export function loadNativeInteractions(site: any, { slug }: { slug: string }): NativeInteraction[] {
 
     let filepath = getNativeInteractionsFilePath(site, { slug });
 
@@ -190,7 +190,9 @@ export function markdown(content: string, id: string, domain: string) {
     // result = result.replace(/^<html><head><\/head><body>/, '');
     return result;
 }
-export function saveNativeInteraction(site: any, { slug }: { slug: string }, interaction: NativeInteraction) {
+
+//
+export function saveNativeInteraction<T extends NativeInteraction>(site: any, { slug }: { slug: string }, interaction: T): T | undefined {
     let filepath = getNativeInteractionsFilePath(site, { slug });
 
     if (!filepath) {

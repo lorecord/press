@@ -5,6 +5,7 @@ import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import type { Interaction, Reply } from "$lib/interaction/types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -47,7 +48,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         return payload;
     })();
 
-    const { type, email, name, website, text, lang, reply } = payload;
+    const { type, email, name, website, text, lang, target } = payload;
 
     if (!text || text.trim() === '') {
         error(400, { message: "Text is required" });
@@ -86,7 +87,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             url: website,
             text,
             ip: getRealClientAddress({ request, getClientAddress }),
-            reply
+            target
         };
 
         let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
@@ -94,34 +95,32 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         console.log('new comment saved', saved?.id);
 
         if (saved) {
-            let replyContext = {
-                is: false,
-                replied: {}
-            };
+            let replyContext: {
+                is?: boolean,
+                replied?: Reply
+            } = {};
 
-            if (interaction.reply) {
-                let replied = loadNativeInteraction(site, { slug, id: interaction.reply });
+            if (interaction.target) {
+                let replied = loadNativeInteraction(site, { slug, id: interaction.target });
 
-                if (replied) {
+                if (replied && replied.type === 'reply') {
                     replyContext.is = true;
                     replyContext.replied = replied;
                 }
             }
 
             if (replyContext.is) {
-                sendNewReplyMail(site, post, saved, replyContext.replied);
+                replyContext.replied && sendNewReplyMail(site, post, saved, replyContext.replied);
             } else {
-                sendNewCommentMail(site, post, saved);
+                replyContext.replied && sendNewCommentMail(site, post, saved);
             }
 
-            let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
-
-            newInteraction = JSON.parse(JSON.stringify(newInteraction));
+            let newInteraction = JSON.parse(JSON.stringify(saved)) as Interaction;
             if (newInteraction.author?.email?.value) {
                 const email = newInteraction.author.email;
-                delete newInteraction.value;
+                delete newInteraction.author?.email?.value;
             }
-            delete newInteraction.ip;
+            delete (newInteraction as any).ip;
 
             return json(newInteraction, { status: 201 });
         }
