@@ -33,15 +33,15 @@ export function loadWebmentions(site: any, postPath: string): WebmentionInteract
 export function toWebmention(payload: any): WebmentionInteraction {
     const wmProperty = payload.post && payload.post['wm-property'];
 
-    let type = {
+    let type = ({
         'in-reply-to': 'reply',
         'like-of': 'like',
         'repost-of': 'repost',
         'bookmark-of': 'bookmark',
         'mention-of': 'mention'
-    }[wmProperty] || 'reply';
+    }[wmProperty as string] || 'reply') as WebmentionInteraction['type'];
 
-    const WebmentionInteraction: WebmentionInteraction = {
+    const webmentionInteraction: WebmentionInteraction = {
         id: Crypto.createHash('sha256').update(JSON.stringify({
             source: payload.source,
             target: payload.target
@@ -60,7 +60,7 @@ export function toWebmention(payload: any): WebmentionInteraction {
             verified: true
         }
     }
-    return WebmentionInteraction;
+    return webmentionInteraction;
 }
 
 export function saveWebmention(site: any, postPath: string, mention: WebmentionInteraction) {
