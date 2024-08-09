@@ -51,6 +51,8 @@ export interface Reply extends Base {
     secret?: {
         hash: HashString
     };
+    spam?: boolean;
+    approved?: boolean; // default value?
 }
 
 export interface WebmentionBase extends Base{
@@ -94,6 +96,7 @@ export interface Bookmark extends Base {
 
 export interface Mention extends Base {
     type: 'mention';
+    title?: string;
 }
 
 export interface Reaction extends Base {

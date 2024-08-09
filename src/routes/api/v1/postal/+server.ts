@@ -48,12 +48,11 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // https://docs.postalserver.io/developer/http-payloads
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
-
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
     const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
     const [, reply] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
-    const slug = (() => {
+    const slug: string | undefined = (() => {
         if (reply) {
             const { slug } = getNativeInteraction(site, reply);
             return slug;
@@ -88,6 +87,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // TODO text or html
 
     // TODO check attachments
+
+    // TODO check spam_status
 
     const interaction = {
         channel: 'email',
