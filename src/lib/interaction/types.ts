@@ -53,11 +53,10 @@ export interface Reply extends Base {
     };
 }
 
-export type WebmentionReply = {
+export interface WebmentionBase extends Base{
     channel: 'webmention';
     webmention: WebmentionRaw;
-    url: string;
-} & Reply;
+}
 
 export type NativeBase = {
     channel: 'native';
@@ -74,7 +73,9 @@ export type NativeMention = NativeBase & Mention;
 
 export type NativeInteraction = NativeReply | NativeMention;
 
-export type WebmentionInteraction = WebmentionReply;
+export type WebmentionReply = WebmentionBase & Reply;
+export type WebmentionMention = WebmentionBase & Mention;
+export type WebmentionInteraction = WebmentionReply | WebmentionMention;
 
 export type EmailReply = EmailBase & Reply;
 export type EmailInteraction = EmailReply;
