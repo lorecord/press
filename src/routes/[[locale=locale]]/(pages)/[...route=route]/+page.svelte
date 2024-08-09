@@ -535,7 +535,7 @@
                             {post}
                             postUrl={siteConfig.url + post.url}
                             on:reply={() => replyCounter++}
-                            webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.default}/webmention`}
+                            webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.primary}/webmention`}
                         />
                     {/await}
                 </div>

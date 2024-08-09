@@ -56,6 +56,7 @@
             </a>
         {:else}
             <AuthorAvatar
+                avatar={item.author?.avatar}
                 {gravatarBase}
                 alt={item.author?.name}
                 hash={finalAvatarHash}
@@ -116,18 +117,26 @@
                 href={`#comment-${item.id?.toString().substr(-8)}`}
                 class="comment-permalink"
             >
-                <Time
-                    date={item.published}
-                    class="dt-published"
-                    locale={$locale}
-                    style={{
-                        color: "var(--text-color-quaternary)",
-                    }}
-                />
+                {#if item.published}
+                    <Time
+                        date={item.published}
+                        class="dt-published"
+                        locale={$locale}
+                        style={{
+                            color: "var(--text-color-quaternary)",
+                        }}
+                    />
+                {:else}
+                    #{item.id?.toString().substr(-8)}
+                {/if}
             </a>
         </div>
         <div class="comment-body">
-            {@html item.contentHTML}
+            {#if item.contentHTML}
+                {@html item.contentHTML}
+            {:else if item.content}
+                <p>{item.content}</p>
+            {/if}
         </div>
         <div class="comment-footer">
             <div class="extra">
