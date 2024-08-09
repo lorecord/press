@@ -31,7 +31,7 @@ export function loadWebmentions(site: any, postPath: string): WebmentionInteract
 }
 
 export function toWebmention(payload: any): WebmentionInteraction {
-    const wmProperty = payload.post?['wm-property'];
+    const wmProperty = payload.post && payload.post['wm-property'];
 
     let type = {
         'in-reply-to': 'reply',
