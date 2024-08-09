@@ -37,6 +37,7 @@
             <span class="issn">
                 <abbr title="International Standard Serial Number">ISSN</abbr>
                 <a
+                    rel="noopener nofollow"
                     href={`https://portal.issn.org/resource/ISSN/${siteConfig.issn}`}
                     ><span itemprop="issn">{siteConfig.issn}</span></a
                 >
@@ -47,7 +48,8 @@
                 <a
                     href="https://beian.miit.gov.cn/"
                     data-spacer="ignore"
-                    rel="external nofollow noopener noreferrer">{siteConfig.beian}</a
+                    rel="external nofollow noopener noreferrer"
+                    >{siteConfig.beian}</a
                 >
             </span>
         {/if}
@@ -71,9 +73,7 @@
             <IconLanguage size={20} />
             <select value={$locale} on:change={handleLocaleSelect}>
                 {#each $locales as value}
-                    <option
-                        {value}
-                        on:click={handleLocaleSelect}
+                    <option {value} on:click={handleLocaleSelect}
                         >{$t(`lang.${value}`)}</option
                     >
                 {/each}

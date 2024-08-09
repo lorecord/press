@@ -351,7 +351,7 @@
                             href="https://commonmark.org/help/"
                             target="_blank"
                             title="Markdown"
-                            rel="help noopener sexternal"
+                            rel="help noopener external"
                             class="button button-text"
                             style="color: unset; padding:0; height: auto"
                             ><IconMarkdown size={20} /></a
@@ -386,7 +386,7 @@
                 <div class="form-row">
                     {#if mailto.enabled}
                         <a
-                            rel="noindex noopener nofollow"
+                            rel="noindex noopener"
                             class="button button-xs-block button-pill button-quaternary button-thin"
                             href={mailToLink}
                             style="display: flex; align-items: center; gap: .25em"
