@@ -90,7 +90,7 @@
     <link
         rel="alternate"
         type="application/rss+xml"
-        title="RSS Feed for {siteConfig.title}"
+        title="{siteConfig.title}"
         href="/feed/"
     />
 
@@ -103,7 +103,7 @@
         <link
             rel="alternate"
             type="application/rss+xml"
-            title="RSS Feed for {siteConfig.title} ({$t(`lang.${value}`)})"
+            title="{siteConfig.title} ({$t(`lang.${value}`)})"
             href={`/${value}/feed/`}
         />
     {/each}
