@@ -1,9 +1,9 @@
 import { error, json } from '@sveltejs/kit';
 import { getSystemConfig } from '$lib/server/config.js';
-import { loadPost } from '$lib/post/handle-posts';
-import { saveWebmention, toWebmention } from '$lib/interaction/handle-webmention.js';
+import { loadPostRaw } from '$lib/post/handle-posts';
+import { saveWebmention, toWebmention } from '$lib/interaction/handle-webmention';
 
-export async function POST({ url, locals, request }) {
+export async function POST({ url, locals, request, fetch }) {
     const { site } = locals as { site: any };
     const systemConfig = getSystemConfig(site);
 
@@ -11,22 +11,34 @@ export async function POST({ url, locals, request }) {
         error(404);
     }
 
-    const source = url.searchParams.get('source') as string;
-    const target = url.searchParams.get('target') as string;
+    const payloadSource = url.searchParams.get('source') as string;
+    const payloadTarget = url.searchParams.get('target') as string;
 
-    const postRoute = target.replace(`${site.url}/`, '');
+    const target = new URL(payloadTarget);
+    let [, postRoute] = target.pathname.match(/\/(.*)\//) || [];
 
-    const post = await loadPost(site, { route: postRoute, lang: undefined });
+    let postRaw = await loadPostRaw(site, { route: postRoute });
+    if (!postRaw?.path) {
+        let [lang, slug] = postRoute.split('/', 2);
+        if (slug) {
+            postRaw = await loadPostRaw(site, { route: slug, lang });
+        }
+        postRoute = slug;
+    }
 
-    if (!post) {
+
+    if (!postRaw?.slug) {
         error(404);
     }
 
-    // TODO start verifying source
+    const formDataForFetchBody = new FormData();
+    formDataForFetchBody.append('source', payloadSource);
+    formDataForFetchBody.append('target', payloadTarget);
 
-    saveWebmention(site, postRoute, toWebmention({ source, target }));
-
-    console.log('wm created');
-
-    return json('ok');
+    return await fetch({
+        method: 'POST',
+        url: `https://webmention.io/${systemConfig.domains?.primary}/webmention`,
+        // form data
+        body: formDataForFetchBody
+    });
 }

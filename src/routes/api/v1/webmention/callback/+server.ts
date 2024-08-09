@@ -39,7 +39,7 @@ export async function POST({ url, locals, request }) {
     let [, postRoute] = target.pathname.match(/\/(.*)\//) || [];
 
     let postRaw = await loadPostRaw(site, { route: postRoute });
-    if (!postRaw.path) {
+    if (!postRaw?.path) {
         let [lang, slug] = postRoute.split('/', 2);
         if (slug) {
             postRaw = await loadPostRaw(site, { route: slug, lang });
@@ -49,7 +49,7 @@ export async function POST({ url, locals, request }) {
 
     console.debug('[webmention] postRaw', postRaw);
 
-    if (!postRaw.path) {
+    if (!postRaw?.path) {
         return error(404);
     }
 
