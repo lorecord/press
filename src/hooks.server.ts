@@ -47,7 +47,7 @@ export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
         }
 
         const ip = getRealClientAddress(event);
-        if (!envConfig.private.IP_LIMIT_WHITE_LIST?.split(',').includes(ip) &&  !apiRateLimiter.inflood(ip, volume)) {
+        if (!envConfig.private.IP_LIMIT_WHITE_LIST?.includes(ip) &&  !apiRateLimiter.inflood(ip, volume)) {
             console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
             error(429, 'Rate limit exceeded');
         }
