@@ -346,12 +346,19 @@
                     />
                     <div class="label">
                         {$t("common.comment_text")}
+                        <a
+                            href="https://commonmark.org/help/"
+                            target="_blank"
+                            title="Markdown"
+                            rel="noopener noreferrer external"
+                            class="button button-text"
+                            style="color: unset; padding:0; height: auto"
+                            ><IconMarkdown size={20} /></a
+                        >
                     </div>
                     <div
                         style="position: absolute; top: 0; right: 0; padding: .25rem .5rem; color: var(--text-color-secondary)"
-                    >
-                        <IconMarkdown />
-                    </div>
+                    ></div>
                 </label>
             </div>
             <div class="form-row">
