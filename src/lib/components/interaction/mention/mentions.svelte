@@ -19,6 +19,7 @@
                     date={mention.published}
                     class="dt-published"
                     locale={$locale}
+                    options={{ dateStyle: "short" }}
                 />
             {/if}
             <h4>
