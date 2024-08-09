@@ -60,9 +60,9 @@
                                         ? ""
                                         : "color: var(--text-color-tertiary)"}
                                     href={post.review.item.url}
-                                    rel={post.review.rating > 6
-                                        ? ""
-                                        : "nofollow"}>{post.review.item.name}</a
+                                    rel={'external noopener' +`${post.review.rating > 6
+                                        ? " "
+                                        : " nofollow"}`}>{post.review.item.name}</a
                                 >
                             {:else}
                                 <span>{post.review.item.name}</span>
@@ -120,6 +120,7 @@
                             <div><strong>{post.title}</strong></div>
                             <div>
                                 <a
+                                    rel="bookmark"
                                     class="link"
                                     href={post.url}
                                     data-print-content-none
@@ -167,6 +168,7 @@
                                         {#if systemConfig.lnurlp?.page && lightningSupported}
                                             <a
                                                 style="display: inline-flex;color: gold"
+                                                rel="noindex nofollow noopener external"
                                                 href={systemConfig.lnurlp.page}
                                             >
                                                 <IconBolt size={18} />
@@ -213,7 +215,7 @@
                                 />
                                 <details>
                                     <summary>CFF</summary>
-                                    <a href="./CITATION.cff">CITATION.cff</a>
+                                    <a rel="noindex" href="./CITATION.cff">CITATION.cff</a>
                                 </details>
                             </div>
                         </details>
@@ -229,6 +231,7 @@
                                         {#each post.taxonomy.series as series}
                                             <li>
                                                 <a
+                                                    rel="tag"
                                                     class="p-series series"
                                                     href="/series/{series
                                                         .toLowerCase()
@@ -246,6 +249,7 @@
                                         {#each post.taxonomy.category as category}
                                             <li>
                                                 <a
+                                                    rel="tag"
                                                     class="p-category category"
                                                     href="/category/{category
                                                         .toLowerCase()
@@ -263,6 +267,7 @@
                                         {#each post.taxonomy.tag as tag}
                                             <li>
                                                 <a
+                                                    rel="tag"
                                                     class="p-tag tag"
                                                     href="/tag/{tag
                                                         .toLowerCase()
@@ -283,7 +288,7 @@
                                 <ul>
                                     {#each post.langs as lang}
                                         <li>
-                                            <a href="/{lang}{post.url}"
+                                            <a rel="alternate" href="/{lang}{post.url}"
                                                 >{$t(`lang.${lang}`)}</a
                                             >
                                         </li>

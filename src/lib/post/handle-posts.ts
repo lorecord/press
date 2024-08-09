@@ -477,7 +477,7 @@ export function convertToPostForFeed(site: any, raw: Raw) {
     if (raw.attributes.langs) {
         feedContent = `${feedContent}
         <p>${raw.attributes.langs.map((lang: string) =>
-            `<a href="${siteConfig.url}/${lang}${raw.attributes.url}">${t.get(`lang.${lang}`)}</a>`)
+            `<a rel="alternate" href="${siteConfig.url}/${lang}${raw.attributes.url}">${t.get(`lang.${lang}`)}</a>`)
             }</p>
         `;
     }

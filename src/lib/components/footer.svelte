@@ -47,7 +47,7 @@
                 <a
                     href="https://beian.miit.gov.cn/"
                     data-spacer="ignore"
-                    rel="external nofollow">{siteConfig.beian}</a
+                    rel="external nofollow noopener noreferrer">{siteConfig.beian}</a
                 >
             </span>
         {/if}

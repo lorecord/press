@@ -75,6 +75,7 @@
                         suggectionLocale,
                         "common.i18n_alert_message_b",
                     )}{#each suggestions as lang, index}{#if lang !== post.lang}<a
+                                rel="alternate"
                                 href="/{lang}{post.url}"
                                 >{$l(suggectionLocale, `lang.${lang}`)}</a
                             >{#if suggestions.length - 2 > index}{$l(

@@ -248,7 +248,7 @@
         <details>
             <summary><h4>X.com</h4></summary>
             <a
-                rel="syndication external"
+                rel="syndication noopener nofollow external"
                 class="u-syndication"
                 href={post["x.com"].status}
                 style="display: flex; align-items: center;
@@ -351,7 +351,7 @@
                             href="https://commonmark.org/help/"
                             target="_blank"
                             title="Markdown"
-                            rel="noopener noreferrer external"
+                            rel="help noopener sexternal"
                             class="button button-text"
                             style="color: unset; padding:0; height: auto"
                             ><IconMarkdown size={20} /></a
@@ -386,6 +386,7 @@
                 <div class="form-row">
                     {#if mailto.enabled}
                         <a
+                            rel="noindex noopener nofollow"
                             class="button button-xs-block button-pill button-quaternary button-thin"
                             href={mailToLink}
                             style="display: flex; align-items: center; gap: .25em"

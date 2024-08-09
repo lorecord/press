@@ -46,7 +46,7 @@
 >
     <div class="comment-avatar">
         {#if item.author?.url && hasEmail}
-            <a href={item.author?.url} rel="external nofollow">
+            <a href={item.author?.url} rel="external noopener author nofollow">
                 <AuthorAvatar
                     avatar={item.author?.avatar}
                     {gravatarBase}
@@ -68,7 +68,7 @@
         <div class="comment-header">
             <span class="comment-author">
                 {#if item.author?.url}
-                    <a href={item.author?.url} rel="external nofollow"
+                    <a href={item.author?.url} rel="external noopener author nofollow"
                         ><span class={`name-${nameSource}`}>{finalName}</span
                         ></a
                     >
@@ -114,6 +114,7 @@
                 {/if}
             </span>
             <a
+                rel="noindex"
                 href={`#comment-${item.id?.toString().substr(-8)}`}
                 class="comment-permalink"
             >
@@ -149,6 +150,7 @@
             </div>
             <div class="action">
                 <a
+                    rel="noindex"
                     class="button button-text"
                     style="padding:0; height: auto"
                     href={`#reply-${item.id?.toString().substr(-8)}`}
@@ -160,7 +162,7 @@
                     {/if}
                 </a>
                 {#if item.url}
-                    <a href={item.url} rel="external nofollow">
+                    <a href={item.url} rel="external noopener nofollow">
                         <IconExternalLink size={18} />
                     </a>
                 {/if}

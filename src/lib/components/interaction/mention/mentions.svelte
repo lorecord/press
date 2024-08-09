@@ -25,7 +25,7 @@
             <h4>
                 {#if mention.author?.name}
                     {#if mention.author?.url}
-                        <a href={mention.author?.url} rel="nofollow"
+                        <a href={mention.author?.url} rel="noopener nofollow"
                             >{mention.author?.name}</a
                         >
                     {:else}
@@ -33,7 +33,7 @@
                     {/if}
                 {/if}
                 {#if mention.url}
-                    <a href={mention.url} rel="nofollow"
+                    <a href={mention.url} rel="noopener nofollow"
                         >{mention.title || mention.url}</a
                     >
                 {/if}

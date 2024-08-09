@@ -15,7 +15,7 @@
             .sort((a, b) => a.w - b.w)
             .map(({ value }) => value) as link}
             <li>
-                <a href={link.url}>{link.name}</a>
+                <a rel="noopener external" href={link.url}>{link.name}</a>
             </li>
         {:else}
             <p>None.</p>

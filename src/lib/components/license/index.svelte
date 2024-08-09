@@ -23,7 +23,7 @@
 </script>
 
 {#if url}
-    <a href={url} rel="external" title={name}>{licenseId}</a>
+    <a href={url} rel="external license" title={name}>{licenseId}</a>
 {:else}
     <abbr title={name}>{licenseId}</abbr>
 {/if}
