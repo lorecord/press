@@ -5,7 +5,7 @@ import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { Interaction, Reply } from "$lib/interaction/types";
+import type { Interaction, NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -17,14 +17,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
     const webmentions = loadWebmentions(site, slug);
 
-    const replies = [...nativeInteractions.filter((comment: any) => comment.type === "reply"), ...webmentions.filter((mention: any) => mention.type === "reply")];
+    const replies = [...nativeInteractions.filter((comment: any) => comment.type === "reply") as NativeReply[], ...webmentions.filter((mention: any) => mention.type === "reply") as WebmentionReply[]];
 
-    replies.forEach((reply: any) => {
+    replies.forEach((reply: Reply) => {
         if (reply.author?.email?.value) {
             const email = reply.author.email;
             delete email.value;
         }
-        delete reply.ip;
+        delete (reply as NativeReply).ip;
     });
 
     const mentions = [...nativeInteractions.filter((comment: any) => comment.type === "mention"), ...webmentions.filter((mention: any) => mention.type === "mention")]
@@ -115,13 +115,17 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
                 replyContext.replied && sendNewCommentMail(site, post, saved);
             }
 
-            let newInteraction = JSON.parse(JSON.stringify(saved)) as Interaction;
-            if (newInteraction.author?.email?.value) {
-                const email = newInteraction.author.email;
-                delete newInteraction.author?.email?.value;
+            let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
+            if (newInteraction) {
+                newInteraction = JSON.parse(JSON.stringify(newInteraction)) as NativeInteraction;
+                if (newInteraction) {
+                    if (newInteraction.author?.email?.value) {
+                        const email = newInteraction.author.email;
+                        delete email.value;
+                    }
+                    delete (newInteraction as any).ip;
+                }
             }
-            delete (newInteraction as any).ip;
-
             return json(newInteraction, { status: 201 });
         }
     } while (false);
