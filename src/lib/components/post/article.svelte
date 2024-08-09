@@ -5,7 +5,8 @@
     import Cite from "$lib/components/cite/index.svelte";
     import Time from "$lib/ui/time/index.svelte";
 
-    import { IconLanguage } from "@tabler/icons-svelte";
+    import { IconBolt, IconLanguage } from "@tabler/icons-svelte";
+    import { onMount } from "svelte";
 
     export let post: any;
     export let systemConfig: any;
@@ -15,6 +16,14 @@
     export let footer = true;
 
     export let type: "paper" | "none" = "paper";
+
+    export let lightningSupported = false;
+
+    onMount(() => {
+        if (typeof (window as any)?.webln !== "undefined") {
+            lightningSupported = true;
+        }
+    });
 </script>
 
 <article class="typography type-{type}">
@@ -124,21 +133,17 @@
                                     <div class="label">
                                         {$t("common.author")}
                                     </div>
-                                    <div class="value">
+                                    <div
+                                        class="value"
+                                        style="display: flex;
+                                    align-items: center;
+                                    gap: .25rem;"
+                                    >
                                         {#each post.authors as author}
-                                            <p
+                                            <span
                                                 style="margin:0"
                                                 class="h-card p-author"
                                             >
-                                                <a
-                                                    class="p-name u-url"
-                                                    rel="author"
-                                                    href={author.url ||
-                                                        siteConfig.url}
-                                                    >{author.name ||
-                                                        author.account ||
-                                                        author}</a
-                                                >
                                                 <img
                                                     style="display:none"
                                                     alt={author.name ||
@@ -148,8 +153,25 @@
                                                     src={siteConfig.url +
                                                         "/favicon.png"}
                                                 />
-                                            </p>
+                                                <a
+                                                    class="p-name u-url"
+                                                    rel="author"
+                                                    href={author.url ||
+                                                        siteConfig.url}
+                                                    >{author.name ||
+                                                        author.account ||
+                                                        author}</a
+                                                >
+                                            </span>
                                         {/each}
+                                        {#if systemConfig.lnurlp?.page && lightningSupported}
+                                            <a
+                                                style="display: inline-flex;color: gold"
+                                                href={systemConfig.lnurlp.page}
+                                            >
+                                                <IconBolt size={18} />
+                                            </a>
+                                        {/if}
                                     </div>
                                 </div>
                             {/if}
@@ -197,6 +219,7 @@
                         </details>
                     </div>
                 {/if}
+
                 {#if post.taxonomy || post.langs?.length > 0}
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
