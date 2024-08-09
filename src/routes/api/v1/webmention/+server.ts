@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { getSystemConfig } from '$lib/server/config.js';
 import { loadPost } from '$lib/post/handle-posts';
-import { saveWebmention } from '$lib/interaction/handle-webmention.js';
+import { saveWebmention, toWebmention } from '$lib/interaction/handle-webmention.js';
 
 export async function POST({ url, locals, request }) {
     const { site } = locals as { site: any };
@@ -24,7 +24,7 @@ export async function POST({ url, locals, request }) {
 
     // TODO start verifying source
 
-    saveWebmention(site, postRoute, { source, target });
+    saveWebmention(site, postRoute, toWebmention({ source, target }));
 
     console.log('wm created');
 

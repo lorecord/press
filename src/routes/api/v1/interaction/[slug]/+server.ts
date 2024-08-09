@@ -116,6 +116,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
 
             let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
 
+            newInteraction = JSON.parse(JSON.stringify(newInteraction));
             if (newInteraction.author?.email?.value) {
                 const email = newInteraction.author.email;
                 delete newInteraction.value;

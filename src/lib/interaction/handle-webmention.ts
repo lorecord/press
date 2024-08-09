@@ -2,7 +2,7 @@ import fs from 'fs';
 import YAML from 'yaml';
 import path from 'path';
 import { loadPostRaw } from '$lib/post/handle-posts';
-import type { WebmentionReply } from './types';
+import type { WebmentionInteraction, WebmentionRaw, WebmentionReply } from './types';
 import Crypto from 'crypto';
 import { getSiteConfig } from '$lib/server/config';
 import { getInteractionsFoler } from './utils';
@@ -15,7 +15,7 @@ export function getWebmentionPathOfSource(site: any, postPath: string) {
     }
 }
 
-export function loadWebmentions(site: any, postPath: string) {
+export function loadWebmentions(site: any, postPath: string): WebmentionInteraction[] {
     const filepath = getWebmentionPathOfSource(site, postPath);
 
     if (!filepath) {
@@ -27,39 +27,40 @@ export function loadWebmentions(site: any, postPath: string) {
     }
     let file = fs.readFileSync(filepath, 'utf8');
     let parsed = YAML.parse(file);
-
-    return parsed.map((mention: any) => {
-        const webmentionReply: WebmentionReply = {
-            id: Crypto.createHash('sha256').update(JSON.stringify({
-                source: mention.source,
-                target: mention.target
-            })).digest('hex'),
-            published: mention.post?.published,
-            channel: 'webmention',
-            webmention: {
-                source: mention.source
-            },
-            url: mention.source,
-            type: 'reply',
-            content: mention.post.name,
-            author: {
-                name: mention.post.author.name,
-                url: mention.post.author.url,
-                avatar: mention.post.author.photo
-            }
-        }
-        return webmentionReply;
-    });
+    return parsed || [];
 }
 
-export function saveWebmention(site: any, postPath: string, mention: any) {
+export function toWebmention(payload: any): WebmentionInteraction {
+    const WebmentionInteraction: WebmentionInteraction = {
+        id: Crypto.createHash('sha256').update(JSON.stringify({
+            source: payload.source,
+            target: payload.target
+        })).digest('hex'),
+        published: payload.post?.published,
+        channel: 'webmention',
+        webmention: payload,
+        url: payload.source,
+        type: 'reply',
+        content: payload.post?.name,
+        author: {
+            name: payload.post?.author?.name,
+            url: payload.post?.author?.url,
+            avatar: payload.post?.author?.photo,
+            verified: true
+        }
+    }
+    return WebmentionInteraction;
+}
+
+export function saveWebmention(site: any, postPath: string, mention: WebmentionInteraction) {
     const filepath = getWebmentionPathOfSource(site, postPath);
 
+    console.debug('[webmention] saving Webmention', postPath, filepath, mention);
     if (!filepath) {
         return;
     }
 
-    let mentions = [];
+    let mentions: WebmentionInteraction[] = [];
 
     if (!fs.existsSync(filepath)) {
         fs.mkdirSync(path.dirname(filepath), { recursive: true });
@@ -67,13 +68,14 @@ export function saveWebmention(site: any, postPath: string, mention: any) {
         mentions = loadWebmentions(site, postPath);
     }
 
-    mentions = mentions.filter((m: any) => m.source !== mention.source);
+    mentions = mentions.filter(m => m.webmention.source !== mention.webmention?.source);
     mentions.push(mention);
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');
+    console.log(`[webmention] saved ${filepath}: ${mention.webmention.source} to ${postPath}`);
 }
 
-export function deleteWebmention(site: any, postPath: string, mention: any) {
+export function deleteWebmention(site: any, postPath: string, source: string) {
     const filepath = getWebmentionPathOfSource(site, postPath);
 
     if (!filepath) {
@@ -81,7 +83,7 @@ export function deleteWebmention(site: any, postPath: string, mention: any) {
     }
 
     let mentions = loadWebmentions(site, postPath);
-    mentions = mentions.filter((m: any) => m.source !== mention.source);
+    mentions = mentions.filter((m: any) => m.webmention?.source !== source);
 
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');

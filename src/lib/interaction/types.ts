@@ -74,6 +74,8 @@ export type NativeMention = NativeBase & Mention;
 
 export type NativeInteraction = NativeReply | NativeMention;
 
+export type WebmentionInteraction = WebmentionReply;
+
 export type EmailReply = EmailBase & Reply;
 export type EmailInteraction = EmailReply;
 
@@ -114,6 +116,7 @@ export interface Purchase extends Base {
 }
 
 export interface Subscription extends Base {
+    type: 'subscription';
 }
 
 export interface Donation extends Base {

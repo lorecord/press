@@ -2,20 +2,21 @@ import { error, json } from '@sveltejs/kit';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import Crypto from 'crypto';
-import { deleteWebmention, saveWebmention } from '$lib/interaction/handle-webmention.js';
+import { deleteWebmention, saveWebmention, toWebmention } from '$lib/interaction/handle-webmention.js';
+import { dev } from '$app/environment';
 
 export async function POST({ url, locals, request }) {
     const { site } = locals as { site: any };
     const siteConfig = getSiteConfig(site, 'en');
     const systemConfig = getSystemConfig(site);
 
-    if (systemConfig.webmention?.enabled !== true) {
+    if (!dev || systemConfig.webmention?.enabled !== true) {
         error(404);
     }
 
     const payload = await request.json();
 
-    {
+    if (!dev) {
         const secret = systemConfig.webmention?.callback?.secret;
         if (typeof secret === 'string') {
             if (secret !== payload.secret) {
@@ -34,22 +35,31 @@ export async function POST({ url, locals, request }) {
 
     console.log('webmention callback payload', payload);
 
-    const postRoute = payload.target.replace(`${siteConfig.url}/`, '').replace(/\/$/, '');
+    const target = new URL(payload.target);
+    let [, postRoute] = target.pathname.match(/\/(.*)\//) || [];
 
-    // TODO lang ?
-    const postRaw = await loadPostRaw(site, { route: postRoute, lang: 'en' });
+    let postRaw = await loadPostRaw(site, { route: postRoute });
+    if (!postRaw.path) {
+        let [lang, slug] = postRoute.split('/', 2);
+        if (slug) {
+            postRaw = await loadPostRaw(site, { route: slug, lang });
+        }
+        postRoute = slug;
+    }
 
-    if (!postRaw) {
+    console.debug('[webmention] postRaw', postRaw);
+
+    if (!postRaw.path) {
         return error(404);
     }
 
     if (!payload.deleted) {
         console.log('new webmention from ', payload.source, 'to', payload.target);
-        saveWebmention(site, postRoute, payload);
+        saveWebmention(site, postRoute, toWebmention(payload));
         return json({}, { status: 202 });
     } else {
         console.log('webmention from ', payload.source, 'to', payload.target, 'deleted');
-        deleteWebmention(site, postRoute, payload);
+        deleteWebmention(site, postRoute, payload.source);
         return json({}, { status: 202 });
     }
 }
