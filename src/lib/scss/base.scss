@@ -177,11 +177,13 @@ label {
     .label {
         position: absolute;
         top: 0.4em;
-        padding: 0 1rem;
+        left: 1rem;
         pointer-events: none;
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
         transition: 0.2s ease all;
-        color: var(--text-color-secondary);
+        color: var(--text-color-tertiary);
     }
 }
 
@@ -218,8 +220,14 @@ input {
     &[placeholder]:not(:placeholder-shown) {
         ~ .label {
             top: 0.0667em;
-            font-size: 66.67%;
-            color: var(--text-color-quaternary);
+            /* font-size: 66.67% */
+            transform: scale(0.667);
+            transform-origin: left top;
+            color: var(--text-color-quinary);
+
+            a {
+                pointer-events: initial;
+            }
         }
     }
 }
@@ -280,13 +288,15 @@ button,
         }
     }
 
-    &.button-tertiary, &.button-3{
+    &.button-tertiary,
+    &.button-3 {
         --button-bg-color: var(--text-color-quaternary);
     }
 
-    &.button-quaternary, &.button-4{
+    &.button-quaternary,
+    &.button-4 {
         --button-bg-color: transparent;
-        &:hover{
+        &:hover {
             --button-bg-color: var(--text-color-quaternary);
         }
     }
