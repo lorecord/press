@@ -1,0 +1,4 @@
+username: "Имя пользователя/Email"
+password: "Пароль"
+signin: "Войти"
+auth_tips: "* Требуется использование Cookie"

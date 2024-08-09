@@ -17,7 +17,7 @@ comment_author: 称呼
 comment_email: 邮箱
 comment_url: 网址
 comment_text: 评论内容
-comment_tips: '* 当有新回复时您将收到邮件通知。'
+comment_tips: '* 被回复时您将收到邮件通知。'
 comment_submit: 发布
 comment_lead_title: 讨论
 comment_captcha: 图灵验证码
@@ -45,4 +45,4 @@ webmention: Webmention
 comment_send: 发送
 comment_anonymous: 匿名
 comment_nobody: 无名氏
-reply_via_email: 发信回应
+reply_via_email: 发邮件

@@ -1,0 +1,4 @@
+username: "用戶名/Email"
+password: "密碼"
+signin: "登入"
+auth_tips: "* 需要使用 Cookie"

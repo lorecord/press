@@ -251,7 +251,8 @@
                 rel="syndication external"
                 class="u-syndication"
                 href={post["x.com"].status}
-                style="display: flex"
+                style="display: flex; align-items: center;
+                gap: .25rem;"
                 target="_blank"><IconBrandX />{post["x.com"].status}</a
             >
         </details>

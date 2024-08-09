@@ -1,0 +1,47 @@
+new_reply_mail_subject: "[{{ site_title }}] Neue Antwort auf „{{ post_title }}“"
+new_reply_mail_text: "{{ comment_content }}
+
+
+  Von {{ comment_author }} ({{ comment_author_user }})
+
+
+  Um die Details des Kommentars zu „{{ post_title }}“ zu sehen, besuchen Sie {{ site_title }}
+
+  {{ link }}"
+new_reply_mail_text_allow_reply: "{{ comment_content }}
+
+
+  Von {{ comment_author }} ({{ comment_author_user }})
+
+
+  Wenn Sie antworten möchten, können Sie einfach auf diese E-Mail antworten! :)
+
+
+  Kommentardetails: {{ link }}"
+new_replied_mail_subject: "Re: [{{ site_title }}] „{{ post_title }}“"
+new_replied_mail_text: "{{ comment_content }}
+
+
+  Von {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  Um die Details des Kommentars zu „{{ post_title }}“ zu sehen, besuchen Sie {{ site_title }}
+
+  {{ link }}"
+new_replied_mail_text_allow_reply: "{{ comment_content }}
+
+
+  Von {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  Kommentardetails: {{ link }}"

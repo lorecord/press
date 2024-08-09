@@ -149,6 +149,8 @@
             </div>
             <div class="action">
                 <a
+                    class="button button-text"
+                    style="padding:0; height: auto"
                     href={`#reply-${item.id?.toString().substr(-8)}`}
                     on:click|preventDefault={commentHelper.replyTo(item.id)}
                 >

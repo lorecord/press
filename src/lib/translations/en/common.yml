@@ -18,7 +18,7 @@ comment_email: Email
 comment_url: Website
 comment_text: Comment
 comment_tips: '* You will be notified by email when replied.'
-comment_submit: Submit
+comment_submit: Post
 comment_lead_title: Discussion
 comment_captcha: Captcha
 reply_to: Reply to
@@ -45,4 +45,4 @@ webmention: Webmention
 comment_send: Send
 comment_anonymous: Anonymous
 comment_nobody: Nobody
-reply_via_email: Reply via Email
+reply_via_email: Post via Email

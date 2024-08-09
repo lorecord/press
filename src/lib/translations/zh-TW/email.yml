@@ -1,0 +1,47 @@
+new_reply_mail_subject: "[{{ site_title }}] 《{{ post_title }}》 的新回覆"
+new_reply_mail_text: "{{ comment_content }}
+
+
+  來自 {{ comment_author }} ({{ comment_author_user }})
+
+
+  到 {{ site_title }} 查看 《{{ post_title }}》 的評論詳情
+
+  {{ link }}"
+new_reply_mail_text_allow_reply: "{{ comment_content }}
+
+
+  來自 {{ comment_author }} ({{ comment_author_user }})
+
+
+  如果您想回應，可以直接回覆此電子郵件！:)
+
+
+  評論詳情：{{ link }}"
+new_replied_mail_subject: "Re: [{{ site_title }}] 《{{ post_title }}》"
+new_replied_mail_text: "{{ comment_content }}
+
+
+  來自 {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  到 {{ site_title }} 上查看 《{{ post_title }}》 的評論詳情
+
+  {{ link }}"
+new_replied_mail_text_allow_reply: "{{ comment_content }}
+
+
+  來自 {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  評論詳情：{{ link }}"

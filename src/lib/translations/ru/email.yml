@@ -1,0 +1,47 @@
+new_reply_mail_subject: "[{{ site_title }}] Новый ответ на «{{ post_title }}»"
+new_reply_mail_text: "{{ comment_content }}
+
+
+  От {{ comment_author }} ({{ comment_author_user }})
+
+
+  Чтобы просмотреть подробности комментария к «{{ post_title }}», посетите {{ site_title }}
+
+  {{ link }}"
+new_reply_mail_text_allow_reply: "{{ comment_content }}
+
+
+  От {{ comment_author }} ({{ comment_author_user }})
+
+
+  Если вы хотите ответить, просто ответьте на это письмо! :)
+
+
+  Подробности комментария: {{ link }}"
+new_replied_mail_subject: "Re: [{{ site_title }}] «{{ post_title }}»"
+new_replied_mail_text: "{{ comment_content }}
+
+
+  От {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  Чтобы просмотреть подробности комментария к «{{ post_title }}», посетите {{ site_title }}
+
+  {{ link }}"
+new_replied_mail_text_allow_reply: "{{ comment_content }}
+
+
+  От {{ comment_author }} ({{ comment_author_user }})
+
+
+  {{ replied_author }}:
+
+  {{ replied_content }}
+
+
+  Подробности комментария: {{ link }}"

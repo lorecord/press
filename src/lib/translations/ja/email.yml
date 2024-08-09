@@ -1,0 +1,47 @@
+new_reply_mail_subject: "[{{ site_title }}] 『{{ post_title }}』の新しい返信"
+new_reply_mail_text: "{{ comment_content }}
+
+
+  {{ comment_author }} ({{ comment_author_user }}) より
+
+
+  『{{ post_title }}』の詳細は {{ site_title }} をご覧ください
+
+  {{ link }}"
+new_reply_mail_text_allow_reply: "{{ comment_content }}
+
+
+  {{ comment_author }} ({{ comment_author_user }}) より
+
+
+  返信したい場合、このメールに直接返信できます！:)
+
+
+  コメントの詳細: {{ link }}"
+new_replied_mail_subject: "Re: [{{ site_title }}] 『{{ post_title }}』"
+new_replied_mail_text: "{{ comment_content }}
+
+
+  {{ comment_author }} ({{ comment_author_user }}) より
+
+
+  {{ replied_author }} さんへ:
+
+  {{ replied_content }}
+
+
+  『{{ post_title }}』のコメントの詳細は {{ site_title }} でご覧ください
+
+  {{ link }}"
+new_replied_mail_text_allow_reply: "{{ comment_content }}
+
+
+  {{ comment_author }} ({{ comment_author_user }}) より
+
+
+  {{ replied_author }} さんへ:
+
+  {{ replied_content }}
+
+
+  コメントの詳細: {{ link }}"
