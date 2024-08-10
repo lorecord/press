@@ -6,7 +6,8 @@
     import Time from "$lib/ui/time/index.svelte";
 
     import { IconBolt, IconLanguage } from "@tabler/icons-svelte";
-    import { onMount } from "svelte";
+    import { afterUpdate, onDestroy, onMount } from "svelte";
+    import { browser } from "$app/environment";
 
     export let post: any;
     export let systemConfig: any;
@@ -19,10 +20,87 @@
 
     export let lightningSupported = false;
 
+    let activeSectionId = "";
+    let observer: IntersectionObserver;
+    let handleScroll: any;
+
+    const createhandleScroll = (sections: any) => {
+        () =>
+            sections.forEach((section: any) => {
+                const element = document.getElementById(section.id);
+                const bounding = element && element.getBoundingClientRect();
+
+                if ((bounding?.top || 0) >= 0 && (bounding?.top || 0) <= 10) {
+                    setActiveSection(section.id);
+                }
+            });
+    };
+
+    const setActiveSection = (id: string) => {
+        activeSectionId = id;
+        document.querySelectorAll("#article-toc a").forEach((link) => {
+            link.classList.toggle(
+                "current",
+                link.getAttribute("data-target") === id,
+            );
+        });
+    };
+
+    function toc(sections: any[]) {
+        if (!browser) return;
+        const observerOptions = {
+            threshold: 0.5,
+        };
+
+        const observerCallback: IntersectionObserverCallback = (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        };
+
+        observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        sections.forEach((section) => {
+            let e = document.getElementById(section.id);
+            e && observer.observe(e);
+        });
+        handleScroll = createhandleScroll(sections);
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }
+
     onMount(() => {
         if (typeof (window as any)?.webln !== "undefined") {
             lightningSupported = true;
         }
+    });
+
+    onDestroy(() => {
+        if (observer) {
+            observer.disconnect();
+        }
+        if (browser && window && handleScroll) {
+            window.removeEventListener("scroll", handleScroll);
+        }
+    });
+
+    onMount(() => {
+        return toc(post.headings);
+    });
+
+    afterUpdate(() => {
+        if (observer) {
+            observer.disconnect();
+        }
+        if (browser && window && handleScroll) {
+            window.removeEventListener("scroll", handleScroll);
+        }
+        return toc(post.headings);
     });
 </script>
 
@@ -60,9 +138,12 @@
                                         ? ""
                                         : "color: var(--text-color-tertiary)"}
                                     href={post.review.item.url}
-                                    rel={'external noopener' +`${post.review.rating > 6
-                                        ? " "
-                                        : " nofollow"}`}>{post.review.item.name}</a
+                                    rel={"external noopener" +
+                                        `${
+                                            post.review.rating > 6
+                                                ? " "
+                                                : " nofollow"
+                                        }`}>{post.review.item.name}</a
                                 >
                             {:else}
                                 <span>{post.review.item.name}</span>
@@ -91,7 +172,7 @@
     <div class="article-body container">
         <div class="article-aside no-print">
             {#if post.toc && post.headings}
-                <aside class="article-toc">
+                <aside class="article-toc" id="article-toc">
                     <details open>
                         <summary>
                             <h3>{$t("common.toc")}</h3>
@@ -99,7 +180,12 @@
                         <ul>
                             {#each post.headings as { level, text, id }}
                                 <li style="margin-left: {level * 10 - 20}px">
-                                    <a href={`#${id}`}>{text}</a>
+                                    <a
+                                        href={`#${id}`}
+                                        data-target={id}
+                                        on:click={(e) => setActiveSection(id)}
+                                        >{text}</a
+                                    >
                                 </li>
                             {/each}
                         </ul>
@@ -215,7 +301,9 @@
                                 />
                                 <details>
                                     <summary>CFF</summary>
-                                    <a rel="noindex" href="./CITATION.cff">CITATION.cff</a>
+                                    <a rel="noindex" href="./CITATION.cff"
+                                        >CITATION.cff</a
+                                    >
                                 </details>
                             </div>
                         </details>
@@ -288,7 +376,9 @@
                                 <ul>
                                     {#each post.langs as lang}
                                         <li>
-                                            <a rel="alternate" href="/{lang}{post.url}"
+                                            <a
+                                                rel="alternate"
+                                                href="/{lang}{post.url}"
                                                 >{$t(`lang.${lang}`)}</a
                                             >
                                         </li>
@@ -422,7 +512,10 @@
             a {
                 color: var(--text-color-tertiary);
             }
-
+            :global(a.current) {
+                font-weight: bold;
+                color: var(--text-color-primary);
+            }
             h3 {
                 display: inline-block;
             }
