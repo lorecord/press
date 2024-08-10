@@ -1,6 +1,11 @@
 public:
   locale:
     default: 'en'
+    supports:
+      - en
+      - zh-CN
+  html:
+    auto_external_link: true
   user:
     default: 'lorepress'
   domains:
