@@ -51,8 +51,7 @@
         const hash = window.location.hash;
         if (hash) {
             setTimeout(() => {
-                const element = document.querySelector(decodeURI(hash));
-                console.log("element", element);
+                const element = document.getElementById(hash.substring(1));
                 if (element) {
                     element.scrollIntoView();
                 }
