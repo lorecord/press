@@ -10,7 +10,7 @@
     /** @type {import('./$types').PageData} */
     export let data: any;
 
-    $: ({ home, posts, pathLocale, siteConfig, systemConfig } = data);
+    $: ({ home, posts, pathLocale, siteConfig, systemConfig, limit } = data);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -186,13 +186,15 @@
             <PostCard {post} showContent={true} />
         {/each}
 
-        <a
-            href="/archives/"
-            style="display: block;
+        {#if posts.length >= limit}
+            <a
+                href="/archives/"
+                style="display: block;
 text-align: center;
 padding: 1rem;
 color: var(--text-color);">{$t("common.find_more")}</a
-        >
+            >
+        {/if}
     {/await}
 </div>
 

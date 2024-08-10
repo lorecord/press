@@ -6,11 +6,14 @@ import { awaitChecker } from '$lib/browser';
 export const load: PageLoad = async ({ depends, fetch, params, data }) => {
     const { locale: pathLocaleParam } = params;
     const { localeContext } = data;
+
+    let limit = 8;
+
     depends('locale:locale');
     let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
         lang: pathLocaleParam || locale.get() || localeContext.contentLocale,
-        limit: '8',
+        limit: `${limit}`,
     })}`).then((r) => {
         if (r.ok) {
             return r.json();
@@ -31,6 +34,7 @@ export const load: PageLoad = async ({ depends, fetch, params, data }) => {
 
     return {
         home: needAwait ? await home : home,
-        posts: needAwait ? await posts : posts
+        posts: needAwait ? await posts : posts,
+        limit
     };
 } 
