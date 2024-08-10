@@ -6,7 +6,7 @@ import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translation
 import { matchSite } from '$lib/server/sites';
 import { sequence } from '@sveltejs/kit/hooks';
 import { json, type Handle, type HandleServerError } from '@sveltejs/kit';
-import { getEnvConfig } from '$lib/server/config';
+import { getEnvConfig, getSystemConfig } from '$lib/server/config';
 import { getSession } from '$lib/server/session';
 import { match as matchLocale } from './params/locale';
 import { dev } from '$app/environment';
@@ -23,6 +23,59 @@ const apiRateLimiter = new RateLimiter({
     duration: 60 * 1000
 });
 
+export const handleExternalLink: Handle = async ({ event, resolve }) => {
+    const { site } = event.locals as any;
+    const systemConfig = getSystemConfig(site);
+    const response = await resolve(event, {
+        transformPageChunk: ({ html }) => {
+            if (systemConfig.html?.auto_external_link) {
+                let internalDomains = [systemConfig.domains.primary];
+
+                if (internalDomains.length > 0) {
+                    html = html.replace(/<a\s([^>]*?)href=["']([\w-_+]+:\/\/[^"']*)["']([^>]*?)>/g, (match, beforeHref, hrefValue, afterHref) => {
+                        // Check if the link is external
+                        const url = new URL(hrefValue);
+
+                        if (!internalDomains.includes(url.hostname)) {
+                            // If external, add rel="external" if not already present
+                            let newLink = `<a ${beforeHref}href="${hrefValue}" ${afterHref}>`;
+                            if (!/rel=["'][^"']*\bexternal\b[^"']*["']/.test(newLink)) {
+                                // add rel="external" to the link
+                                if (/rel=["'][^"']*["']/.test(newLink)) {
+                                    newLink = newLink.replace(/rel=["'][^"']*["']/, (match) => {
+                                        return match.replace(/["']$/, ' external"');
+                                    });
+                                } else {
+                                    newLink = newLink.replace(/>/, ' rel="external">');
+                                }
+                            }
+                            return newLink;
+                        } else {
+                            // If internal, return the link unmodified
+                            return match;
+                        }
+                    });
+                }
+            }
+            if (systemConfig.html?.open_external_link_in_new_tab) {
+                // Use a regex to find all links with rel containing "external" and without a target attribute
+                html = html.replace(/<a\s([^>]*?rel=["'][^"']*)\bexternal\b([^"']*["'][^>]*?)>/g, (match, beforeRel, afterRel) => {
+                    // Check if the link already has a target attribute
+                    if (/target=["'][^"']*["']/.test(beforeRel + afterRel)) {
+                        // If target exists, return the original match without modification
+                        return match;
+                    } else {
+                        // Otherwise, add target="_blank" to the link
+                        return `<a ${beforeRel}${afterRel} target="_blank">`;
+                    }
+                });
+            }
+            return html;
+        },
+    });
+    return response;
+}
+
 export const handleSite: Handle = async ({ event, resolve }) => {
     const site = matchSite(event.url.hostname);
     (event.locals as any).site = site;
@@ -30,28 +83,28 @@ export const handleSite: Handle = async ({ event, resolve }) => {
 }
 
 export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
-    const {site} = event.locals as any;
+    const { site } = event.locals as any;
 
-    if(!event.isSubRequest){
+    if (!event.isSubRequest) {
         const envConfig = getEnvConfig(site);
 
         let volume = 1;
-        if(event.url.pathname.startsWith('/api/')) {
+        if (event.url.pathname.startsWith('/api/')) {
             volume = 10;
 
-            if(event.request.method === 'POST') {
+            if (event.request.method === 'POST') {
                 volume = 100;
             }
-        }else if(event.url.pathname.match(/^\/(sitemap\.|).*/)){
+        } else if (event.url.pathname.match(/^\/(sitemap\.|).*/)) {
             volume = 50;
         }
 
         const ip = getRealClientAddress(event);
-        if (!envConfig.private.IP_LIMIT_WHITE_LIST?.includes(ip) &&  !apiRateLimiter.inflood(ip, volume)) {
+        if (!envConfig.private.IP_LIMIT_WHITE_LIST?.includes(ip) && !apiRateLimiter.inflood(ip, volume)) {
             console.log('Rate limit exceeded, last: ', apiRateLimiter.get(ip).last);
             error(429, 'Rate limit exceeded');
         }
-    }    
+    }
 
     return await resolve(event);
 }
@@ -254,4 +307,4 @@ export const handleError: HandleServerError = async ({ error, event }) => {
     console.error(error);
 }
 
-export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleApiRateLimit, handleHtmlLangAttr, handleAssets);
+export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleApiRateLimit, handleHtmlLangAttr, handleExternalLink, handleAssets);
