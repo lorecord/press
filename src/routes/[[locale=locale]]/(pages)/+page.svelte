@@ -187,13 +187,14 @@
         {/each}
 
         {#if posts.length >= limit}
-            <a
-                href="/archives/"
-                style="display: block;
-text-align: center;
-padding: 1rem;
-color: var(--text-color);">{$t("common.find_more")}</a
-            >
+            <div style="display: flex; justify-content: center">
+                <a
+                    class="button button-text button-pill"
+                    href="/archives/"
+                    style="color: var(--text-color); padding-left: 3rem; padding-right: 3rem"
+                    >{$t("common.find_more")}</a
+                >
+            </div>
         {/if}
     {/await}
 </div>
