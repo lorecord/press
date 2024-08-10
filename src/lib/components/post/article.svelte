@@ -5,7 +5,12 @@
     import Cite from "$lib/components/cite/index.svelte";
     import Time from "$lib/ui/time/index.svelte";
 
-    import { IconBolt, IconLanguage, IconMessages } from "@tabler/icons-svelte";
+    import {
+        IconBolt,
+        IconLanguage,
+        IconList,
+        IconMessages,
+    } from "@tabler/icons-svelte";
     import { afterUpdate, onDestroy, onMount } from "svelte";
     import { browser } from "$app/environment";
 
@@ -190,14 +195,20 @@
                             {/each}
                         </ul>
                     </details>
-                    {#if post.comment?.enable}
-                        <a
-                            id="comments-link"
-                            href="#comments"
-                            class="button button-3 button-square button-pill"
-                            ><IconMessages size={20} /></a
-                        >
-                    {/if}
+                    <a
+                        href="#article-toc"
+                        id="toc-button"
+                        class="button button-3 button-square button-pill"
+                        ><IconList size={20} /></a
+                    >
+                {/if}
+                {#if post.comment?.enable}
+                    <a
+                        id="comments-link"
+                        href="#comments"
+                        class="button button-3 button-square button-pill"
+                        ><IconMessages size={20} /></a
+                    >
                 {/if}
             </aside>
         </div>
@@ -533,6 +544,9 @@
                         display: inline-block;
                     }
                 }
+                #toc-button {
+                    display: none;
+                }
             }
         }
 
@@ -693,6 +707,13 @@
                 aside {
                     position: static;
                     min-width: unset;
+                }
+
+                #toc-button {
+                    display: flex !important;
+                    position: fixed;
+                    right: 20px;
+                    bottom: 140px;
                 }
 
                 #comments-link {
