@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { afterUpdate, onMount } from "svelte";
+    import ScrollToTop from "$lib/components/scroll-to-top.svelte";
+import { afterUpdate, onMount } from "svelte";
 
     export let data: any;
     $: ({ systemConfig } = data);
@@ -93,3 +94,5 @@
 </svelte:head>
 
 <slot />
+
+<ScrollToTop />

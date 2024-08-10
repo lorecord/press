@@ -293,6 +293,11 @@ button,
         --button-bg-color: var(--text-color-quaternary);
     }
 
+    &.button-square {
+        width: var(--button-height);
+        padding: unset;
+    }
+
     &.button-quaternary,
     &.button-4 {
         --button-bg-color: transparent;
