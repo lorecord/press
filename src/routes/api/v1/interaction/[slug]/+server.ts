@@ -109,10 +109,10 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
                 }
             }
 
-            if (replyContext.is) {
-                replyContext.replied && sendNewReplyMail(site, post, saved, replyContext.replied);
+            if (replyContext.is && replyContext.replied) {
+                sendNewReplyMail(site, post, saved, replyContext.replied);
             } else {
-                replyContext.replied && sendNewCommentMail(site, post, saved);
+                sendNewCommentMail(site, post, saved);
             }
 
             let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
