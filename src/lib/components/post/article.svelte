@@ -5,7 +5,7 @@
     import Cite from "$lib/components/cite/index.svelte";
     import Time from "$lib/ui/time/index.svelte";
 
-    import { IconBolt, IconLanguage } from "@tabler/icons-svelte";
+    import { IconBolt, IconLanguage, IconMessages } from "@tabler/icons-svelte";
     import { afterUpdate, onDestroy, onMount } from "svelte";
     import { browser } from "$app/environment";
 
@@ -171,9 +171,9 @@
     {/if}
     <div class="article-body container">
         <div class="article-aside no-print">
-            {#if post.toc && post.headings}
-                <aside class="article-toc" id="article-toc">
-                    <details open>
+            <aside>
+                {#if post.toc && post.headings}
+                    <details class="article-toc" open id="article-toc">
                         <summary>
                             <h3>{$t("common.toc")}</h3>
                         </summary>
@@ -190,8 +190,16 @@
                             {/each}
                         </ul>
                     </details>
-                </aside>
-            {/if}
+                    {#if post.comment?.enable}
+                        <a
+                            id="comments-link"
+                            href="#comments"
+                            class="button button-3 button-square button-pill"
+                            ><IconMessages size={20} /></a
+                        >
+                    {/if}
+                {/if}
+            </aside>
         </div>
         <div class="e-content article-content">
             {@html post.content}
@@ -503,21 +511,28 @@
             position: absolute;
             margin-left: 100%;
             height: 100%;
-        }
 
-        .article-toc {
-            position: sticky;
-            top: 0;
-            min-width: calc((100vw - 1024px) / 2 - var(--content-padding));
-            a {
-                color: var(--text-color-tertiary);
-            }
-            :global(a.current) {
-                font-weight: bold;
-                color: var(--text-color-primary);
-            }
-            h3 {
-                display: inline-block;
+            aside {
+                position: sticky;
+                top: 0;
+                min-width: calc((100vw - 1024px) / 2 - var(--content-padding));
+
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+
+                .article-toc {
+                    a {
+                        color: var(--text-color-tertiary);
+                    }
+                    :global(a.current) {
+                        font-weight: bold;
+                        color: var(--text-color-primary);
+                    }
+                    h3 {
+                        display: inline-block;
+                    }
+                }
             }
         }
 
@@ -541,7 +556,7 @@
         }
 
         .article-content,
-        .article-toc {
+        .article-aside aside {
             padding: var(--content-padding);
 
             @media screen {
@@ -674,11 +689,17 @@
                 position: static;
                 margin-left: 0;
                 height: auto;
-            }
 
-            .article-toc {
-                position: static;
-                min-width: unset;
+                aside {
+                    position: static;
+                    min-width: unset;
+                }
+
+                #comments-link {
+                    position: fixed;
+                    right: 20px;
+                    bottom: 80px;
+                }
             }
         }
     }
