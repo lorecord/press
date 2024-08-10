@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { afterNavigate } from "$app/navigation";
     import ScrollToTop from "$lib/components/scroll-to-top.svelte";
-import { afterUpdate, onMount } from "svelte";
+    import { afterUpdate, onMount } from "svelte";
 
     export let data: any;
     $: ({ systemConfig } = data);
@@ -44,6 +45,32 @@ import { afterUpdate, onMount } from "svelte";
 
     afterUpdate(() => {
         processExternalLinks();
+    });
+
+    const scrollToHash = (delay: number = 0) => {
+        const hash = window.location.hash;
+        console.log("hash", hash);
+        if (hash) {
+            setTimeout(() => {
+                const element = document.querySelector(hash);
+                console.log("element", element);
+                if (element) {
+                    element.scrollIntoView();
+                }
+            }, 500);
+        }
+    };
+
+    onMount(() => {
+        if (sessionStorage.getItem("sveltekit:scroll")) {
+            scrollToHash(500);
+        } else {
+            scrollToHash(0);
+        }
+    });
+
+    afterNavigate(() => {
+        scrollToHash(0);
     });
 </script>
 
