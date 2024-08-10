@@ -76,12 +76,13 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
         console.log('email not configured, skip send replied mail');
         return;
     }
+    const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
 
-    const repliedEmail = replied.author?.email?.value && decrypt(site, replied.author?.email?.value);
+    let repliedEmail = replied.author?.email?.value && decrypt(site, replied.author?.email?.value) || adminEmail;
 
     if (!repliedEmail) {
-        console.log('replied email not found, skip send replied mail');
-        return;
+        console.log('replied email not found, send to admin mail');
+        repliedEmail = adminEmail;
     }
 
     let allowReply = !!systemConfig.postal?.enabled;
@@ -121,16 +122,17 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
             // html: emailHtml,
         };
 
-        const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
-
-        if (!systemConfig.private?.email?.admin?.value || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256 || systemConfig.private?.email?.admin?.hash?.md5 === replied.author?.email?.hash?.md5 || systemConfig.private?.email?.admin?.hash?.sha256 === replied.author?.email?.hash?.sha256) {
+        if (!systemConfig.private?.email?.admin?.value
+            || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5
+            || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256
+            || (replied.author?.email?.value && repliedEmail === adminEmail)) {
             // do nothing
         } else {
             options.bcc = adminEmail;
         }
 
         transport.sendMail(options).then((result) => {
-            console.log(`new reply mail send, id: ${result.messageId}`);
+            console.log(`new reply mail to ${repliedEmail} send, id: ${result.messageId}`);
         });
     }
 }
