@@ -296,10 +296,10 @@ export function createMarkdownParser(options: any = {}) {
                     noteLabelPrefixText: get(l)(lang, 'common.footnote_ref_note'),
                 })
             },
-            footnoteLabelSupplier: (group:string) =>
+            footnoteLabelSupplier: (group: string) =>
                 get(l)(lang, `common.footnote_${group}`),
-            footnoteLabelIdSupplier: (group:string) => `footnote-label-${group}`,
-            footnoteRefPrefixSupplier: (group:string) =>
+            footnoteLabelIdSupplier: (group: string) => `footnote-label-${group}`,
+            footnoteRefPrefixSupplier: (group: string) =>
                 get(l)(lang, `common.footnote_ref_${group}`),
         })
         .use(rehypeCodeFilename)
@@ -482,16 +482,43 @@ export function convertToPostForFeed(site: any, raw: Raw) {
         `;
     }
 
+    function buildTree(data: any[]) {
+        const result: any[] = [];
+        const stack: any[] = [];
+
+        data.forEach(item => {
+            while (stack.length && stack[stack.length - 1].level >= item.level) {
+                stack.pop();
+            }
+
+            const newNode = { ...item };
+            if (stack.length) {
+                const parent = stack[stack.length - 1];
+                if (!parent.children) {
+                    parent.children = [];
+                }
+                parent.children.push(newNode);
+            } else {
+                result.push(newNode);
+            }
+
+            stack.push(newNode);
+        });
+
+        return result;
+    }
+
+    function toHTML(tree: any[]) {
+        return `<ul>${tree.map((node: any) => {
+            let children: string = node.children ? toHTML(node.children) : '';
+            return `<li><a href="${siteConfig.url}${raw.attributes.url}#${node.id}">${node.text}</a>${children}</li>`;
+        }).join('')}</ul>`
+    }
+
     if (raw.attributes.toc && headings) {
         feedContent = `
         <h3>${t.get("common.toc")}</h3>
-        <ul>
-        ${headings.map((heading: any) => `
-        <li style="margin-left: ${heading.level * 10 - 20}px">
-            <a href="${siteConfig.url}${raw.attributes.url}#${heading.id}">${heading.text}</a>
-        </li>
-        `).join('')}
-        </ul>
+        ${toHTML(buildTree(headings as any[]))}
         ${feedContent}`;
     }
 
