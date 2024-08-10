@@ -49,10 +49,9 @@
 
     const scrollToHash = (delay: number = 0) => {
         const hash = window.location.hash;
-        console.log("hash", hash);
         if (hash) {
             setTimeout(() => {
-                const element = document.querySelector(hash);
+                const element = document.querySelector(decodeURI(hash));
                 console.log("element", element);
                 if (element) {
                     element.scrollIntoView();
