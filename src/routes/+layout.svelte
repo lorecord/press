@@ -1,6 +1,49 @@
 <script lang="ts">
+    import { afterUpdate, onMount } from "svelte";
+
     export let data: any;
     $: ({ systemConfig } = data);
+
+    function processExternalLinks() {
+        let internalDomains = [
+            systemConfig.domains.primary,
+            document.location.hostname,
+        ];
+        document.querySelectorAll("a[href]").forEach((link) => {
+            const href = link.getAttribute("href");
+            if (!href || !/[\w-_+]+:\/\//.test(href)) {
+                return;
+            }
+
+            const url = href && new URL(href);
+
+            if (
+                url &&
+                url?.hostname &&
+                !internalDomains.includes(url?.hostname)
+            ) {
+                // add rel="external"
+                if (!link.getAttribute("rel")?.includes("external")) {
+                    link.setAttribute(
+                        "rel",
+                        (link.getAttribute("rel") || "") + " external",
+                    );
+                }
+                // 添加 target="_blank"
+                if (!link.hasAttribute("target")) {
+                    link.setAttribute("target", "_blank");
+                }
+            }
+        });
+    }
+
+    onMount(() => {
+        processExternalLinks();
+    });
+
+    afterUpdate(() => {
+        processExternalLinks();
+    });
 </script>
 
 <svelte:head>
