@@ -301,8 +301,11 @@ button,
     &.button-quaternary,
     &.button-4 {
         --button-bg-color: transparent;
+        color: var(--text-color-quaternary);
+
         &:hover {
             --button-bg-color: var(--text-color-quaternary);
+            color: inherit;
         }
     }
 
