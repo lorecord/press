@@ -15,8 +15,9 @@
     import { IconLanguage } from "@tabler/icons-svelte";
 
     export let posts: any[];
-
+    export let supportedLocales = ["en"];
     export let siteConfig: any;
+    export let allowUnsupportedLocales = false;
 
     const handleLocaleSelect = (e: any) => {
         document.cookie = `locale=${e?.target?.value};path=/;max-age=31536000`;
@@ -68,17 +69,26 @@
                 </ul>
             {/if}
         {/await}
-
-        <span class="locale">
-            <IconLanguage size={20} />
-            <select value={$locale} on:change={handleLocaleSelect}>
-                {#each $locales as value}
-                    <option {value} on:click={handleLocaleSelect}
-                        >{$t(`lang.${value}`)}</option
-                    >
-                {/each}
-            </select>
-        </span>
+        {#if supportedLocales?.length > 1}
+            <span class="locale">
+                <IconLanguage size={20} />
+                <select value={$locale} on:change={handleLocaleSelect}>
+                    {#each supportedLocales as value}
+                        <option {value} on:click={handleLocaleSelect}
+                            >{$t(`lang.${value}`)}</option
+                        >
+                    {/each}
+                    {#if allowUnsupportedLocales && $locales?.length > supportedLocales?.length}
+                        <optgroup label="Unsupported">
+                            {#each $locales.filter((l) => !supportedLocales.includes(l)) as value}
+                                <option {value} on:click={handleLocaleSelect}
+                                    >{$t(`lang.${value}`)}</option
+                                >
+                            {/each}
+                        </optgroup>{/if}
+                </select>
+            </span>
+        {/if}
     </div>
 </footer>
 

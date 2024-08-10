@@ -90,7 +90,7 @@
     <link
         rel="alternate"
         type="application/rss+xml"
-        title="{siteConfig.title}"
+        title={siteConfig.title}
         href="/feed/"
     />
 
@@ -241,7 +241,11 @@
                             if (m.type === "childList") {
                                 spacer.spacePage(m.addedNodes, {}, false);
                             } else if (m.type === "characterData") {
-                                spacer.spacePage(m.target.parent || m.target, {}, false);
+                                spacer.spacePage(
+                                    m.target.parent || m.target,
+                                    {},
+                                    false,
+                                );
                             }
                         });
                     }
@@ -305,7 +309,17 @@
             </div>
         {/key}
     </main>
-    <Footer {posts} {siteConfig} />
+    <Footer
+        {posts}
+        {siteConfig}
+        supportedLocales={Array.from(
+            new Set([
+                systemConfig.locale?.default || "en",
+                ...(systemConfig.locale?.supports || []),
+            ]),
+        )}
+        allowUnsupportedLocales={systemConfig.locale?.allowUnsupported}
+    />
 </div>
 
 <style lang="scss">
