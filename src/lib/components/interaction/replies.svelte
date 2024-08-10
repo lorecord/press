@@ -133,6 +133,7 @@
                         //form.reset();
                         textarea.value = "";
                         textarea.dispatchEvent(new Event("change"));
+                        localStorage.removeItem(`comment-craft:${post.slug}`);
 
                         replies = [data, ...replies];
 
