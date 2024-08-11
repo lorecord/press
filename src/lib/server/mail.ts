@@ -100,9 +100,9 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
 
-    if (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5
-        || replied.author?.email?.hash?.sha256 === comment.author?.email?.hash?.sha256
-    ) {
+    if ((replied.author?.email?.hash?.md5 && (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5))
+        || (replied.author?.email?.hash?.sha256 && (replied.author?.email?.hash?.sha256 === comment.author?.email?.hash?.sha256
+        ))) {
         console.log('replied author is the same as comment author, skip send replied mail');
         return;
     }
@@ -123,8 +123,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
         };
 
         if (!systemConfig.private?.email?.admin?.value
-            || systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5
-            || systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256
+            || (systemConfig.private?.email?.admin?.hash?.md5 && systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5)
+            || (systemConfig.private?.email?.admin?.hash?.msha256 && systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256)
             || (replied.author?.email?.value && repliedEmail === adminEmail)) {
             // do nothing
         } else {
