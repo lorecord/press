@@ -61,7 +61,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const slug: string | undefined = (() => {
         if (target) {
-            const { slug } = getNativeInteraction(site, target);
+            const { slug } = getNativeInteraction(site, target) || {};
             return slug;
         } else {
             if (payload.subject) {
