@@ -33,18 +33,12 @@
             display: flex;
             align-items: center;
             gap: 0.5em;
-
-            font-size: 1.333rem;
             font-weight: bold;
         }
     }
 
     h4 {
         margin: 0.33em 0 0.33em;
-    }
-
-    h4 {
-        font-size: 1.333rem;
     }
 
     @media screen and (max-width: 600px) {
