@@ -65,7 +65,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
             return slug;
         } else {
             if (payload.subject) {
-                const [, slug] = payload.subject.match(/.*\((.*)\)\s*$/) || [];
+                const [, slug] = payload.subject.match(/.*\((.*)(?:#.*)?\)\s*$/) || [];
                 return slug;
             }
         }
