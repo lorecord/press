@@ -17,17 +17,17 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     const payload = await request.json();
 
     if (payload.auto_submitted == 'auto-reply') {
-        return json(null);
+        return json({ message: "Auto Reply Igored" });
     }
 
     if (!payload.plain_body || payload.plain_body.trim() === '') {
-        return json(null);
+        return json({ message: "Empty Message Igored" });
     }
 
     let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*)\n--\n(?!.*\n--\n.*)(.*)/) || [];
 
     if (!replyPart) {
-        return json(null);
+        return json({ message: "Signature Only Igored" });
     }
 
     console.log('[interaction/postal] POST', payload);
@@ -129,5 +129,5 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         }
     }
 
-    return json(null, { status: 200 });
+    return json({ message: "OK" }, { status: 200 });
 }
