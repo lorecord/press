@@ -24,6 +24,12 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json(null);
     }
 
+    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*)\n--\n(?!.*\n--\n.*)(.*)/) || [];
+
+    if (!replyPart) {
+        return json(null);
+    }
+
     console.log('[interaction/postal] POST', payload);
 
     if (systemConfig.postal?.enabled !== true) {
@@ -92,7 +98,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     }
 
     // solve the website from the mail signature
-    let [, website] = payload.replies_from_plain_body.match(/(https?:\/\/[^\s>"']+)>?/) || [];
+    let [, website] = signaturePart?.match(/(https?:\/\/[^\s>"']+)>?/) || [];
 
     // TODO text or html
 
@@ -106,7 +112,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         slug,
         lang,
         email,
-        text: payload.plain_body,
+        text: replyPart.trim(),
         target,
         id: mesasgeUnique,
         url: website,
