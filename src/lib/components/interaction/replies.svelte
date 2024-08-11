@@ -43,11 +43,11 @@
     let submmiting = false;
 
     function saveText() {
-        let key = `comment-craft:${post.slug}`;
+        let key = `comment-craft`;
         if (text) {
-            localStorage.setItem(key, text);
+            sessionStorage.setItem(key, text);
         } else {
-            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
         }
     }
 
@@ -80,7 +80,7 @@
         // load text from locale store to textarea
         textarea.value =
             textarea.value ||
-            localStorage.getItem(`comment-craft:${post.slug}`) ||
+            sessionStorage.getItem(`comment-craft`) ||
             "";
     });
 
@@ -133,7 +133,7 @@
                         //form.reset();
                         textarea.value = "";
                         textarea.dispatchEvent(new Event("change"));
-                        localStorage.removeItem(`comment-craft:${post.slug}`);
+                        sessionStorage.removeItem(`comment-craft`);
 
                         replies = [data, ...replies];
 
