@@ -56,7 +56,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
     const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
-    const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
+    const [, messageUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
     const [, target] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
     const slug: string | undefined = (() => {
@@ -114,7 +114,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         email,
         text: replyPart.trim(),
         target,
-        id: mesasgeUnique,
+        id: messageUnique,
         url: website,
         verified: true
     };
