@@ -1,27 +1,24 @@
-new_reply_mail_subject: "[{{ site_title }}] <{{ post_title }}> Replied"
+new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  by {{ comment_author }} ({{ comment_author_user }})
+  —
 
-
-  View <{{ post_title }}> at {{ site_title }}
-
-  {{ link }}"
+  You are receiving this because you were replied by {{ comment_author }} ({{ comment_author_user }})
+  
+  View Detail: {{ link }}"
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  by {{ comment_author }} ({{ comment_author_user }})
+  —
 
+  You can reply to this email directly.
 
-  If you would like to respond, you can reply directly to this email. :)
+  You are receiving this because you were replied by {{ comment_author }} ({{ comment_author_user }})
 
   View Detail: {{ link }}"
-new_replied_mail_subject: "Re: [{{ site_title }}] <{{ post_title }}>"
+new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_replied_mail_text: "{{ comment_content }}
-
-
-  by {{ comment_author }} ({{ comment_author_user }})
 
 
   {{ replied_author }}:
@@ -29,21 +26,24 @@ new_replied_mail_text: "{{ comment_content }}
   {{ replied_content }}
 
 
-  View <{{ post_title }}> at {{ site_title }}
+  —
 
-  {{ link }}"
+  You are receiving this because you were replied or mentioned by {{ comment_author }} ({{ comment_author_user }})
+  
+  View Detail: {{ link }}"
 
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  by {{ comment_author }} ({{ comment_author_user }})
-
-
   {{ replied_author }}:
 
   {{ replied_content }}
 
 
-  If you would like to respond, you can reply directly to this email. :)
+  —
+
+  You can reply to this email directly.
+
+  You are receiving this because you were replied or mentioned by {{ comment_author }} ({{ comment_author_user }})
 
   View Detail: {{ link }}"

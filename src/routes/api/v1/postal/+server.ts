@@ -24,7 +24,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json({ message: "Empty Message Igored" });
     }
 
-    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*)\n--\n(?!.*\n--\n.*)(.*)/) || [];
+    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*)\n[-—]+\s*\n(?!.*\n[-—]+\s*\n.*)(.*)/) || [];
 
     if (!replyPart) {
         return json({ message: "Signature Only Igored" });

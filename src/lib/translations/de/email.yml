@@ -1,47 +1,48 @@
-new_reply_mail_subject: "[{{ site_title }}] Neue Antwort auf „{{ post_title }}“"
+new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  Von {{ comment_author }} ({{ comment_author_user }})
+  —
 
-
-  Um die Details des Kommentars zu „{{ post_title }}“ zu sehen, besuchen Sie {{ site_title }}
-
-  {{ link }}"
+  Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort oder Erwähnung erhalten haben.
+  
+  Details ansehen: {{ link }}"
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  Von {{ comment_author }} ({{ comment_author_user }})
+  —
 
+  Sie können direkt auf diese E-Mail antworten.
 
-  Wenn Sie antworten möchten, können Sie einfach auf diese E-Mail antworten! :)
+  Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort erhalten haben.
 
-
-  Kommentardetails: {{ link }}"
-new_replied_mail_subject: "Re: [{{ site_title }}] „{{ post_title }}“"
+  Details ansehen: {{ link }}"
+new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_replied_mail_text: "{{ comment_content }}
 
 
-  Von {{ comment_author }} ({{ comment_author_user }})
-
-
   {{ replied_author }}:
 
   {{ replied_content }}
 
 
-  Um die Details des Kommentars zu „{{ post_title }}“ zu sehen, besuchen Sie {{ site_title }}
+  —
 
-  {{ link }}"
+  Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort oder Erwähnung erhalten haben.
+  
+  Details ansehen: {{ link }}"
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  Von {{ comment_author }} ({{ comment_author_user }})
-
-
   {{ replied_author }}:
 
   {{ replied_content }}
 
 
-  Kommentardetails: {{ link }}"
+  —
+
+  Sie können direkt auf diese E-Mail antworten.
+
+  Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort oder Erwähnung erhalten haben.
+
+  Details ansehen: {{ link }}"
