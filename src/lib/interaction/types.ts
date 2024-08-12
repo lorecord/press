@@ -69,6 +69,7 @@ export type NativeBase = {
 
 export type EmailBase = {
     channel: 'email';
+    messageId: string;
 }
 
 export type NativeReply = NativeBase & Reply;
