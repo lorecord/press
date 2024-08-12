@@ -4,6 +4,7 @@ import { decrypt } from "$lib/interaction/utils";
 import { t, l } from "$lib/translations";
 import { get } from "svelte/store";
 import type { Interaction, Reply } from "$lib/interaction/types";
+import type Mail from "nodemailer/lib/mailer";
 
 function getTransport(site: any) {
 
@@ -112,7 +113,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
 
     if (comment.target) {
         const transport = getTransport(site);
-        let options: any = {
+        let options: Mail.Options = {
             from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email?.sender}>`,
             to: `${JSON.stringify(replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} ${repliedEmail}`,
             subject,
@@ -120,8 +121,31 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
             messageId: `<${comment.id}@${systemConfig.email?.sender.split('@')[1]}>`,
             inReplyTo: `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`,
             // html: emailHtml,
+            list: {
+                id: `${siteConfig.url}${post.url}`,
+                help: [{ url: `${systemConfig.email?.sender}?subject=Help`, comment: 'Help' }],
+                subscribe: [{
+                    url: `${systemConfig.email?.sender}?subject=Subscribe`,
+                    comment: 'Subscribe'
+                }],
+                unsubscribe: [{
+                    url: `${systemConfig.email?.sender}?subject=Unsubscribe`,
+                    comment: 'Unsubscribe'
+                }, {
+                    url: `${systemConfig.email?.sender}?subject=Unsubscribe&all=1`,
+                    comment: 'Unsubscribe All'
+                }, `${siteConfig.url}${post.url}`],
+                post: [
+                    `${siteConfig.url}${post.url}`,
+                    {
+                        url: `${systemConfig.email?.sender}?subject=Post`,
+                        comment: 'Post'
+                    }],
+                archive: `${siteConfig.url}${post.url}`
+            },
             headers: {
-                'List-Unsubscribe': (allowReply ? `<mailto:${systemConfig.email?.sender}?subject=unsubscribe&body=unsubscribe>` : '') + `,<${siteConfig.url}${post.url}>`
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                'X-Auto-Response-Suppress': 'All'
             }
         };
 
