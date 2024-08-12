@@ -120,6 +120,9 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
             messageId: `<${comment.id}@${systemConfig.email?.sender.split('@')[1]}>`,
             inReplyTo: `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`,
             // html: emailHtml,
+            headers: {
+                'List-Unsubscribe': (allowReply ? `<mailto:${systemConfig.email?.sender}?subject=unsubscribe&body=unsubscribe>` : '') + `,<${siteConfig.url}${post.url}>`
+            }
         };
 
         if (!systemConfig.private?.email?.admin?.value

@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json({ message: "Signature Only Igored" });
     }
 
-    console.log('[interaction/postal] POST', payload);
+    console.log('[postal/interact] POST', payload);
 
     if (systemConfig.postal?.enabled !== true) {
         console.log('Postal disabled');
