@@ -1,48 +1,34 @@
 new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
-new_reply_mail_text: "{{ comment_content }}
-
-
-  -- 
-
-  あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。
-  
-  詳細を見る: {{ link }}"
-new_reply_mail_text_allow_reply: "{{ comment_content }}
-
+new_reply_mail_text: |-
+  {{ comment_content }}
 
   -- 
+  あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。  
+  詳細を見る: {{ link }}
+new_reply_mail_text_allow_reply: |-
+  {{ comment_content }}
 
+  -- 
   このメールに直接返信できます。
-
   あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信を受け取ったため、このメールを受信しています。
-
-  詳細を見る: {{ link }}"
+  詳細を見る: {{ link }}
 new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
-new_replied_mail_text: "{{ comment_content }}
-
-
-  {{ replied_date }} に {{ replied_author }} が書きました：
-
-  {{ replied_content }}
-
-
-  -- 
-
-  あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。
-  
-  詳細を見る: {{ link }}"
-new_replied_mail_text_allow_reply: "{{ comment_content }}
-
+new_replied_mail_text: |-
+  {{ comment_content }}
 
   {{ replied_date }} に {{ replied_author }} が書きました：
-
   {{ replied_content }}
 
+  -- 
+  あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。  
+  詳細を見る: {{ link }}
+new_replied_mail_text_allow_reply: |-
+  {{ comment_content }}
+
+  {{ replied_date }} に {{ replied_author }} が書きました：
+  {{ replied_content }}
 
   -- 
-
   このメールに直接返信できます。
-
   あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。
-
-  詳細を見る: {{ link }}"
+  詳細を見る: {{ link }}

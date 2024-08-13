@@ -1,49 +1,35 @@
 new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
-new_reply_mail_text: "{{ comment_content }}
-
-
-  -- 
-
-  You are receiving this because you were replied by {{ comment_author }} ({{ comment_author_user }})
-  
-  View Detail: {{ link }}"
-new_reply_mail_text_allow_reply: "{{ comment_content }}
-
+new_reply_mail_text: |-
+  {{ comment_content }}
 
   -- 
+  You are receiving this because you were replied by {{ comment_author }} ({{ comment_author_user }})  
+  View Detail: {{ link }}
+new_reply_mail_text_allow_reply: |-
+  {{ comment_content }}
 
+  -- 
   You can reply to this email directly.
-
   You are receiving this because you were replied by {{ comment_author }} ({{ comment_author_user }})
-
-  View Detail: {{ link }}"
+  View Detail: {{ link }}
 new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
-new_replied_mail_text: "{{ comment_content }}
-
+new_replied_mail_text: |-
+  {{ comment_content }}
 
   On {{ replied_date }}, {{ replied_author }} wrote:
-
   {{ replied_content }}
 
-
   -- 
-
   You are receiving this because you were replied or mentioned by {{ comment_author }} ({{ comment_author_user }})
-  
-  View Detail: {{ link }}"
+  View Detail: {{ link }}
 
-new_replied_mail_text_allow_reply: "{{ comment_content }}
-
+new_replied_mail_text_allow_reply: |-
+  {{ comment_content }}
 
   On {{ replied_date }}, {{ replied_author }} wrote:
-
   {{ replied_content }}
 
-
   -- 
-
   You can reply to this email directly.
-
   You are receiving this because you were replied or mentioned by {{ comment_author }} ({{ comment_author_user }})
-
-  View Detail: {{ link }}"
+  View Detail: {{ link }}
