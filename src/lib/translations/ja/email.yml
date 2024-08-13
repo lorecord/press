@@ -21,7 +21,7 @@ new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_replied_mail_text: "{{ comment_content }}
 
 
-  {{ replied_author }}:
+  {{ replied_date }} に {{ replied_author }} が書きました：
 
   {{ replied_content }}
 
@@ -34,7 +34,7 @@ new_replied_mail_text: "{{ comment_content }}
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  {{ replied_author }}:
+  {{ replied_date }} に {{ replied_author }} が書きました：
 
   {{ replied_content }}
 

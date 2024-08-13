@@ -21,7 +21,7 @@ new_replied_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_replied_mail_text: "{{ comment_content }}
 
 
-  {{ replied_author }}:
+  On {{ replied_date }}, {{ replied_author }} wrote:
 
   {{ replied_content }}
 
@@ -35,7 +35,7 @@ new_replied_mail_text: "{{ comment_content }}
 new_replied_mail_text_allow_reply: "{{ comment_content }}
 
 
-  {{ replied_author }}:
+  On {{ replied_date }}, {{ replied_author }} wrote:
 
   {{ replied_content }}
 
