@@ -93,7 +93,7 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
     let params: any = {
         site_title: siteConfig.title,
         post_title: post.title,
-        replied_author: '> ' + (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
+        replied_author: (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
         replied_date: new Intl.DateTimeFormat(lang, {
             dateStyle: "short",
             timeStyle: "short",
