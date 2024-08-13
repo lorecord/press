@@ -27,7 +27,7 @@
                         <a href={`${value.url}`}>
                             <h4>
                                 <div>
-                                    <IconArrowNarrowRight size={24} />
+                                    <IconArrowNarrowLeft size={24} />
                                     {$t("common.newer")}
                                 </div>
                                 {value.title}
