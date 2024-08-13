@@ -1,9 +1,9 @@
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { createTransport } from 'nodemailer';
-import { decrypt } from "$lib/interaction/utils";
+import { decrypt, hashStringEquals } from "$lib/interaction/utils";
 import { t, l } from "$lib/translations";
 import { get } from "svelte/store";
-import type { Interaction, Reply } from "$lib/interaction/types";
+import type { HashValue, Interaction, Md5HashValue, Reply, Sha256HashValue } from "$lib/interaction/types";
 import type Mail from "nodemailer/lib/mailer";
 
 function getTransport(site: any) {
@@ -28,6 +28,17 @@ function getTransport(site: any) {
     return transport;
 }
 
+function resolveCommentAuthorUser(comment: Reply) {
+    return comment.author?.user
+        || (comment.author?.email?.hash as Sha256HashValue)?.sha256
+        || (comment.author?.email?.hash as Md5HashValue)?.md5
+        || comment.id;
+}
+
+function resolveCommentAuthorName(comment: Reply, lang: string) {
+    return comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`));
+}
+
 export const sendNewCommentMail = async (site: any, post: any, comment: Reply) => {
     let systemConfig = getSystemConfig(site);
 
@@ -43,8 +54,8 @@ export const sendNewCommentMail = async (site: any, post: any, comment: Reply) =
     let params: any = {
         site_title: siteConfig.title,
         post_title: post.title,
-        comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
-        comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
+        comment_author: resolveCommentAuthorName(comment, lang),
+        comment_author_user: resolveCommentAuthorUser(comment),
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
@@ -52,15 +63,14 @@ export const sendNewCommentMail = async (site: any, post: any, comment: Reply) =
     let text = get(l)(lang, allowReply ? `email.new_reply_mail_text_allow_reply` : `email.new_reply_mail_text`, params);
 
     if (!systemConfig.private?.email?.admin?.value
-        || (systemConfig.private?.email?.admin?.hash?.md5 && systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5)
-        || (systemConfig.private?.email?.admin?.hash?.sha256 && systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256)) {
+        || hashStringEquals(systemConfig.private?.email?.admin?.hash, comment.author?.email?.hash as HashValue)) {
         console.log('admin email not found or comment author is admin, skip send new comment mail', systemConfig.private?.email?.admin?.hash, comment.author?.email?.hash);
         return;
     }
     const adminEmail = decrypt(site, systemConfig.private?.email?.admin?.value);
     const transport = getTransport(site);
     transport.sendMail({
-        from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email.sender}>`,
+        from: `${JSON.stringify(resolveCommentAuthorName(comment, lang))} <${systemConfig.email.sender}>`,
         to: `${adminEmail}`,
         subject,
         text,
@@ -93,21 +103,18 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
     let params: any = {
         site_title: siteConfig.title,
         post_title: post.title,
-        replied_author: (replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`))),
+        replied_author: resolveCommentAuthorName(replied, lang),
         replied_date: new Intl.DateTimeFormat(lang, {
             dateStyle: "short",
             timeStyle: "short",
         }).format(new Date(replied.published)),
         replied_content: '> ' + (replied.content && replied.content.replace(/\n/g, '\n> ')),
-        comment_author: comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)),
-        comment_author_user: comment.author?.user || comment.author?.email?.hash?.sha256 || comment.author?.email?.hash?.md5 || comment.id,
+        comment_author: resolveCommentAuthorName(comment, lang),
+        comment_author_user: resolveCommentAuthorUser(comment),
         comment_content: comment.content,
         link: `${siteConfig.url}${post.url}#comment-${comment.id.substr(-8)}`
     }
-
-    if ((replied.author?.email?.hash?.md5 && (replied.author?.email?.hash?.md5 === comment.author?.email?.hash?.md5))
-        || (replied.author?.email?.hash?.sha256 && (replied.author?.email?.hash?.sha256 === comment.author?.email?.hash?.sha256
-        ))) {
+    if (hashStringEquals(replied.author?.email?.hash as HashValue, comment.author?.email?.hash as HashValue)) {
         console.log('replied author is the same as comment author, skip send replied mail');
         return;
     }
@@ -118,8 +125,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
     if (comment.target) {
         const transport = getTransport(site);
         let options: Mail.Options = {
-            from: `${JSON.stringify(comment.author?.name || (comment.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} <${systemConfig.email?.sender}>`,
-            to: `${JSON.stringify(replied.author?.name || (replied.author?.email?.value ? get(l)(lang, `common.comment_nobody`) : get(l)(lang, `common.comment_anonymous`)))} ${repliedEmail}`,
+            from: `${JSON.stringify(resolveCommentAuthorName(comment, lang))} <${systemConfig.email?.sender}>`,
+            to: `${JSON.stringify(resolveCommentAuthorName(replied, lang))} ${repliedEmail}`,
             subject,
             text,
             messageId: `<${comment.id}@${systemConfig.email?.sender.split('@')[1]}>`,
@@ -140,10 +147,10 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
                     comment: 'Unsubscribe All'
                 }, `${siteConfig.url}${post.url}`],
                 post: [{
-                        url: `${systemConfig.email?.sender}?subject=Post`,
-                        comment: 'Post'
-                    },
-                    `${siteConfig.url}${post.url}#comments`],
+                    url: `${systemConfig.email?.sender}?subject=Post`,
+                    comment: 'Post'
+                },
+                `${siteConfig.url}${post.url}#comments`],
                 archive: `${siteConfig.url}${post.url}`
             },
             headers: {
@@ -151,10 +158,8 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
                 'X-Auto-Response-Suppress': 'All'
             }
         };
-
         if (!systemConfig.private?.email?.admin?.value
-            || (systemConfig.private?.email?.admin?.hash?.md5 && systemConfig.private?.email?.admin?.hash?.md5 === comment.author?.email?.hash?.md5)
-            || (systemConfig.private?.email?.admin?.hash?.msha256 && systemConfig.private?.email?.admin?.hash?.sha256 === comment.author?.email?.hash?.sha256)
+            || hashStringEquals(systemConfig.private?.email?.admin?.hash, comment.author?.email?.hash as HashValue)
             || (replied.author?.email?.value && repliedEmail === adminEmail)) {
             // do nothing
         } else {

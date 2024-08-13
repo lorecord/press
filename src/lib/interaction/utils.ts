@@ -1,9 +1,20 @@
 import { loadPostRaw } from "$lib/post/handle-posts";
-import type { EncryptedString, NativeInteraction, NativeMention, NativeReply } from "./types";
+import type { EncryptedString, HashString, HashValue, Md5HashValue, NativeInteraction, NativeMention, NativeReply, Sha1HashValue, Sha256HashValue } from "./types";
 import crypto from 'crypto';
 import path from 'path';
 import { env } from '$env/dynamic/private';
 import { getEnvConfig } from "$lib/server/config";
+
+type xx = String | Number;
+
+export function hashStringEquals(a: HashValue, b: HashValue) {
+    const { md5: aMd5, sha256: aSha256, sha1: aSha1 } = a as Md5HashValue & Sha256HashValue & Sha1HashValue;
+    const { md5: bMd5, sha256: bSha256, sha1: bSha1 } = b as Md5HashValue & Sha256HashValue & Sha1HashValue;
+
+    return (aMd5 && aMd5 == bMd5)
+        || (aSha1 && aSha1 == bSha1)
+        || (aSha256 && aSha256 == bSha256);
+}
 
 export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
     const folder = getPostFolder(site, { slug });

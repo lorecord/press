@@ -17,13 +17,17 @@ export interface EncryptedString {
     version?: string;
 }
 
-export type HashValue = ({
+export interface Md5HashValue {
     md5: string;
-} | {
+}
+export interface Sha256HashValue {
     sha256: string;
-} | {
+}
+export interface Sha1HashValue {
     sha1: string;
-})
+}
+
+export type HashValue = Md5HashValue | Sha256HashValue | Sha1HashValue;
 
 export type HashString = {
     salt?: string;
