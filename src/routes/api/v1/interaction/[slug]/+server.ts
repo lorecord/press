@@ -5,7 +5,7 @@ import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { Interaction, NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
+import type { NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -17,14 +17,17 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
     const webmentions = loadWebmentions(site, slug);
 
-    const replies = [...nativeInteractions.filter((comment: any) => comment.type === "reply") as NativeReply[], ...webmentions.filter((mention: any) => mention.type === "reply") as WebmentionReply[]];
-
-    replies.forEach((reply: Reply) => {
-        if (reply.author?.email?.value) {
-            const email = reply.author.email;
+    const replies = [
+        ...nativeInteractions.filter((comment: any) => comment.type === "reply") as NativeReply[],
+        ...webmentions.filter((mention: any) => mention.type === "reply") as WebmentionReply[]
+    ].map((reply: Reply) => {
+        let newReply = JSON.parse(JSON.stringify(reply)) as Reply;
+        if (newReply.author?.email?.value) {
+            const email = newReply.author.email;
             delete email.value;
         }
-        delete (reply as NativeReply).ip;
+        delete (newReply as NativeReply).ip;
+        return newReply;
     });
 
     const mentions = [...nativeInteractions.filter((comment: any) => comment.type === "mention"), ...webmentions.filter((mention: any) => mention.type === "mention")]
