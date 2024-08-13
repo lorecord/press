@@ -16,7 +16,13 @@
 
     export let replies: any[];
     export let reply: false;
-    export let post: { slug: string; lang: string; "x.com"?: any; nostr?: any };
+    export let post: {
+        slug: string;
+        lang: string;
+        "x.com"?: any;
+        nostr?: any;
+        langs: string[];
+    };
     export let webmentionEndpoint: string = "";
     export let postUrl: string;
     export let reverse: boolean = false;
@@ -79,9 +85,7 @@
 
         // load text from locale store to textarea
         textarea.value =
-            textarea.value ||
-            sessionStorage.getItem(`comment-craft`) ||
-            "";
+            textarea.value || sessionStorage.getItem(`comment-craft`) || "";
     });
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -208,7 +212,7 @@
 
     $: replyToReply = replies?.find((reply) => reply.id === target);
 
-    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.slug}${replyToReply ? `#${replyToReply.id}` : ""})`)}&body=${encodeURI(text || "")}`;
+    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.slug}${replyToReply ? `#${replyToReply.id}` : ""})${post.langs?.length > 0 ? ` [${post.lang}]` : ""}`)}&body=${encodeURI(text || "")}`;
 </script>
 
 {#if reply}

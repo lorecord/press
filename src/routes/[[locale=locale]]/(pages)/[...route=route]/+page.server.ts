@@ -50,7 +50,7 @@ export const actions: Actions = {
                     || form.get("email")?.toString().match(/^(http)/))) {
 
                 let comment = {
-                    lang: locale || systemConfig.locale.default,
+                    lang: form.get("lang")?.toString() || locale || systemConfig.locale.default || 'en',
                     author: form.get("name")?.toString() || '',
                     user: email === form.get("email")?.toString() ? username : '',
                     email: form.get("email")?.toString() || '',

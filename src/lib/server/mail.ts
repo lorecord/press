@@ -177,6 +177,8 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
             text = get(l)(lang, allowReplyEmail ? `email.new_replied_mail_text_allow_reply` : `email.new_replied_mail_text`, params);
         }
 
+        subject += ` [${lang}]`;
+
         emailConfigOfLang[lang] = {
             subject,
             text,

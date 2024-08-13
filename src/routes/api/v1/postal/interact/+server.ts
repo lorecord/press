@@ -87,7 +87,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         replyContext.replied = replied;
     }
 
-    let lang = replied?.lang || systemConfig.locale?.default || 'en';
+    const [, lang = replied?.lang || systemConfig.locale?.default || 'en'] = payload.subject?.match(/\[(.*)\]$/) || [];
 
     const post = await loadPost(site, { route: slug, lang });
 
