@@ -2,7 +2,7 @@ import { loadNativeInteractions, loadNativeInteraction, saveNativeInteraction, c
 import { loadWebmentions } from "$lib/interaction/handle-webmention";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
-import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
+import { sendNewReplyMail } from "$lib/server/mail";
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import type { Interaction, NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
@@ -95,25 +95,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         console.log('new comment saved', saved?.id);
 
         if (saved) {
-            let replyContext: {
-                is?: boolean,
-                replied?: Reply
-            } = {};
-
-            if (interaction.target) {
-                let replied = loadNativeInteraction(site, { slug, id: interaction.target });
-
-                if (replied && replied.type === 'reply') {
-                    replyContext.is = true;
-                    replyContext.replied = replied;
-                }
-            }
-
-            if (replyContext.is && replyContext.replied) {
-                sendNewReplyMail(site, post, saved, replyContext.replied);
-            } else {
-                sendNewCommentMail(site, post, saved);
-            }
+            sendNewReplyMail(site, post, saved);
 
             let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
             if (newInteraction) {

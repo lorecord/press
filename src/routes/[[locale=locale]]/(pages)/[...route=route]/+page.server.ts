@@ -1,13 +1,12 @@
 import { getSystemConfig } from "$lib/server/config";
-import { loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
+import { saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
-import { sendNewCommentMail, sendNewReplyMail } from "$lib/server/mail";
+import { sendNewReplyMail } from "$lib/server/mail";
 import { getSiteAccount } from "$lib/server/accouns.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type { Reply } from "$lib/interaction/types";
 
 export const load: PageServerLoad = async ({ locals }) => {
     const { localeContext } = locals as any;
@@ -63,23 +62,7 @@ export const actions: Actions = {
                 let saved = saveNativeInteraction(site, { slug: route.toString() }, createNativeInteractionReply(site, comment));
 
                 if (saved) {
-                    let replyContext: {
-                        is?: boolean,
-                        replied?: Reply
-                    } = {};
-
-                    if (comment.target) {
-                        let replied = loadNativeInteraction(site, { slug: route.toString(), id: comment.target });
-                        if (replied && replied.type === 'reply') {
-                            replyContext.is = true;
-                            replyContext.replied = replied;
-                        }
-                    }
-                    if (replyContext.is && replyContext.replied) {
-                        sendNewReplyMail(site, post, saved, replyContext.replied);
-                    } else {
-                        sendNewCommentMail(site, post, saved);
-                    }
+                    sendNewReplyMail(site, post, saved);
                 }
             }
         }
