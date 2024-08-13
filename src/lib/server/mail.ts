@@ -76,13 +76,14 @@ function buildAuthorData(site: any, author: Author, lang: string) {
 export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
-        console.log('email not configured, skip send replied mail');
+        console.log('email not configured, skip send reply mail');
         return;
     }
 
     let replyAuthorData = buildAuthorData(site, reply?.author || {}, reply?.lang || post.lang || systemConfig.locale?.default || 'en');
 
     let replied: Reply | undefined = reply.target ? getNativeInteraction(site, reply.target).interaction as Reply : undefined;
+
     let repliedAuthorData = buildAuthorData(site, replied?.author || {}, replied?.lang || post.lang || systemConfig.locale?.default || 'en');
 
     let uniqueAuthorDataInThread = ((reply, level) => {
@@ -109,22 +110,39 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
         // TODO resolve authors of post
         const authorsRelatedToThread = [...authorsInThread, {
-            email: systemConfig.private?.email?.admin
+            name: site.unique,
+            email: systemConfig.private?.email?.admin,
+            lang: post.lang || systemConfig.locale?.default || 'en'
         } as Author];
 
-        const uniqueEmailHashs = Array.from(authorsRelatedToThread.map((person) => {
-            const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
-            return (md5 && `md5:${md5}`)
-                || (sha256 && `sha256:${sha256}`)
-                || (sha1 && `sha1:${sha1}`);
-        }).filter((hash) => !!hash));
+        const uniqueEmailHashs = Array.from(new Set(authorsRelatedToThread
+            .map((person) => {
+                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                return (sha256 && `sha256:${sha256}`)
+                    || (sha1 && `sha1:${sha1}`)
+                    || (md5 && `md5:${md5}`);
+            })
+            .filter((hash) => !!hash)
+            .filter((hash) => {
+                const { md5, sha256, sha1 } = reply?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                return (!sha256 || `sha256:${sha256}` !== hash)
+                    && (!sha1 || `sha1:${sha1}` !== hash)
+                    && (!md5 || `md5:${md5}` !== hash);
+            })
+            .filter((hash) => {
+                const { md5, sha256, sha1 } = replied?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                return (!sha256 || `sha256:${sha256}` !== hash)
+                    && (!sha1 || `sha1:${sha1}` !== hash)
+                    && (!md5 || `md5:${md5}` !== hash);
+            })
+        ));
 
         return uniqueEmailHashs.map((hash) => {
             return authorsRelatedToThread.find((person) => {
                 const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
-                return (md5 && `md5:${md5}` === hash)
-                    || (sha256 && `sha256:${sha256}` === hash)
-                    || (sha1 && `sha1:${sha1}` === hash);
+                return (sha256 && `sha256:${sha256}` === hash)
+                    || (sha1 && `sha1:${sha1}` === hash)
+                    || (md5 && `md5:${md5}` === hash);
             }) || {};
         })
             .map((author) => buildAuthorData(site, author, reply.lang || post.lang || systemConfig.locale?.default || 'en'))
@@ -149,7 +167,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
         }
 
         let siteConfig = getSiteConfig(site, lang);
-        let postWithLang = post.lang != lang ? await loadPost(site, { route: post.route, lang }) : undefined;
+        let postWithLang = post.lang != lang ? await loadPost(site, { route: post.slug, lang }) : undefined;
 
         let params: any = {
             site_title: siteConfig.title,
@@ -170,11 +188,11 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
         let subject: String, text: String;
         if (replied) {
-            subject = get(l)(lang, `email.new_reply_mail_subject`, params);
-            text = get(l)(lang, allowReplyEmail ? `email.new_reply_mail_text_allow_reply` : `email.new_reply_mail_text`, params);
-        } else {
             subject = get(l)(lang, `email.new_replied_mail_subject`, params);
             text = get(l)(lang, allowReplyEmail ? `email.new_replied_mail_text_allow_reply` : `email.new_replied_mail_text`, params);
+        } else {
+            subject = get(l)(lang, `email.new_reply_mail_subject`, params);
+            text = get(l)(lang, allowReplyEmail ? `email.new_reply_mail_text_allow_reply` : `email.new_reply_mail_text`, params);
         }
 
         subject += ` [${lang}]`;
@@ -219,7 +237,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
         let lang = replied?.lang || post.lang || systemConfig.locale?.default || 'en';
         let { subject, text, list, params } = await getEmailConfigParams(lang);
         let options: Mail.Options = {
-            from: buildEmailAddress(params.site_title, systemConfig.email?.sender) as string,
+            from: buildEmailAddress(resolveAuthorName(replyAuthorData.author, lang), systemConfig.email?.sender) as string,
             to: buildEmailAddress(resolveAuthorName(repliedAuthorData.author, lang), repliedAuthorData.emailAddress) as string,
             subject: subject as string,
             text: text as string,
@@ -259,9 +277,9 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
     for (let lang in recipientsOfLang) {
         let authorDataArray = recipientsOfLang[lang];
-        let { subject, text, list, params } = await getEmailConfigParams(lang);
+        let { subject, text, list } = await getEmailConfigParams(lang);
         let options: Mail.Options = {
-            from: buildEmailAddress(params.site_title, systemConfig.email?.sender) as string,
+            from: buildEmailAddress(resolveAuthorName(replyAuthorData.author, lang), systemConfig.email?.sender) as string,
             to: TO_HOLDER,
             subject: subject as string,
             text: text as string,
@@ -281,7 +299,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
         if (recipientArray.length > 0) {
             options.bcc = recipientArray.join(', ');
             transport.sendMail(options).then((result) => {
-                console.log(`new reply mail in ${lang} to ${options.bcc} send, id: ${result.messageId}`);
+                console.log(`new reply mail in ${lang} bcc ${options.bcc} send, id: ${result.messageId}`);
             });
         }
     }
