@@ -90,13 +90,13 @@ export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
 
         let volume = 1;
         if (event.url.pathname.startsWith('/api/')) {
-            volume = 10;
+            volume = 5;
 
             if (event.request.method === 'POST') {
                 volume = 100;
             }
-        } else if (event.url.pathname.match(/^\/(sitemap\.|).*/)) {
-            volume = 50;
+        } else if (event.url.pathname.match(/^\/((sitemap\..*)|({[a-z]{2}(-[a-zA-Z]{2,5})?}\/feed))(\?.*)?/)) {
+            volume = 25;
         }
 
         const ip = getRealClientAddress(event);
