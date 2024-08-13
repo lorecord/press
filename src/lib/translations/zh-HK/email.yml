@@ -2,7 +2,7 @@ new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  —
+  -- 
 
   您收到此郵件是因為 {{ comment_author }} ({{ comment_author_user }}) 回覆或提到了您。
   
@@ -10,7 +10,7 @@ new_reply_mail_text: "{{ comment_content }}
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  —
+  -- 
 
   您可以直接回覆此電子郵件。
 
@@ -26,7 +26,7 @@ new_replied_mail_text: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   您收到此郵件是因為 {{ comment_author }} ({{ comment_author_user }}) 回覆或提到了您。
   
@@ -39,7 +39,7 @@ new_replied_mail_text_allow_reply: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   您可以直接回覆此電子郵件。
 

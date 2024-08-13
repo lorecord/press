@@ -2,7 +2,7 @@ new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  —
+  -- 
 
   Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort oder Erwähnung erhalten haben.
   
@@ -10,7 +10,7 @@ new_reply_mail_text: "{{ comment_content }}
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  —
+  -- 
 
   Sie können direkt auf diese E-Mail antworten.
 
@@ -26,7 +26,7 @@ new_replied_mail_text: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   Sie erhalten diese Nachricht, weil Sie von {{ comment_author }} ({{ comment_author_user }}) eine Antwort oder Erwähnung erhalten haben.
   
@@ -39,7 +39,7 @@ new_replied_mail_text_allow_reply: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   Sie können direkt auf diese E-Mail antworten.
 

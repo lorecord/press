@@ -2,7 +2,7 @@ new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  —
+  -- 
 
   あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。
   
@@ -10,7 +10,7 @@ new_reply_mail_text: "{{ comment_content }}
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  —
+  -- 
 
   このメールに直接返信できます。
 
@@ -26,7 +26,7 @@ new_replied_mail_text: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   あなたは {{ comment_author }} ({{ comment_author_user }}) からの返信または言及を受け取ったため、このメールを受信しています。
   
@@ -39,7 +39,7 @@ new_replied_mail_text_allow_reply: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   このメールに直接返信できます。
 

@@ -2,7 +2,7 @@ new_reply_mail_subject: "Re: [{{ site_title }}] {{ post_title }}"
 new_reply_mail_text: "{{ comment_content }}
 
 
-  —
+  -- 
 
   Вы получили это письмо, потому что получили ответ или упоминание от {{ comment_author }} ({{ comment_author_user }}).
   
@@ -10,7 +10,7 @@ new_reply_mail_text: "{{ comment_content }}
 new_reply_mail_text_allow_reply: "{{ comment_content }}
 
 
-  —
+  -- 
 
   Вы можете ответить на это письмо напрямую.
 
@@ -26,7 +26,7 @@ new_replied_mail_text: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   Вы получили это письмо, потому что получили ответ или упоминание от {{ comment_author }} ({{ comment_author_user }}).
   
@@ -39,7 +39,7 @@ new_replied_mail_text_allow_reply: "{{ comment_content }}
   {{ replied_content }}
 
 
-  —
+  -- 
 
   Вы можете ответить на это письмо напрямую.
 
