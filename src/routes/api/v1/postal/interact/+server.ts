@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     console.log('[postal/interact] POST', payload);
 
-    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*)*)(?:\n[-—]+\s*(?!.*\n[-—]+\s*\n.*)(.*))?/) || [];
+    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
 
     if (!replyPart) {
         return json({ message: "Signature Only Igored" });
