@@ -21,7 +21,7 @@ new_replied_mail_text: |-
 
   -- 
   您收到此邮件是因为 {{ comment_author }} ({{ comment_author_user }}) 回复或提到了您。  
-  查看详情: {{ link }}"
+  查看详情: {{ link }}
 new_replied_mail_text_allow_reply: |-
   {{ comment_content }}
 
