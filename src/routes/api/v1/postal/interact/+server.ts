@@ -24,13 +24,14 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json({ message: "Empty Message Igored" });
     }
 
+
+    console.log('[postal/interact] POST', payload);
+
     let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*)\n[-—]+\s*\n(?!.*\n[-—]+\s*\n.*)(.*)/) || [];
 
     if (!replyPart) {
         return json({ message: "Signature Only Igored" });
-    }
-
-    console.log('[postal/interact] POST', payload);
+    }   
 
     if (systemConfig.postal?.enabled !== true) {
         console.log('Postal disabled');
