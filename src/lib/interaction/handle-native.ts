@@ -272,6 +272,7 @@ export function createNativeInteractionReply(site: any, {
         ),
         published: date || new Date().toISOString(),
         content: text,
+        lang
     }, optional(target, 'target'), optional(ip, 'ip', (ip) => encrypt(site, ip)),) as NativeReply;
 }
 
