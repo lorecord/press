@@ -117,20 +117,20 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
         const uniqueEmailHashs = Array.from(new Set(authorsRelatedToThread
             .map((person) => {
-                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
                 return (sha256 && `sha256:${sha256}`)
                     || (sha1 && `sha1:${sha1}`)
                     || (md5 && `md5:${md5}`);
             })
             .filter((hash) => !!hash)
             .filter((hash) => {
-                const { md5, sha256, sha1 } = reply?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                const { md5, sha256, sha1 } = reply?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
                 return (!sha256 || `sha256:${sha256}` !== hash)
                     && (!sha1 || `sha1:${sha1}` !== hash)
                     && (!md5 || `md5:${md5}` !== hash);
             })
             .filter((hash) => {
-                const { md5, sha256, sha1 } = replied?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                const { md5, sha256, sha1 } = replied?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
                 return (!sha256 || `sha256:${sha256}` !== hash)
                     && (!sha1 || `sha1:${sha1}` !== hash)
                     && (!md5 || `md5:${md5}` !== hash);
@@ -139,7 +139,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
         return uniqueEmailHashs.map((hash) => {
             return authorsRelatedToThread.find((person) => {
-                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue;
+                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
                 return (sha256 && `sha256:${sha256}` === hash)
                     || (sha1 && `sha1:${sha1}` === hash)
                     || (md5 && `md5:${md5}` === hash);
@@ -233,9 +233,9 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
     }
     const transport = getTransport(site);
 
-    if (repliedAuthorData?.emailAddress) {
+    if (repliedAuthorData?.emailAddress && repliedAuthorData.emailAddress !== replyAuthorData?.emailAddress) {
         let lang = replied?.lang || post.lang || systemConfig.locale?.default || 'en';
-        let { subject, text, list, params } = await getEmailConfigParams(lang);
+        let { subject, text, list } = await getEmailConfigParams(lang);
         let options: Mail.Options = {
             from: buildEmailAddress(resolveAuthorName(replyAuthorData.author, lang), systemConfig.email?.sender) as string,
             to: buildEmailAddress(resolveAuthorName(repliedAuthorData.author, lang), repliedAuthorData.emailAddress) as string,
