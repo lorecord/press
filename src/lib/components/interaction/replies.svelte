@@ -299,7 +299,7 @@
         {/if}
         <form
             method="post"
-            class="form form-reply"
+            class="form form-reply loadable"
             bind:this={form}
             use:loading={submmiting}
             on:submit|preventDefault={handleReplySubmit}
