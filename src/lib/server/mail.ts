@@ -139,12 +139,11 @@ export const sendNewReplyMail = async (site: any, post: any, comment: Reply, rep
                     url: `${systemConfig.email?.sender}?subject=Unsubscribe&all=1`,
                     comment: 'Unsubscribe All'
                 }, `${siteConfig.url}${post.url}`],
-                post: [
-                    `${siteConfig.url}${post.url}`,
-                    {
+                post: [{
                         url: `${systemConfig.email?.sender}?subject=Post`,
                         comment: 'Post'
-                    }],
+                    },
+                    `${siteConfig.url}${post.url}#comments`],
                 archive: `${siteConfig.url}${post.url}`
             },
             headers: {
