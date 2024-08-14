@@ -98,17 +98,17 @@
         }
 
         h2 {
-            font-size: 1.667em;
+            font-size: 1.333em;
 
             @media screen and (max-width: 600px) {
                 font-size: 1.444em;
             }
         }
         h3 {
-            font-size: 1.333em;
+            font-size: 1.133em;
 
             @media screen and (max-width: 600px) {
-                font-size: 1.222em;
+                font-size: 1em;
             }
         }
 
@@ -143,7 +143,7 @@
             margin-left: 0;
 
             &::before {
-                top: calc(1.222em / 2);
+                top: calc(1em / 2);
             }
 
             > div {
