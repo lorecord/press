@@ -109,7 +109,7 @@
     });
 </script>
 
-<article class="typography type-{type}" lang={post.lang}>
+<article class="typography type-{type} template-{post.template}" lang={post.lang}>
     {#if header}
         <div class="article-header container">
             {#if post.image}
