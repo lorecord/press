@@ -109,7 +109,7 @@
     });
 </script>
 
-<article class="typography type-{type}">
+<article class="typography type-{type}" lang={post.lang}>
     {#if header}
         <div class="article-header container">
             {#if post.image}
@@ -135,7 +135,7 @@
 
                     {#if post.review}
                         <div>
-                            {$t("common.review")}
+                            <span lang={$locale}>{$t("common.review")}</span>
                             {#if post.review.item?.url}
                                 <a
                                     class="u-review-of"
@@ -180,7 +180,9 @@
                 {#if post.toc && post.headings}
                     <details class="article-toc" open id="article-toc">
                         <summary>
-                            <h3>{$t("common.toc")}</h3>
+                            <h3>
+                                <span lang={$locale}>{$t("common.toc")}</span>
+                            </h3>
                         </summary>
                         <ul>
                             {#each post.headings as { level, text, id }}
@@ -237,7 +239,9 @@
                             {#if post.authors}
                                 <div class="article-license-meta-item">
                                     <div class="label">
-                                        {$t("common.author")}
+                                        <span lang={$locale}
+                                            >{$t("common.author")}</span
+                                        >
                                     </div>
                                     <div
                                         class="value"
@@ -284,7 +288,9 @@
                             {/if}
                             <div class="article-license-meta-item">
                                 <div class="label">
-                                    {$t("common.publish_date")}
+                                    <span lang={$locale}
+                                        >{$t("common.publish_date")}</span
+                                    >
                                 </div>
                                 <div class="value">
                                     <Time
@@ -297,7 +303,9 @@
                             {#if post.license || systemConfig.license?.default}
                                 <div class="article-license-meta-item">
                                     <div class="label">
-                                        {$t("common.license")}
+                                        <span lang={$locale}
+                                            >{$t("common.license")}</span
+                                        >
                                     </div>
                                     <div class="value">
                                         <License
@@ -310,7 +318,7 @@
                         </div>
                         <details style="padding: 1rem" class="no-print">
                             <summary>
-                                {$t("common.cite")}
+                                <span lang={$locale}>{$t("common.cite")}</span>
                             </summary>
                             <div style="padding-left: 2rem">
                                 <Cite
@@ -398,7 +406,7 @@
                                             <a
                                                 rel="alternate"
                                                 href="/{lang}{post.url}"
-                                                >{$t(`lang.${lang}`)}</a
+                                                {lang}>{$t(`lang.${lang}`)}</a
                                             >
                                         </li>
                                     {/each}

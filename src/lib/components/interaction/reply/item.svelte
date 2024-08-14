@@ -43,6 +43,7 @@
     class:has-replies={item.replies?.length > 1}
     class:replying
     class:replying-one={replyingOne}
+    lang={item.lang}
 >
     <div class="comment-avatar">
         {#if item.author?.url && hasEmail}
@@ -68,7 +69,9 @@
         <div class="comment-header">
             <span class="comment-author">
                 {#if item.author?.url}
-                    <a href={item.author?.url} rel="external noopener author nofollow"
+                    <a
+                        href={item.author?.url}
+                        rel="external noopener author nofollow"
                         ><span class={`name-${nameSource}`}>{finalName}</span
                         ></a
                     >

@@ -30,7 +30,7 @@
                                     <IconArrowNarrowLeft size={24} />
                                     {$t("common.newer")}
                                 </div>
-                                {value.title}
+                                <span lang={value.lang}>{value.title}</span>
                             </h4>
                         </a>
                     {/if}
@@ -45,7 +45,7 @@
                                     {$t("common.earlier")}
                                     <IconArrowNarrowRight size={24} />
                                 </div>
-                                {value.title}
+                                <span lang={value.lang}>{value.title}</span>
                             </h4>
                         </a>
                     {/if}

@@ -58,6 +58,7 @@
 
 {#if show && (currentPageLocale !== currentContentLocale || (suggestions.length > 0 && currentContentLocale != localeContext.preferedLanguage) || (suggestions.length > 0 && !suggestions.includes(currentContentLocale)))}
     <div
+        lang={suggectionLocale}
         class="container"
         in:fade|global={{ duration: 150, delay: 150 }}
         out:fade|global={{ duration: 150 }}

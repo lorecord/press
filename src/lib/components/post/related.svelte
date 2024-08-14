@@ -15,7 +15,9 @@
                 options={{ dateStyle: "short" }}
             />
             <h4>
-                <a href={r.post.url} data-related={r.score}>{r.post.title}</a>
+                <a href={r.post.url} data-related={r.score}>
+                    <span lang={r.post.lang}>{r.post.title} </span>
+                </a>
             </h4>
         </li>
     {/each}
