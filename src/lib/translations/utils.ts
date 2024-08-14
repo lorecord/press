@@ -10,14 +10,14 @@ export function getPreferredLang(acceptLanguages: string[], availableLangs: stri
         }
     }
     for (const locale of acceptLanguages) {
-        let lang = locale.split('-')[0];
+        let lang = locale?.split('-')[0];
         let fallbacked = availableLangs.find((l) => l?.startsWith(lang));
         if (fallbacked) {
             return fallbacked;
         }
     }
     for (const locale of acceptLanguages) {
-        let lang = locale.split('-')[0];
+        let lang = locale?.split('-')[0];
         if (availableLangs.includes(lang)) {
             return lang;
         }
