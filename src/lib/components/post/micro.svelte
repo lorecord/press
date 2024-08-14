@@ -18,13 +18,7 @@
 
     let gravatarBase = systemConfig.gravatar?.base;
 
-    $: author = {
-        name: "test",
-        url: "https://example.com",
-        email_hash: "",
-        avatar: "",
-        lang: "en",
-    };
+    $: author = post.authors?.[0];
 
     onMount(() => {
         if (typeof (window as any)?.webln !== "undefined") {

@@ -5,8 +5,30 @@ import { detectResourceLocales } from '$lib/resource';
 import { getPreferredLang } from '$lib/translations/utils';
 import path from 'path';
 import { getSystemConfig } from './config';
+import type { EncryptedString, HashValue } from '$lib/interaction/types';
 
-let accountsOfSite: any = {};
+export interface Account {
+    id: string;
+    account: string;
+    name: string;
+    email: {
+        value: EncryptedString;
+        hash: HashValue;
+    },
+    orcid: `https://orcid.org/${string}`;
+    url: string;
+    avatar: string;
+}
+
+let accountsOfSite: {
+    [site: string]: {
+        [accountName: string]: {
+            base?: Account
+            locales?:
+            Account[]
+        }
+    }
+} = {};
 
 function load() {
     for (const site of sites) {
@@ -26,15 +48,21 @@ function load() {
 
             console.log(`[server/account.ts] accountNames of site ${site.unique}`, accountNames);
 
-            let accounts: any = {};
+            let accounts: {
+                [accountName: string]: {
+                    base?: Account
+                    locales?:
+                    Account[]
+                }
+            } = {};
 
             for (const accountName of accountNames) {
                 let sitesResource = detectResourceLocales(`${ACCOUNTS_DIR}/${accountName}.yml`);
 
                 let accountLocales = sitesResource.locales?.map((resource: any) => {
-                    return Object.assign({}, loadData(path.join(sitesResource.folder, resource.filename)), { lang: resource.lang });
+                    return Object.assign({}, loadData(path.join(sitesResource.folder, resource.filename)), { lang: resource.lang }) as Account;
                 });
-                let accountBase = loadData(path.join(sitesResource.folder, sitesResource.default));
+                let accountBase = loadData(path.join(sitesResource.folder, sitesResource.default)) as Account;
 
                 accounts[accountName] = {
                     base: accountBase,
@@ -55,28 +83,30 @@ function getSiteAccounts(site: any, lang: string) {
 
     const accounts = accountsOfSite[site.unique] || {};
 
-    return accounts.map((account: any) => buildAccountData(site, account, lang, system.locale?.default || 'en'));
+    return Object.values(accounts).map((account: any) => buildAccountData(site, account, lang, system.locale?.default || 'en'));
 }
 
-function getSiteAccount(site: any, accountName: string, lang: string) {
+function getSiteAccount(site: any, accountName: string, lang: string): Account | undefined {
     const system = getSystemConfig(site);
 
     const accounts = accountsOfSite[site.unique] || {};
     const account = accounts[accountName];
-    if (!account) {
-        return {};
+    if (account) {
+        return buildAccountData(site, account, lang, system.locale?.default || 'en');
     }
-    return buildAccountData(site, account, lang, system.locale?.default || 'en');
 }
 
-function buildAccountData(site: any, account: any, lang: string, langDefault: string) {
+function buildAccountData(site: any, account: {
+    base?: Account;
+    locales?: Account[];
+}, lang: string, langDefault: string) {
     const { base = {}, locales = [] } = account;
 
     const finalLang = getPreferredLang([lang], locales.map((l: any) => l.lang), langDefault);
 
     const localeData = locales.find((l: any) => l.lang === finalLang);
 
-    return Object.assign({}, base, localeData);
+    return Object.assign({}, base, localeData) as Account;
 }
 
 function configInit() {
@@ -85,4 +115,4 @@ function configInit() {
 
 configInit();
 
-export {  getSiteAccounts, getSiteAccount, configInit };
+export { getSiteAccounts, getSiteAccount, configInit };
