@@ -4,9 +4,14 @@
     import Cite from "$lib/components/cite/index.svelte";
     import Time from "$lib/ui/time/index.svelte";
 
-    import { IconBolt, IconLanguage } from "@tabler/icons-svelte";
+    import {
+        IconBolt,
+        IconExternalLink,
+        IconLanguage,
+    } from "@tabler/icons-svelte";
     import { onMount } from "svelte";
     import AuthorAvatar from "../interaction/reply/author-avatar.svelte";
+    import Title from "../seo/title.svelte";
 
     export let post: any;
     export let systemConfig: any;
@@ -26,6 +31,8 @@
         }
     });
 </script>
+
+<Title value={`${author.name}: "${post.summary}"`}></Title>
 
 <article class="typography type-{type}" lang={post.lang}>
     <div class="article-header container">
@@ -68,35 +75,55 @@
                 </div>
                 <span class="p-name" lang={author.lang}>{author?.name}</span>
             </div>
-
-            <Time date={post.date} class="dt-published" locale={$locale} />
         </div>
     </div>
     <div class="article-body container">
         <div class="e-content article-content">
             {@html post.content}
-        </div>
 
-        {#if post.image}
-            <img
-                class="no-print"
-                src={post.image}
-                alt=""
-                style="max-width: 100%"
-            />
-        {/if}
+            {#if post.image}
+                <img
+                    class="no-print"
+                    src={post.image}
+                    alt=""
+                    style="max-width: 100%"
+                />
+            {/if}
+        </div>
+        <div class="article-meta">
+            <a
+                href="{siteConfig.url}{post.url}"
+                rel="bookmark"
+                style="color: var(--text-color-tertiary); text-decoration: none"
+            >
+                <Time date={post.date} class="dt-published" locale={$locale} />
+            </a>
+        </div>
     </div>
     <div class="article-footer container">
-        <div class="article-extra">
+        <div class="article-micro-action">
             {#if systemConfig.lnurlp?.page && lightningSupported}
                 <a
-                    style="display: inline-flex;color: gold"
+                    class="button button-text"
+                    style="padding:0; height: auto; display: inline-flex; color: gold"
                     rel="noindex nofollow noopener external"
                     href={systemConfig.lnurlp.page}
                 >
                     <IconBolt size={18} />
                 </a>
             {/if}
+            {#if post.link}
+                <a
+                    class="button button-text"
+                    style="padding:0; height: auto"
+                    href={post.link}
+                    rel="external noopener nofollow"
+                >
+                    <IconExternalLink size={18} />
+                </a>
+            {/if}
+        </div>
+        <div class="article-extra">
             {#if post.template == "item"}
                 <div class="article-license">
                     <div class="article-license-meta">
@@ -313,6 +340,17 @@
 
         .article-header {
             padding-top: 2ch;
+            padding-bottom: 0;
+        }
+        .article-footer {
+            padding-top: 0;
+            padding-bottom: 2ch;
+        }
+
+        .article-micro-action {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
         }
 
         .article-header,
@@ -347,15 +385,10 @@
         }
 
         .article-meta {
-            text-align: center;
-        }
-
-        .article-meta {
             color: var(--text-color-tertiary);
 
             display: flex;
             gap: 1em;
-            justify-content: center;
         }
 
         .article-content {
