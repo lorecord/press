@@ -109,7 +109,10 @@
     });
 </script>
 
-<article class="typography type-{type} template-{post.template}" lang={post.lang}>
+<article
+    class="typography type-{type} template-{post.template}"
+    lang={post.lang}
+>
     {#if header}
         <div class="article-header container">
             {#if post.image}
@@ -286,7 +289,8 @@
                                         {/each}
                                         {#if systemConfig.lnurlp?.page && lightningSupported}
                                             <a
-                                                style="display: inline-flex;color: gold"
+                                                class="button button-text"
+                                                style="padding:0; height: auto; display: inline-flex; color: gold"
                                                 rel="noindex nofollow noopener external"
                                                 href={systemConfig.lnurlp.page}
                                             >
