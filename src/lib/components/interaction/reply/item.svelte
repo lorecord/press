@@ -47,7 +47,7 @@
 >
     <div class="comment-avatar">
         {#if item.author?.url && hasEmail}
-            <a href={item.author?.url} rel="external noopener author nofollow">
+            <a href={item.author?.url} rel="noopener author nofollow">
                 <AuthorAvatar
                     avatar={item.author?.avatar}
                     {gravatarBase}
@@ -71,7 +71,7 @@
                 {#if item.author?.url}
                     <a
                         href={item.author?.url}
-                        rel="external noopener author nofollow"
+                        rel="noopener author nofollow"
                         ><span class={`name-${nameSource}`}>{finalName}</span
                         ></a
                     >
