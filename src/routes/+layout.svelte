@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterNavigate } from "$app/navigation";
+    import { afterNavigate, replaceState } from "$app/navigation";
     import ScrollToTop from "$lib/components/scroll-to-top.svelte";
     import { afterUpdate, onMount } from "svelte";
 
@@ -39,36 +39,77 @@
         });
     }
 
+    function processAnchorLinks() {
+        document.querySelectorAll("a[href^='#']").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                const id = link.getAttribute("href")?.substring(1);
+                if (!id) return;
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView();
+                }
+            });
+        });
+    }
+
     onMount(() => {
         processExternalLinks();
+        processAnchorLinks();
     });
 
     afterUpdate(() => {
         processExternalLinks();
+        processAnchorLinks();
     });
 
-    const scrollToHash = (delay: number = 0) => {
-        const hash = window.location.hash;
-        if (hash) {
+    const scrollTo = (id: string, delay: number = 0) => {
+        if (id) {
             setTimeout(() => {
-                const element = document.getElementById(hash.substring(1));
+                const element = document.getElementById(id);
                 if (element) {
                     element.scrollIntoView();
                 }
-            }, 500);
+            }, delay);
+        }
+    };
+
+    const checkAndScrollToHash = (delay: number = 0) => {
+        const hash = window.location.hash;
+        if (hash) {
+            setTimeout(() => {
+                const id = hash.substring(1);
+                scrollTo(id, 0);
+            }, delay);
         }
     };
 
     onMount(() => {
         if (sessionStorage.getItem("sveltekit:scroll")) {
-            scrollToHash(500);
+            checkAndScrollToHash(500);
         } else {
-            scrollToHash(0);
+            checkAndScrollToHash(0);
         }
+
+        window.addEventListener("popstate", () => {
+            const currentUrl = window.location.href;
+            if (currentUrl.includes("#")) {
+                const newUrl = currentUrl.split("#")[0];
+                window.history.replaceState({}, "", newUrl);
+            }
+        });
     });
 
     afterNavigate(() => {
-        scrollToHash(0);
+        checkAndScrollToHash(0);
+    });
+
+    afterNavigate(() => {
+        const currentUrl = window.location.href;
+        if (currentUrl.includes("#")) {
+            const newUrl = currentUrl.split("#")[0];
+            window.history.replaceState({}, "", newUrl);
+        }
     });
 </script>
 
