@@ -4,11 +4,12 @@
     export let hash: string = "";
     export let alt: string = "";
     export let size: number = 48;
+    export let clazz: string = "";
 
     $: src = avatar || `${gravatarBase}/avatar/${hash}?s=${size}&d=retro`;
 </script>
 
-<img class="avatar rounded-circle" {src} {alt} />
+<img class="avatar rounded-circle {clazz}" {src} {alt} />
 
 <style lang="scss">
     img {
