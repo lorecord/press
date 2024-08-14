@@ -60,6 +60,7 @@ const DEFAULT_ATTRIBUTE_MAP: any = {
         },
     },
     links: {
+        published: true,
         visible: true, // visible in menu, feed, sitemap and archive
         routable: true, // visitable by url
         comment: {
@@ -72,6 +73,18 @@ const DEFAULT_ATTRIBUTE_MAP: any = {
         menu: {
             header: false,
             footer: true
+        }
+    },
+    note: {
+        published: true,
+        visible: false,
+        routable: true,
+        comment: {
+            enable: true,
+            reply: true,
+        },
+        discuss: {
+            enable: true
         }
     }
 }

@@ -5,6 +5,7 @@
     import { IconLanguage } from "@tabler/icons-svelte";
     import TemplatePage from "$lib/components/template/default.svelte";
     import TemplatePost from "$lib/components/template/item.svelte";
+    import TemplateNote from "$lib/components/template/note.svelte";
     import TemplateLinks from "$lib/components/template/links.svelte";
     import type {
         WithContext,
@@ -51,6 +52,7 @@
         default: TemplatePage,
         item: TemplatePost,
         links: TemplateLinks,
+        note: TemplateNote,
     };
     const solveTemplate = (post: any) =>
         templates[(post.template as string) || "default"] || templates.default;

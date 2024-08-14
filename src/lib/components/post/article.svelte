@@ -121,7 +121,9 @@
                 />
             {/if}
 
-            <h1 class="p-name">{post.title}</h1>
+            {#if post.title}
+                <h1 class="p-name">{post.title}</h1>
+            {/if}
 
             {#if post.template == "item"}
                 <div class="article-meta">
@@ -158,6 +160,14 @@
                         </div>
                     {/if}
 
+                    <Time
+                        date={post.date}
+                        class="dt-published"
+                        locale={$locale}
+                    />
+                </div>
+            {:else if post.template == "note"}
+                <div class="article-meta">
                     <Time
                         date={post.date}
                         class="dt-published"
