@@ -153,7 +153,7 @@
                 <a
                     rel="noindex"
                     class="button button-text"
-                    style="padding:0; height: auto"
+                    style="padding:0; height: auto; gap: 0.125rem;"
                     href={`#reply-${item.id?.toString().substr(-8)}`}
                     on:click|preventDefault={commentHelper.replyTo(item.id)}
                 >
