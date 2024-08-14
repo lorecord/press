@@ -69,9 +69,7 @@
         <div class="comment-header">
             <span class="comment-author">
                 {#if item.author?.url}
-                    <a
-                        href={item.author?.url}
-                        rel="noopener author nofollow"
+                    <a href={item.author?.url} rel="noopener author nofollow"
                         ><span class={`name-${nameSource}`}>{finalName}</span
                         ></a
                     >
@@ -165,7 +163,12 @@
                     {/if}
                 </a>
                 {#if item.url}
-                    <a href={item.url} rel="external noopener nofollow">
+                    <a
+                        class="button button-text"
+                        style="padding:0; height: auto"
+                        href={item.url}
+                        rel="external noopener nofollow"
+                    >
                         <IconExternalLink size={18} />
                     </a>
                 {/if}
