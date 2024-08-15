@@ -23,6 +23,19 @@ const apiRateLimiter = new RateLimiter({
     duration: 60 * 1000
 });
 
+export const handleFixHeaderName: Handle = async ({ event, resolve }) => {
+    const response = await resolve(event);
+    if (dev) {
+        console.log('handleFixHeaderName', event.url.pathname);
+    }
+    // example: content-disposition TO Content-Disposition
+    for (const [key, value] of response.headers) {
+        response.headers.delete(key);
+        response.headers.set(key.replace(/(^|-)(\w)/g, (match, p1, p2) => `${p1}${p2.toUpperCase()}`), value);
+    }
+    return response;
+};
+
 export const handleExternalLink: Handle = async ({ event, resolve }) => {
     const { site } = event.locals as any;
     const systemConfig = getSystemConfig(site);
@@ -77,15 +90,20 @@ export const handleExternalLink: Handle = async ({ event, resolve }) => {
 }
 
 export const handleSite: Handle = async ({ event, resolve }) => {
+    if (dev) {
+        console.log('handleSite', event.url.pathname);
+    }
     const site = matchSite(event.url.hostname);
     (event.locals as any).site = site;
     return await resolve(event);
 }
 
-export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
-    const { site } = event.locals as any;
-
+export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
     if (!event.isSubRequest) {
+        const { site } = event.locals as any;
+        if (dev) {
+            console.log('handleRequestRateLimit', event.url.pathname);
+        }
         const envConfig = getEnvConfig(site);
 
         let volume = 1;
@@ -110,6 +128,9 @@ export const handleApiRateLimit: Handle = async ({ event, resolve }) => {
 }
 
 export const handleLanguage: Handle = async ({ event, resolve }) => {
+    if (dev) {
+        console.log('handleLanguage', event.url.pathname);
+    }
     const { site } = event.locals as any;
     const { system } = site;
 
@@ -179,7 +200,11 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
     const response = await resolve(event);
 
-    if (response.status === 404) {
+    if (response.status === 404 && !event.isSubRequest && !event.isDataRequest) {
+
+        if (dev) {
+            console.log('handleAssets', event.url.pathname);
+        }
 
         const effectedPathname = localeContext?.pathLocaleParam ? event.url.pathname.replace(`^/${localeContext?.pathLocaleParam}`, '') : event.url.pathname;
 
@@ -307,4 +332,15 @@ export const handleError: HandleServerError = async ({ error, event }) => {
     console.error(error);
 }
 
-export const handle = sequence(handleSite, handleIndexNowKeyFile, handleCookieSession, handleLanguage, handleApiRateLimit, handleHtmlLangAttr, handleExternalLink, handleAssets);
+export const handle = sequence(
+    handleSite,
+    handleRequestRateLimit,
+    handleIndexNowKeyFile,
+    handleCookieSession,
+    handleLanguage,
+    // after await resolve(event), the seq bellow will be executed in reverse order
+    handleHtmlLangAttr,
+    handleExternalLink,
+    handleFixHeaderName,
+    handleAssets
+);

@@ -4,7 +4,7 @@ import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
 import { browser } from "$app/environment";
 
-export const load: PageLoad = async ({ params, fetch, depends, data }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
     const { localeContext } = data;
@@ -59,6 +59,14 @@ export const load: PageLoad = async ({ params, fetch, depends, data }) => {
 
     if (browser) {
         console.log('needAwait', needAwait);
+    }
+
+    if (needAwait) {
+        post.then((p) => {
+            setHeaders({
+                'Link': `<${'/api/v1/webmention'}>; rel="webmention"`
+            });
+        })
     }
 
     return {
