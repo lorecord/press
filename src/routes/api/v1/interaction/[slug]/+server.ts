@@ -1,7 +1,7 @@
 import { loadNativeInteractions, loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
 import { loadWebmentions } from "$lib/interaction/handle-webmention";
 import { loadPost } from "$lib/post/handle-posts";
-import { getRealClientAddress } from "$lib/server/event-utils";
+import { getRealClientAddress, getRequestPayload } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
@@ -39,17 +39,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
     const { site } = locals as any;
     const { slug } = params;
 
-    let payload: any = await (async () => {
-        let payload = {};
-        if (request.headers.get("content-type")?.includes("multipart/form-data")) {
-            // formData  to json
-            payload = Object.fromEntries([...(await request.formData()).entries()]);
-
-        } else if (request.headers.get("content-type")?.includes("application/json")) {
-            payload = await request.json();
-        }
-        return payload;
-    })();
+    let payload: any = await getRequestPayload(request);
 
     const { type, email, name, website, text, lang, target } = payload;
 
