@@ -3,7 +3,7 @@ import { getSystemConfig } from '$lib/server/config.js';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import { saveWebmention, toWebmention } from '$lib/interaction/handle-webmention';
 
-export async function POST({ url, locals, request, fetch }) {
+export async function POST({ url, locals, request }) {
     const { site } = locals as { site: any };
     const systemConfig = getSystemConfig(site);
 
@@ -26,7 +26,6 @@ export async function POST({ url, locals, request, fetch }) {
         postRoute = slug;
     }
 
-
     if (!postRaw?.slug) {
         error(404);
     }
@@ -35,9 +34,8 @@ export async function POST({ url, locals, request, fetch }) {
     formDataForFetchBody.append('source', payloadSource);
     formDataForFetchBody.append('target', payloadTarget);
 
-    return await fetch({
+    return await fetch(`https://webmention.io/${systemConfig.domains?.primary}/webmention`, {
         method: 'POST',
-        url: `https://webmention.io/${systemConfig.domains?.primary}/webmention`,
         // form data
         body: formDataForFetchBody
     });
