@@ -30,7 +30,7 @@ export function loadWebmentions(site: any, postPath: string): WebmentionInteract
     return parsed || [];
 }
 
-export function toWebmention(payload: any): WebmentionInteraction {
+export function fromWebmentionIO(payload: any): WebmentionInteraction {
     const wmProperty = payload.post && payload.post['wm-property'];
 
     let type = ({

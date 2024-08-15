@@ -2,7 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import Crypto from 'crypto';
-import { deleteWebmention, saveWebmention, toWebmention } from '$lib/interaction/handle-webmention.js';
+import { deleteWebmention, saveWebmention, fromWebmentionIO } from '$lib/interaction/handle-webmention.js';
 import { dev } from '$app/environment';
 
 export async function POST({ url, locals, request }) {
@@ -55,7 +55,7 @@ export async function POST({ url, locals, request }) {
 
     if (!payload.deleted) {
         console.log('new webmention from ', payload.source, 'to', payload.target);
-        saveWebmention(site, postRoute, toWebmention(payload));
+        saveWebmention(site, postRoute, fromWebmentionIO(payload));
         return json({}, { status: 202 });
     } else {
         console.log('webmention from ', payload.source, 'to', payload.target, 'deleted');
