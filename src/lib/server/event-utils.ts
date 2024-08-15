@@ -3,8 +3,9 @@ import type { RequestEvent } from "@sveltejs/kit";
 /**
  * https://github.com/sveltejs/kit/pull/3993#issuecomment-1046535970
  */
-export function getRealClientAddress(event: RequestEvent) {
-    const { request, getClientAddress } = event;;
+export function getRealClientAddFress({ request, getClientAddress }:
+    { request: Request, getClientAddress: () => string }
+) {
     return request.headers.get("X-Client-IP")
         ?? request.headers.get("X-Forwarded-For")?.split(",")[0].trim() // (Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
         ?? request.headers.get("CF-Connecting-IP") //(Cloudflare)
