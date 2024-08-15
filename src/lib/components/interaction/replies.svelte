@@ -46,6 +46,9 @@
     let textarea: HTMLTextAreaElement;
     let text: string;
 
+    let webmentionForm: HTMLFormElement;
+    let webmentionSubmmiting = false;
+
     let submmiting = false;
 
     function saveText() {
@@ -159,6 +162,43 @@
         }
     }
 
+    function handleWebmentionSubmit() {
+        webmentionSubmmiting = true;
+
+        // save {name, email, website} to locale store
+        let source = webmentionForm.querySelector(
+            "input[name=source]",
+        ) as HTMLInputElement;
+
+        try {
+            fetch(`/api/v1/webmention`, {
+                method: "POST",
+                body: new FormData(webmentionForm),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        //form.reset();
+                        source.value = "";
+                        // replies = [data, ...replies];
+                        // dispath component event to update comments count
+                        dispatch("webmention", {});
+                    }
+                })
+                .catch((error) => {
+                    alert(error);
+                })
+                .finally(() => {
+                    webmentionSubmmiting = false;
+                });
+        } catch (error) {
+            webmentionForm.submit();
+            webmentionSubmmiting = false;
+        }
+    }
+
     function buildReplyTree(replies: any[]): any[] {
         let tree: any[] = [];
 
@@ -220,11 +260,13 @@
         <details>
             <summary><h4>{$t("common.webmention")}</h4></summary>
             <form
+                bind:this={webmentionForm}
+                use:loading={webmentionSubmmiting}
                 method="post"
-                class="form form-webmention"
+                class="form form-webmention loadable"
                 action={webmentionEndpoint || ""}
+                on:submit|preventDefault={handleWebmentionSubmit}
             >
-                <input type="hidden" name="source" value="" />
                 <div class="form-row">
                     <div class="input-group" style="width: 100%">
                         <label>
@@ -241,7 +283,10 @@
                             />
                             <div class="label">URL</div>
                         </label>
-                        <button type="submit" class="button-xs-thin"
+                        <button
+                            type="submit"
+                            class="button-xs-thin"
+                            use:loading={webmentionSubmmiting}
                             >{$t("common.comment_send")}</button
                         >
                     </div>
