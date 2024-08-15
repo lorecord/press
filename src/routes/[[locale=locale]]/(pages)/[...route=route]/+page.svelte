@@ -394,7 +394,7 @@
         {/if}
 
         {#if siteConfig.url}
-            {@const url = `${siteConfig.url}/${post.lang}${post.url}`}
+            {@const url = `${siteConfig.url}/${post.lang || ''}${post.url}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
 
