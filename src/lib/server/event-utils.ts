@@ -3,7 +3,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 /**
  * https://github.com/sveltejs/kit/pull/3993#issuecomment-1046535970
  */
-export function getRealClientAddFress({ request, getClientAddress }:
+export function getRealClientAddress({ request, getClientAddress }:
     { request: Request, getClientAddress: () => string }
 ) {
     return request.headers.get("X-Client-IP")
