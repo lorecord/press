@@ -1,9 +1,11 @@
 import { error, json } from '@sveltejs/kit';
+import type { RequestHandler } from "./$types";
 import { getSystemConfig } from '$lib/server/config.js';
 import { loadPostRaw } from '$lib/post/handle-posts';
 import { saveWebmention, toWebmention } from '$lib/interaction/handle-webmention';
+import { getRequestPayload } from '$lib/server/event-utils';
 
-export async function POST({ url, locals, request }) {
+export const POST: RequestHandler = async ({ locals, request }) => {
     const { site } = locals as { site: any };
     const systemConfig = getSystemConfig(site);
 
@@ -11,11 +13,12 @@ export async function POST({ url, locals, request }) {
         error(404);
     }
 
-    const payloadSource = url.searchParams.get('source') as string;
-    const payloadTarget = url.searchParams.get('target') as string;
+    let payload: any = await getRequestPayload(request);
 
-    const target = new URL(payloadTarget);
-    let [, postRoute] = target.pathname.match(/\/(.*)\//) || [];
+    const { source, target } = payload;
+
+    const targetURL = new URL(target);
+    let [, postRoute] = targetURL.pathname.match(/\/(.*)\//) || [];
 
     let postRaw = await loadPostRaw(site, { route: postRoute });
     if (!postRaw?.path) {
@@ -31,8 +34,8 @@ export async function POST({ url, locals, request }) {
     }
 
     const formDataForFetchBody = new FormData();
-    formDataForFetchBody.append('source', payloadSource);
-    formDataForFetchBody.append('target', payloadTarget);
+    formDataForFetchBody.append('source', source);
+    formDataForFetchBody.append('target', target);
 
     return await fetch(`https://webmention.io/${systemConfig.domains?.primary}/webmention`, {
         method: 'POST',
