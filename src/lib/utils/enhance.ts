@@ -16,6 +16,10 @@ export const deleteField = <T extends object, K extends ((keyof T) | string | nu
     return rest as K extends keyof T ? Omit<T, K> : T;
 }
 
+export const enhanceField = <T extends object, K extends ((keyof T) | string | number | symbol)>(obj: T, key: K, value: K extends keyof T ? T[K] : any): K extends keyof T ? Omit<T, K> & Record<K, T[K]> : T => {
+    return { ...obj, [key]: value } as K extends keyof T ? Omit<T, K> & Record<K, T[K]> : T;
+}
+
 export const enhance = <T extends object, E extends Extention<T>[]>(target: T, ...extentions: E) => {
 
     let resolveExtention = (key: string) => {
