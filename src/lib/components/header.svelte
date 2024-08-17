@@ -64,7 +64,7 @@
                         {#if p.menu?.header}
                             <li class="nav-item">
                                 <a
-                                    href={p.url}
+                                    href={p.route}
                                     class="nav-link"
                                     on:click={handleClick}
                                     >{p.menu.label || p.title}</a

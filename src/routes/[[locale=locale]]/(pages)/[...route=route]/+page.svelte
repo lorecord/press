@@ -73,10 +73,10 @@
             "@type": "CreativeWork",
             headline: post.title,
             image: post.image
-                ? [`${siteConfig.url}${post.url}${post.image}`]
+                ? [`${siteConfig.url}${post.route}${post.image}`]
                 : [`${siteConfig.url}/favicon.png`],
 
-            url: `${siteConfig.url}${post.url}`,
+            url: `${siteConfig.url}${post.route}`,
             license: license.url || license.name,
         };
 
@@ -336,11 +336,11 @@
         {#if post.image}
             <meta
                 property="og:image"
-                content="{siteConfig.url}{post.url}{post.image}"
+                content="{siteConfig.url}{post.route}{post.image}"
             />
             <meta
                 name="twitter:image"
-                content="{siteConfig.url}{post.url}{post.image}"
+                content="{siteConfig.url}{post.route}{post.image}"
             />
             <meta name="twitter:card" content="summary_large_image" />
         {:else}
@@ -350,14 +350,14 @@
         {#if post.video}
             <meta
                 property="og:video"
-                content="{siteConfig.url}{post.url}{post.video}"
+                content="{siteConfig.url}{post.route}{post.video}"
             />
         {/if}
 
         {#if post.audio}
             <meta
                 property="og:audio"
-                content="{siteConfig.url}{post.url}{post.audio}"
+                content="{siteConfig.url}{post.route}{post.audio}"
             />
         {/if}
 
@@ -394,20 +394,20 @@
         {/if}
 
         {#if siteConfig.url}
-            {@const url = `${siteConfig.url}/${post.lang || ''}${post.url}`}
+            {@const url = `${siteConfig.url}/${post.lang || ''}${post.route}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
 
             <link
                 rel="alternate"
-                href={`${siteConfig.url}${post.url}`}
+                href={`${siteConfig.url}${post.route}`}
                 hreflang="x-default"
             />
 
             {#each post.langs || [] as value}
                 <link
                     rel="alternate"
-                    href="{siteConfig.url}/{value}{post.url}"
+                    href="{siteConfig.url}/{value}{post.route}"
                     hreflang={value}
                 />
             {/each}
@@ -535,7 +535,7 @@
                             reply={post.comment?.reply}
                             reverse={post.comment?.reverse}
                             {post}
-                            postUrl={siteConfig.url + post.url}
+                            postUrl={siteConfig.url + post.route}
                             on:reply={() => replyCounter++}
                             webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.primary}/webmention`}
                         />

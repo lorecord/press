@@ -34,7 +34,7 @@
                         />
                     </div>
                     <slot name="heading" {post}>
-                        <h3><a href={post.url}>{post.title}</a></h3>
+                        <h3><a href={post.route}>{post.title}</a></h3>
                     </slot>
                 </div>
             </li>

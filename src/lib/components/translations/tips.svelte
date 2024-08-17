@@ -70,14 +70,14 @@
             >
             <span>
                 {$l(suggectionLocale, "common.i18n_alert_message_a")}<a
-                    href="/{post.lang}{post.url}"
+                    href="/{post.lang}{post.route}"
                     >{$l(suggectionLocale, `lang.${post.lang}`)}</a
                 >{#if post.langs?.length > 1}{$l(
                         suggectionLocale,
                         "common.i18n_alert_message_b",
                     )}{#each suggestions as lang, index}{#if lang !== post.lang}<a
                                 rel="alternate"
-                                href="/{lang}{post.url}"
+                                href="/{lang}{post.route}"
                                 >{$l(suggectionLocale, `lang.${lang}`)}</a
                             >{#if suggestions.length - 2 > index}{$l(
                                     suggectionLocale,

@@ -92,7 +92,7 @@
         </div>
         <div class="article-meta">
             <a
-                href="{siteConfig.url}{post.url}"
+                href="{siteConfig.url}{post.route}"
                 rel="bookmark"
                 style="color: var(--text-color-tertiary); text-decoration: none"
             >
@@ -240,7 +240,7 @@
                                     <li>
                                         <a
                                             rel="alternate"
-                                            href="/{lang}{post.url}"
+                                            href="/{lang}{post.route}"
                                             {lang}>{$t(`lang.${lang}`)}</a
                                         >
                                     </li>

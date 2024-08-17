@@ -180,7 +180,7 @@
             {/if}
 
             <div style="display:none">
-                <a class="u-url" href={siteConfig.url + post.url}
+                <a class="u-url" href={siteConfig.url + post.route}
                     >{post.title}</a
                 >
                 <p class="p-summary">{post.summary}</p>
@@ -242,9 +242,9 @@
                                 <a
                                     rel="bookmark"
                                     class="link"
-                                    href={post.url}
+                                    href={post.route}
                                     data-print-content-none
-                                    >{siteConfig.url}{post.url}</a
+                                    >{siteConfig.url}{post.route}</a
                                 >
                             </div>
                         </div>
@@ -419,7 +419,7 @@
                                         <li>
                                             <a
                                                 rel="alternate"
-                                                href="/{lang}{post.url}"
+                                                href="/{lang}{post.route}"
                                                 {lang}>{$t(`lang.${lang}`)}</a
                                             >
                                         </li>

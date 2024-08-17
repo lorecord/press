@@ -83,9 +83,9 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     <docs>https://www.rssboard.org/rss-specification</docs>
 ${posts.map((post: any) => `
     <item>
-        <guid isPermaLink="true">${siteConfig.url}${post.url}</guid>
+        <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
         <title>${post.title}</title>
-        <link>${siteConfig.url}${post.url}</link>
+        <link>${siteConfig.url}${post.route}</link>
         <description><![CDATA[${escapeHtml(post.summary)}]]></description>
         <content:encoded><![CDATA[${escapeHtml(post.content)}]]></content:encoded>
         <pubDate>${new Date(post.date).toUTCString()}</pubDate>
@@ -128,9 +128,9 @@ ${get(locales).map((locale: any) => {
     <rights>Copyright (c)</rights>
 ${posts.map((post: any) => `
     <entry>
-        <id isPermaLink="true">${siteConfig.url}${post.url}</id>
+        <id isPermaLink="true">${siteConfig.url}${post.route}</id>
         <title>${post.title}</title>
-        <link href="${siteConfig.url}${post.url}" />
+        <link href="${siteConfig.url}${post.route}" />
         ${post.date
             ? `<published>${new Date(post.date).toISOString()}</published>`
             : ``}

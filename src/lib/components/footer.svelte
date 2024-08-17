@@ -60,7 +60,7 @@
                     {#each value as p}
                         {#if p.menu?.footer}
                             <li class="nav-item">
-                                <a href={p.url} class="nav-link"
+                                <a href={p.route} class="nav-link"
                                     >{p.menu.label || p.title}</a
                                 >
                             </li>

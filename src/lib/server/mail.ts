@@ -183,7 +183,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
             comment_author: resolveAuthorName(reply.author, lang),
             comment_author_user: resolveCommentAuthorUser(reply),
             comment_content: reply.content,
-            link: `${siteConfig.url}${post.url}#comment-${reply.id.substr(-8)}`
+            link: `${siteConfig.url}${post.route}#comment-${reply.id.substr(-8)}`
         };
 
         let subject: String, text: String;
@@ -201,7 +201,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
             subject,
             text,
             list: {
-                id: `${siteConfig.url}${post.url}`,
+                id: `${siteConfig.url}${post.route}`,
                 help: [{ url: `${systemConfig.email?.sender}?subject=Help`, comment: 'Help' }],
                 subscribe: [{
                     url: `${systemConfig.email?.sender}?subject=Subscribe`,
@@ -213,13 +213,13 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
                 }, {
                     url: `${systemConfig.email?.sender}?subject=Unsubscribe&all=1`,
                     comment: 'Unsubscribe All'
-                }, `${siteConfig.url}${post.url}`],
+                }, `${siteConfig.url}${post.route}`],
                 post: [{
                     url: `${systemConfig.email?.sender}?subject=Post`,
                     comment: 'Post'
                 },
-                `${siteConfig.url}${post.url}#comments`],
-                archive: `${siteConfig.url}${post.url}`
+                `${siteConfig.url}${post.route}#comments`],
+                archive: `${siteConfig.url}${post.route}`
             },
             params
         }

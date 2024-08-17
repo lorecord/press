@@ -8,12 +8,12 @@
     export let post: any = {};
     export let showContent: boolean = true;
 
-    $: ({ title, summary_html, url, date, image, review } = post);
+    $: ({ title, summary_html, route, date, image, review } = post);
 </script>
 
 <Card tag="article" class="article">
     <svelte:fragment slot="header">
-        <h2><a href={`${url}`}>{title}</a></h2>
+        <h2><a href={`${route}`}>{title}</a></h2>
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
@@ -25,7 +25,7 @@
             {#if image}
                 <div
                     class="feature_image"
-                    style="background-image:url('{url}{image}')"
+                    style="background-image:url('{route}{image}')"
                 ></div>
             {/if}
             <div>

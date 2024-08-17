@@ -45,7 +45,7 @@ export async function GET({ locals, params }) {
         cff.version = '2.0.4';
     }
 
-    cff.identifier = [{ type: 'url', value: post.doi || `${siteConfig.url}${post.url}`, description: '' }];
+    cff.identifier = [{ type: 'url', value: post.doi || `${siteConfig.url}${post.route}`, description: '' }];
 
     cff.doi = '';
 
@@ -53,7 +53,7 @@ export async function GET({ locals, params }) {
         cff['date-released'] = new Date(post.date).toISOString().split('T')[0];
     }
 
-    cff.url = `${siteConfig.url}${post.url}`;
+    cff.url = `${siteConfig.url}${post.route}`;
     cff.abstract = post.summary;
 
     ((license) => {
