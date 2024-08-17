@@ -30,7 +30,7 @@ import { getSystemConfig } from '$lib/server/config';
 import { getSiteAccount } from '$lib/server/accounts';
 import remarkLinks from '$lib/markdown/remark-links';
 import { untag } from '$lib/utils/xml';
-import type { PostAttributes, PostData, PostRoute, PostRaw } from './types';
+import type { PostAttributes, Post, PostRoute, PostRaw } from './types';
 import type { Site } from '$lib/server/sites';
 
 const DEFAULT_ATTRIBUTE_MAP: {
@@ -208,7 +208,7 @@ export function loadPostRaws(site: Site, path: string): PostRaw[] {
     return raws.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
 }
 
-export async function loadAllPosts() {
+export async function loadAllPostsFiles() {
     const allPostFiles = import.meta.glob(`./site/**/*.md`);
     const iterablePostFiles = Object.entries(allPostFiles);
     const allPosts = await Promise.all(
@@ -347,7 +347,7 @@ export async function loadPost(site: Site, { route, lang }: { route: string, lan
     }
 }
 
-export function convertToPost(site: Site, raw: PostRaw): PostData {
+export function convertToPost(site: Site, raw: PostRaw): Post {
     const { content, headings, processMeta, links } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {

@@ -83,21 +83,15 @@ export interface PostAttributes extends PostHeader {
     mermaid?: boolean;
 }
 
-export interface Post extends PostAttributes {
-    author?: ContactBaseProfile[],
-    contributor?: ContactBaseProfile[],
-    sponsor?: ContactBaseProfile[],
-
-    content: string,
-    headings: any[],
-}
-
 export interface PostRoute {
     route: string,
     lang: string | undefined
 }
 
-export interface PostData extends PostAttributes {
+export interface Post extends PostAttributes {
+    author?: ContactBaseProfile[],
+    contributor?: ContactBaseProfile[],
+    sponsor?: ContactBaseProfile[],
     content: string;
     headings: any[];
     links: any[];
