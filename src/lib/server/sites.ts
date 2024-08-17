@@ -4,16 +4,40 @@ import YAML from 'yaml';
 import { fileWatch } from '$lib/server/file-watch';
 import { detectResourceLocales } from '$lib/resource';
 
-let sites: any[] = [];
-let defaultSite: any;
+export interface ServerConfig {
+    private?: any,
+    [key: string]: any
+}
+export interface Site {
+    unique: string,
+    domains: {
+        primary: string,
+        aliases: string[]
+    },
+    constants: {
+        SITE_DIR: string,
+        POSTS_DIR: string,
+        PUBLIC_DIR: string,
+        DATA_DIR: string,
+        CONFIG_DIR: string,
+        SYSTEM_CONFIG_FILE: string,
+        ACCOUNTS_DIR: string,
+        ENV_CONFIG_FILE: string
+    },
+    system: any,
+    env: any
+}
 
-export function loadConfig(path: string) {
+let sites: Site[] = [];
+let defaultSite: Site;
+
+export function loadConfig(path: string): ServerConfig {
     if (!fs.existsSync(path)) {
         console.error(`No config file found for ${path}.`);
         return {};
     }
     let parsed = loadData(path);
-    return Object.assign({}, parsed.public, { private: parsed.private });
+    return Object.assign({}, parsed.public, { private: parsed.private }) as ServerConfig;
 }
 
 export function loadData(path: string) {
@@ -62,8 +86,8 @@ function load() {
             },
             system,
             env
-        }
-    }).filter(site => !!site);
+        } as Site;
+    }).filter(site => !!site) as Site[];
 
     if (!sites.length) {
         console.error(`No sites found in SITES_DIR '${SITES_DIR}'.`);

@@ -1,5 +1,5 @@
 import { convertToPostForFeed } from "$lib/post/handle-posts";
-import { getSiteAccount } from "$lib/server/accouns.js";
+import { getSiteAccount } from "$lib/server/accounts.js";
 import { getSystemConfig, getSiteConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
 import { locales, locale } from "$lib/translations";

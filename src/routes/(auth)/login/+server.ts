@@ -1,5 +1,5 @@
 
-import { getSiteAccount } from '$lib/server/accouns';
+import { getSiteAccount } from '$lib/server/accounts';
 import { createSession } from '$lib/server/session.js';
 import crypto from 'crypto';
 

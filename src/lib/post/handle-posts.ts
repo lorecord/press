@@ -23,15 +23,20 @@ import rehypeCodeFilename from '../markdown/rehype-code-filename';
 import { fetchPath, type LangMap, type PathMeta } from '../handle-path';
 import { t, l } from '../translations';
 import { get } from 'svelte/store';
-import { standardizePath, detectResourceLocales } from '$lib/resource';
+import { loadRaw } from '$lib/resource';
 import remarkMermaid from '$lib/markdown/remark-mermaid';
 import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config';
-import { getSiteAccount } from '$lib/server/accouns';
+import { getSiteAccount } from '$lib/server/accounts';
 import remarkLinks from '$lib/markdown/remark-links';
+import { untag } from '$lib/utils/xml';
+import type { Post, PostAttributes, PostProcessed, PostRoute, Raw } from './types';
+import type { Site } from '$lib/server/sites';
 
-const DEFAULT_ATTRIBUTE_MAP: any = {
+const DEFAULT_ATTRIBUTE_MAP: {
+    [template: string]: PostAttributes
+} = {
     default: {
         published: true,
         visible: true,
@@ -90,23 +95,16 @@ const DEFAULT_ATTRIBUTE_MAP: any = {
 }
 
 const cache: {
-    raw: any,
+    raw: {
+        [key: `${string}-${string}`]: Raw
+    },
     resource: any
 } = {
     raw: {},
     resource: {}
 };
 
-/**
- * @typedef {Object} Raw
- * 
- * Raw object of a markdown file.
- */
-export interface Raw {
-    path: string,
-    attributes: any,
-    body: string,
-}
+
 
 /**
  * @typedef {Object} LangMappedRaw
@@ -140,51 +138,19 @@ export function extractSummary(body: string) {
     }
 }
 
-export function detectResourceRaw(resourcePath: string): { path: string, locales: { lang: string, filename: string }[] } {
-    const { locales } = detectResourceLocales(resourcePath);
-    return { path: resourcePath, locales };
-}
-
-export function loadRaw(site: any, filepath: string): { stat: fs.Stats, localPath: string, name: string, url: string, locales: { lang: string, filename: string }[], standardizedPath: string } | any {
-    const { POSTS_DIR } = site.constants;
-
-    if (!fs.existsSync(filepath)) {
-        console.error(`loadRaw: File not found for '${filepath}'`);
-        return {};
-    }
-
-    let standardizedPath = standardizePath(filepath); // `\\`->`/`
-
-    let stat = fs.statSync(filepath);
-
-    debugger;
-
-    let localPath = standardizedPath.replace(`${POSTS_DIR.replace(/\\/g, '/')}`, '')
-
-    let tempPath = localPath.replaceAll(/\(.*?\)\//g, '');
-
-    let name = tempPath.split('/').pop();
-    let url = tempPath.split('/').slice(0, -1).join('/')
-        .replace(/\/\d+\./, '/');
-
-    let { locales } = detectResourceRaw(filepath);
-
-    return { stat, localPath, name, url, locales, standardizedPath };
-}
-
-export function loadFrontMatterRaw(site: any, filepath: string): Raw | undefined {
+export function loadFrontMatterRaw(site: Site, filepath: string): Raw | undefined {
     if (!fs.existsSync(filepath)) {
         console.error(`loadFrontMatterRaw: File not found for '${filepath}'`);
         return;
     }
 
-    let { stat, localPath, name, url, locales } = loadRaw(site, filepath);
+    let { stat, localPath, name, route, locales } = loadRaw(site, filepath) || {};
 
     let file = fs.readFileSync(filepath, 'utf8');
     // read attributes by front-matter
     let { attributes, body } = fm<any>(file);
 
-    let url_trailing_slash = url?.endsWith('/') ? url : url + '/';
+    let slashed = route?.endsWith('/') ? route : route + '/';
     let slug = localPath?.split('/').slice(-2)[0];
 
     if (name) {
@@ -200,13 +166,11 @@ export function loadFrontMatterRaw(site: any, filepath: string): Raw | undefined
         }
     }
 
-    attributes.url = url_trailing_slash;
+    attributes.route = attributes.route || slashed;
     attributes.slug = attributes.slug || slug;
 
     if (stat) {
-        if (!attributes.date) {
-            attributes.date = new Date(stat?.birthtime).toISOString();
-        }
+        attributes.date = attributes.date || new Date(stat?.birthtime).toISOString();
         if (!attributes.modified?.date) {
             attributes.modified = Object.assign({}, attributes.modified || {}, { date: new Date(stat?.mtime).toISOString() });
         }
@@ -226,44 +190,38 @@ export function loadFrontMatterRaw(site: any, filepath: string): Raw | undefined
     return { path: filepath, attributes, body };
 }
 
-export function untag(html: string) {
-    return html.replaceAll(/<.*?>/g, '');
-}
-
-export function loadAllPostRaws(site: any) {
+export function loadAllPostRaws(site: Site) {
     const { POSTS_DIR } = site?.constants;
     return loadPostRaws(site, POSTS_DIR);
 }
 
-export function loadPostRaws(site: any, path: string) {
+export function loadPostRaws(site: Site, path: string): Raw[] {
     let fileNames = globSync(`${path}/**/*.md`);
     if (!fileNames?.length) {
         console.log(`loadPostRaws: No file found for ${path}.`);
+    } else {
+        console.debug(`loadPostRaws: ${fileNames.length} files found for ${path}.`);
     }
-    console.debug(`loadPostRaws: ${fileNames.length} files found for ${path}.`);
 
-    return fileNames
+    let raws: Raw[] = fileNames
         .map(fileName => loadFrontMatterRaw(site, fileName))
-        .filter(raw => raw !== undefined)
-        .sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
+        .filter(raw => !!raw) as Raw[];
+    return raws.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
 }
 
 export async function loadAllPosts() {
     const allPostFiles = import.meta.glob(`./site/**/*.md`);
     const iterablePostFiles = Object.entries(allPostFiles);
-    // return posts
-    //     .sort((a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime());
     const allPosts = await Promise.all(
         iterablePostFiles.map(async ([path, resolver]) => {
-            const { metadata } = await resolver()
+            const { metadata } = await resolver() as { metadata: any };
             return {
                 metadata,
                 filepath: path,
             }
         })
     );
-    allPosts.sort((a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime());
-    return allPosts;
+    return allPosts.sort((a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime());
 }
 
 export function buildPostByMarkdown(content: string, lang: string, rehypeFunction?: (tree: any) => void, options: any = {}) {
@@ -367,27 +325,22 @@ export function fixMarkdownHtmlWrapper(content: string) {
     return content;
 }
 
-export function fetchRaw(key: string) {
+export function getRaw(key: `${string}-${string}`) {
     let raw = cache.raw[key];
     return raw;
 }
 
-export function fetchPostPath(site: any, { route, lang }: { route: string, lang?: string }): { target: PathMeta | undefined, langMap: LangMap | undefined } {
-    return fetchPath(site, { route, lang, match: (file) => file.endsWith('.md') });
-}
-
-export function loadPostRaw(site: any, { route, lang }: { route: string, lang?: string }): any {
+export function loadPostRaw(site: Site, { route, lang }: PostRoute): Raw | undefined {
     const systemConfig = getSystemConfig(site);
     lang = lang || systemConfig.locale?.default;
-    let { target, langMap } = fetchPostPath(site, { route, lang });
+    let { target } = fetchPath(site, { route, lang, match: (file) => file.endsWith('.md') });
     if (target) {
         const rawObject = loadFrontMatterRaw(site, target.file);
         return rawObject;
     }
-    return {};
 }
 
-export async function loadPost(site: any, { route, lang }: { route: string, lang?: string }) {
+export async function loadPost(site: Site, { route, lang }: { route: string, lang?: string }) {
     const rawObject = loadPostRaw(site, { route, lang });
     if (rawObject) {
         const post = convertToPost(site, rawObject);
@@ -395,7 +348,7 @@ export async function loadPost(site: any, { route, lang }: { route: string, lang
     }
 }
 
-export function convertToPost(site: any, raw: Raw) {
+export function convertToPost(site: Site, raw: Raw): PostProcessed {
     const { content, headings, processMeta, links } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
@@ -426,7 +379,7 @@ export function convertToPost(site: any, raw: Raw) {
     };
 }
 
-function handleAuthors(site: any, attr: { author?: string, authors?: string[], lang: string } & any) {
+function handleAuthors(site: Site, attr: { author?: string, authors?: string[], lang: string }) {
 
     if (!attr) {
         return;
@@ -457,7 +410,7 @@ function handleAuthors(site: any, attr: { author?: string, authors?: string[], l
         .map(mapper);
 }
 
-export function convertToPostForFeed(site: any, raw: Raw) {
+export function convertToPostForFeed(site: Site, raw: Raw) {
     const { content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {

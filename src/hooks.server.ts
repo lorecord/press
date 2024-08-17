@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { fetchRaw } from "$lib/post/handle-posts";
+import { getRaw } from "$lib/post/handle-posts";
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
 import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
@@ -47,9 +47,15 @@ export const handleExternalLink: Handle = async ({ event, resolve }) => {
                 if (internalDomains.length > 0) {
                     html = html.replace(/<a\s([^>]*?)href=["']([\w-_+]+:\/\/[^"']*)["']([^>]*?)>/g, (match, beforeHref, hrefValue, afterHref) => {
                         // Check if the link is external
-                        const url = new URL(hrefValue);
+                        const url: { value?: URL } = {};
+                        try {
+                            url.value = new URL(hrefValue, event.request.url);
+                        } catch (e) {
+                            console.error(`Invalid URL: ${hrefValue}`);
+                            return match;
+                        }
 
-                        if (!internalDomains.includes(url.hostname)) {
+                        if (!internalDomains.includes(url.value?.hostname)) {
                             // If external, add rel="external" if not already present
                             let newLink = `<a ${beforeHref}href="${hrefValue}" ${afterHref}>`;
                             if (!/rel=["'][^"']*\bexternal\b[^"']*["']/.test(newLink)) {
@@ -216,7 +222,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
         while (segments.length) {
             let path = segments.join('/').replace(/^\//, '');
             let lang = localeContext?.contentLocale;
-            let raw = await fetchRaw(`${lang}-${path}`);
+            let raw = await getRaw(`${lang}-${path}`);
 
             if (raw) {
                 postExsits = true;

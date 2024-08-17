@@ -3,7 +3,7 @@ import { saveNativeInteraction, createNativeInteractionReply } from "$lib/intera
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
-import { getSiteAccount } from "$lib/server/accouns.js";
+import { getSiteAccount } from "$lib/server/accounts.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
