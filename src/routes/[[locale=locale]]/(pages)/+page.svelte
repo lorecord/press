@@ -6,9 +6,9 @@
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import Card from "$lib/ui/card/index.svelte";
     import Article from "$lib/components/post/article.svelte";
+    import type { PageData } from "./$types";
 
-    /** @type {import('./$types').PageData} */
-    export let data: any;
+    export let data: PageData;
 
     $: ({ home, posts, pathLocale, siteConfig, systemConfig, limit } = data);
 
