@@ -50,13 +50,13 @@ function getEnvConfig(site: any) {
     return envOfSite[site.unique] || site.env || {};
 }
 
-function getSiteConfig(site: any, lang: string) {
+function getSiteConfig(site: any, lang: string | undefined = undefined) {
     const system = getSystemConfig(site);
 
     const config = configOfSite[site.unique] || {};
     const { base = {}, locales = [] } = config;
 
-    const finalLang = getPreferredLang([lang], locales.map((l: any) => l.lang), system.locale?.default || 'en');
+    const finalLang = getPreferredLang(lang ? [lang] : [], locales.map((l: any) => l.lang), system.locale?.default || 'en');
 
     const localeConfig = locales.find((l: any) => l.lang === finalLang);
 

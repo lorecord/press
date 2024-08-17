@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from "./$types";
-import { getSystemConfig } from '$lib/server/config.js';
+import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
 import { loadPost } from '$lib/post/handle-posts';
 import { deleteWebmention, saveWebmention } from '$lib/interaction/handle-webmention';
 import { getRequestPayload } from '$lib/server/event-utils';
@@ -11,7 +11,7 @@ import { parse } from 'node-html-parser';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const { site } = locals as { site: any };
-    const siteConfig = getSystemConfig(site);
+    const siteConfig = getSiteConfig(site);
     const systemConfig = getSystemConfig(site);
 
     if (systemConfig.webmention?.enabled !== true) {
