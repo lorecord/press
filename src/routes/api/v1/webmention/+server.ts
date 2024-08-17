@@ -11,6 +11,7 @@ import { parse } from 'node-html-parser';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const { site } = locals as { site: any };
+    const siteConfig = getSystemConfig(site);
     const systemConfig = getSystemConfig(site);
 
     if (systemConfig.webmention?.enabled !== true) {
@@ -56,24 +57,27 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         if (response.ok) {
             // check header is html or json or text
             if (response.headers?.get('Content-Type')?.includes('text/html') || response.headers?.get('Content-Type')?.includes('application/json') || response.headers?.get('Content-Type')?.includes('text/plain')) {
-                response.text().then((content) => {
+                return response.text().then((content) => {
 
                     // if is html or json or text
                     if (response.headers?.get('Content-Type')?.includes('text/html')) {
-                        // check if content contains a with href to target, or image with src to target, or a audio with src to target, or a video with src to target, or a source with src to target
+                        // check if content contains `a` with href to target, or image/audio/video/source with src to target
                         const doc = parse(content);
 
                         const links = doc.querySelectorAll('a[href]');
 
-                        const media = doc.querySelectorAll('img[src], audio[src], video[src], source[src]');
-
-                        console.log('parsed', {
-                            links, media
-                        });
-
                         for (const a of links) {
-                            console.log('a', a.rawAttrs, a.getAttribute('href'), target);
-                            if (a.getAttribute('href') === target) {
+                            // igore slash at end
+                            let href = a.getAttribute('href');
+                            let match = href == target;
+                            if (href && !match) {
+                                let hrefURL = new URL(href, source);
+                                if (!hrefURL.pathname.endsWith('/')) {
+                                    hrefURL.pathname += '/';
+                                }
+                                match = hrefURL.href == target;
+                            }
+                            if (match) {
                                 return {
                                     valid: true,
                                     contentType: response.headers?.get('Content-Type'),
@@ -82,6 +86,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                                 };
                             }
                         }
+
+                        const media = doc.querySelectorAll('img[src], audio[src], video[src], source[src]');
 
                         for (const m of media) {
                             if (m.getAttribute('src') === target) {
@@ -156,7 +162,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             }
         }
     }).then((result) => {
-        console.log('result of validation', result);
+        console.log('result of validation', {
+            valid: result.valid,
+            contentType: result.contentType,
+            type: result.type
+        });
 
         if (result?.valid && !result?.deleted) {
             let webmentionInteraction: WebmentionInteraction = {
@@ -166,19 +176,21 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 channel: 'webmention',
                 webmention: { source }
             }
-            saveWebmention(site, post, webmentionInteraction);
+            saveWebmention(site, postRoute, webmentionInteraction);
         } if (result?.invalid && !result?.deleted) {
-            deleteWebmention(site, post, id);
+            deleteWebmention(site, postRoute, id);
         }
+    }).catch((error) => {
+        console.error('error', error)
+    }).finally(() => {
+        console.log('webmention validation completed');
     });
-
-
 
     //https://www.w3.org/TR/webmention/#receiving-webmentions
     return json({}, {
         status: 201,
         headers: {
-            'Location': `${systemConfig.domains.primary}/api/v1/webmention/status/${id}`
+            'Location': `${siteConfig.url}/api/v1/webmention/status/${id}`
         }
     });
 
