@@ -16,6 +16,11 @@ export async function POST({ url, locals, request }) {
 
     const payload = await request.json();
 
+    console.log('[webmention] webmention.io callback received: ', {
+        source: payload.source,
+        target: payload.target,
+    });
+
     if (!dev) {
         const secret = systemConfig.webmention?.callback?.secret;
         if (typeof secret === 'string') {
