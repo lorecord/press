@@ -24,7 +24,7 @@
             <div class="newer">
                 {#await newer then value}
                     {#if value}
-                        <a href={`${value.url}`}>
+                        <a href={`${value.route}`}>
                             <h4>
                                 <div>
                                     <IconArrowNarrowLeft size={24} />
@@ -39,7 +39,7 @@
             <div class="earlier">
                 {#await earlier then value}
                     {#if value}
-                        <a href={`${value.url}`}>
+                        <a href={`${value.route}`}>
                             <h4>
                                 <div>
                                     {$t("common.earlier")}

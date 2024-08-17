@@ -29,10 +29,10 @@ function build(site: any) {
         });
 
     let posts = filteredPostRaws.filter((post: any) => {
-        if (map[post.attributes.url]) {
+        if (map[post.attributes.route]) {
             return false;
         }
-        map[post.attributes.url] = true;
+        map[post.attributes.route] = true;
         return true;
     });
 

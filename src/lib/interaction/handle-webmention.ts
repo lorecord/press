@@ -133,7 +133,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[]) 
             mentions.push({ target });
         }
 
-        const resultPromise = sendWebmention({ source: siteConfig.url + postRaw.url, target }).then(result => {
+        const resultPromise = sendWebmention({ source: siteConfig.url + postPath, target }).then(result => {
             Object.assign(mention, result);
             return mention;
         });

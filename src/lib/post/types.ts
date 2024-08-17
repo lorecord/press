@@ -75,7 +75,7 @@ export interface PostAttributes extends PostHeader {
     status?: 'draft' | 'published' | 'private' |
     'trash' | 'pending' | 'future',
     template?: string,
-    ealier?: string,
+    earlier?: string,
     newer?: string,
 
     prism?: boolean;

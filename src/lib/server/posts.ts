@@ -32,7 +32,7 @@ function load() {
 
                 let tasks = getPublishedPostRaws(site)
                     .map((p: any) => ({
-                        url: `${siteConfig.url}${p?.attributes.url}`,
+                        url: `${siteConfig.url}${p?.attributes.route}`,
                         folder: path.dirname(p?.path) || '',
                         modified: p?.attributes?.modified?.date || p?.attributes?.date
                     }))

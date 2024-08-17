@@ -8,7 +8,7 @@ export async function GET({ locals }) {
 
     let { posts, taxonomies } = build(site);
 
-    let responseText = posts.map((post: any) => `${siteConfig.url}${post.attributes.url}`).join('\n');
+    let responseText = posts.map((post: any) => `${siteConfig.url}${post.attributes.route}`).join('\n');
 
     responseText += '\n';
 

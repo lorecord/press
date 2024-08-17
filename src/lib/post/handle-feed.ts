@@ -37,7 +37,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
     if (raw.attributes.langs) {
         feedContent = `${feedContent}
         <p>${raw.attributes.langs.map((lang: string) =>
-            `<a rel="alternate" href="${siteConfig.url}/${lang}${raw.attributes.url}">${t.get(`lang.${lang}`)}</a>`)
+            `<a rel="alternate" href="${siteConfig.url}/${lang}${raw.attributes.route}">${t.get(`lang.${lang}`)}</a>`)
             }</p>
         `;
     }
@@ -71,7 +71,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
     function toHTML(tree: any[]) {
         return `<ul>${tree.map((node: any) => {
             let children: string = node.children ? toHTML(node.children) : '';
-            return `<li><a href="${siteConfig.url}${raw.attributes.url}#${node.id}">${node.text}</a>${children}</li>`;
+            return `<li><a href="${siteConfig.url}${raw.attributes.route}#${node.id}">${node.text}</a>${children}</li>`;
         }).join('')}</ul>`
     }
 
