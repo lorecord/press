@@ -1,4 +1,4 @@
-import { convertToPostForFeed } from "$lib/post/handle-posts";
+import { convertToPostForFeed } from "$lib/post/handle-feed";
 import { getSiteAccount } from "$lib/server/accounts.js";
 import { getSystemConfig, getSiteConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";

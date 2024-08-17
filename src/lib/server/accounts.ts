@@ -5,19 +5,17 @@ import { detectResourceLocales } from '$lib/resource';
 import { getPreferredLang } from '$lib/translations/utils';
 import path from 'path';
 import { getSystemConfig } from './config';
-import type { EncryptedString, HashValue } from '$lib/interaction/types';
+import type { ContactBaseProfile, EncryptedString, HashValue } from '$lib/types';
 
-export interface Account {
+export interface Profile extends ContactBaseProfile {
+    orcid: `https://orcid.org/${string}`;
+    // Social Media etc.
+    // ...
+}
+
+export interface Account extends Profile {
     id: string;
     account: string;
-    name: string;
-    email: {
-        value: EncryptedString;
-        hash: HashValue;
-    },
-    orcid: `https://orcid.org/${string}`;
-    url: string;
-    avatar: string;
 }
 
 let accountsOfSite: {

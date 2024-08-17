@@ -1,3 +1,5 @@
+import type { ContactBaseProfile, EncryptedString, HashString } from "$lib/types";
+
 interface Base {
     id: string;
     published: string;
@@ -9,42 +11,16 @@ interface Base {
     lang?: string;
 }
 
-export interface EncryptedString {
-    encrypted: string;
-    nonce?: string;
-    iv?: string;
-    algorithm?: string;
-    version?: string;
-}
-
-export interface Md5HashValue {
-    md5: string;
-}
-export interface Sha256HashValue {
-    sha256: string;
-}
-export interface Sha1HashValue {
-    sha1: string;
-}
-
-export type HashValue = Md5HashValue | Sha256HashValue | Sha1HashValue;
-
-export type HashString = {
-    salt?: string;
-    i?: number;
-} & HashValue;
-
-export type Author = {
-    name?: string;
-    url?: string;
-    avatar?: string;
+export type UserAuthor = {
     user?: string;
-    email?: {
-        value?: EncryptedString;
-        hash: HashString
-    };
+} & ContactBaseProfile;
+
+export type VerifiedAuthor = {
     verified?: boolean;
-}
+} & ContactBaseProfile;
+
+
+export type Author = UserAuthor | VerifiedAuthor | ContactBaseProfile;
 
 export interface WebmentionRaw {
     source: string;

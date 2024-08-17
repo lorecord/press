@@ -1,5 +1,6 @@
-import type { Author } from "$lib/interaction/types";
+import type { Author, UserAuthor } from "$lib/interaction/types";
 import type { Account } from "$lib/server/accounts";
+import type { ContactBaseProfile } from "$lib/types";
 
 export interface RawAttributes {
     route?: string,
@@ -13,7 +14,7 @@ export interface RawAttributes {
  * 
  * Raw object of a markdown file.
  */
-export interface Raw {
+export interface PostRaw {
     path: string,
     attributes: RawAttributes | any,
     body: string,
@@ -33,7 +34,10 @@ export interface PostMenuConfig {
     footer?: boolean
 }
 
+export type PostHeaderContact = string | UserAuthor | ContactBaseProfile;
+
 export interface PostHeader {
+    uuid?: string,
     route?: string,
     slug?: string,
     published?: boolean | Date | {
@@ -42,9 +46,9 @@ export interface PostHeader {
     modified?: boolean | Date | {
         date: Date
     },
-    author?: string | Account | Author | (string | Account | Author)[],
-    contributor?: string | Account | Author | (string | Account | Author)[],
-    sponsor?: string | Account | Author | (string | Account | Author)[],
+    author?: PostHeaderContact | PostHeaderContact[],
+    contributor?: PostHeaderContact | PostHeaderContact[],
+    sponsor?: PostHeaderContact | PostHeaderContact[],
     title?: string,
     texonomy?: string | {
         category: string | string[],
@@ -59,7 +63,7 @@ export interface PostHeader {
     menu?: PostMenuConfig,
     deleted?: boolean | Date,
     type?: string,
-    syndicate?: string | string[] | { [key: string]: string },
+    syndication?: string | string[] | { [key: string]: string },
     webmention?: {
         enable?: boolean,
         accept?: boolean,
@@ -68,18 +72,24 @@ export interface PostHeader {
 }
 
 export interface PostAttributes extends PostHeader {
-    published?: boolean | Date | {
-        date: Date
-    },
-    modified?: boolean | Date | {
-        date: Date
-    },
     status?: 'draft' | 'published' | 'private' |
     'trash' | 'pending' | 'future',
     template?: string,
     ealier?: string,
     newer?: string,
 
+    prism?: boolean;
+    katex?: boolean;
+    mermaid?: boolean;
+}
+
+export interface Post extends PostAttributes {
+    author?: ContactBaseProfile[],
+    contributor?: ContactBaseProfile[],
+    sponsor?: ContactBaseProfile[],
+
+    content: string,
+    headings: any[],
 }
 
 export interface PostRoute {
@@ -87,7 +97,7 @@ export interface PostRoute {
     lang: string | undefined
 }
 
-export interface PostProcessed extends PostAttributes {
+export interface PostData extends PostAttributes {
     content: string;
     headings: any[];
     links: any[];
