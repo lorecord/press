@@ -5,7 +5,7 @@ import { detectResourceLocales } from '$lib/resource';
 import { getPreferredLang } from '$lib/translations/utils';
 import path from 'path';
 import { getSystemConfig } from './config';
-import type { ContactBaseProfile, EncryptedString, HashValue } from '$lib/types';
+import type { ContactBaseProfile, Credentials, EncryptedString, HashValue } from '$lib/types';
 
 export interface Profile extends ContactBaseProfile {
     orcid: `https://orcid.org/${string}`;
@@ -16,6 +16,7 @@ export interface Profile extends ContactBaseProfile {
 export interface Account extends Profile {
     id: string;
     account: string;
+    credentials: Credentials;
 }
 
 let accountsOfSite: {

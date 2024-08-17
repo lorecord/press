@@ -1,33 +1,40 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import { t } from "$lib/translations";
     import { loading } from "$lib/ui/actions/button";
+    import type { ActionData, SubmitFunction } from "./$types";
 
     let signingIn = false;
+    export let form: ActionData;
 
-    function handleLogin(event: Event) {
-        console.log("Login form submitting");
-        event.preventDefault();
+    const handleEnhanceSubmit: SubmitFunction = ({}) => {
         signingIn = true;
-        console.log("Login form submitted");
 
-        setTimeout(() => {
+        return async ({ result,update }) => {
             signingIn = false;
-        }, 5000);
-    }
+            update();
+        };
+    };
 </script>
 
 <form
     method="post"
     class="auth-form loadable"
-    action="/login"
-    on:submit|preventDefault={handleLogin}
+    action="/signin"
     use:loading={signingIn}
+    use:enhance={handleEnhanceSubmit}
 >
+    {#if form?.error}
+        <div class="alert alert-error">
+            {form.error}
+        </div>
+    {/if}
     <div class="form-row">
         <label>
             <input
                 type="text"
                 name="username"
+                value={form?.username ?? ""}
                 placeholder={$t("auth.username")}
                 required
             />

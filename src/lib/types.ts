@@ -35,3 +35,7 @@ export interface ContactBaseProfile {
         hash: HashString,
     }
 }
+
+export interface Credentials {
+    password: HashString
+}
