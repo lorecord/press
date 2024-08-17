@@ -1,12 +1,19 @@
 import { visit } from 'unist-util-visit';
-import type { Plugin } from 'unified';
+import type { Plugin, Transformer } from 'unified';
 import { h } from 'hastscript';
+import type { Root } from 'mdast';
 
-const remarkAlert: Plugin = (options: any = {}) => {
+export interface Options {
+    classNamePrefix?: string;
+    tagName?: string;
+}
+
+const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
+    | Transformer<Root, Root> => {
     const { classNamePrefix = 'alert', tagName = 'div' } = options;
 
-    return (tree: any) => {
-        const inserts: any = [];
+    const tranformer: Transformer<Root, Root> = (tree) => {
+        const inserts: Function[] = [];
         let admonitions = ['Note', 'Abstract', 'Info', 'Tip', 'Success', 'Question', 'Warning', 'Failure', 'Danger', 'Bug', 'Example', 'Quote'].map((a) => a.toLowerCase());
 
         visit(tree, 'paragraph', (node, index, parent) => {
@@ -39,13 +46,12 @@ const remarkAlert: Plugin = (options: any = {}) => {
                         hChildren: children
                     }
                 };
-                inserts.push({ index, parent, node: newNode });
+                inserts.push((({ parent, index, node }) => () => index != null && parent?.children.splice(index, 1, node))({ parent, index, node }));
             }
         });
 
-        inserts.forEach(({ index, parent, node }) => {
-            parent?.children.splice(index, 1, node);
-        });
+        inserts.forEach((action) => action());
     }
+    return tranformer;
 }
 export default remarkAlert;

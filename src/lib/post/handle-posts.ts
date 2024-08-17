@@ -20,17 +20,17 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCodeFilename from '../markdown/rehype-code-filename';
 import { fetchPath } from '../handle-path';
-import { t, l } from '../translations';
+import { l } from '../translations';
 import { get } from 'svelte/store';
 import { loadRaw } from '$lib/resource';
 import remarkMermaid from '$lib/markdown/remark-mermaid';
 import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
-import { getSiteConfig, getSystemConfig } from '$lib/server/config';
+import { getSystemConfig } from '$lib/server/config';
 import { getSiteAccount } from '$lib/server/accounts';
 import remarkLinks from '$lib/markdown/remark-links';
 import { untag } from '$lib/utils/xml';
-import type { Post, PostAttributes, PostData, PostRoute, PostRaw } from './types';
+import type { PostAttributes, PostData, PostRoute, PostRaw } from './types';
 import type { Site } from '$lib/server/sites';
 
 const DEFAULT_ATTRIBUTE_MAP: {
