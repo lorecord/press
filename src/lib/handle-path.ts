@@ -72,7 +72,7 @@ export function fetchPath(site: any, { route, lang, match }: { route: string, la
             console.error('route', route);
         }
         // route: `/a/b/c/` to ['a','b','c']
-        let segments = route.replace(/^\//, '').replace(/\/$/, '').split('/');
+        let segments = route.replace(/(^\/)|(\/$)/, '').split('/');
         let results = findPath({
             segments, dir: POSTS_DIR, match
         });
