@@ -188,45 +188,51 @@
         </div>
     {/if}
     <div class="article-body container">
-        <div class="article-aside no-print">
-            <aside>
-                {#if post.toc && post.headings}
-                    <details class="article-toc" open id="article-toc">
-                        <summary>
-                            <h3>
-                                <span lang={$locale}>{$t("common.toc")}</span>
-                            </h3>
-                        </summary>
-                        <ul>
-                            {#each post.headings as { level, text, id }}
-                                <li style="margin-left: {level * 10 - 20}px">
-                                    <a
-                                        href={`#${id}`}
-                                        data-target={id}
-                                        on:click={(e) => setActiveSection(id)}
-                                        >{text}</a
+        {#if (post.toc && post.headings) || post.comment?.enabled}
+            <div class="article-aside no-print">
+                <aside>
+                    {#if post.toc && post.headings}
+                        <details class="article-toc" open id="article-toc">
+                            <summary>
+                                <h3>
+                                    <span lang={$locale}
+                                        >{$t("common.toc")}</span
                                     >
-                                </li>
-                            {/each}
-                        </ul>
-                    </details>
-                    <a
-                        href="#article-toc"
-                        id="toc-button"
-                        class="button button-3 button-square button-pill"
-                        ><IconList size={20} /></a
-                    >
-                {/if}
-                {#if post.comment?.enable}
-                    <a
-                        id="comments-link"
-                        href="#comments"
-                        class="button button-3 button-square button-pill"
-                        ><IconMessages size={20} /></a
-                    >
-                {/if}
-            </aside>
-        </div>
+                                </h3>
+                            </summary>
+                            <ul>
+                                {#each post.headings as { level, text, id }}
+                                    <li
+                                        style="margin-left: {level * 10 - 20}px"
+                                    >
+                                        <a
+                                            href={`#${id}`}
+                                            data-target={id}
+                                            on:click={(e) =>
+                                                setActiveSection(id)}>{text}</a
+                                        >
+                                    </li>
+                                {/each}
+                            </ul>
+                        </details>
+                        <a
+                            href="#article-toc"
+                            id="toc-button"
+                            class="button button-3 button-square button-pill"
+                            ><IconList size={20} /></a
+                        >
+                    {/if}
+                    {#if post.comment?.enable}
+                        <a
+                            id="comments-link"
+                            href="#comments"
+                            class="button button-3 button-square button-pill"
+                            ><IconMessages size={20} /></a
+                        >
+                    {/if}
+                </aside>
+            </div>
+        {/if}
         <div class="e-content article-content">
             {@html post.content}
         </div>
