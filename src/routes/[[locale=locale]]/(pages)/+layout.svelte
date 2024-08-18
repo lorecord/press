@@ -201,17 +201,17 @@
         {/if}
     {/if}
 
-    {#if systemConfig.webmention?.enabled && systemConfig.domains?.primary}
+    {#if systemConfig.webmention?.enabled}
         <link
             rel="webmention"
-            href={`https://webmention.io/${systemConfig.domains?.primary}/webmention`}
+            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
         />
 
         {#if systemConfig.webmention?.pingback}
             <link
                 rel="pingback"
-                href={`https://webmention.io/${systemConfig.domains?.primary}/xmlrpc`}
-            />
+                href={systemConfig.webmention?.endpoint || `/api/v1/pingback`}
+        />
         {/if}
     {/if}
 

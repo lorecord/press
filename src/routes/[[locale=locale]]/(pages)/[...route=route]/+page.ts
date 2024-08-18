@@ -3,12 +3,17 @@ import { locale } from "$lib/translations";
 import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
 import { browser } from "$app/environment";
+import { getSystemConfig } from "$lib/server/config";
 
-export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data, locals, setHeaders }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
     const { localeContext } = data;
+    const { site } = locals as any;
+
     let lang = localeParam || locale.get() || localeContext.contentLocale;
+
+    const systemConfig = getSystemConfig(site);
 
     let effectedRoute = route?.endsWith('/') ? route.substring(0, route.length - 1) : route;
 
@@ -62,11 +67,13 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
     }
 
     if (needAwait) {
-        post.then((p) => {
-            setHeaders({
-                'Link': `<${'/api/v1/webmention'}>; rel="webmention"`
-            });
-        })
+        if (systemConfig.webmention.enabled) {
+            post.then((p) => {
+                setHeaders({
+                    'Link': `<${systemConfig.webmention.endpoint || '/api/v1/webmention'} >; rel = "webmention"`
+                });
+            })
+        }
     }
 
     return {
