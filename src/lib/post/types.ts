@@ -65,7 +65,7 @@ export interface PostHeader {
     type?: string,
     syndication?: string | string[] | { [key: string]: string },
     webmention?: {
-        enabled?: boolean,
+        enable?: boolean,
         accept?: boolean,
         pingback?: boolean,
     }
