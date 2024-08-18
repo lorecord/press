@@ -1,3 +1,4 @@
+import { getHrefWithRelValue } from '$lib/utils/html';
 import { parse } from 'node-html-parser';
 
 // 0. use 'Webmention' as HTTP User Agent
@@ -47,15 +48,7 @@ export const resolveEndpoint = async (url: string) => {
                     }
                     return '';
                 }).then((content) => {
-                    const doc = parse(content);
-                    const links = doc.querySelectorAll('link[rel="webmention"]');
-                    for (const link of links) {
-                        return link.getAttribute('href');
-                    }
-                    const as = doc.querySelectorAll('a[rel="webmention"]');
-                    for (const a of as) {
-                        return a.getAttribute('href');
-                    }
+                    return getHrefWithRelValue(content, 'webmention');
                 });
             }
         }).then((endpoint) => {
