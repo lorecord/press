@@ -25,7 +25,7 @@ export const actions: Actions = {
         let email = '';
         if (session) {
             let account = getSiteAccount(site, session.username, '');
-            if (account) {
+            if (account?.email?.value) {
                 email = decrypt(site, account.email.value);
             }
             username = session.username;
