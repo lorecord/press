@@ -1,8 +1,8 @@
 import { convertToPostForFeed } from "$lib/post/handle-feed";
 import { getSiteAccount } from "$lib/server/accounts.js";
-import { getSystemConfig, getSiteConfig } from "$lib/server/config";
+import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
-import { locales, locale } from "$lib/translations";
+import { locale, locales } from "$lib/translations";
 
 import { get } from "svelte/store";
 
