@@ -51,7 +51,7 @@ export interface PostHeader {
     contributor?: PostHeaderContact | PostHeaderContact[],
     sponsor?: PostHeaderContact | PostHeaderContact[],
     title?: string,
-    texonomy?: string | {
+    taxonomy?: string | {
         category: string | string[],
         tag: string | string[]
         seires: string | string[]
