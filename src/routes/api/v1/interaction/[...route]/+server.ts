@@ -11,11 +11,11 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 
     const { site } = locals as any;
-    const { slug } = params;
+    const { route } = params;
 
-    const nativeInteractions = loadNativeInteractions(site, { slug });
+    const nativeInteractions = loadNativeInteractions(site, { route: route });
 
-    const webmentions = loadWebmentions(site, slug);
+    const webmentions = loadWebmentions(site, route);
 
     const replies = [
         ...nativeInteractions.filter((comment: any) => comment.type === "reply") as NativeReply[],
@@ -37,7 +37,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 export const POST: RequestHandler = async ({ params, locals, request, getClientAddress }) => {
     const { site } = locals as any;
-    const { slug } = params;
+    const { route } = params;
 
     let payload: any = await getRequestPayload(request);
 
@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
     }
 
     // TODO lang fallback
-    const post = await loadPost(site, { route: slug, lang });
+    const post = await loadPost(site, { route, lang });
 
     let status = 400;
     let message = '';
@@ -74,7 +74,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         const interaction = {
             type,
             author: name,
-            slug,
+            slug: route,
             lang,
             email,
             url: website,
@@ -83,14 +83,14 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             target
         };
 
-        let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
+        let saved = saveNativeInteraction(site, { route: route }, createNativeInteractionReply(site, interaction));
 
         console.log('new comment saved', saved?.id);
 
         if (saved) {
             sendNewReplyMail(site, post, saved);
 
-            let newInteraction = loadNativeInteraction(site, { slug, id: saved.id });
+            let newInteraction = loadNativeInteraction(site, { route: route, id: saved.id });
             if (newInteraction) {
                 newInteraction = JSON.parse(JSON.stringify(newInteraction)) as NativeInteraction;
                 if (newInteraction) {

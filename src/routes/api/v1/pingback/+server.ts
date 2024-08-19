@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                     title: result.title,
                 };
                 saveNativeInteraction(site,
-                    { slug: new URL(targetURI).pathname }, mention);
+                    { route: new URL(targetURI).pathname }, mention);
             }
 
             callback(null, 'Pingback received successfully');

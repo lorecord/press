@@ -53,16 +53,16 @@ function load() {
                 });
             }
 
-            // unique slugs array
-            const slugs = Array.from(new Set(postRaws.map((raw: any) => raw.attributes?.slug)));
+            // unique routes array
+            const routes = Array.from(new Set(postRaws.map((raw: any) => raw.attributes?.route)));
 
-            slugs.forEach((slug: string) => {
-                function loadForSlug() {
-                    loadNativeInteractions(site, { slug });
+            routes.forEach((route: string) => {
+                function loadForRoute() {
+                    loadNativeInteractions(site, { route });
                 }
-                let interactionsFilePath = getNativeInteractionsFilePath(site, { slug });
+                let interactionsFilePath = getNativeInteractionsFilePath(site, { route });
                 if (interactionsFilePath) {
-                    fileWatch(interactionsFilePath, loadForSlug, `${site.unique}-${slug}-load-interactions`);
+                    fileWatch(interactionsFilePath, loadForRoute, `${site.unique}-${route}-load-interactions`);
                 }
             });
         }
@@ -117,14 +117,14 @@ export function getPublishedPosts(site: any) {
 
             let prev = prevOfTemplate[`${post.template}-${post.lang}`];
             if (prev) {
-                if (post.slug === prev.slug) {
-                    // multiple posts with same slug
+                if (post.route === prev.route) {
+                    // multiple posts with same route
                     continue;
                 }
             }
             if (prev) {
-                prev.earlier = post.slug;
-                post.newer = prev.slug;
+                prev.earlier = post.route;
+                post.newer = prev.route;
             }
             prevOfTemplate[`${post.template}-${post.lang}`] = post;
         }
@@ -152,7 +152,7 @@ export function findRelatedPosts(site: any, post: any, limit = 3) {
     const relatedPosts = getPublicPosts(site)
         .filter((p: any) => p.template == 'item')
         .filter((p: any) => p.visible)
-        .filter((p: any) => p.slug != post.slug)
+        .filter((p: any) => p.route != post.route)
         .filter((p: any) => p.lang == post.lang)
         .map((p: any) => {
             let score = 0;

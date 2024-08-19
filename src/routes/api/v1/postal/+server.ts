@@ -59,19 +59,19 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     const [, mesasgeUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
     const [, target] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
-    const slug: string | undefined = (() => {
+    const route: string | undefined = (() => {
         if (target) {
-            const { slug } = getNativeInteraction(site, target) || {};
-            return slug;
+            const { route } = getNativeInteraction(site, target) || {};
+            return route;
         } else {
             if (payload.subject) {
-                const [, slug] = payload.subject.match(/.*\((.*)(?:#.*)?\)\s*$/) || [];
-                return slug;
+                const [, route] = payload.subject.match(/.*\((.*)(?:#.*)?\)\s*$/) || [];
+                return route;
             }
         }
     })();
 
-    if (!slug) {
+    if (!route) {
         error(400, 'Invalid Post');
     }
 
@@ -80,7 +80,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         replied?: Reply
     } = {};
 
-    let replied = loadNativeInteraction(site, { slug, id: target });
+    let replied = loadNativeInteraction(site, { route, id: target });
     if (replied && replied.type === 'reply') {
         replyContext.is = true;
         replyContext.replied = replied;
@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     let lang = replied?.lang || systemConfig.locale?.default || 'en';
 
-    const post = await loadPost(site, { route: slug, lang });
+    const post = await loadPost(site, { route, lang });
 
     if (!post) {
         error(404, 'Post not found');
@@ -109,7 +109,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     const interaction = {
         channel: 'email',
         author,
-        slug,
+        route,
         lang,
         email,
         text: replyPart.trim(),
@@ -119,7 +119,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         verified: true
     };
 
-    let saved = saveNativeInteraction(site, { slug }, createNativeInteractionReply(site, interaction));
+    let saved = saveNativeInteraction(site, { route }, createNativeInteractionReply(site, interaction));
 
     if (saved) {
         sendNewReplyMail(site, post, saved);

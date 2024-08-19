@@ -59,7 +59,7 @@ export const actions: Actions = {
                     ip: getRealClientAddress({ request, getClientAddress }),
                     target: form.get("target")?.toString() || '',
                 };
-                let saved = saveNativeInteraction(site, { slug: route.toString() }, createNativeInteractionReply(site, comment));
+                let saved = saveNativeInteraction(site, { route: route.toString() }, createNativeInteractionReply(site, comment));
 
                 if (saved) {
                     sendNewReplyMail(site, post, saved);

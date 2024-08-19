@@ -167,7 +167,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
         }
 
         let siteConfig = getSiteConfig(site, lang);
-        let postWithLang = post.lang != lang ? await loadPost(site, { route: post.slug, lang }) : undefined;
+        let postWithLang = post.lang != lang ? await loadPost(site, { route: post.route, lang }) : undefined;
 
         let params: any = {
             site_title: siteConfig.title,

@@ -165,8 +165,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     }
 
-    attributes.route = attributes.route || slashed;
     attributes.slug = attributes.slug || slug;
+    attributes.route = attributes.route || (
+        slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
+    );
+
 
     if (stat) {
         attributes.date = attributes.date || new Date(stat?.birthtime).toISOString();
@@ -184,7 +187,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     const template = attributes.template || 'default';
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[template], attributes);
 
-    cache.raw[`${attributes.lang}-${attributes.slug}`] = { path: filepath, attributes, body };
+    cache.raw[`${attributes.lang}-${attributes.route}`] = { path: filepath, attributes, body };
 
     return { path: filepath, attributes, body };
 }

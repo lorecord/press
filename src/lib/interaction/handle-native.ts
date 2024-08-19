@@ -22,14 +22,14 @@ import path from 'path';
 
 let cacheById: {
     [id: string]: {
-        slug: string;
+        route: string;
         interaction: NativeInteraction
     }
 } = {};
 
 
 export interface Comment {
-    slug: string;
+    route: string;
     lang: string;
     author: string;
     user: string;
@@ -51,21 +51,21 @@ export function getNativeInteraction(site: any, id: string) {
     return cached;
 }
 
-export function getNativeInteractionsFilePath(site: any, { slug }: { slug: string }) {
-    const folder = getInteractionsFoler(site, { slug });
+export function getNativeInteractionsFilePath(site: any, { route }: { route: string }) {
+    const folder = getInteractionsFoler(site, { route });
     if (folder) {
         const filepath = path.join(folder, 'native.yml');
         return filepath;
     }
 }
 
-export function loadNativeInteraction(site: any, { slug, id }: { slug: string, id: string }) {
-    return (loadNativeInteractions(site, { slug }) || []).find((i: any) => i.id === id);
+export function loadNativeInteraction(site: any, { route, id }: { route: string, id: string }) {
+    return (loadNativeInteractions(site, { route: route }) || []).find((i: any) => i.id === id);
 }
 
-export function loadNativeInteractions(site: any, { slug }: { slug: string }): NativeInteraction[] {
+export function loadNativeInteractions(site: any, { route }: { route: string }): NativeInteraction[] {
 
-    let filepath = getNativeInteractionsFilePath(site, { slug });
+    let filepath = getNativeInteractionsFilePath(site, { route: route });
 
     if (!filepath || !fs.existsSync(filepath)) {
         return [];
@@ -81,7 +81,7 @@ export function loadNativeInteractions(site: any, { slug }: { slug: string }): N
             interaction.contentHTML = markdown(interaction.content, interaction.id, systemConfig.domains?.primary);
         }
         cacheById[interaction.id] = {
-            slug,
+            route: route,
             interaction
         };
     });
@@ -192,8 +192,8 @@ export function markdown(content: string, id: string, domain: string) {
 }
 
 //
-export function saveNativeInteraction<T extends NativeInteraction>(site: any, { slug }: { slug: string }, interaction: T): T | undefined {
-    let filepath = getNativeInteractionsFilePath(site, { slug });
+export function saveNativeInteraction<T extends NativeInteraction>(site: any, { route }: { route: string }, interaction: T): T | undefined {
+    let filepath = getNativeInteractionsFilePath(site, { route });
 
     if (!filepath) {
         return;
@@ -276,10 +276,10 @@ export function createNativeInteractionReply(site: any, {
     }, optional(target, 'target'), optional(ip, 'ip', (ip) => encrypt(site, ip)),) as NativeReply;
 }
 
-export function saveCommentAsNativeInteraction(site: any, { slug, channel, lang, author, user, email, url, text, ip, reply, type, id, verified }: { slug: string, lang: string, channel?: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type?: string, id?: string, verified?: boolean }) {
+export function saveCommentAsNativeInteraction(site: any, { route, channel, lang, author, user, email, url, text, ip, reply, type, id, verified }: { route: string, lang: string, channel?: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type?: string, id?: string, verified?: boolean }) {
     let comment: any = {
         channel, lang, type, author, user, email, url, text, ip, reply, date: new Date(), id, verified
     };
 
-    return saveNativeInteraction(site, { slug }, commentToInteraction(site, comment));
+    return saveNativeInteraction(site, { route }, commentToInteraction(site, comment));
 }

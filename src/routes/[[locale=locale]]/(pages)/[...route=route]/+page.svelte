@@ -528,7 +528,7 @@
                                 email: systemConfig.email?.sender,
                                 site: siteConfig.title,
                                 title: post.title,
-                                slug: post.slug,
+                                route: post.route,
                             }}
                             replies={commonComments}
                             gravatarBase={systemConfig.gravatar?.base}

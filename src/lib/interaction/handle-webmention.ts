@@ -9,7 +9,7 @@ import { getInteractionsFoler } from './utils';
 import { sendWebmention } from '$lib/webmention';
 
 export function getWebmentionPathOfSource(site: any, postPath: string) {
-    const folder = getInteractionsFoler(site, { slug: postPath });
+    const folder = getInteractionsFoler(site, { route: postPath });
     if (folder) {
         return path.join(folder, 'webmention/source.yml');
     }
@@ -102,7 +102,7 @@ export function deleteWebmention(site: any, postPath: string, source: string) {
 
 export function sendWebmentions(site: any, postPath: string, targets: string[]) {
     const siteConfig = getSiteConfig(site, 'en');
-    const folder = getInteractionsFoler(site, { slug: postPath });
+    const folder = getInteractionsFoler(site, { route: postPath });
     if (!folder) {
         return;
     }

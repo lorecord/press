@@ -1,11 +1,10 @@
+import { env } from '$env/dynamic/private';
 import { loadPostRaw } from "$lib/post/handle-posts";
-import type { EncryptedString, HashString, HashValue, Md5HashValue, NativeInteraction, NativeMention, NativeReply, Sha1HashValue, Sha256HashValue } from "./types";
+import { getEnvConfig } from "$lib/server/config";
+import type { EncryptedString, HashValue, Md5HashValue, Sha1HashValue, Sha256HashValue } from '$lib/types';
 import crypto from 'crypto';
 import path from 'path';
-import { env } from '$env/dynamic/private';
-import { getEnvConfig } from "$lib/server/config";
-
-type xx = String | Number;
+import type { NativeInteraction, NativeMention, NativeReply } from './types';
 
 export function hashStringEquals(a: HashValue, b: HashValue) {
     const { md5: aMd5, sha256: aSha256, sha1: aSha1 } = a as Md5HashValue & Sha256HashValue & Sha1HashValue;
@@ -16,15 +15,15 @@ export function hashStringEquals(a: HashValue, b: HashValue) {
         || (aSha256 && aSha256 == bSha256);
 }
 
-export function getInteractionsFoler(site: any, { slug }: { slug: string }) {
-    const folder = getPostFolder(site, { slug });
+export function getInteractionsFoler(site: any, { route }: { route: string }) {
+    const folder = getPostFolder(site, { route });
     if (folder) {
         return path.join(folder, '/.data/interactions/channels/');
     }
 }
 
-export function getPostFolder(site: any, { slug }: { slug: string }) {
-    const postRaw = loadPostRaw(site, { route: slug, lang: 'en' });
+export function getPostFolder(site: any, { route }: { route: string }) {
+    const postRaw = loadPostRaw(site, { route, lang: 'en' });
     if (!postRaw || !postRaw.path) {
         return '';
     }

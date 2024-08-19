@@ -17,7 +17,7 @@
     export let replies: any[];
     export let reply: false;
     export let post: {
-        slug: string;
+        route: string;
         lang: string;
         "x.com"?: any;
         nostr?: any;
@@ -31,13 +31,13 @@
         email: string;
         site: string;
         title: string;
-        slug: string;
+        route: string;
     } = {
         enabled: false,
         email: "",
         site: "",
         title: "",
-        slug: "",
+        route: "",
     };
 
     export let gravatarBase: string;
@@ -128,7 +128,7 @@
         }
 
         try {
-            fetch(`/api/v1/interaction/${post.slug}`, {
+            fetch(`/api/v1/interaction/${post.route}`, {
                 method: "POST",
                 body: new FormData(form),
             })
@@ -252,7 +252,7 @@
 
     $: replyToReply = replies?.find((reply) => reply.id === target);
 
-    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.slug}${replyToReply ? `#${replyToReply.id}` : ""})${post.langs?.length > 0 ? ` [${post.lang}]` : ""}`)}&body=${encodeURI(text || "")}`;
+    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.route}${replyToReply ? `#${replyToReply.id}` : ""})${post.langs?.length > 0 ? ` [${post.lang}]` : ""}`)}&body=${encodeURI(text || "")}`;
 </script>
 
 {#if reply}
@@ -349,7 +349,7 @@
             use:loading={submmiting}
             on:submit|preventDefault={handleReplySubmit}
         >
-            <input type="hidden" name="slug" value={post.slug} />
+            <input type="hidden" name="route" value={post.route} />
             <input type="hidden" name="lang" value={post.lang} />
             <input type="hidden" name="target" value={target} />
             <div class="form-row">

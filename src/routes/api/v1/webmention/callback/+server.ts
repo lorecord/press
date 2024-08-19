@@ -45,11 +45,11 @@ export async function POST({ url, locals, request }) {
 
     let postRaw = await loadPostRaw(site, { route: postRoute });
     if (!postRaw?.path) {
-        let [lang, slug] = postRoute.split('/', 2);
-        if (slug) {
-            postRaw = await loadPostRaw(site, { route: slug, lang });
+        let [lang, route] = postRoute.split('/', 2);
+        if (route) {
+            postRaw = await loadPostRaw(site, { route, lang });
         }
-        postRoute = slug;
+        postRoute = route;
     }
 
     console.debug('[webmention] postRaw', postRaw);
