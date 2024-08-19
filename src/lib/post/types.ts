@@ -62,7 +62,9 @@ export interface PostHeader {
     comment?: PostCommentConfig,
     discuss?: PostDiscussConfig,
     menu?: PostMenuConfig,
-    deleted?: boolean | Date,
+    deleted?: boolean | Date | {
+        date: Date
+    },
     type?: string,
     syndication?: string | string[] | { [key: string]: string },
     webmention?: {
