@@ -1,6 +1,14 @@
 import { parse } from "node-html-parser";
 
-export const findLinkInContent = (content: string, source: string, target: string, contentType: string) => {
+export const findLinkInContent = (content: string, source: string, target: string, contentType: string): {
+    title?:string,
+    valid?: boolean;
+    contentType?: string;
+    type?: 'link' | 'media';
+    responseContent?: string;
+    linkText?: string;
+    textAroundLink?: string;
+} | undefined => {
     // if is html or json or text
     if (contentType?.includes('text/html')) {
         // check if content contains `a` with href to target, or image/audio/video/source with src to target
@@ -20,11 +28,20 @@ export const findLinkInContent = (content: string, source: string, target: strin
                 match = hrefURL.href == target;
             }
             if (match) {
+                // the block parent node, div|p|h* etc
+                let parentNode = a.parentNode;
+                while (parentNode && !['div', 'section', 'article', 'p'].includes(parentNode.tagName.toLowerCase())) {
+                    parentNode = parentNode.parentNode;
+                }
+                let textAroundLink = parentNode.previousSibling?.textContent + parentNode.textContent + parentNode.nextSibling?.textContent;
                 return {
+                    title: doc.querySelector('title')?.textContent,
                     valid: true,
                     contentType,
                     type: 'link',
-                    responseText: content
+                    responseContent: content,
+                    linkText: a.textContent,
+                    textAroundLink,
                 };
             }
         }
@@ -37,7 +54,7 @@ export const findLinkInContent = (content: string, source: string, target: strin
                     valid: true,
                     contentType,
                     type: 'media',
-                    responseText: content
+                    responseContent: content
                 };
             }
         }
@@ -69,7 +86,7 @@ export const findLinkInContent = (content: string, source: string, target: strin
             return {
                 valid: true,
                 contentType,
-                responseText: content
+                responseContent: content
             };
         }
 
@@ -79,13 +96,13 @@ export const findLinkInContent = (content: string, source: string, target: strin
             return {
                 valid: true,
                 contentType,
-                responseText: content
+                responseContent: content
             };
         };
     } else {
         return {
             contentType,
-            responseText: content
+            responseContent: content
         };
     }
 }

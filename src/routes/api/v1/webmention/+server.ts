@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 contentType: response.headers?.get('Content-Type')
             } as any;
         } else {
-            if (response.status === 410) {
+            if ([401, 403, 404, 410, 451].includes(response.status)) {
                 // delete from the database
                 return {
                     valid: true,
