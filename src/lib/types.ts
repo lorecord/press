@@ -23,7 +23,7 @@ export interface EncryptedString {
 }
 
 export interface EncryptedEmailAddress {
-    value: EncryptedString;
+    value?: EncryptedString;
     hash: HashString;
 }
 
@@ -31,9 +31,7 @@ export interface ContactBaseProfile {
     name?: string,
     url?: string,
     avatar?: string,
-    email?: {
-        hash: HashString,
-    }
+    email?: EncryptedEmailAddress
 }
 
 export interface Credentials {
