@@ -5,7 +5,7 @@ import { buildPostByMarkdown, handleAuthors } from "./handle-posts";
 import type { PostRaw } from "./types";
 
 export function convertToPostForFeed(site: Site, raw: PostRaw) {
-    const { content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
+    const { html: content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {

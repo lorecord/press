@@ -1,4 +1,5 @@
 import type { UserAuthor } from "$lib/interaction/types";
+import type { ResourceRaw } from "$lib/resource";
 import type { ContactBaseProfile } from "$lib/types";
 
 export interface PostCommentConfig {
@@ -60,6 +61,7 @@ export interface PostRawAttributes {
  * Raw object of a markdown file.
  */
 export interface PostRaw {
+    resourceRaw: ResourceRaw,
     path: string,
     attributes: PostRawAttributes,
     body: string,
@@ -73,7 +75,7 @@ export interface PostRoute {
     lang: string | undefined
 }
 
-export interface Post extends PostRawAttributes {
+export interface Post {
     published: {
         date: string
     },
@@ -92,18 +94,18 @@ export interface Post extends PostRawAttributes {
         series?: string[]
     },
     keywords?: string[],
-    content: string;
-    headings: any[];
-    links: any[];
-    processMeta: any;
+    content?: {
+        html: string,
+        headings: string[],
+        links: string[],
+        meta: any,
+        prism?: boolean;
+        katex?: boolean;
+        mermaid?: boolean;
+    },
     syndication?: {
         [key: string]: string
     },
-
-    prism?: boolean;
-    katex?: boolean;
-    mermaid?: boolean;
-
     earlier?: string,
     newer?: string,
     status?: 'draft' | 'published' | 'private' |

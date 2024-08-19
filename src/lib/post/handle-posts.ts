@@ -1,37 +1,38 @@
 import fs from 'fs';
 
-import { globSync } from "glob";
+import remarkMathHelper from '$lib/markdown/rehype-math-helper';
+import { rehypePrism } from '$lib/markdown/rehype-prism';
+import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
+import remarkLinks from '$lib/markdown/remark-links';
+import remarkMermaid from '$lib/markdown/remark-mermaid';
+import { loadRaw } from '$lib/resource';
+import { getSiteAccount } from '$lib/server/accounts';
+import { getSystemConfig } from '$lib/server/config';
+import type { Site } from '$lib/server/sites';
+import { untag } from '$lib/utils/xml';
 import fm from 'front-matter';
-import { unified } from 'unified';
-import remarkMath from 'remark-math';
-import remarkParse from "remark-parse";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkGfm from 'remark-gfm';
-import remarkFng from '../remark-fng';
-import remarkHeadings from '../markdown/remark-headings';
-import remarkSlug from 'remark-slug';
-import remarkAlert from '../markdown/remark-alert';
-import remarkRehypeCustom from '../markdown/remark-rehype-custom';
-import { createFootnoteReference } from '../remark-rehyper-handlers';
+import { globSync } from "glob";
 import rephypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
-import { rehypePrism } from '$lib/markdown/rehype-prism';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-import rehypeCodeFilename from '../markdown/rehype-code-filename';
-import { fetchPath } from '../handle-path';
-import { l } from '../translations';
+import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkParse from "remark-parse";
+import remarkSlug from 'remark-slug';
 import { get } from 'svelte/store';
-import { loadRaw } from '$lib/resource';
-import remarkMermaid from '$lib/markdown/remark-mermaid';
-import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
-import remarkMathHelper from '$lib/markdown/rehype-math-helper';
-import { getSystemConfig } from '$lib/server/config';
-import { getSiteAccount } from '$lib/server/accounts';
-import remarkLinks from '$lib/markdown/remark-links';
-import { untag } from '$lib/utils/xml';
-import type { Post, PostRoute, PostRaw, PostRawAttributes } from './types';
-import type { Site } from '$lib/server/sites';
+import { unified } from 'unified';
+import { fetchPath } from '../handle-path';
+import rehypeCodeFilename from '../markdown/rehype-code-filename';
+import remarkAlert from '../markdown/remark-alert';
+import remarkHeadings from '../markdown/remark-headings';
+import remarkRehypeCustom from '../markdown/remark-rehype-custom';
+import remarkFng from '../remark-fng';
+import { createFootnoteReference } from '../remark-rehyper-handlers';
+import { l } from '../translations';
+import type { Post, PostRaw, PostRawAttributes, PostRoute } from './types';
+import { enhanceObject } from '$lib/utils/enhance';
 
 const DEFAULT_ATTRIBUTE_MAP: {
     [template: string]: PostRawAttributes
@@ -103,8 +104,6 @@ const cache: {
     resource: {}
 };
 
-
-
 /**
  * @typedef {Object} LangMappedRaw
  */
@@ -143,7 +142,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         return;
     }
 
-    let { stat, localPath, name, route, locales } = loadRaw(site, filepath) || {};
+    const resourceRaw = loadRaw(site, filepath);
+    if (!resourceRaw) {
+        return;
+    }
+    const { stat, localPath, name, route, locales } = resourceRaw;
 
     let dataFromRaw: {
         template?: string,
@@ -197,24 +200,21 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     );
 
     let postRaw: PostRaw = {
-        path: filepath,
+        resourceRaw,
         attributes,
+        path: filepath,
         body,
         template: effectedTemplate,
         ...dataFromRaw,
-    };
+    }, { };
 
     cache.raw[`${postRaw.lang}-${attributes.route}`] = postRaw;
 
     return postRaw;
 }
 
-export function loadAllPostRaws(site: Site) {
-    const { POSTS_DIR } = site?.constants;
-    return loadPostRaws(site, POSTS_DIR);
-}
-
-export function loadPostRaws(site: Site, path: string): PostRaw[] {
+export function loadAllPostRaws(site: Site): PostRaw[] {
+    const { POSTS_DIR: path } = site?.constants;
     let fileNames = globSync(`${path}/**/*.md`);
     if (!fileNames?.length) {
         console.log(`loadPostRaws: No file found for ${path}.`);
@@ -227,7 +227,7 @@ export function loadPostRaws(site: Site, path: string): PostRaw[] {
         .filter(raw => !!raw) as PostRaw[];
 
     function resolveDate(pr: PostRaw) {
-        let dateFieldValue = pr.attributes.date;
+        let dateFieldValue = pr.attributes.date as any;
         if (dateFieldValue instanceof Date) {
             return dateFieldValue.getTime();
         } else if (typeof dateFieldValue === 'string') {
@@ -256,18 +256,23 @@ export async function loadAllPostsFiles() {
     return allPosts.sort((a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime());
 }
 
-export function buildPostByMarkdown(content: string, lang: string, rehypeFunction?: (tree: any) => void, options: any = {}) {
+export function buildPostByMarkdown(content: string, lang?: string, rehypeFunction?: (tree: any) => void, options: any = {}) {
     const parser = createMarkdownParser({ rehypeFunction, lang, config: options });
 
     if (content) {
         let processed = parser.processSync(content);
         let result = fixMarkdownHtmlWrapper(processed.value.toString());
-        return { content: result, headings: processed.data.headings, links: processed.data.links, processMeta: processed.data.processMeta };
+        return { html: result, headings: processed.data.headings, links: processed.data.links, meta: processed.data.processMeta };
     }
     return { content: undefined, headings: [], links: [], processMeta: {} };
 }
 
-export function createMarkdownParser(options: any = {}) {
+export function createMarkdownParser(options: {
+    alertTagName?: string,
+    rehypeFunction?: (tree: any) => void,
+    lang?: string,
+    config?: any
+} = {}) {
     const {
         alertTagName = 'div',
         rehypeFunction = (tree: any) => tree,
@@ -338,7 +343,7 @@ export function createMarkdownParser(options: any = {}) {
         })
         .use(rephypeKatex)
         .use(rehypeStringify)
-        .use(() => options.rehypeFunction || ((tree: any) => tree));
+        .use(() => rehypeFunction || ((tree: any) => tree));
     return parser;
 }
 
@@ -381,39 +386,44 @@ export async function loadPost(site: Site, { route, lang }: { route: string, lan
 }
 
 export function convertToPost(site: Site, raw: PostRaw): Post {
-    const { content, headings, processMeta, links } = buildPostByMarkdown(raw?.body, raw?.attributes?.lang, (tree: any) => {
-        // update footnote
-        let handleChildren = (children: any[]) => {
-            children.forEach((node: any) => {
-                if (node.properties?.id) {
-                    node.properties.id = node.properties.id.replace(/^(user-content-)+/, '');
-                }
-                if (node.type === 'element'
-                    && 'a' === node.tagName
-                    && node.properties?.href) {
-                    node.properties.href = node.properties.href.replace(/^#(user-content-)+/, '#');
-                }
-                if (node.children) {
-                    handleChildren(node.children);
+    handleAuthors(site, raw.attributes);
+
+    let post: Post = enhanceObject({ ...raw.attributes }, {
+        published: () => raw.attributes.published,
+        uuid: raw.attributes.uuid || 'error none uuid',
+        route: raw.attributes.route,
+        lang: raw.lang,
+        content: () => {
+            const { html, headings, meta, links } = buildPostByMarkdown(raw?.body, raw?.lang, (tree: any) => {
+                // update footnote
+                let handleChildren = (children: any[]) => {
+                    children.forEach((node: any) => {
+                        if (node.properties?.id) {
+                            node.properties.id = node.properties.id.replace(/^(user-content-)+/, '');
+                        }
+                        if (node.type === 'element'
+                            && 'a' === node.tagName
+                            && node.properties?.href) {
+                            node.properties.href = node.properties.href.replace(/^#(user-content-)+/, '#');
+                        }
+                        if (node.children) {
+                            handleChildren(node.children);
+                        }
+                    });
+                };
+                handleChildren(tree.children);
+            }, {
+                mermaid: {
+                    enabled: true,
                 }
             });
-        };
-        handleChildren(tree.children);
-    }, {
-        mermaid: {
-            enabled: true,
+            return { html, headings, meta, links };
         }
     });
 
-    handleAuthors(site, raw.attributes);
-    let post: PostAttributes = convertToPostAttributes(raw.attributes);
     return {
         ...raw?.attributes, content, headings, processMeta, links
     };
-}
-
-function convertToPostAttributes(attributes: RawAttributes): PostAttributes {
-    throw new Error('Function not implemented.');
 }
 
 export function handleAuthors(site: Site, attr: { author?: string, authors?: string[], lang: string }) {
