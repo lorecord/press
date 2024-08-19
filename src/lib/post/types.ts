@@ -40,6 +40,7 @@ export interface PostHeader {
     uuid?: string,
     route?: string,
     slug?: string,
+    date?: string | Date
     published?: boolean | Date | {
         date: Date
     },
