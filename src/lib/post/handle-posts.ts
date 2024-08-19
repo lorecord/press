@@ -411,11 +411,3 @@ export function handleAuthors(site: Site, attr: { author?: string, authors?: str
         .filter((author) => !!author)
         .map(mapper);
 }
-
-export function convertToPreview(raw: PostRaw) {
-    return { ...raw?.attributes };
-}
-
-export function findRelatedPosts() {
-    return [];
-}
