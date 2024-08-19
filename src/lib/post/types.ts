@@ -1,24 +1,5 @@
-import type { Author, UserAuthor } from "$lib/interaction/types";
-import type { Account } from "$lib/server/accounts";
+import type { UserAuthor } from "$lib/interaction/types";
 import type { ContactBaseProfile } from "$lib/types";
-
-export interface RawAttributes {
-    route?: string,
-    slug?: string,
-    template?: string,
-    lang?: string,
-}
-
-/**
- * @typedef {Object} Raw
- * 
- * Raw object of a markdown file.
- */
-export interface PostRaw {
-    path: string,
-    attributes: RawAttributes | any,
-    body: string,
-}
 
 export interface PostCommentConfig {
     enable?: boolean;
@@ -34,27 +15,27 @@ export interface PostMenuConfig {
     footer?: boolean
 }
 
-export type PostHeaderContact = string | UserAuthor | ContactBaseProfile;
+export type PostAttributesContact = string | UserAuthor | ContactBaseProfile;
 
-export interface PostHeader {
+export interface PostRawAttributes {
     uuid?: string,
     route?: string,
     slug?: string,
-    date?: string | Date
-    published?: boolean | Date | {
-        date: Date
+    date?: string
+    published?: boolean | string | {
+        date: string
     },
-    modified?: boolean | Date | {
-        date: Date
+    modified?: boolean | string | {
+        date: string
     },
-    author?: PostHeaderContact | PostHeaderContact[],
-    contributor?: PostHeaderContact | PostHeaderContact[],
-    sponsor?: PostHeaderContact | PostHeaderContact[],
+    author?: PostAttributesContact | PostAttributesContact[],
+    contributor?: PostAttributesContact | PostAttributesContact[],
+    sponsor?: PostAttributesContact | PostAttributesContact[],
     title?: string,
-    taxonomy?: string | {
-        category: string | string[],
-        tag: string | string[]
-        seires: string | string[]
+    taxonomy?: {
+        category?: string | string[],
+        tag?: string | string[]
+        seires?: string | string[]
     },
     keywords?: string | string[],
     visible?: boolean,
@@ -62,8 +43,8 @@ export interface PostHeader {
     comment?: PostCommentConfig,
     discuss?: PostDiscussConfig,
     menu?: PostMenuConfig,
-    deleted?: boolean | Date | {
-        date: Date
+    deleted?: boolean | string | {
+        date: string
     },
     type?: string,
     syndication?: string | string[] | { [key: string]: string },
@@ -72,18 +53,19 @@ export interface PostHeader {
         accept?: boolean,
         pingback?: boolean,
     }
+    summary?: string
 }
 
-export interface PostAttributes extends PostHeader {
-    status?: 'draft' | 'published' | 'private' |
-    'trash' | 'pending' | 'future',
+/**
+ * Raw object of a markdown file.
+ */
+export interface PostRaw {
+    path: string,
+    attributes: PostRawAttributes,
+    body: string,
     template?: string,
-    earlier?: string,
-    newer?: string,
-
-    prism?: boolean;
-    katex?: boolean;
-    mermaid?: boolean;
+    lang?: string,
+    langs?: string[],
 }
 
 export interface PostRoute {
@@ -91,12 +73,42 @@ export interface PostRoute {
     lang: string | undefined
 }
 
-export interface Post extends PostAttributes {
+export interface Post extends PostRawAttributes {
+    published: {
+        date: string
+    },
+    modified: {
+        date: string
+    },
+    deleted: {
+        date: string
+    }
     author?: ContactBaseProfile[],
     contributor?: ContactBaseProfile[],
     sponsor?: ContactBaseProfile[],
+    taxonomy?: {
+        category?: string[],
+        tag?: string[],
+        series?: string[]
+    },
+    keywords?: string[],
     content: string;
     headings: any[];
     links: any[];
     processMeta: any;
+    syndication?: {
+        [key: string]: string
+    },
+
+    prism?: boolean;
+    katex?: boolean;
+    mermaid?: boolean;
+
+    earlier?: string,
+    newer?: string,
+    status?: 'draft' | 'published' | 'private' |
+    'trash' | 'pending' | 'future',
+    template?: string,
+    lang?: string,
+    langs?: string[],
 }

@@ -30,11 +30,11 @@ import { getSystemConfig } from '$lib/server/config';
 import { getSiteAccount } from '$lib/server/accounts';
 import remarkLinks from '$lib/markdown/remark-links';
 import { untag } from '$lib/utils/xml';
-import type { PostAttributes, Post, PostRoute, PostRaw } from './types';
+import type { Post, PostRoute, PostRaw, PostRawAttributes } from './types';
 import type { Site } from '$lib/server/sites';
 
 const DEFAULT_ATTRIBUTE_MAP: {
-    [template: string]: PostAttributes
+    [template: string]: PostRawAttributes
 } = {
     default: {
         published: true,
@@ -145,31 +145,31 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
 
     let { stat, localPath, name, route, locales } = loadRaw(site, filepath) || {};
 
-    let file = fs.readFileSync(filepath, 'utf8');
-    // read attributes by front-matter
-    let { attributes, body } = fm<any>(file);
-
-    let slashed = route?.endsWith('/') ? route : route + '/';
-    let slug = localPath?.split('/').slice(-2)[0];
+    let dataFromRaw: {
+        template?: string,
+        lang?: string,
+        langs?: string[]
+    } = {};
 
     if (name) {
         /** parse name with regexp as {template}.{lang}.md */
         let match = name.match(/^(.*?)\.(?:([^.]+)\.)?md$/);
         if (match) {
             let [, template, lang] = match;
-            attributes.template = template;
+            dataFromRaw.template = template;
             if (lang) {
-                attributes.lang = lang;
-                attributes.langs = locales?.map((l: any) => l.lang);
+                dataFromRaw.lang = lang;
+                dataFromRaw.langs = locales?.map((l: any) => l.lang);
             }
         }
     }
 
-    attributes.slug = attributes.slug || slug;
-    attributes.route = attributes.route || (
-        slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
-    );
-
+    let file = fs.readFileSync(filepath, 'utf8');
+    // read attributes by front-matter
+    let { attributes, body }: {
+        attributes: PostRawAttributes,
+        body: string
+    } = fm<any>(file);
 
     if (stat) {
         attributes.date = attributes.date || new Date(stat?.birthtime).toISOString();
@@ -178,18 +178,35 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     }
 
+    // TODO move to convert to post
     if (!attributes.summary) {
         let { summary, summary_html } = extractSummary(body);
         attributes.summary = summary;
         attributes.summary_html = summary_html;
     }
 
-    const template = attributes.template || 'default';
-    attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[template], attributes);
+    const effectedTemplate = dataFromRaw.template || 'default';
+    attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
 
-    cache.raw[`${attributes.lang}-${attributes.route}`] = { path: filepath, attributes, body };
+    let slashed = route?.endsWith('/') ? route : route + '/';
+    let slug = localPath?.split('/').slice(-2)[0];
 
-    return { path: filepath, attributes, body };
+    attributes.slug = attributes.slug || slug;
+    attributes.route = attributes.route || (
+        slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
+    );
+
+    let postRaw: PostRaw = {
+        path: filepath,
+        attributes,
+        body,
+        template: effectedTemplate,
+        ...dataFromRaw,
+    };
+
+    cache.raw[`${postRaw.lang}-${attributes.route}`] = postRaw;
+
+    return postRaw;
 }
 
 export function loadAllPostRaws(site: Site) {
@@ -208,7 +225,20 @@ export function loadPostRaws(site: Site, path: string): PostRaw[] {
     let raws: PostRaw[] = fileNames
         .map(fileName => loadFrontMatterRaw(site, fileName))
         .filter(raw => !!raw) as PostRaw[];
-    return raws.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
+
+    function resolveDate(pr: PostRaw) {
+        let dateFieldValue = pr.attributes.date;
+        if (dateFieldValue instanceof Date) {
+            return dateFieldValue.getTime();
+        } else if (typeof dateFieldValue === 'string') {
+            return new Date(dateFieldValue).getTime();
+        } else if (typeof dateFieldValue === 'number') {
+            return dateFieldValue;
+        }
+        return -1;
+    }
+
+    return raws.sort((a, b) => resolveDate(b) - resolveDate(a));
 }
 
 export async function loadAllPostsFiles() {
@@ -376,9 +406,14 @@ export function convertToPost(site: Site, raw: PostRaw): Post {
     });
 
     handleAuthors(site, raw.attributes);
+    let post: PostAttributes = convertToPostAttributes(raw.attributes);
     return {
         ...raw?.attributes, content, headings, processMeta, links
     };
+}
+
+function convertToPostAttributes(attributes: RawAttributes): PostAttributes {
+    throw new Error('Function not implemented.');
 }
 
 export function handleAuthors(site: Site, attr: { author?: string, authors?: string[], lang: string }) {
@@ -411,3 +446,5 @@ export function handleAuthors(site: Site, attr: { author?: string, authors?: str
         .filter((author) => !!author)
         .map(mapper);
 }
+
+

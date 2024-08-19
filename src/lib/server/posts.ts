@@ -26,7 +26,6 @@ function load() {
 
             const posts = postRaws
                 .filter(raw => raw !== undefined)
-                .map(raw => raw as PostRaw)
                 .map(raw => convertToPost(site, raw));
             lastLoadAt = Date.now();
             postRawsOfSite[site.unique] = postRaws;
