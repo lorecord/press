@@ -1,13 +1,18 @@
 import { getNativeInteractionsFilePath, loadNativeInteractions } from "$lib/interaction/handle-native";
-import { convertToPreview, loadAllPostRaws, type Raw } from "$lib/post/handle-posts";
+import { convertToPost, loadAllPostRaws } from "$lib/post/handle-posts";
+import type { PostRaw, Post } from "$lib/post/types";
 import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
+import path from 'path';
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites } from './sites';
-import path from 'path';
 
-let postRawsOfSite: any = {};
-let postsOfSite: any = {};
+let postRawsOfSite: {
+    [siteUnique: string]: PostRaw[];
+} = {};
+let postsOfSite: {
+    [siteUnique: string]: Post[];
+} = {};
 let lastLoadAt = 0;
 
 function load() {
@@ -21,8 +26,8 @@ function load() {
 
             const posts = postRaws
                 .filter(raw => raw !== undefined)
-                .map(raw => raw as Raw)
-                .map(raw => convertToPreview(raw));
+                .map(raw => raw as PostRaw)
+                .map(raw => convertToPost(site, raw));
             lastLoadAt = Date.now();
             postRawsOfSite[site.unique] = postRaws;
             postsOfSite[site.unique] = posts;
@@ -30,7 +35,7 @@ function load() {
             if (systemConfig.seo?.indexnow?.enabled && systemConfig.domains?.primary) {
                 const siteConfig = getSiteConfig(site, systemConfig.locale?.default || 'en');
 
-                let tasks = getPublishedPostRaws(site)
+                let tasks = getPublicPostRaws(site)
                     .map((p: any) => ({
                         url: `${siteConfig.url}${p?.attributes.route}`,
                         folder: path.dirname(p?.path) || '',
@@ -50,6 +55,36 @@ function load() {
                     keyLocation: systemConfig.seo?.indexnow?.location,
                     host: systemConfig.domains?.primary,
                     dataFolder: site.constants.DATA_DIR
+                });
+            }
+
+            if (systemConfig.webmention?.enabled) {
+
+                let tasks = getPublicPosts(site)
+                    .map((p) => {
+                        const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
+                        const { links } = p;
+                        return {
+                            route: p.route,
+                            url: `${siteConfig.url}${p.route}`,
+                            links
+                        }
+                    });
+
+                tasks = tasks.reduce((acc: any, current: any) => {
+                    let inAcc = acc.find((item: any) => item.route === current.route);
+                    if (!inAcc) {
+                        acc.push(current);
+                    } else {
+                        inAcc.links = inAcc.links.concat(current.links);
+                    }
+                    return acc;
+                }, []);
+
+                tasks = tasks.filter((t: any) => t.links && t.links.length > 0);
+
+                tasks.forEach((task: any) => {
+                    console.log(`${task.route} links to`, task.links);
                 });
             }
 
@@ -75,21 +110,27 @@ function load() {
 
 load();
 
+/**
+ * export post raws that are public
+ */
 export function getPublicPostRaws(site: any) {
     return getPublishedPostRaws(site)
         .filter((raw: any) => !raw.attributes?.deleted);
 }
 
+/**
+ * export post raws that are published, which could be public or private, even deleted, but not draft, scheduled, or future
+*/
 export function getPublishedPostRaws(site: any) {
     return postRawsOfSite[site.unique]
-        .filter((raw: any) => raw.attributes?.routable)
-        .filter((raw: any) => raw.attributes?.published)
-        .filter((raw: any) => new Date(raw.attributes?.date).getTime() < Date.now())
+        .filter((raw) => raw.attributes?.routable)
+        .filter((raw) => raw.attributes?.published)
+        .filter((raw) => new Date(raw.attributes?.date).getTime() < Date.now())
         .map((raw: any) => {
             let attr = Object.assign({}, raw.attributes);
             delete attr.routable;
             delete attr.published;
-            let newRaw = Object.assign({}, raw);
+            let newRaw = Object.assign({}, raw) as PostRaw;
             return newRaw;
         })
         || [];
@@ -97,11 +138,11 @@ export function getPublishedPostRaws(site: any) {
 
 export function getPublishedPosts(site: any) {
     const posts = postsOfSite[site.unique]
-        .filter((p: any) => p.routable)
-        .filter((p: any) => p.published)
-        .filter((p: any) => !p.deleted)
-        .filter((p: any) => new Date(p.date).getTime() < Date.now())
-        .filter((p: any) => {
+        .filter((p) => p.routable)
+        .filter((p) => p.published)
+        .filter((p) => !p.deleted)
+        .filter((p) => p.date && new Date(p.date).getTime() < Date.now())
+        .filter((p) => {
             return true;
         })
         || [];
@@ -134,11 +175,7 @@ export function getPublishedPosts(site: any) {
 }
 
 export function getPublicPosts(site: any) {
-    return getPublishedPosts(site).filter((p: any) => !p.deleted);
-}
-
-export function getAllPosts(site: any) {
-    return postsOfSite[site?.unique] || [];
+    return getPublishedPosts(site).filter((p) => !p.deleted);
 }
 
 export function findRelatedPosts(site: any, post: any, limit = 3) {
@@ -150,11 +187,11 @@ export function findRelatedPosts(site: any, post: any, limit = 3) {
     };
 
     const relatedPosts = getPublicPosts(site)
-        .filter((p: any) => p.template == 'item')
-        .filter((p: any) => p.visible)
-        .filter((p: any) => p.route != post.route)
-        .filter((p: any) => p.lang == post.lang)
-        .map((p: any) => {
+        .filter((p) => p.template == 'item')
+        .filter((p) => p.visible)
+        .filter((p) => p.route != post.route)
+        .filter((p) => p.lang == post.lang)
+        .map((p) => {
             let score = 0;
             if (p.taxonomy?.tag && post.taxonomy?.tag) {
                 score += p.taxonomy?.tag.filter((t: any) => post.taxonomy?.tag.includes(t)).length * weights.tag;
