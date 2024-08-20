@@ -132,7 +132,7 @@
 
             {#if post.template == "item"}
                 <div class="article-meta">
-                    {#if post.author && !post.isDefaultAuthor}
+                    {#if post.author && !(post.author.length === 1 && post.author[0].user === systemConfig.user?.default)}
                         {#each post.author as author}
                             <span>{author.name}</span>
                         {/each}

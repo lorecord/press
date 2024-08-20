@@ -142,7 +142,7 @@ ${posts.map((post: any) => `
             ? `<link rel="enclosure" type="audio/mpeg" length="1337"
         href="${post.audio}"/>`
             : ``}
-        ${post.author && !post.isDefaultAuthor
+        ${post.author
             ? post.author.map((author: any) => `<author>
             <name>${author.name}</name>
         </author>`)

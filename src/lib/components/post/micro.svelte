@@ -190,7 +190,7 @@
                 </div>
             {/if}
 
-            {#if post.taxonomy || post.langs?.length || 0 > 0}
+            {#if post.taxonomy?.category?.length || post.taxonomy?.tag?.length || post.taxonomy?.series?.length || post.langs?.length || 0 > 0}
                 <div class="article-taxonomy-and-lang no-print">
                     {#if post.taxonomy}
                         <div class="article-taxonomy">
