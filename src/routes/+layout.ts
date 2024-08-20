@@ -11,15 +11,12 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
 
     if (dev) {
         console.log('[routes/+layout.ts] => localeContext', localeContext);
-    }
-
-    if (dev) {
         console.log('[routes/+laytou.ts] $locale', locale.get());
     }
 
     if (localeContext.uiLocale && !locale.get()) {
         if (dev) {
-            console.log('[/+laytou.ts] trying to set locale', localeContext.uiLocale);
+            console.log('[routes/+laytou.ts] trying to set locale', localeContext.uiLocale);
         }
         await setLocale(localeContext.uiLocale);
     }
@@ -29,7 +26,7 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     let lang = locale.get() || localeContext.uiLocale;
 
     if (dev) {
-        console.log('[routes/+layout.ts] => localeContext', localeContext.uiLocale);
+        console.log('[routes/+layout.ts] => localeContext.uiLocale', localeContext.uiLocale);
         console.log('[routes/+layout.ts] => lang', lang);
     }
 

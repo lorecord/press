@@ -23,19 +23,6 @@ const apiRateLimiter = new RateLimiter({
     duration: 60 * 1000
 });
 
-export const handleFixHeaderName: Handle = async ({ event, resolve }) => {
-    const response = await resolve(event);
-    if (dev) {
-        console.log('handleFixHeaderName', event.url.pathname);
-    }
-    // example: content-disposition TO Content-Disposition
-    for (const [key, value] of response.headers) {
-        response.headers.delete(key);
-        response.headers.set(key.replace(/(^|-)(\w)/g, (match, p1, p2) => `${p1}${p2.toUpperCase()}`), value);
-    }
-    return response;
-};
-
 export const handleExternalLink: Handle = async ({ event, resolve }) => {
     const { site } = event.locals as any;
     const systemConfig = getSystemConfig(site);
@@ -96,9 +83,6 @@ export const handleExternalLink: Handle = async ({ event, resolve }) => {
 }
 
 export const handleSite: Handle = async ({ event, resolve }) => {
-    if (dev) {
-        console.log('handleSite', event.url.pathname);
-    }
     const site = matchSite(event.url.hostname);
     (event.locals as any).site = site;
     return await resolve(event);
@@ -108,7 +92,7 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
     if (!event.isSubRequest) {
         const { site } = event.locals as any;
         if (dev) {
-            console.log('handleRequestRateLimit', event.url.pathname);
+            console.log('[hooks.server.ts] handleRequestRateLimit', event.url.pathname);
         }
         const envConfig = getEnvConfig(site);
 
@@ -125,7 +109,7 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
 
         const ip = getRealClientAddress(event);
         if (!envConfig.private?.IP_LIMIT_WHITE_LIST?.includes(ip) && !apiRateLimiter.inflood(ip, volume)) {
-            console.log(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(apiRateLimiter.get(ip).last)?.toISOString()}`);
+            console.warn(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(apiRateLimiter.get(ip).last)?.toISOString()}`);
             error(429, 'Rate limit exceeded');
         }
     }
@@ -134,9 +118,6 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
 }
 
 export const handleLanguage: Handle = async ({ event, resolve }) => {
-    if (dev) {
-        console.log('handleLanguage', event.url.pathname);
-    }
     const { site } = event.locals as any;
     const { system } = site;
 
@@ -144,10 +125,6 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
     let pathLocaleParam: string | undefined = undefined;
 
     let cookieLocale = event.cookies.get('locale');
-
-    if (dev) {
-        console.log('event.url', event.url.toString());
-    }
 
     let acceptLanguageHeader = event.request.headers.get('accept-language');
     let preferedLanguage = acceptLanguageHeader ? getPreferredLangFromHeader(acceptLanguageHeader, locales.get(), system.locale?.default || 'en') : system.locale?.default || 'en';
@@ -157,7 +134,7 @@ export const handleLanguage: Handle = async ({ event, resolve }) => {
 
         let segments = event.url.pathname.split('/');
 
-        if (dev) {
+        if (dev && !event.isSubRequest && !event.isDataRequest) {
             console.log('segments[1]', segments[1]);
             console.log('matchLocale(segments[1])', matchLocale(segments[1]))
         }
@@ -347,6 +324,5 @@ export const handle = sequence(
     // after await resolve(event), the seq bellow will be executed in reverse order
     handleHtmlLangAttr,
     handleExternalLink,
-    handleFixHeaderName,
     handleAssets
 );

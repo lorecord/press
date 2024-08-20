@@ -1,6 +1,6 @@
 <script lang="ts">
     import { dev } from "$app/environment";
-    import { locale, t, l, locales } from "$lib/translations";
+    import { l, locale, locales } from "$lib/translations";
     import { IconLanguage, IconX } from "@tabler/icons-svelte";
     import { fade } from "svelte/transition";
 
@@ -40,7 +40,7 @@
         currentPageLocale;
     $: {
         if (dev) {
-            console.log("$locales", suggestions);
+            console.log("$locales", $locales);
             console.log("suggestions", suggestions);
             console.log("currentPageLocale", currentPageLocale);
             console.log("currentContentLocale", currentContentLocale);
