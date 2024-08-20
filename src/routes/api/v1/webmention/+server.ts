@@ -65,9 +65,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
     const headers = new Headers();
     headers.set('User-Agent', USER_AGENT);
-    // add accept header
     headers.set('Accept', 'text/html, application/json, text/plain');
 
+    console.log('fetching and validating source', source);
     fetch(source, { method: 'GET', headers }).then((response) => {
         if (response.ok) {
             // check header is html or json or text
