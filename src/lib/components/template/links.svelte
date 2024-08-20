@@ -1,7 +1,9 @@
 <script lang="ts">
-    export let post: any;
+    import type { Post } from "$lib/post/types";
 
-    $: ({ title, summary_html, url, date, image, review, data } = post);
+    export let post: Post = {} as Post;
+
+    $: ({ title, data } = post);
 </script>
 
 <div class="container">
@@ -10,7 +12,7 @@
         {@html post.content?.html}
     {/if}
     <ul>
-        {#each (data?.links || [])
+        {#each (data?.links || data?.data?.links || [])
             .map((value) => ({ value, w: Math.random() }))
             .sort((a, b) => a.w - b.w)
             .map(({ value }) => value) as link}

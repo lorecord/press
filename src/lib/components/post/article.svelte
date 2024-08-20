@@ -190,10 +190,10 @@
         </div>
     {/if}
     <div class="article-body container">
-        {#if (post.toc && post.content?.headings) || post.comment?.enabled}
+        {#if (post.toc?.enabled && post.content?.headings) || post.comment?.enabled}
             <div class="article-aside no-print">
                 <aside>
-                    {#if post.toc && post.content?.headings}
+                    {#if post.toc?.enabled && post.content?.headings}
                         <details class="article-toc" open id="article-toc">
                             <summary>
                                 <h3>
