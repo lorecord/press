@@ -251,6 +251,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         menu,
         template: effectedTemplate,
         slug: attributes.slug || slugInPath,
+        taxonomy: {
+            category: [taxonomy?.category].flat().filter((c: any) => !!c) as string[],
+            tag: [taxonomy?.tag].flat().filter((c: any) => !!c) as string[],
+            series: [taxonomy?.seires].flat().filter((c: any) => !!c) as string[],
+        },
         route: routeInAttributes || (
             slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`)
         ),
