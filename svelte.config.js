@@ -43,7 +43,10 @@ const config = {
 	],
 	extensions: ['.svelte', '.md'],
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
+		csrf: {
+			checkOrigin: false
+		}
 	}
 };
 
