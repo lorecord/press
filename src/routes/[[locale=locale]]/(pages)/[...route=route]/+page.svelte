@@ -1,26 +1,27 @@
 <script lang="ts">
+    import { browser } from "$app/environment";
+    import Mentions from "$lib/components/interaction/mention/mentions.svelte";
     import Replies from "$lib/components/interaction/replies.svelte";
-    import { t, locale } from "$lib/translations/index.js";
-    import { Title, DescriptionMeta } from "$lib/components/seo";
-    import { IconLanguage } from "@tabler/icons-svelte";
+    import { DescriptionMeta, Title } from "$lib/components/seo";
     import TemplatePage from "$lib/components/template/default.svelte";
     import TemplatePost from "$lib/components/template/item.svelte";
-    import TemplateNote from "$lib/components/template/note.svelte";
     import TemplateLinks from "$lib/components/template/links.svelte";
-    import type {
-        WithContext,
-        Article as SchemeArticle,
-        Review,
-        CreativeWork,
-        WebPage,
-    } from "schema-dts";
-    import Mentions from "$lib/components/interaction/mention/mentions.svelte";
-    import spdxLicenseList from "spdx-license-list";
-    import { browser } from "$app/environment";
-    import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import TemplateNote from "$lib/components/template/note.svelte";
     import TranslationTips from "$lib/components/translations/tips.svelte";
+    import { locale, t } from "$lib/translations/index.js";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type {
+        CreativeWork,
+        Review,
+        Article as SchemeArticle,
+        WebPage,
+        WithContext,
+    } from "schema-dts";
+    import spdxLicenseList from "spdx-license-list";
 
-    export let data;
+    import type { PageData } from "./$types";
+
+    export let data: PageData;
 
     $: ({
         post,
@@ -169,7 +170,7 @@
 
 {#await post then post}
     <Title value={post.title}></Title>
-    <DescriptionMeta value={post.summary}></DescriptionMeta>
+    <DescriptionMeta value={post.summary?.raw}></DescriptionMeta>
 {/await}
 
 <svelte:head>
@@ -394,7 +395,7 @@
         {/if}
 
         {#if siteConfig.url}
-            {@const url = `${siteConfig.url}/${post.lang || ''}${post.route}`}
+            {@const url = `${siteConfig.url}/${post.lang || ""}${post.route}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
 

@@ -3,17 +3,18 @@ import type { ResourceRaw } from "$lib/resource";
 import type { ContactBaseProfile } from "$lib/types";
 
 export interface PostCommentConfig {
-    enable?: boolean;
+    enabled?: boolean;
     reply?: boolean;
 }
 
 export interface PostDiscussConfig {
-    enable?: boolean
+    enabled?: boolean
 }
 
 export interface PostMenuConfig {
     header?: boolean,
-    footer?: boolean
+    footer?: boolean,
+    label?: string,
 }
 
 export type PostAttributesContact = string | UserAuthor | ContactBaseProfile;
@@ -59,7 +60,7 @@ export interface PostRawAttributes {
     [key: string]: any,
     toc?: boolean | {
         enabled: boolean
-    }
+    },
 }
 
 /**
@@ -112,7 +113,9 @@ export interface PostRaw {
     newer?: string,
     status?: 'draft' | 'published' | 'private' |
     'trash' | 'pending' | 'future',
-
+    comment?: PostCommentConfig,
+    discuss?: PostDiscussConfig,
+    menu?: PostMenuConfig,
     data?: { [key: string]: any }
 }
 
@@ -124,7 +127,11 @@ export interface PostRoute {
 export type Post = Omit<PostRaw, 'resourceRaw' | 'path' | 'attributes' | 'body'> & {
     content?: {
         html: string,
-        headings: string[],
+        headings: {
+            level: number,
+            text: string,
+            id: string
+        }[],
         links: string[],
         meta: {
             prism?: boolean;

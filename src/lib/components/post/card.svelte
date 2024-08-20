@@ -4,11 +4,12 @@
     import Time from "$lib/ui/time/index.svelte";
     import "./card.css";
     import Rating from "$lib/ui/rating/index.svelte";
+    import type { Post } from "$lib/post/types";
 
-    export let post: any = {};
+    export let post: Post = {} as Post;
     export let showContent: boolean = true;
 
-    $: ({ title, summary_html, route, date, image, review } = post);
+    $: ({ title, summary, route, published, image, review } = post);
 </script>
 
 <Card tag="article" class="article">
@@ -17,7 +18,13 @@
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
-            <Time {date} class="dt-published" locale={$locale} />
+            {#if published?.date}
+                <Time
+                    date={published?.date}
+                    class="dt-published"
+                    locale={$locale}
+                />
+            {/if}
         </div>
     </svelte:fragment>
     {#if showContent}
@@ -41,10 +48,10 @@
                     </div>
                 {/if}
 
-                {#if summary_html}
+                {#if summary?.html}
                     <div class="summary">
-                        {#key summary_html}
-                            {@html summary_html}
+                        {#key summary?.html}
+                            {@html summary?.html}
                         {/key}
                     </div>
                 {/if}

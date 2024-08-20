@@ -5,9 +5,9 @@
     import type { WebPage, WithContext } from "schema-dts";
     import { browser } from "$app/environment";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type { PageData } from "./$types";
 
-    /** @type {import('./$types').PageData} */
-    export let data: any;
+    export let data: PageData;
 
     $: ({ category, posts, siteConfig, pathLocale } = data);
 

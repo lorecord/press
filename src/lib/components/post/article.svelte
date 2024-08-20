@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { t, locale } from "$lib/translations/index.js";
-    import Rating from "$lib/ui/rating/index.svelte";
-    import License from "$lib/components/license/index.svelte";
     import Cite from "$lib/components/cite/index.svelte";
+    import License from "$lib/components/license/index.svelte";
+    import { locale, t } from "$lib/translations/index.js";
+    import Rating from "$lib/ui/rating/index.svelte";
     import Time from "$lib/ui/time/index.svelte";
 
+    import { browser } from "$app/environment";
+    import type { Post } from "$lib/post/types";
     import {
         IconBolt,
         IconLanguage,
@@ -12,9 +14,8 @@
         IconMessages,
     } from "@tabler/icons-svelte";
     import { afterUpdate, onDestroy, onMount } from "svelte";
-    import { browser } from "$app/environment";
 
-    export let post: any;
+    export let post: Post = {} as Post;
     export let systemConfig: any;
     export let siteConfig: any;
 
@@ -51,7 +52,8 @@
         });
     };
 
-    function toc(sections: any[]) {
+    function toc(sections: any[] | undefined) {
+        if (!sections) return;
         if (!browser) return;
         const observerOptions = {
             threshold: 0.5,
@@ -95,7 +97,7 @@
     });
 
     onMount(() => {
-        return toc(post.headings);
+        return toc(post.content?.headings);
     });
 
     afterUpdate(() => {
@@ -105,7 +107,7 @@
         if (browser && window && handleScroll) {
             window.removeEventListener("scroll", handleScroll);
         }
-        return toc(post.headings);
+        return toc(post.content?.headings);
     });
 </script>
 
@@ -130,41 +132,41 @@
 
             {#if post.template == "item"}
                 <div class="article-meta">
-                    {#if post.authors && !post.isDefaultAuthor}
-                        {#each post.authors as author}
+                    {#if post.author && !post.isDefaultAuthor}
+                        {#each post.author as author}
                             <span
                                 >{author.name || author.account || author}</span
                             >
                         {/each}
                     {/if}
 
-                    {#if post.review}
+                    {#if post.data?.review}
+                        {@const review = post.data?.review}
                         <div>
                             <span lang={$locale}>{$t("common.review")}</span>
-                            {#if post.review.item?.url}
+                            {#if review.item?.url}
                                 <a
                                     class="u-review-of"
-                                    style={post.review.rating > 6
+                                    style={review.rating > 6
                                         ? ""
                                         : "color: var(--text-color-tertiary)"}
-                                    href={post.review.item.url}
+                                    href={review.item.url}
                                     rel={"external noopener" +
                                         `${
-                                            post.review.rating > 6
+                                            review.rating > 6
                                                 ? " "
                                                 : " nofollow"
-                                        }`}>{post.review.item.name}</a
+                                        }`}>{review.item.name}</a
                                 >
                             {:else}
-                                <span>{post.review.item.name}</span>
+                                <span>{review.item.name}</span>
                             {/if}
-
-                            <Rating value={post.review.rating} />
+                            <Rating value={review.rating} />
                         </div>
                     {/if}
 
                     <Time
-                        date={post.date}
+                        date={post.published?.date}
                         class="dt-published"
                         locale={$locale}
                     />
@@ -172,7 +174,7 @@
             {:else if post.template == "note"}
                 <div class="article-meta">
                     <Time
-                        date={post.date}
+                        date={post.published?.date}
                         class="dt-published"
                         locale={$locale}
                     />
@@ -188,10 +190,10 @@
         </div>
     {/if}
     <div class="article-body container">
-        {#if (post.toc && post.headings) || post.comment?.enabled}
+        {#if (post.toc && post.content?.headings) || post.comment?.enabled}
             <div class="article-aside no-print">
                 <aside>
-                    {#if post.toc && post.headings}
+                    {#if post.toc && post.content?.headings}
                         <details class="article-toc" open id="article-toc">
                             <summary>
                                 <h3>
@@ -201,7 +203,7 @@
                                 </h3>
                             </summary>
                             <ul>
-                                {#each post.headings as { level, text, id }}
+                                {#each post.content.headings as { level, text, id }}
                                     <li
                                         style="margin-left: {level * 10 - 20}px"
                                     >
@@ -222,7 +224,7 @@
                             ><IconList size={20} /></a
                         >
                     {/if}
-                    {#if post.comment?.enable}
+                    {#if post.comment?.enabled}
                         <a
                             id="comments-link"
                             href="#comments"
@@ -234,7 +236,7 @@
             </div>
         {/if}
         <div class="e-content article-content">
-            {@html post.content}
+            {@html post.content?.html}
         </div>
     </div>
     {#if footer}
@@ -255,7 +257,7 @@
                             </div>
                         </div>
                         <div class="article-license-meta">
-                            {#if post.authors}
+                            {#if post.author}
                                 <div class="article-license-meta-item">
                                     <div class="label">
                                         <span lang={$locale}
@@ -268,7 +270,7 @@
                                     align-items: center;
                                     gap: .25rem;"
                                     >
-                                        {#each post.authors as author}
+                                        {#each post.author as author}
                                             <span
                                                 style="margin:0"
                                                 class="h-card p-author"
@@ -314,7 +316,7 @@
                                 </div>
                                 <div class="value">
                                     <Time
-                                        date={post.date}
+                                        date={post.published?.date}
                                         class="dt-published"
                                         locale={$locale}
                                     />
@@ -342,7 +344,12 @@
                             </summary>
                             <div style="padding-left: 2rem">
                                 <Cite
-                                    {post}
+                                    post={{
+                                        title: post.title,
+                                        author: post.author,
+                                        date: post.published?.date,
+                                        url: siteConfig.url + post.route,
+                                    }}
                                     site={siteConfig.title}
                                     base={siteConfig.url}
                                 />
@@ -357,7 +364,7 @@
                     </div>
                 {/if}
 
-                {#if post.taxonomy || post.langs?.length > 0}
+                {#if post.taxonomy || post.langs?.length || 0 > 0}
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
                             <div class="article-taxonomy">
@@ -417,11 +424,11 @@
                                 {/if}
                             </div>
                         {/if}
-                        {#if post.langs?.length > 1}
+                        {#if post.langs?.length || 0 > 1}
                             <div class="article-lang">
                                 <IconLanguage size={20} />
                                 <ul>
-                                    {#each post.langs as lang}
+                                    {#each post.langs || [] as lang}
                                         <li>
                                             <a
                                                 rel="alternate"

@@ -6,8 +6,8 @@
 
 <div class="container">
     <h1>{post.title}</h1>
-    {#if post.content}
-        {@html post.content}
+    {#if post.content?.html}
+        {@html post.content?.html}
     {/if}
     <ul>
         {#each (data?.links || [])

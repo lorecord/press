@@ -1,24 +1,21 @@
 <script lang="ts">
-    export let post:
-        | {
-              authors: any[] | any;
-              title: string;
-              date: string | Date;
-              url: string;
-          }
-        | any = {};
+    import type { ContactBaseProfile } from "$lib/types";
+
+    export let post: {
+        author?: ContactBaseProfile[];
+        title: string;
+        date: string;
+        url: string;
+    } = {} as any;
 
     export let site: string;
-    export let base: string = "";
 
-    $: ({ authors: _authors, title, date: _date, url: _url } = post);
+    $: ({ author, title, date: _date, url } = post);
     $: date = new Date(_date);
-    $: url = base + _url;
-    $: authors = [_authors].flat();
-    $: authorsString = authors
-        .map((author) => author?.name || author?.account)
+    $: authorsString = author
+        ?.map((author: ContactBaseProfile) => author?.name)
         .join(", ");
-    $: isoDateString = date.toISOString().split("T")[0];
+    $: isoDateString = new Date(date).toISOString().split("T")[0];
 </script>
 
 <details>
@@ -35,7 +32,7 @@
 </details>
 <details>
     <summary>Harvard</summary>
-    <pre>{`${authorsString}. (${new Date(date).getFullYear()}). ${title}. ${site}. ${url}`}</pre>
+    <pre>{`${authorsString}. (${date.getFullYear()}). ${title}. ${site}. ${url}`}</pre>
 </details>
 <details>
     <summary>Vancouver</summary>
@@ -43,7 +40,7 @@
 </details>
 <details>
     <summary>Bibtex</summary>
-    <pre>{`@online{${authorsString}_${new Date(date).getFullYear()}_${title},
+    <pre>{`@online{${authorsString}_${date.getFullYear()}_${title},
 author  = {${authorsString}},
 title   = {{${title}}},
 journal = {${site}},

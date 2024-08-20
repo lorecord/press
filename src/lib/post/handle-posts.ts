@@ -244,6 +244,9 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         visible,
         routable,
         title,
+        comment,
+        discuss,
+        menu,
         template: effectedTemplate,
         slug: attributes.slug || slugInPath,
         route: routeInAttributes || (

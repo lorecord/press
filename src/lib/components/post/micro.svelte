@@ -79,7 +79,7 @@
     </div>
     <div class="article-body container">
         <div class="e-content article-content">
-            {@html post.content}
+            {@html post.content?.html}
 
             {#if post.image}
                 <img
@@ -163,7 +163,12 @@
                         </summary>
                         <div style="padding-left: 2rem">
                             <Cite
-                                {post}
+                                post={{
+                                    title: post.title,
+                                    author: post.author,
+                                    date: post.published?.date,
+                                    url: siteConfig.url + post.route,
+                                }}
                                 site={siteConfig.title}
                                 base={siteConfig.url}
                             />

@@ -4,9 +4,9 @@
     import { Title, DescriptionMeta } from "$lib/components/seo";
     import type { WebPage, WithContext } from "schema-dts";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type { PageData } from "./$types";
 
-    /** @type {import('./$types').PageData} */
-    export let data: any;
+    export let data: PageData;
 
     $: ({ posts, siteConfig, pathLocale } = data);
 
