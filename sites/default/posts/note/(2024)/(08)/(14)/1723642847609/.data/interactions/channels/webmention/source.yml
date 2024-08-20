@@ -1,0 +1,9 @@
+- id: ab2948c1a2198c0692bcefb0de07b100f44d2745464961beeb87cc42847a7fb7
+  published: 2024-08-20T09:53:45.911Z
+  type: mention
+  channel: webmention
+  webmention:
+    source: http://localhost:5173/note/1723705616098/
+  status: ok
+  created: 2024-08-20T09:53:32.097Z
+  updated: 2024-08-20T09:53:45.911Z
