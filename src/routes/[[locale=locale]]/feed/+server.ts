@@ -29,7 +29,7 @@ export async function GET({ request, locals, params }) {
     }
 
     let postRaws = getPublicPostRaws(site);
-    console.log('[feed/+server.ts]postRaws', postRaws.length);
+
     let posts = postRaws.map((p) => convertToPostForFeed(site, p))
         .filter((p) => p.template == 'item')
         .filter((p) => p.visible)
