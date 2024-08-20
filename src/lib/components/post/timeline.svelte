@@ -10,7 +10,7 @@
             .map((k) => ({ year: k, posts: map[k] }));
     })(
         posts.reduce((acc, post) => {
-            const year = new Date(post.date).getFullYear() + "";
+            const year = new Date(post.published.date).getFullYear() + "";
             if (!acc[year]) {
                 acc[year] = [];
             }
@@ -27,7 +27,7 @@
                 <div>
                     <div class="time">
                         <Time
-                            date={post.date}
+                            date={post.published.date}
                             class="dt-published"
                             locale={$locale}
                             options={{ dateStyle: "short" }}
