@@ -76,8 +76,8 @@ const remarkLinks: Plugin = () => (tree: any, file: any) => {
     });
 
     links = links
-        .filter((link, index) => link.href?.match(/^(https?|ftp):\/\//) && links.indexOf(link) === index)
-        .filter((link) => !link.href.match(/^(https?|ftp):\/\/(localhost|127\.0\.0\.1|(.*\.)?example\.com)/));
+        .filter((link, index) => link.href?.match(/^(https?|ftp):\/\//))
+        // .filter((link) => !link.href.match(/^(https?|ftp):\/\/(localhost|127\.0\.0\.1|(.*\.)?example\.com)/));
 
     file.data.links = links;
 };
