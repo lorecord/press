@@ -24,7 +24,7 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
     });
 
     const interactions = Promise.resolve(post).then((post) =>
-        post?.comment?.enable && fetch(`/api/v1/interaction/${effectedRoute}`).then((r) => {
+        post?.comment?.enabled && fetch(`/api/v1/interaction/${effectedRoute}`).then((r) => {
             if (r.ok) {
                 return r.json();
             } else {

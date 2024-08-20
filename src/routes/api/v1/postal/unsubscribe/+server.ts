@@ -78,7 +78,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     if (!post) {
         error(404, 'Post not found');
     }
-    if (!post.comment?.enable) {
+    if (!post.comment?.enabled) {
         error(403, "Comment is disabled");
     }
 

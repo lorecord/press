@@ -59,7 +59,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             status = 404;
             break;
         }
-        if (!post.comment?.enable) {
+        if (!post.comment?.enabled) {
             message = "Comment is disabled";
             status = 403;
             break;
