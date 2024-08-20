@@ -28,10 +28,12 @@ export interface EncryptedEmailAddress {
 }
 
 export interface ContactBaseProfile {
+    id?: string,
     name?: string,
     url?: string,
     avatar?: string,
-    email?: EncryptedEmailAddress
+    email?: EncryptedEmailAddress,
+    verified?: boolean | 'email' | 'profile'
 }
 
 export interface Credentials {

@@ -1,5 +1,5 @@
 import { fileWatch } from '$lib/server/file-watch';
-import { sites, loadConfig } from './sites';
+import { sites, loadConfig, type Site } from './sites';
 import { detectResourceLocales } from '$lib/resource';
 import { getPreferredLang } from '$lib/translations/utils';
 import path from 'path';
@@ -42,15 +42,15 @@ function load() {
     console.log('[server/config.ts] config loaded');
 }
 
-function getSystemConfig(site: any) {
+function getSystemConfig(site: Site) {
     return systemOfSite[site.unique] || site.system || {};
 }
 
-function getEnvConfig(site: any) {
+function getEnvConfig(site: Site) {
     return envOfSite[site.unique] || site.env || {};
 }
 
-function getSiteConfig(site: any, lang: string | undefined = undefined) {
+function getSiteConfig(site: Site, lang: string | undefined = undefined) {
     const system = getSystemConfig(site);
 
     const config = configOfSite[site.unique] || {};

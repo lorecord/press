@@ -22,7 +22,9 @@ export interface PostRawAttributes {
     uuid?: string,
     route?: string,
     slug?: string,
-    date?: string
+    title?: string,
+    license?: string,
+    date?: string,
     published?: boolean | string | {
         date: string
     },
@@ -32,7 +34,6 @@ export interface PostRawAttributes {
     author?: PostAttributesContact | PostAttributesContact[],
     contributor?: PostAttributesContact | PostAttributesContact[],
     sponsor?: PostAttributesContact | PostAttributesContact[],
-    title?: string,
     taxonomy?: {
         category?: string | string[],
         tag?: string | string[]
@@ -53,8 +54,12 @@ export interface PostRawAttributes {
         enabled?: boolean,
         accept?: boolean,
         pingback?: boolean,
+    },
+    summary?: string,
+    [key: string]: any,
+    toc?: boolean | {
+        enabled: boolean
     }
-    summary?: string
 }
 
 /**
@@ -68,6 +73,11 @@ export interface PostRaw {
     template?: string,
     lang?: string,
     langs?: string[],
+    route?: string,
+    slug?: string,
+    toc?: {
+        enabled: boolean,
+    },
 }
 
 export interface PostRoute {
@@ -76,15 +86,22 @@ export interface PostRoute {
 }
 
 export interface Post {
-    published: {
+    title?: string,
+    route?: string,
+    slug?: string,
+    license?: string,
+    published?: {
         date: string
     },
-    modified: {
+    modified?: {
         date: string
     },
-    deleted: {
+    deleted?: {
         date: string
-    }
+    },
+    toc?: {
+        enabled: boolean,
+    },
     author?: ContactBaseProfile[],
     contributor?: ContactBaseProfile[],
     sponsor?: ContactBaseProfile[],
@@ -98,11 +115,17 @@ export interface Post {
         html: string,
         headings: string[],
         links: string[],
-        meta: any,
-        prism?: boolean;
-        katex?: boolean;
-        mermaid?: boolean;
+        meta: {
+            prism?: boolean;
+            katex?: boolean;
+            mermaid?: boolean;
+            [key: string]: any
+        },
     },
+    summary: {
+        raw: string;
+        html: string;
+    }
     syndication?: {
         [key: string]: string
     },
@@ -113,4 +136,5 @@ export interface Post {
     template?: string,
     lang?: string,
     langs?: string[],
+    data?: { [key: string]: any }
 }

@@ -1,43 +1,19 @@
 import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import type { Site } from "$lib/server/sites";
 import { t } from "$lib/translations";
-import { buildPostByMarkdown, handleAuthors } from "./handle-posts";
-import type { PostRaw } from "./types";
+import { convertToPost } from "./handle-posts";
+import type { Post, PostRaw } from "./types";
 
 export function convertToPostForFeed(site: Site, raw: PostRaw) {
-    const { html: content, headings, links } = buildPostByMarkdown(raw?.body, raw.attributes.lang, (tree: any) => {
-        // update footnote
-        let handleChildren = (children: any[]) => {
-            children.forEach((node: any) => {
-                if (node.properties?.id) {
-                    node.properties.id = node.properties.id.replace(/^(user-content-)+/, '');
-                }
-                if (node.type === 'element'
-                    && 'a' === node.tagName
-                    && node.properties?.href) {
-                    node.properties.href = node.properties.href.replace(/^#(user-content-)+/, '#');
-                }
-                if (node.children) {
-                    handleChildren(node.children);
-                }
-            });
-        };
-        handleChildren(tree.children);
-    }, {
-        mermaid: {
-            enabled: false
-        }
-    });
+    let post: Post = convertToPost(site, raw, false);
+    const siteConfig = getSiteConfig(site, post.lang);
 
-    const systemConfig = getSystemConfig(site);
-    const siteConfig = getSiteConfig(site, raw.attributes.lang || systemConfig.locale?.default);
+    let feedHtml = `${post?.content?.html || ''}`;
 
-    let feedContent = `${content}`;
-
-    if (raw.attributes.langs) {
-        feedContent = `${feedContent}
-        <p>${raw.attributes.langs.map((lang: string) =>
-            `<a rel="alternate" href="${siteConfig.url}/${lang}${raw.attributes.route}">${t.get(`lang.${lang}`)}</a>`)
+    if (post.langs) {
+        feedHtml = `${feedHtml}
+        <p>${post.langs?.map((lang: string) =>
+            `<a rel="alternate" href="${siteConfig.url}/${lang}${post.route}">${t.get(`lang.${lang}`)}</a>`)
             }</p>
         `;
     }
@@ -75,16 +51,19 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
         }).join('')}</ul>`
     }
 
-    if (raw.attributes.toc && headings) {
-        feedContent = `
+    if (post.toc?.enabled && post.content?.headings) {
+        feedHtml = `
         <h3>${t.get("common.toc")}</h3>
-        ${toHTML(buildTree(headings as any[]))}
-        ${feedContent}`;
+        ${toHTML(buildTree(post.content?.headings as any[]))}
+        ${feedHtml}`;
     }
 
-    handleAuthors(site, raw.attributes);
+    if (post.content) {
+        post.content.html = feedHtml;
+    } else {
+        post.content = { html: feedHtml, headings: [], links: [], meta: {} };
+    }
 
-    return {
-        ...raw?.attributes, content: feedContent, headings, links
-    };
+
+    return post;
 }

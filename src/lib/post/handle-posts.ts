@@ -31,8 +31,10 @@ import remarkRehypeCustom from '../markdown/remark-rehype-custom';
 import remarkFng from '../remark-fng';
 import { createFootnoteReference } from '../remark-rehyper-handlers';
 import { l } from '../translations';
-import type { Post, PostRaw, PostRawAttributes, PostRoute } from './types';
+import type { Post, PostAttributesContact, PostRaw, PostRawAttributes, PostRoute } from './types';
 import { enhanceObject } from '$lib/utils/enhance';
+import type { ContactBaseProfile } from '$lib/types';
+import type { UserAuthor } from '$lib/interaction/types';
 
 const DEFAULT_ATTRIBUTE_MAP: {
     [template: string]: PostRawAttributes
@@ -181,23 +183,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     }
 
-    // TODO move to convert to post
-    if (!attributes.summary) {
-        let { summary, summary_html } = extractSummary(body);
-        attributes.summary = summary;
-        attributes.summary_html = summary_html;
-    }
-
     const effectedTemplate = dataFromRaw.template || 'default';
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
 
     let slashed = route?.endsWith('/') ? route : route + '/';
     let slug = localPath?.split('/').slice(-2)[0];
-
-    attributes.slug = attributes.slug || slug;
-    attributes.route = attributes.route || (
-        slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
-    );
 
     let postRaw: PostRaw = {
         resourceRaw,
@@ -206,7 +196,14 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         body,
         template: effectedTemplate,
         ...dataFromRaw,
-    }, { };
+        slug: attributes.slug || slug,
+        route: attributes.route || (
+            slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
+        ),
+        toc: {
+            enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
+        }
+    };
 
     cache.raw[`${postRaw.lang}-${attributes.route}`] = postRaw;
 
@@ -262,9 +259,9 @@ export function buildPostByMarkdown(content: string, lang?: string, rehypeFuncti
     if (content) {
         let processed = parser.processSync(content);
         let result = fixMarkdownHtmlWrapper(processed.value.toString());
-        return { html: result, headings: processed.data.headings, links: processed.data.links, meta: processed.data.processMeta };
+        return { html: result, headings: processed.data.headings as string[], links: processed.data.links as any[], meta: processed.data.processMeta as any };
     }
-    return { content: undefined, headings: [], links: [], processMeta: {} };
+    return { html: '', headings: [], links: [], meta: {} };
 }
 
 export function createMarkdownParser(options: {
@@ -385,76 +382,158 @@ export async function loadPost(site: Site, { route, lang }: { route: string, lan
     }
 }
 
-export function convertToPost(site: Site, raw: PostRaw): Post {
-    handleAuthors(site, raw.attributes);
+export function convertToPost(site: Site, raw: PostRaw, mermaidEnabled: boolean = true): Post {
+    let post: Post = {} as Post;
 
-    let post: Post = enhanceObject({ ...raw.attributes }, {
-        published: () => raw.attributes.published,
-        uuid: raw.attributes.uuid || 'error none uuid',
-        route: raw.attributes.route,
-        lang: raw.lang,
-        content: () => {
-            const { html, headings, meta, links } = buildPostByMarkdown(raw?.body, raw?.lang, (tree: any) => {
-                // update footnote
-                let handleChildren = (children: any[]) => {
-                    children.forEach((node: any) => {
-                        if (node.properties?.id) {
-                            node.properties.id = node.properties.id.replace(/^(user-content-)+/, '');
-                        }
-                        if (node.type === 'element'
-                            && 'a' === node.tagName
-                            && node.properties?.href) {
-                            node.properties.href = node.properties.href.replace(/^#(user-content-)+/, '#');
-                        }
-                        if (node.children) {
-                            handleChildren(node.children);
-                        }
-                    });
-                };
-                handleChildren(tree.children);
-            }, {
-                mermaid: {
-                    enabled: true,
+    const { attributes, body, template, lang, langs, route, slug, toc, resourceRaw,
+    } = raw;
+    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, modified, published, deleted, menu, comment, discuss, syndication, type, webmention, ...data } = (() => {
+        const { route, slug, toc, ...rest } = attributes;
+        return rest;
+    })();
+
+    post.data = data;
+
+    if (attributes.summary) {
+        let { summary, summary_html } = extractSummary(body);
+        post.summary = { raw: summary, html: summary_html };
+    }
+
+    let defaultDate = (() => {
+        let dateFieldValue = date as any;
+        if (dateFieldValue instanceof Date) {
+            return dateFieldValue.toISOString();
+        } else if (typeof dateFieldValue === 'string') {
+            return dateFieldValue;
+        } else if (typeof dateFieldValue === 'number') {
+            return new Date(dateFieldValue).toISOString();
+        }
+    })();
+
+    function resolvePostData(value: string | boolean | undefined | {
+        date: string
+    }, defaultValue: string | undefined, defaultProvider: () => { date: string }): { date: string } | undefined {
+        if (value === false) {
+            return undefined;
+        } else if (typeof value === 'string') {
+            return {
+                date: value
+            };
+        } else if (typeof value === 'object') {
+            return value as { date: string };
+        } else if (typeof value === 'number') {
+            return {
+                date: new Date(value).toISOString()
+            };
+        }
+
+        if (defaultDate) {
+            return {
+                date: defaultDate
+            };
+        } else {
+            return defaultProvider();
+        }
+    }
+
+    post.published = resolvePostData(published, defaultDate, () => {
+        const { stat } = resourceRaw;
+        return {
+            date: stat?.birthtime.toISOString()
+        };
+    });
+    post.modified = resolvePostData(modified, defaultDate, () => {
+        const { stat } = resourceRaw;
+        return {
+            date: stat?.mtime.toISOString()
+        };
+    });
+
+    post.deleted = resolvePostData(modified, defaultDate, () => {
+        const { stat } = resourceRaw;
+        return {
+            date: stat?.mtime.toISOString()
+        };
+    });
+
+    post.toc = toc;
+    post.title = title;
+    post.slug = slug;
+    post.route = route;
+    post.license = license;
+    post.template = template;
+    post.lang = lang;
+    post.langs = langs;
+    post.author = resolveContact(site, author, lang);
+    post.contributor = resolveContact(site, contributor, lang);
+    post.sponsor = resolveContact(site, sponsor, lang);
+
+    post.taxonomy = {
+        category: [taxonomy?.category].flat().filter((c) => !!c) as string[],
+        tag: [taxonomy?.tag].flat().filter((c) => !!c) as string[],
+        series: [taxonomy?.seires].flat().filter((c) => !!c) as string[]
+    };
+
+    post.keywords = [keywords].flat().filter((c) => !!c) as string[];
+
+    const { html, headings, meta, links } = buildPostByMarkdown(body, lang, (tree: any) => {
+        // update footnote
+        let handleChildren = (children: any[]) => {
+            children.forEach((node: any) => {
+                if (node.properties?.id) {
+                    node.properties.id = node.properties.id.replace(/^(user-content-)+/, '');
+                }
+                if (node.type === 'element'
+                    && 'a' === node.tagName
+                    && node.properties?.href) {
+                    node.properties.href = node.properties.href.replace(/^#(user-content-)+/, '#');
+                }
+                if (node.children) {
+                    handleChildren(node.children);
                 }
             });
-            return { html, headings, meta, links };
+        };
+        handleChildren(tree.children);
+    }, {
+        mermaid: {
+            enabled: mermaidEnabled,
         }
     });
 
-    return {
-        ...raw?.attributes, content, headings, processMeta, links
-    };
-}
-
-export function handleAuthors(site: Site, attr: { author?: string, authors?: string[], lang: string }) {
-
-    if (!attr) {
-        return;
+    post.content = {
+        html,
+        headings,
+        meta,
+        links,
     }
 
+    return post;
+}
+
+export function resolveContact(site: Site, author: PostAttributesContact | PostAttributesContact[] | undefined, lang: string | undefined): ContactBaseProfile[] {
     const systemConfig = getSystemConfig(site);
-    attr.isDefaultAuthor = !attr.author && !attr.authors;
-
-    let mapper = (author: any) => {
-        if (typeof author === 'string') {
-            const account = getSiteAccount(site, author, attr.lang);
-            if (account) {
-                const { name, id, orcid, url } = account;
-                return { name, id, orcid, url, account: author };
-            } else {
-                return { name: author, account: author };
+    let result: ContactBaseProfile[] = [author || systemConfig.user?.default].flat()
+        .filter((author) => !!author)
+        .map((author: PostAttributesContact) => {
+            if (typeof author === 'string') {
+                author = { user: author };
             }
-        }
-        return author;
-    };
+            let user = (author as UserAuthor).user;
+            if (user) {
+                const account = getSiteAccount(site, user, systemConfig.locale?.default || 'en');
+                if (account) {
+                    const { credentials, orcid, account: _, ...data } = account;
+                    let contact: ContactBaseProfile = data;
 
-    attr.authors = [attr.authors || attr.author || systemConfig.user?.default].flat()
-        .filter((author) => !!author)
-        .map(mapper);
-
-    attr.contributors = [attr.contributors].flat()
-        .filter((author) => !!author)
-        .map(mapper);
+                    // if author.name is set, it will override the name from account, etc
+                    let effected =
+                        Object.assign({}, contact, author);
+                    return effected;
+                }
+            }
+            return author;
+        });
+    return result;
 }
 
 
