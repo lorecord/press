@@ -175,6 +175,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         body: string
     } = fm<any>(file);
 
+    let rawAttributes = attributes;
+
+    const effectedTemplate = dataFromRaw.template || 'default';
+    attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
+
     const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, route: routeInAttributes, slug, toc, published, modified, deleted, ...data } = attributes;
 
     let defaultDate = (() => {
@@ -214,9 +219,6 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     }
 
-    const effectedTemplate = dataFromRaw.template || 'default';
-    attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
-
     let slashed = route?.endsWith('/') ? route : route + '/';
     let slugInPath = localPath?.split('/').slice(-2)[0];
 
@@ -224,22 +226,28 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         raw: string,
         html: string
     } = { raw: '', html: '' };
-    if (attributes.summary) {
+
+    if (!attributes.summary) {
         let { summary, summary_html } = extractSummary(body);
         summaryObject = { raw: summary, html: summary_html };
+    } else {
+        summaryObject = { raw: attributes.summary, html: markdown(attributes.summary) };
     }
 
     let postRaw: PostRaw = {
         ...dataFromRaw,
         summary: summaryObject,
         resourceRaw,
-        attributes,
+        attributes: rawAttributes,
         path: filepath,
         body,
+        visible,
+        routable,
+        title,
         template: effectedTemplate,
         slug: attributes.slug || slugInPath,
         route: routeInAttributes || (
-            slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
+            slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`)
         ),
         toc: {
             enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
@@ -257,12 +265,12 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
             };
         }),
 
-        deleted: resolvePostData(modified, defaultDate, () => {
+        deleted: deleted ? resolvePostData(deleted, defaultDate, () => {
             const { stat } = resourceRaw;
             return {
                 date: stat?.mtime.toISOString()
             };
-        }),
+        }) : undefined,
         data,
         license,
         author: resolveContact(site, author, dataFromRaw.lang),
@@ -270,7 +278,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         sponsor: resolveContact(site, sponsor, dataFromRaw.lang),
     };
 
-    cache.raw[`${postRaw.lang}-${attributes.route}`] = postRaw;
+    cache.raw[`${postRaw.lang}-${postRaw.route}`] = postRaw;
 
     return postRaw;
 }

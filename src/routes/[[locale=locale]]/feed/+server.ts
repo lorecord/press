@@ -29,10 +29,11 @@ export async function GET({ request, locals, params }) {
     }
 
     let postRaws = getPublicPostRaws(site);
-    let posts = postRaws.map((p: any) => convertToPostForFeed(site, p))
-        .filter((p: any) => p.template == 'item')
-        .filter((p: any) => p.visible)
-        .filter((p: any) => p.lang === lang);
+    console.log('[feed/+server.ts]postRaws', postRaws.length);
+    let posts = postRaws.map((p) => convertToPostForFeed(site, p))
+        .filter((p) => p.template == 'item')
+        .filter((p) => p.visible)
+        .filter((p) => p.lang === lang);
 
     posts = posts?.slice(0, 20);
 
@@ -86,9 +87,9 @@ ${posts.map((post: any) => `
         <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
         <title>${post.title}</title>
         <link>${siteConfig.url}${post.route}</link>
-        <description><![CDATA[${escapeHtml(post.summary)}]]></description>
-        <content:encoded><![CDATA[${escapeHtml(post.content)}]]></content:encoded>
-        <pubDate>${new Date(post.date).toUTCString()}</pubDate>
+        <description><![CDATA[${escapeHtml(post.summary?.html)}]]></description>
+        <content:encoded><![CDATA[${escapeHtml(post.content?.html)}]]></content:encoded>
+        <pubDate>${new Date(post.published.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
         ? post.taxonomy.category
             .map((category: any) => `<category>${category}</category>`).join('\n')
@@ -131,8 +132,8 @@ ${posts.map((post: any) => `
         <id isPermaLink="true">${siteConfig.url}${post.route}</id>
         <title>${post.title}</title>
         <link href="${siteConfig.url}${post.route}" />
-        ${post.date
-            ? `<published>${new Date(post.date).toISOString()}</published>`
+        ${post.published.date
+            ? `<published>${new Date(post.published.date).toISOString()}</published>`
             : ``}
         ${post.modified?.date
             ? `<updated>${new Date(post.modified?.date).toISOString()}</updated>`
@@ -141,20 +142,20 @@ ${posts.map((post: any) => `
             ? `<link rel="enclosure" type="audio/mpeg" length="1337"
         href="${post.audio}"/>`
             : ``}
-        ${post.authors && !post.isDefaultAuthor
-            ? post.authors.map((author: any) => `<author>
+        ${post.author && !post.isDefaultAuthor
+            ? post.author.map((author: any) => `<author>
             <name>${author.name || author.account || author}</name>
         </author>`)
             : ``}
-        ${post.contributors
-            ? post.contributors.map((c: any) => `
+        ${post.contributor
+            ? post.contributor.map((c: any) => `
         <contributor>
             <name>${c}</name>
         </contributor>
             `)
             : ``}
-        <summary><![CDATA[${escapeHtml(post.summary)}]]></summary>
-        <content type="html"><![CDATA[${escapeHtml(post.content)}]]></content>
+        <summary><![CDATA[${escapeHtml(post.summary?.html)}]]></summary>
+        <content type="html"><![CDATA[${escapeHtml(post.content?.html)}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
                 .map((category: any) => `<category>${category}</category>`).join('\n')

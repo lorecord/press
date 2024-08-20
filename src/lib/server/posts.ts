@@ -5,7 +5,7 @@ import { handleRequestIndexNow } from "$lib/seo/handle-indexnow";
 import { fileWatch } from '$lib/server/file-watch';
 import path from 'path';
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
-import { sites } from './sites';
+import { sites, type Site } from './sites';
 
 let postRawsOfSite: {
     [siteUnique: string]: PostRaw[];
@@ -62,7 +62,7 @@ function load() {
                 let tasks = getPublicPosts(site)
                     .map((p) => {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
-                        const { links } = p;
+                        const { links } = p.content || { links: [] };
                         return {
                             route: p.route,
                             url: `${siteConfig.url}${p.route}`,
@@ -113,22 +113,19 @@ load();
  * export post raws that are public
  */
 export function getPublicPostRaws(site: any) {
-    return getPublishedPostRaws(site)
-        .filter((raw: any) => !raw.attributes?.deleted);
+    let published = getPublishedPostRaws(site);
+    return published
+        .filter((raw) => !(raw.deleted?.date && new Date(raw.deleted.date).getTime() < Date.now()));
 }
 
 /**
  * export post raws that are published, which could be public or private, even deleted, but not draft, scheduled, or future
 */
-export function getPublishedPostRaws(site: any) {
+export function getPublishedPostRaws(site: Site) {
     return postRawsOfSite[site.unique]
-        .filter((raw) => raw.attributes?.routable)
-        .filter((raw) => raw.attributes?.published)
-        .filter((raw) => new Date(raw.attributes?.date).getTime() < Date.now())
-        .map((raw: any) => {
-            let attr = Object.assign({}, raw.attributes);
-            delete attr.routable;
-            delete attr.published;
+        .filter((raw) => raw.routable)
+        .filter((raw) => raw.published?.date && new Date(raw.published?.date).getTime() < Date.now())
+        .map((raw) => {
             let newRaw = Object.assign({}, raw) as PostRaw;
             return newRaw;
         })
@@ -137,13 +134,9 @@ export function getPublishedPostRaws(site: any) {
 
 export function getPublishedPosts(site: any) {
     const posts = postsOfSite[site.unique]
-        .filter((p) => p.routable)
-        .filter((p) => p.published)
-        .filter((p) => !p.deleted)
-        .filter((p) => p.date && new Date(p.date).getTime() < Date.now())
-        .filter((p) => {
-            return true;
-        })
+        .filter((p) => p.published?.date)
+        .filter((p) => !p.deleted?.date)
+        .filter((p) => p.published?.date && new Date(p.published.date).getTime() < Date.now())
         || [];
 
     {
@@ -174,7 +167,7 @@ export function getPublishedPosts(site: any) {
 }
 
 export function getPublicPosts(site: any) {
-    return getPublishedPosts(site).filter((p) => !p.deleted);
+    return getPublishedPosts(site).filter((raw) => !raw.deleted || !raw.deleted.date || new Date(raw.deleted.date).getTime() >= Date.now());
 }
 
 export function findRelatedPosts(site: any, post: any, limit = 3) {

@@ -74,6 +74,8 @@ export interface PostRaw {
     lang?: string,
     langs?: string[],
     route?: string,
+    visible?: boolean,
+    routable?: boolean,
     slug?: string,
     toc?: {
         enabled: boolean,
