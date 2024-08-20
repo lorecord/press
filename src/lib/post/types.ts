@@ -136,7 +136,9 @@ export type Post = Omit<PostRaw, 'resourceRaw' | 'path' | 'attributes' | 'body'>
             text: string,
             id: string
         }[],
-        links: string[],
+        links: {
+            href: string, type: string, content: string
+        }[],
         meta: {
             prism?: boolean;
             katex?: boolean;
