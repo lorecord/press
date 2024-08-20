@@ -10,7 +10,7 @@
     {#await posts then posts}
         {#each posts as post}
             <li>
-                <a href={`/admin/posts/${post.id}`}>
+                <a href={`/admin/posts/${post.route}`}>
                     {post.title}
                 </a>
             </li>
