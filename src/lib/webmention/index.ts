@@ -10,7 +10,8 @@ export const addWebmentionLinkHeader = (headers: Headers, url: string) => {
 
 // https://www.w3.org/TR/webmention/#sender-discovers-receiver-webmention-endpoint
 export const resolveEndpoint = async (url: string) => {
-    if (!url || new URL(url).protocol !== 'http:' || new URL(url).protocol !== 'https:') {
+    if (!url || (new URL(url).protocol !== 'http:' && new URL(url).protocol !== 'https:')) {
+        console.error(`[resolveEndpoint] invalid url: ${url}`);
         return null;
     }
 
@@ -19,7 +20,7 @@ export const resolveEndpoint = async (url: string) => {
     const headers = new Headers();
     headers.set('User-Agent', USER_AGENT);
 
-    return Promise.resolve().then(() => {
+    return Promise.resolve().then(async () => {
         // 1. send head request to check if there is `link` header with 'rel' value 'webmention'
         return fetch(url, { method: 'HEAD', headers }).then((response) => {
             if (response.ok) {
@@ -62,11 +63,17 @@ export const resolveEndpoint = async (url: string) => {
 }
 
 // https://www.w3.org/TR/webmention/#sender-notifies-receiver
-export const sendWebmention = async ({ source, target }: { source: string, target: string }) => {
+export const sendWebmention = async ({ source, target }: { source: string, target: string }): Promise<{
+    status: 'created' | 'aceppted' | 'done' | 'unsupported' | 'error';
+    message?: string;
+    location?: string;
+}> => {
 
     return resolveEndpoint(target).then((endpoint) => {
         if (!endpoint) {
-            return;
+            return {
+                status: 'unsupported'
+            };
         }
 
         // Avoid sending Webmentions to localhost
@@ -87,6 +94,7 @@ export const sendWebmention = async ({ source, target }: { source: string, targe
         body.append('target', target);
 
         return fetch(endpoint, { method: 'POST', headers, body }).then((response) => {
+            console.log(`send webmention from ${source} to ${target}:`, response.status);
             // 200: done
             // 201: 'Location' header should be the url of processing status
             // 202: no processing status url
@@ -96,15 +104,18 @@ export const sendWebmention = async ({ source, target }: { source: string, targe
                 let result: any = { source, target };
                 if (response.status === 201) {
                     result['location'] = response.headers.get('Location');
-                    result['status'] = 'Created';
+                    result['status'] = 'created';
                 } else if (response.status === 202) {
-                    result['status'] = 'Accepted';
+                    result['status'] = 'accepted';
                 } else if (response.status === 200) {
-                    result['status'] = 'Done';
+                    result['status'] = 'done';
                 }
-
-                result.updated = new Date().toISOString();
                 return result;
+            }
+
+            return {
+                status: 'error',
+                message: `${response.status}: ${response.statusText}`
             }
         });
     });

@@ -6,6 +6,7 @@ import { fileWatch } from '$lib/server/file-watch';
 import path from 'path';
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites, type Site } from './sites';
+import { sendWebmentions } from "$lib/interaction/handle-webmention";
 
 let postRawsOfSite: {
     [siteUnique: string]: PostRaw[];
@@ -60,31 +61,54 @@ function load() {
             if (systemConfig.webmention?.enabled) {
 
                 let tasks = getPublicPosts(site)
+                    // for test: only get posts after 2024-08-01
                     .map((p) => {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
                         const { links } = p.content || { links: [] };
+
+                        let date = [p.modified?.date, p.published?.date, p.deleted?.date].map((d) => d ? new Date(d).getTime() : 0).filter((d) => d < Date.now()).sort((a, b) => b - a)[0];
+
                         return {
+                            date: new Date(date),
                             route: p.route,
                             url: `${siteConfig.url}${p.route}`,
-                            links
+                            links: links.map((l) => ({ langs: [p.lang], ...l }))
                         }
                     });
 
-                tasks = tasks.reduce((acc: any, current: any) => {
+                tasks = tasks.reduce((acc: any[], current) => {
                     let inAcc = acc.find((item: any) => item.route === current.route);
                     if (!inAcc) {
                         acc.push(current);
                     } else {
+                        inAcc.date = inAcc.date.getTime() > current.date.getTime() ? inAcc.date : current.date;
                         inAcc.links = inAcc.links.concat(current.links);
                     }
                     return acc;
                 }, []);
 
+                // remove duplicate links
+                tasks.forEach((t) => {
+                    t.links = t.links.reduce((acc: any[], current: any) => {
+                        let inAcc = acc.find((item: any) => item.href === current.href);
+                        if (!inAcc) {
+                            acc.push(current);
+                        } else {
+                            inAcc.langs = inAcc.langs.concat(current.langs);
+                        }
+                        return acc;
+                    }, []);
+                });
+
                 tasks = tasks.filter((t: any) => t.links && t.links.length > 0);
 
+                console.log(`[webmention] send webmentions for ${tasks.length} posts`);
+
                 tasks.forEach((task: any) => {
-                    console.log(`${task.route} links to`, task.links);
+                    sendWebmentions(site, task.route, task.links.map((l: any) => l.href), task.date);
                 });
+
+                // TODO send pingback
             }
 
             // unique routes array

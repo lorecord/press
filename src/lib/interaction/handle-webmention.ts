@@ -9,6 +9,13 @@ import type { WebmentionInteraction } from './types';
 import { getInteractionsFoler } from './utils';
 import type { Site } from '$lib/server/sites';
 
+export function getWebmentionPathOfTarget(site: any, postPath: string) {
+    const folder = getInteractionsFoler(site, { route: postPath });
+    if (folder) {
+        return path.join(folder, 'webmention/target.yml');
+    }
+}
+
 export function getWebmentionPathOfSource(site: any, postPath: string) {
     const folder = getInteractionsFoler(site, { route: postPath });
     if (folder) {
@@ -19,6 +26,20 @@ export function getWebmentionPathOfSource(site: any, postPath: string) {
 export function loadPublishedWebmentions(site: Site, postPath: string) {
     let webmentions = loadWebmentions(site, postPath);
     return webmentions.filter((mention) => mention.status === 'ok');
+}
+
+export function loadOutWebmentions(site: Site, postPath: string) {
+    const filepath = getWebmentionPathOfTarget(site, postPath);
+    if (!filepath) {
+        return [];
+    }
+
+    if (!fs.existsSync(filepath)) {
+        return [];
+    }
+    let file = fs.readFileSync(filepath, 'utf8');
+    let parsed = YAML.parse(file);
+    return parsed || [];
 }
 
 export function loadWebmentions(site: any, postPath: string): WebmentionInteraction[] {
@@ -89,7 +110,7 @@ export function saveWebmention(site: any, postPath: string, mention: WebmentionI
     }
 
     let existed = mentions.find(m => m.webmention.source === mention.webmention.source);
-    
+
     mentions = mentions.filter(m => m.webmention.source !== mention.webmention?.source);
 
     if (existed) {
@@ -121,32 +142,28 @@ export function deleteWebmention(site: any, postPath: string, source: string) {
     fs.writeFileSync(filepath, data, 'utf8');
 }
 
-export function sendWebmentions(site: any, postPath: string, targets: string[]) {
+export function sendWebmentions(site: any, postPath: string, targets: string[], postUpdated: Date) {
     const siteConfig = getSiteConfig(site, 'en');
-    const folder = getInteractionsFoler(site, { route: postPath });
-    if (!folder) {
-        return;
-    }
-    const filepath = path.join(folder, 'webmention/target.yml');
 
-    const postRaw = loadPostRaw(site, { route: postPath, lang: 'en' });
-    if (!postRaw) {
+    const filepath = getWebmentionPathOfTarget(site, postPath);
+
+    if (!filepath) {
+        console.error(`[webmention] can't find webmention target file path for ${postPath}`);
         return;
     }
 
-    let mentions: any = [];
-
+    let mentions: any[] = [];
     if (!fs.existsSync(filepath)) {
-        fs.mkdirSync(folder, { recursive: true });
+        fs.mkdirSync(path.dirname(filepath), { recursive: true });
     } else {
-        mentions = loadWebmentions(site, postPath);
+        mentions = loadOutWebmentions(site, postPath);
     }
 
     const tasks = [];
     for (const target of targets) {
         let mention = mentions.find((m: any) => m.target === target);
         if (mention) {
-            if (mention?.updated && new Date().getTime() - new Date(mention.updated).getTime() < 1000 * 60 * 60 * 24 * 1) {
+            if (mention?.updated && postUpdated.getTime() < new Date(mention.updated).getTime()) {
                 continue;
             }
         } else {
@@ -156,11 +173,21 @@ export function sendWebmentions(site: any, postPath: string, targets: string[]) 
 
         const resultPromise = sendWebmention({ source: siteConfig.url + postPath, target }).then(result => {
             Object.assign(mention, result);
+            mention.updated = new Date().toISOString();
+            if (!result) {
+                mention.status = 'error';
+            }
             return mention;
         });
         tasks.push(resultPromise);
     }
     Promise.all(tasks).then((results) => {
+        console.log(`[webmention] sent ${results.length} webmentions for ${postPath}`, JSON.stringify(results, null, 2));
+        const filepath = getWebmentionPathOfTarget(site, postPath);
+        if (!filepath) {
+            console.error(`[webmention] can't find webmention target file path for ${postPath}`);
+            return;
+        }
         let data = YAML.stringify(mentions);
         fs.writeFileSync(filepath, data, 'utf8');
     });
