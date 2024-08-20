@@ -73,13 +73,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                     deleted: true
                 }
             }
+            return {
+                valid: false,
+                contentType: response.headers?.get('Content-Type')
+            } as any;
         }
     }).then((result) => {
-        console.log('result of validation', {
-            valid: result.valid,
-            contentType: result.contentType,
-            type: result.type
-        });
 
         if (result?.valid && !result?.deleted) {
             let webmentionInteraction: WebmentionInteraction = {

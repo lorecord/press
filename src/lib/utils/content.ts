@@ -1,7 +1,7 @@
 import { parse } from "node-html-parser";
 
 export const findLinkInContent = (content: string, source: string, target: string, contentType: string): {
-    title?:string,
+    title?: string,
     valid?: boolean;
     contentType?: string;
     type?: 'link' | 'media';
@@ -99,10 +99,10 @@ export const findLinkInContent = (content: string, source: string, target: strin
                 responseContent: content
             };
         };
-    } else {
-        return {
-            contentType,
-            responseContent: content
-        };
     }
+
+    return {
+        contentType,
+        responseContent: content
+    };
 }
