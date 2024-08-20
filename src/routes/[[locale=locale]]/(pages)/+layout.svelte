@@ -23,6 +23,13 @@
     $: ({ posts, systemConfig, siteConfig, currentRoute, session } = data);
     $: ({ seo } = $page.data);
 
+    $: supportedLocales = Array.from(
+        new Set([
+            systemConfig.locale?.default || "en",
+            ...(systemConfig.locale?.supports || []),
+        ]),
+    );
+
     onMount(() => {
         loadingBar?.finish();
 
@@ -95,7 +102,7 @@
     />
 
     <meta property="og:locale" content={$locale} />
-    {#each $locales as value}
+    {#each supportedLocales || [] as value}
         {#if value !== $locale}
             <meta property="og:locale:alternate" content={value} />
         {/if}
@@ -211,7 +218,7 @@
             <link
                 rel="pingback"
                 href={systemConfig.webmention?.endpoint || `/api/v1/pingback`}
-        />
+            />
         {/if}
     {/if}
 
@@ -312,12 +319,7 @@
     <Footer
         {posts}
         {siteConfig}
-        supportedLocales={Array.from(
-            new Set([
-                systemConfig.locale?.default || "en",
-                ...(systemConfig.locale?.supports || []),
-            ]),
-        )}
+        {supportedLocales}
         allowUnsupportedLocales={systemConfig.locale?.allowUnsupported}
     />
 </div>
