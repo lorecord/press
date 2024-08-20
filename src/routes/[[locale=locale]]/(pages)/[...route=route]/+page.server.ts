@@ -40,7 +40,7 @@ export const actions: Actions = {
         }
 
         const post = await loadPost(site, { route, lang: locale || undefined });
-        if (post && post.comment?.enable) {
+        if (post && post.comment?.enabled) {
             const form = await request.formData();
             if (form.get("captcha")?.toString().length == 0 // honey pot
                 && form.get("name")?.toString()?.length || 0 > 0

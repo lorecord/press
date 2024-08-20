@@ -475,7 +475,7 @@
         </div>
 
         <div class="discuss no-print">
-            {#if post.comment?.enable}
+            {#if post.comment?.enabled}
                 {#await citations then value}
                     {#if value?.length}
                         <h3 id="citations" style="text-align: center">

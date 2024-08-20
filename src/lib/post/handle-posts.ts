@@ -43,10 +43,10 @@ const DEFAULT_ATTRIBUTE_MAP: {
         visible: true,
         routable: true,
         comment: {
-            enable: false
+            enabled: false
         },
         discuss: {
-            enable: false
+            enabled: false
         },
         menu: {
             header: true,
@@ -58,11 +58,11 @@ const DEFAULT_ATTRIBUTE_MAP: {
         visible: true, // visible in menu, feed, sitemap and archive
         routable: true, // visitable by url
         comment: {
-            enable: true,
+            enabled: true,
             reply: true
         },
         discuss: {
-            enable: true
+            enabled: true
         },
     },
     links: {
@@ -70,11 +70,11 @@ const DEFAULT_ATTRIBUTE_MAP: {
         visible: true, // visible in menu, feed, sitemap and archive
         routable: true, // visitable by url
         comment: {
-            enable: false,
+            enabled: false,
             reply: true
         },
         discuss: {
-            enable: false
+            enabled: false
         },
         menu: {
             header: false,
@@ -86,11 +86,11 @@ const DEFAULT_ATTRIBUTE_MAP: {
         visible: false,
         routable: true,
         comment: {
-            enable: true,
+            enabled: true,
             reply: true,
         },
         discuss: {
-            enable: true
+            enabled: true
         }
     }
 }
