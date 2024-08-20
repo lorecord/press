@@ -37,9 +37,9 @@ function load() {
 
                 let tasks = getPublicPostRaws(site)
                     .map((p: any) => ({
-                        url: `${siteConfig.url}${p?.attributes.route}`,
+                        url: `${siteConfig.url}${p?.route}`,
                         folder: path.dirname(p?.path) || '',
-                        modified: p?.attributes?.modified?.date || p?.attributes?.date
+                        modified: p?.modified?.date
                     }))
                     .filter((p: any) => p.folder);
 
@@ -105,20 +105,22 @@ function load() {
                 console.log(`[webmention] send webmentions for ${tasks.length} posts`);
 
                 tasks.forEach((task: any) => {
-                    sendWebmentions(site, task.route, task.links.map((l: any) => l.href), task.date);
+                    let effectedRoute = task.route?.endsWith('/') ? task.route.substring(0, task.route.length - 1) : task.route;
+                    sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date);
                 });
 
                 // TODO send pingback
             }
 
             // unique routes array
-            const routes = Array.from(new Set(postRaws.map((raw: any) => raw.attributes?.route)));
+            const routes = Array.from(new Set(postRaws.map((raw: any) => raw.route)));
 
             routes.forEach((route: string) => {
+                let effectedRoute = route?.endsWith('/') ? route.substring(0, route.length - 1) : route;
                 function loadForRoute() {
-                    loadNativeInteractions(site, { route });
+                    loadNativeInteractions(site, { route: effectedRoute });
                 }
-                let interactionsFilePath = getNativeInteractionsFilePath(site, { route });
+                let interactionsFilePath = getNativeInteractionsFilePath(site, { route: effectedRoute });
                 if (interactionsFilePath) {
                     fileWatch(interactionsFilePath, loadForRoute, `${site.unique}-${route}-load-interactions`);
                 }
