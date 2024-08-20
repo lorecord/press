@@ -21,22 +21,23 @@ export async function GET({ params, url, locals }) {
         error(404);
     }
 
-    if (post.deleted?.date) {
+    const { deleted, ...effected } = post;
+
+    if (post.deleted?.date && new Date(post.deleted.date).getTime() <= Date.now()) {
         error(410, { message: 'Post deleted', deleted: true } as any);
     }
-
     const posts = getPublicPosts(site);
     const postInCollection = posts.find((p: any) => p.route === post.route && p.lang === post.lang);
 
     if (postInCollection) {
-        post.earlier = postInCollection.earlier;
-        post.newer = postInCollection.newer;
+        effected.earlier = postInCollection.earlier;
+        effected.newer = postInCollection.newer;
     }
 
     if (post.template == "item") {
         const related = findRelatedPosts(site, post, 5);
-        post.related = related;
+        effected.related = related;
     }
 
-    return json(post);
+    return json(effected);
 }
