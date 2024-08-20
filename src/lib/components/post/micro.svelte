@@ -33,7 +33,7 @@
     });
 </script>
 
-<Title value={`${author?.[0]?.name}: "${post.summary}"`}></Title>
+<Title value={`${author?.[0]?.name}: "${post.summary.raw}"`}></Title>
 
 <article class="typography type-{type}" lang={post.lang}>
     <div class="article-header container">
