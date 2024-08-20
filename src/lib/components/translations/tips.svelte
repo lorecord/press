@@ -38,25 +38,23 @@
         $locales.find((l: string) => l === localeContext.preferedLanguage) ||
         suggestions.find((l: string) => $locales.includes(l)) ||
         currentPageLocale;
+    $: showTips =
+        currentPageLocale !== currentContentLocale ||
+        (suggestions.length > 0 &&
+            currentContentLocale != localeContext.preferedLanguage) ||
+        (suggestions.length > 0 && !suggestions.includes(currentContentLocale));
     $: {
         if (dev) {
-            console.log("$locales", $locales);
             console.log("suggestions", suggestions);
             console.log("currentPageLocale", currentPageLocale);
             console.log("currentContentLocale", currentContentLocale);
             console.log("suggectionLocale", suggectionLocale);
-            console.log(
-                "show tips",
-                currentPageLocale !== currentContentLocale ||
-                    (suggestions.length > 0 &&
-                        !suggestions.includes(currentContentLocale)) ||
-                    currentContentLocale !== localeContext.preferedLanguage,
-            );
+            console.log("show tips", showTips);
         }
     }
 </script>
 
-{#if show && (currentPageLocale !== currentContentLocale || (suggestions.length > 0 && currentContentLocale != localeContext.preferedLanguage) || (suggestions.length > 0 && !suggestions.includes(currentContentLocale)))}
+{#if show && showTips}
     <div
         lang={suggectionLocale}
         class="container"
