@@ -14,10 +14,6 @@ export async function GET({ url, locals }) {
     const limit = url.searchParams.get('limit');
     let lang: string | null = url.searchParams.get('lang');
 
-    if(dev){
-        console.log('[api/v1/post] GET', { template, tag, category, series, limit, lang });
-    }
-
     let collection = getPublicPosts(site);
 
     if (template) {
