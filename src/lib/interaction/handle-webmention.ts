@@ -1,18 +1,24 @@
-import fs from 'fs';
-import YAML from 'yaml';
-import path from 'path';
 import { loadPostRaw } from '$lib/post/handle-posts';
-import type { WebmentionInteraction, WebmentionRaw, WebmentionReply } from './types';
-import Crypto from 'crypto';
 import { getSiteConfig } from '$lib/server/config';
-import { getInteractionsFoler } from './utils';
 import { sendWebmention } from '$lib/webmention';
+import Crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import YAML from 'yaml';
+import type { WebmentionInteraction } from './types';
+import { getInteractionsFoler } from './utils';
+import type { Site } from '$lib/server/sites';
 
 export function getWebmentionPathOfSource(site: any, postPath: string) {
     const folder = getInteractionsFoler(site, { route: postPath });
     if (folder) {
         return path.join(folder, 'webmention/source.yml');
     }
+}
+
+export function loadPublishedWebmentions(site: Site, postPath: string) {
+    let webmentions = loadWebmentions(site, postPath);
+    return webmentions.filter((mention) => mention.status === 'ok');
 }
 
 export function loadWebmentions(site: any, postPath: string): WebmentionInteraction[] {
@@ -58,7 +64,10 @@ export function fromWebmentionIO(payload: any): WebmentionInteraction {
             url: payload.post?.author?.url,
             avatar: payload.post?.author?.photo,
             verified: true
-        }
+        },
+        status: 'ok',
+        created: new Date().toISOString(),
+        updated: new Date().toISOString()
     }
     return webmentionInteraction;
 }
@@ -79,8 +88,16 @@ export function saveWebmention(site: any, postPath: string, mention: WebmentionI
         mentions = loadWebmentions(site, postPath);
     }
 
+    let existed = mentions.find(m => m.webmention.source === mention.webmention.source);
+    
     mentions = mentions.filter(m => m.webmention.source !== mention.webmention?.source);
-    mentions.push(mention);
+
+    if (existed) {
+        mention.created = existed.created || mention.created || new Date().toISOString();
+    }
+
+    mentions.push(Object.assign({}, existed || {}, mention));
+
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');
     console.log(`[webmention] saved ${filepath}: ${mention.webmention.source} to ${postPath}`);
@@ -94,8 +111,12 @@ export function deleteWebmention(site: any, postPath: string, source: string) {
     }
 
     let mentions = loadWebmentions(site, postPath);
-    mentions = mentions.filter((m: any) => m.webmention?.source !== source);
-
+    let existed = mentions.find(m => m.webmention.source === source);
+    if (!existed) {
+        return;
+    }
+    existed.updated = new Date().toISOString();
+    existed.status = 'deleted';
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');
 }

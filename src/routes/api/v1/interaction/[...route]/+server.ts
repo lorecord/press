@@ -1,5 +1,5 @@
 import { loadNativeInteractions, loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
-import { loadWebmentions } from "$lib/interaction/handle-webmention";
+import { loadPublishedWebmentions } from "$lib/interaction/handle-webmention";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress, getRequestPayload } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
     const nativeInteractions = loadNativeInteractions(site, { route: route });
 
-    const webmentions = loadWebmentions(site, route);
+    const webmentions = loadPublishedWebmentions(site, route);
 
     const replies = [
         ...nativeInteractions.filter((comment: any) => comment.type === "reply") as NativeReply[],

@@ -115,6 +115,11 @@ export interface PostRaw {
     comment?: PostCommentConfig,
     discuss?: PostDiscussConfig,
     menu?: PostMenuConfig,
+    webmention?: {
+        enabled?: boolean,
+        accept?: boolean,
+        pingback?: boolean,
+    },
     data?: { [key: string]: any }
 }
 

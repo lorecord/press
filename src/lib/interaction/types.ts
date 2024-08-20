@@ -39,6 +39,9 @@ export interface Reply extends Base {
 export interface WebmentionBase extends Base {
     channel: 'webmention';
     webmention: WebmentionRaw;
+    status: 'ok' | 'deleted' | 'fail' | 'blocked' | 'pending' | 'spam';
+    created: string;
+    updated: string;
 }
 
 export type NativeBase = {

@@ -1,4 +1,4 @@
-import { deleteWebmention, saveWebmention } from '$lib/interaction/handle-webmention';
+import { deleteWebmention, loadWebmentions, saveWebmention } from '$lib/interaction/handle-webmention';
 import type { WebmentionInteraction } from '$lib/interaction/types';
 import { loadPost } from '$lib/post/handle-posts';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
@@ -42,11 +42,26 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         error(404, "Specified target URL not found");
     }
 
-    if (post.webmention?.enabled === false) {
+    if (post.webmention?.enabled === false || post.webmention?.accept === false) {
         error(400, "Specified target URL does not accept Webmentions");
     }
 
     const id = crypto.createHash('sha256').update(JSON.stringify({ source, target })).digest('hex');
+
+    let existed = loadWebmentions(site, postRoute).find((interaction) => interaction.id === id || interaction.webmention?.source === source);
+
+    if (existed?.status === 'pending') {
+        return json({}, {
+            status: 201,
+            headers: {
+                'Location': `${siteConfig.url}/api/v1/webmention/status/${id}`
+            }
+        });
+    } else if (existed?.status === 'blocked' || existed?.status === 'spam') {
+        return json({}, {
+            status: 200,
+        });
+    }
 
     const headers = new Headers();
     headers.set('User-Agent', USER_AGENT);
@@ -86,7 +101,10 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 published: new Date().toISOString(),
                 type: 'mention',
                 channel: 'webmention',
-                webmention: { source }
+                webmention: { source },
+                status: 'ok',
+                created: new Date().toISOString(),
+                updated: new Date().toISOString(),
             }
             saveWebmention(site, postRoute, webmentionInteraction);
         } if (result?.invalid && !result?.deleted) {
@@ -97,6 +115,17 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     }).finally(() => {
         console.log('webmention validation completed');
     });
+
+    let webmentionInteraction: WebmentionInteraction = {
+        id,
+        channel: 'webmention',
+        webmention: { source },
+        status: 'pending',
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+    } as WebmentionInteraction;
+
+    saveWebmention(site, postRoute, webmentionInteraction);
 
     //https://www.w3.org/TR/webmention/#receiving-webmentions
     return json({}, {

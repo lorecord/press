@@ -249,6 +249,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         comment,
         discuss,
         menu,
+        webmention,
         template: effectedTemplate,
         slug: attributes.slug || slugInPath,
         taxonomy: {
