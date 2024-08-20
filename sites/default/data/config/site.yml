@@ -1,6 +1,6 @@
 public:
   title: 'LorePress'
-  url: 'https://press.lorecord.com'
+  url: 'http://localhost:5173'
   description: 'CMS with Sveltekit'
   github:
     home: 'https://github.com/lorecord'
