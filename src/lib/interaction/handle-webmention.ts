@@ -168,10 +168,10 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
             }
         } else {
             mention = { target };
-            mentions.push({ target });
+            mentions.push(mention);
         }
 
-        const resultPromise = sendWebmention({ source: siteConfig.url + postPath, target }).then(result => {
+        const resultPromise = sendWebmention({ source: siteConfig.url + postPath + "/", target }).then(result => {
             Object.assign(mention, result);
             mention.updated = new Date().toISOString();
             if (!result) {
