@@ -120,6 +120,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         id,
         channel: 'webmention',
         webmention: { source },
+        // TODO when prev status is pending, then a new mention update, this should be?
         status: 'pending',
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
