@@ -43,6 +43,9 @@ export const resolveEndpoint = async (url: string) => {
         }).then((endpoint) => {
             if (!endpoint) {
                 // 2. get the content of the url, and check if there is a link tag with 'rel' value 'webmention',or a 'a' tag with 'rel' value 'webmention' in the content)
+
+                // accept html/json/txt
+                headers.set('Accept', 'text/html, application/json, text/plain');
                 return fetch(url, { method: 'GET', headers }).then((response) => {
                     if (response.ok) {
                         return response.text();
@@ -83,7 +86,7 @@ export const sendWebmention = async ({ source, target }: { source: string, targe
         if (endpoint) {
             const endpointURL = new URL(endpoint);
             if (endpointURL.hostname === 'localhost') {
-                console.log('sending Webmentions to localhost');
+                console.warn('sending Webmentions to localhost');
             }
         }
 
@@ -91,13 +94,14 @@ export const sendWebmention = async ({ source, target }: { source: string, targe
         const headers = new Headers();
         headers.set('Content-Type', 'application/x-www-form-urlencoded');
         headers.set('User-Agent', USER_AGENT);
+        headers.set('Accept', 'application/json');
 
         const body = new URLSearchParams();
         body.append('source', source);
         body.append('target', target);
 
         return fetch(endpoint, { method: 'POST', headers, body }).then((response) => {
-            console.log(`send webmention from ${source} to ${target}:`, response.status);
+            console.log(`send webmention from ${source} to ${target} via ${endpoint}:`, response.status);
             // 200: done
             // 201: 'Location' header should be the url of processing status
             // 202: no processing status url
@@ -116,10 +120,10 @@ export const sendWebmention = async ({ source, target }: { source: string, targe
                 return result;
             }
 
-            return {
+            return response.text().then(text => ({
                 status: 'error',
-                message: `${response.status}: ${response.statusText}`
-            }
+                message: `${response.status}: ${text}`
+            }))
         });
     });
 }
