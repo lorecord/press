@@ -28,7 +28,8 @@ export async function getRequestPayload(request: Request) {
     } else if (request.headers.get("content-type")?.includes("multipart/form-data")) {
         // formData  to json
         return Object.fromEntries([...(await request.formData()).entries()]);
-
+    } else if (request.headers.get("content-type")?.includes("application/x-www-form-urlencoded")) {
+        return Object.fromEntries([...new URLSearchParams(await request.text()).entries()]);
     } else if (request.headers.get("content-type")?.includes("application/json")) {
         return request.json();
     }
