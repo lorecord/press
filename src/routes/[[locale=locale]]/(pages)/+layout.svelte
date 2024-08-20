@@ -10,8 +10,8 @@
 
     import "../../styles.css";
 
-    import "$lib/scss/dark.scss";
     import "$lib/scss/default.scss";
+    import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";
     import type { WebSite, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
