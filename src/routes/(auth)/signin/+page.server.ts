@@ -4,6 +4,7 @@ import type { HashString, Md5HashValue, Sha1HashValue, Sha256HashValue } from '$
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import crypto from 'crypto';
+import { dev } from '$app/environment';
 
 export const actions = {
     default: async ({ locals, request, cookies, url }) => {
@@ -24,12 +25,10 @@ export const actions = {
 
         const account = getSiteAccount(site, username, '');
 
-        console.log('account', JSON.stringify(account, null, 2));
-
         const passwordHash = account?.credentials?.password as HashString & Md5HashValue & Sha1HashValue & Sha256HashValue;
 
         if (passwordHash?.sha256) {
-            const hash = crypto.createHash('sha256').update(`${username}${password}${account?.credentials?.password?.salt}`).digest('hex');
+            const hash = crypto.createHash('sha256').update(`${username}${password}${passwordHash.salt}`).digest('hex');
 
             if (hash === passwordHash.sha256) {
                 const session = createSession(username);
@@ -47,10 +46,12 @@ export const actions = {
                     url.searchParams.get('continue') || form.get("continue")?.toString() || '/admin');
             }
         } else {
-            const salt = crypto.randomBytes(16).toString('base64');
-            const hash = crypto.createHash('sha256').update(`${username}${password}${salt}`).digest('hex');
+            if (dev) {
+                const salt = crypto.randomBytes(16).toString('base64');
+                const hash = crypto.createHash('sha256').update(`${username}${password}${salt}`).digest('hex');
 
-            console.log('try:', JSON.stringify({ username, password, salt, hash }, null, 2));
+                console.log('try:', JSON.stringify({ username, password, salt, hash }, null, 2));
+            }
         }
 
         return fail(401, {

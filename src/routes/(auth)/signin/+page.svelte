@@ -10,7 +10,7 @@
     const handleEnhanceSubmit: SubmitFunction = ({}) => {
         signingIn = true;
 
-        return async ({ result,update }) => {
+        return async ({ result, update }) => {
             signingIn = false;
             update();
         };
@@ -24,7 +24,7 @@
     use:loading={signingIn}
     use:enhance={handleEnhanceSubmit}
 >
-    {#if form?.error}
+    {#if form?.error && !signingIn}
         <div class="alert alert-error">
             {form.error}
         </div>

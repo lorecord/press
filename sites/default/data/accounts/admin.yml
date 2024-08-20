@@ -1,6 +1,5 @@
 name: LorePress
 credentials:
   password:
-    salt: hpkTpKLJe5Q++owLkEQV1g==
-    hash: 
-      sha256: 27afad8a4ad9e13c0259d4d39dae2eb7249aa3c2a0110821e59a0011853d9d9e
+    salt: eV/MRX2WZLHFIUB4kmI1yQ==
+    sha256: 2ffb543bf54a2454ccd17c4addbc1ea6d92ab0d95660d8590941d684617ae75c
