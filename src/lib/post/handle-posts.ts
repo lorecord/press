@@ -337,7 +337,7 @@ export function buildPostByMarkdown(content: string, lang?: string, rehypeFuncti
     if (content) {
         let processed = parser.processSync(content);
         let result = fixMarkdownHtmlWrapper(processed.value.toString());
-        return { html: result, headings: processed.data.headings as string[], links: processed.data.links as any[], meta: processed.data.processMeta as any };
+        return { html: result, headings: processed.data.headings as any[], links: processed.data.links as any[], meta: processed.data.processMeta as any };
     }
     return { html: '', headings: [], links: [], meta: {} };
 }
@@ -519,6 +519,7 @@ export function resolveContact(site: Site, author: PostAttributesContact | PostA
                     return effected;
                 }
             }
+            author.name = author.name || (author as any).user;
             return author;
         });
     return result;
