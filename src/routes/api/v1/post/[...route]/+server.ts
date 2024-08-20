@@ -21,7 +21,7 @@ export async function GET({ params, url, locals }) {
         error(404);
     }
 
-    if (post.deleted) {
+    if (post.deleted?.date) {
         error(410, { message: 'Post deleted', deleted: true } as any);
     }
 
