@@ -78,17 +78,7 @@ export interface PostRaw {
     toc?: {
         enabled: boolean,
     },
-}
-
-export interface PostRoute {
-    route: string,
-    lang: string | undefined
-}
-
-export interface Post {
     title?: string,
-    route?: string,
-    slug?: string,
     license?: string,
     published?: {
         date: string
@@ -99,9 +89,6 @@ export interface Post {
     deleted?: {
         date: string
     },
-    toc?: {
-        enabled: boolean,
-    },
     author?: ContactBaseProfile[],
     contributor?: ContactBaseProfile[],
     sponsor?: ContactBaseProfile[],
@@ -111,17 +98,7 @@ export interface Post {
         series?: string[]
     },
     keywords?: string[],
-    content?: {
-        html: string,
-        headings: string[],
-        links: string[],
-        meta: {
-            prism?: boolean;
-            katex?: boolean;
-            mermaid?: boolean;
-            [key: string]: any
-        },
-    },
+
     summary: {
         raw: string;
         html: string;
@@ -133,8 +110,26 @@ export interface Post {
     newer?: string,
     status?: 'draft' | 'published' | 'private' |
     'trash' | 'pending' | 'future',
-    template?: string,
-    lang?: string,
-    langs?: string[],
+
     data?: { [key: string]: any }
+}
+
+export interface PostRoute {
+    route: string,
+    lang: string | undefined
+}
+
+export type Post = Omit<PostRaw, 'resourceRaw' | 'path' | 'attributes' | 'body'> & {
+    content?: {
+        html: string,
+        headings: string[],
+        links: string[],
+        meta: {
+            prism?: boolean;
+            katex?: boolean;
+            mermaid?: boolean;
+            [key: string]: any
+        },
+    },
+
 }

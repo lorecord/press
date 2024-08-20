@@ -32,7 +32,6 @@ import remarkFng from '../remark-fng';
 import { createFootnoteReference } from '../remark-rehyper-handlers';
 import { l } from '../translations';
 import type { Post, PostAttributesContact, PostRaw, PostRawAttributes, PostRoute } from './types';
-import { enhanceObject } from '$lib/utils/enhance';
 import type { ContactBaseProfile } from '$lib/types';
 import type { UserAuthor } from '$lib/interaction/types';
 
@@ -176,10 +175,42 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         body: string
     } = fm<any>(file);
 
-    if (stat) {
-        attributes.date = attributes.date || new Date(stat?.birthtime).toISOString();
-        if (!attributes.modified?.date) {
-            attributes.modified = Object.assign({}, attributes.modified || {}, { date: new Date(stat?.mtime).toISOString() });
+    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, route: routeInAttributes, slug, toc, published, modified, deleted, ...data } = attributes;
+
+    let defaultDate = (() => {
+        let dateFieldValue = date as any;
+        if (dateFieldValue instanceof Date) {
+            return dateFieldValue.toISOString();
+        } else if (typeof dateFieldValue === 'string') {
+            return dateFieldValue;
+        } else if (typeof dateFieldValue === 'number') {
+            return new Date(dateFieldValue).toISOString();
+        }
+    })();
+
+    function resolvePostData(value: string | boolean | undefined | {
+        date: string
+    }, defaultValue: string | undefined, defaultProvider: () => { date: string }): { date: string } | undefined {
+        if (value === false) {
+            return undefined;
+        } else if (typeof value === 'string') {
+            return {
+                date: value
+            };
+        } else if (typeof value === 'object') {
+            return value as { date: string };
+        } else if (typeof value === 'number') {
+            return {
+                date: new Date(value).toISOString()
+            };
+        }
+
+        if (defaultValue) {
+            return {
+                date: defaultValue
+            };
+        } else {
+            return defaultProvider();
         }
     }
 
@@ -187,22 +218,56 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
 
     let slashed = route?.endsWith('/') ? route : route + '/';
-    let slug = localPath?.split('/').slice(-2)[0];
+    let slugInPath = localPath?.split('/').slice(-2)[0];
+
+    let summaryObject: {
+        raw: string,
+        html: string
+    } = { raw: '', html: '' };
+    if (attributes.summary) {
+        let { summary, summary_html } = extractSummary(body);
+        summaryObject = { raw: summary, html: summary_html };
+    }
 
     let postRaw: PostRaw = {
+        ...dataFromRaw,
+        summary: summaryObject,
         resourceRaw,
         attributes,
         path: filepath,
         body,
         template: effectedTemplate,
-        ...dataFromRaw,
-        slug: attributes.slug || slug,
-        route: attributes.route || (
+        slug: attributes.slug || slugInPath,
+        route: routeInAttributes || (
             slashed.endsWith(`/${slug}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${slug}/`)
         ),
         toc: {
             enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
-        }
+        },
+        published: resolvePostData(published, defaultDate, () => {
+            const { stat } = resourceRaw;
+            return {
+                date: stat?.birthtime.toISOString()
+            };
+        }),
+        modified: resolvePostData(modified, defaultDate, () => {
+            const { stat } = resourceRaw;
+            return {
+                date: stat?.mtime.toISOString()
+            };
+        }),
+
+        deleted: resolvePostData(modified, defaultDate, () => {
+            const { stat } = resourceRaw;
+            return {
+                date: stat?.mtime.toISOString()
+            };
+        }),
+        data,
+        license,
+        author: resolveContact(site, author, dataFromRaw.lang),
+        contributor: resolveContact(site, contributor, dataFromRaw.lang),
+        sponsor: resolveContact(site, sponsor, dataFromRaw.lang),
     };
 
     cache.raw[`${postRaw.lang}-${attributes.route}`] = postRaw;
@@ -383,100 +448,9 @@ export async function loadPost(site: Site, { route, lang }: { route: string, lan
 }
 
 export function convertToPost(site: Site, raw: PostRaw, mermaidEnabled: boolean = true): Post {
-    let post: Post = {} as Post;
-
-    const { attributes, body, template, lang, langs, route, slug, toc, resourceRaw,
-    } = raw;
-    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, modified, published, deleted, menu, comment, discuss, syndication, type, webmention, ...data } = (() => {
-        const { route, slug, toc, ...rest } = attributes;
-        return rest;
-    })();
-
-    post.data = data;
-
-    if (attributes.summary) {
-        let { summary, summary_html } = extractSummary(body);
-        post.summary = { raw: summary, html: summary_html };
-    }
-
-    let defaultDate = (() => {
-        let dateFieldValue = date as any;
-        if (dateFieldValue instanceof Date) {
-            return dateFieldValue.toISOString();
-        } else if (typeof dateFieldValue === 'string') {
-            return dateFieldValue;
-        } else if (typeof dateFieldValue === 'number') {
-            return new Date(dateFieldValue).toISOString();
-        }
-    })();
-
-    function resolvePostData(value: string | boolean | undefined | {
-        date: string
-    }, defaultValue: string | undefined, defaultProvider: () => { date: string }): { date: string } | undefined {
-        if (value === false) {
-            return undefined;
-        } else if (typeof value === 'string') {
-            return {
-                date: value
-            };
-        } else if (typeof value === 'object') {
-            return value as { date: string };
-        } else if (typeof value === 'number') {
-            return {
-                date: new Date(value).toISOString()
-            };
-        }
-
-        if (defaultDate) {
-            return {
-                date: defaultDate
-            };
-        } else {
-            return defaultProvider();
-        }
-    }
-
-    post.published = resolvePostData(published, defaultDate, () => {
-        const { stat } = resourceRaw;
-        return {
-            date: stat?.birthtime.toISOString()
-        };
-    });
-    post.modified = resolvePostData(modified, defaultDate, () => {
-        const { stat } = resourceRaw;
-        return {
-            date: stat?.mtime.toISOString()
-        };
-    });
-
-    post.deleted = resolvePostData(modified, defaultDate, () => {
-        const { stat } = resourceRaw;
-        return {
-            date: stat?.mtime.toISOString()
-        };
-    });
-
-    post.toc = toc;
-    post.title = title;
-    post.slug = slug;
-    post.route = route;
-    post.license = license;
-    post.template = template;
-    post.lang = lang;
-    post.langs = langs;
-    post.author = resolveContact(site, author, lang);
-    post.contributor = resolveContact(site, contributor, lang);
-    post.sponsor = resolveContact(site, sponsor, lang);
-
-    post.taxonomy = {
-        category: [taxonomy?.category].flat().filter((c) => !!c) as string[],
-        tag: [taxonomy?.tag].flat().filter((c) => !!c) as string[],
-        series: [taxonomy?.seires].flat().filter((c) => !!c) as string[]
-    };
-
-    post.keywords = [keywords].flat().filter((c) => !!c) as string[];
-
-    const { html, headings, meta, links } = buildPostByMarkdown(body, lang, (tree: any) => {
+    const { resourceRaw, path, attributes, body, ...rest } = raw;
+    let post: Post = { ...rest };
+    const { html, headings, meta, links } = buildPostByMarkdown(body, post.lang, (tree: any) => {
         // update footnote
         let handleChildren = (children: any[]) => {
             children.forEach((node: any) => {
