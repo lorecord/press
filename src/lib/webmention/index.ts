@@ -58,6 +58,9 @@ export const resolveEndpoint = async (url: string) => {
                 const endpointURL = new URL(endpoint, url);
                 return endpointURL.href;
             }
+        }).catch((error) => {
+            console.error(`[resolveEndpoint] error: ${error}`);
+            return null;
         });
     })
 }
