@@ -219,7 +219,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     }
 
-    let unslashed = route?.endsWith('/') ? route.slice(0, -1) : route;
+    let slashed = route?.endsWith('/') ? route : route + '/';
     let slugInPath = localPath?.split('/').slice(-2)[0];
 
     let summaryObject: {
@@ -258,7 +258,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
             series: [taxonomy?.seires].flat().filter((c: any) => !!c) as string[],
         },
         route: routeInAttributes || (
-            unslashed.endsWith(`/${attributes.slug || slugInPath}`) ? unslashed : unslashed.replace(/\/[^\/]+$/, `/${attributes.slug || slugInPath}`)
+            slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`)
         ),
         toc: {
             enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
