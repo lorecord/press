@@ -1,5 +1,61 @@
 import { parse } from "node-html-parser";
 
+/**
+ * parse microformats or jsonld, or just title tag from html
+ * @param content 
+ */
+export const parseContent = (content: string) => {
+    // try parse microformats
+    let doc = parse(content);
+    let microformats = doc.querySelectorAll('[class^="h-"]');
+    if (microformats.length > 0) {
+        let data: {
+            [key: string]: any[]
+        } = {};
+        for (const mf of microformats) {
+            let className = mf.getAttribute('class') || '';
+            let type = className.split(' ').find(c => c.startsWith('h-'));
+            if (type) {
+                type = type.slice(2) as any;
+                if (!data[type as string]) {
+                    data[type as string] = [];
+                }
+                let item: any = {};
+                let properties = mf.querySelectorAll('[class^="p-"]');
+                for (const prop of properties) {
+                    let propClass = prop.getAttribute('class') || '';
+                    let propName = propClass.split(' ').find(c => c.startsWith('p-'));
+                    if (propName) {
+                        propName = propName.slice(2);
+                        item[propName] = prop.textContent;
+                    }
+                }
+                data[type as string].push(item);
+            }
+        }
+        return data;
+    }
+
+    // try parse jsonld
+    let jsonld = doc.querySelector('script[type="application/ld+json"]');
+    if (jsonld) {
+        try {
+            let data = JSON.parse(jsonld.textContent);
+            return data;
+        } catch (error) {
+            console.error('parse jsonld error', error);
+        }
+    }
+
+    // try parse html tag like <title>
+    let title = doc.querySelector('title');
+    if (title) {
+        return {
+            title: title.textContent
+        };
+    }
+}
+
 export const findLinkInContent = (content: string, source: string, target: string, contentType: string): {
     title?: string,
     valid?: boolean;
