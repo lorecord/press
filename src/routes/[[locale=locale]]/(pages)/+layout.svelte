@@ -1,17 +1,17 @@
 <script lang="ts">
     import { dev } from "$app/environment";
-    import Header from "$lib/components/header.svelte";
+    import { navigating, page } from "$app/stores";
     import Footer from "$lib/components/footer.svelte";
+    import Header from "$lib/components/header.svelte";
     import LoadingBar from "$lib/components/loading-bar.svelte";
-    import { fade } from "svelte/transition";
-    import { page, navigating } from "$app/stores";
-    import { t, locales, locale } from "$lib/translations";
+    import { locale, t } from "$lib/translations";
     import { onMount } from "svelte";
+    import { fade } from "svelte/transition";
 
     import "../../styles.css";
 
-    import "$lib/scss/default.scss";
     import "$lib/scss/dark.scss";
+    import "$lib/scss/default.scss";
     import "$lib/scss/print.scss";
     import type { WebSite, WithContext } from "schema-dts";
     import type { PageData } from "./$types";

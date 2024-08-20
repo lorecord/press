@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { t, locale, locales } from "$lib/translations";
     import PostTimeline from "$lib/components/post/timeline.svelte";
-    import { Title, DescriptionMeta } from "$lib/components/seo";
-    import type { WebPage, WithContext } from "schema-dts";
+    import { DescriptionMeta, Title } from "$lib/components/seo";
+    import { locale, t } from "$lib/translations";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
 
     export let data: PageData;
 
-    $: ({ posts, siteConfig, pathLocale } = data);
+    $: ({ posts, siteConfig, pathLocale, systemConfig } = data);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -21,6 +21,13 @@
 
         return schema;
     };
+
+    $: supportedLocales = Array.from(
+        new Set([
+            systemConfig.locale?.default || "en",
+            ...(systemConfig.locale?.supports || []),
+        ]),
+    );
 </script>
 
 <Title value={$t("common.archives")}></Title>
@@ -42,7 +49,7 @@
             hreflang="x-default"
         />
 
-        {#each $locales as value}
+        {#each supportedLocales as value}
             <link
                 rel="alternate"
                 href="{siteConfig.url}/{value}/archives/"
@@ -54,7 +61,7 @@
     <meta property="og:type" content="website" />
 
     <meta property="og:locale" content={$locale} />
-    {#each $locales as value}
+    {#each supportedLocales as value}
         {#if value !== $locale}
             <meta property="og:locale:alternate" content={value} />
         {/if}

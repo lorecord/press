@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { t, locale, locales } from "$lib/translations";
-    import PostTimeline from "$lib/components/post/timeline.svelte";
-    import { Title, DescriptionMeta } from "$lib/components/seo";
-    import type { WebPage, WithContext } from "schema-dts";
     import { browser } from "$app/environment";
+    import PostTimeline from "$lib/components/post/timeline.svelte";
+    import { DescriptionMeta, Title } from "$lib/components/seo";
+    import { locale, t } from "$lib/translations";
     import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
 
     export let data: PageData;
 
-    $: ({ series, posts, siteConfig, pathLocale } = data);
+    $: ({ series, posts, siteConfig, pathLocale, systemConfig } = data);
 
     const resolveLabel = (posts: any[]) =>
         posts?.length
@@ -35,6 +35,13 @@
 
         return schema;
     };
+
+    $: supportedLocales = Array.from(
+        new Set([
+            systemConfig.locale?.default || "en",
+            ...(systemConfig.locale?.supports || []),
+        ]),
+    );
 </script>
 
 {#await label}
@@ -67,7 +74,7 @@
             href={`${siteConfig.url}/series/${series}/`}
             hreflang="x-default"
         />
-        {#each $locales as value}
+        {#each supportedLocales as value}
             <link
                 rel="alternate"
                 href="{siteConfig.url}/{value}/series/{series}/"
@@ -79,7 +86,7 @@
     <meta property="og:type" content="website" />
 
     <meta property="og:locale" content={$locale} />
-    {#each $locales as value}
+    {#each supportedLocales as value}
         {#if value !== $locale}
             <meta property="og:locale:alternate" content={value} />
         {/if}

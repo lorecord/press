@@ -2,9 +2,8 @@ import { convertToPostForFeed } from "$lib/post/handle-feed";
 import { getSiteAccount } from "$lib/server/accounts.js";
 import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
-import { locale, locales } from "$lib/translations";
+import { locale } from "$lib/translations";
 
-import { get } from "svelte/store";
 
 export async function GET({ request, locals, params }) {
     const { site } = locals as any;
@@ -39,9 +38,16 @@ export async function GET({ request, locals, params }) {
 
     const defaultAuthor = systemConfig.user?.default ? getSiteAccount(site, systemConfig.user?.default, lang) : undefined;
 
+    let supportedLocales = Array.from(
+        new Set([
+            systemConfig.locale?.default || "en",
+            ...(systemConfig.locale?.supports || []),
+        ]),
+    );
+
     let body = type === 'atom'
-        ? renderAtom(posts, lang, siteConfig, defaultAuthor)
-        : renderRss(posts, lang, siteConfig, defaultAuthor);
+        ? renderAtom(posts, lang, siteConfig, defaultAuthor, supportedLocales)
+        : renderRss(posts, lang, siteConfig, defaultAuthor, supportedLocales);
 
     return new Response(body, {
         status: 200,
@@ -70,7 +76,7 @@ function escapeHtml(unsafe: string) {
  * @param lang 
  * @returns 
  */
-const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[]) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" 
     xmlns:atom="http://www.w3.org/2005/Atom"
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
@@ -110,7 +116,7 @@ ${posts.map((post: any) => `
  * @param lang 
  * @returns 
  */
-const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[]) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>${siteConfig.url}</id>
     <title type="text">${siteConfig.title}</title>
@@ -123,7 +129,7 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}/feed" rel="self" type="application/atom+xml"/>
-${get(locales).map((locale: any) => {
+${supportedLocales.map((locale: any) => {
         return `<link href="${siteConfig.url}/${locale}/feed" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
     })}
     <rights>Copyright (c)</rights>

@@ -1,17 +1,23 @@
 <script lang="ts">
-    import PostCard from "$lib/components/post/card.svelte";
-    import { locales, t, locale } from "$lib/translations";
-    import { Title, DescriptionMeta } from "$lib/components/seo";
-    import type { WebPage, WithContext } from "schema-dts";
-    import Skeleton from "$lib/ui/skeleton/index.svelte";
-    import Card from "$lib/ui/card/index.svelte";
     import Article from "$lib/components/post/article.svelte";
+    import PostCard from "$lib/components/post/card.svelte";
+    import { DescriptionMeta, Title } from "$lib/components/seo";
+    import { locale, t } from "$lib/translations";
+    import Card from "$lib/ui/card/index.svelte";
+    import Skeleton from "$lib/ui/skeleton/index.svelte";
+    import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
 
     export let data: PageData;
 
     $: ({ home, posts, pathLocale, siteConfig, systemConfig, limit } = data);
 
+    $: supportedLocales = Array.from(
+        new Set([
+            systemConfig.locale?.default || "en",
+            ...(systemConfig.locale?.supports || []),
+        ]),
+    );
     let ldjson = () => {
         let creativeWork: WebPage = {
             "@type": "WebPage",
@@ -53,7 +59,7 @@
         <meta property="og:url" content={url} />
 
         <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
-        {#each $locales as value}
+        {#each supportedLocales as value}
             <link
                 rel="alternate"
                 href="{siteConfig.url}/{value}/"
@@ -63,7 +69,7 @@
     {/if}
 
     <meta property="og:locale" content={$locale} />
-    {#each $locales as value}
+    {#each supportedLocales as value}
         {#if value !== $locale}
             <meta property="og:locale:alternate" content={value} />
         {/if}
