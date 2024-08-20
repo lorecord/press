@@ -1,4 +1,5 @@
 import fs from 'fs';
+import type { Site } from './server/sites';
 
 export interface PathMeta {
     file: string,
@@ -65,7 +66,7 @@ export function findPath({ segments, dir, match }: { segments: string[], dir: st
     return results;
 }
 
-export function fetchPath(site: any, { route, lang, match }: { route: string, lang?: string, match: (file: string) => boolean }): { target: PathMeta | undefined, langMap: LangMap | undefined } {
+export function fetchPath(site: Site, { route, lang, match }: { route: string, lang?: string, match: (file: string) => boolean }): { target: PathMeta | undefined, langMap: LangMap | undefined } {
     const { POSTS_DIR } = site.constants;
     if (route) {
         if (!route.replace) {
