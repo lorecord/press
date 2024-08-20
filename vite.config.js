@@ -6,7 +6,7 @@ import importableYAML from '@importable/yaml/vite';
 const config = {
 	plugins: [sveltekit(), importableYAML()],
 	optimizeDeps: {
-		exclude: ['src/lib/server/worker/bing.worker.js', '@tabler/icons-svelte']
+		exclude: ['src/lib/server/worker/bing.worker.js']
 	}
 };
 
