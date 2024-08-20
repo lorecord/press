@@ -33,7 +33,8 @@ export interface ContactBaseProfile {
     url?: string,
     avatar?: string,
     email?: EncryptedEmailAddress,
-    verified?: boolean | 'email' | 'profile'
+    verified?: boolean | 'email' | 'profile',
+    lang?: string,
 }
 
 export interface Credentials {

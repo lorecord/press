@@ -49,8 +49,8 @@ export async function GET({ locals, params }) {
 
     cff.doi = '';
 
-    if (post.date) {
-        cff['date-released'] = new Date(post.date).toISOString().split('T')[0];
+    if (post.published?.date) {
+        cff['date-released'] = new Date(post.published.date).toISOString().split('T')[0];
     }
 
     cff.url = `${siteConfig.url}${post.route}`;

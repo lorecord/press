@@ -12,8 +12,9 @@
     import { onMount } from "svelte";
     import AuthorAvatar from "../interaction/reply/author-avatar.svelte";
     import Title from "../seo/title.svelte";
+    import type { Post } from "$lib/post/types";
 
-    export let post: any;
+    export let post: Post = {} as Post;
     export let systemConfig: any;
     export let siteConfig: any;
 
@@ -23,7 +24,7 @@
 
     let gravatarBase = systemConfig.gravatar?.base;
 
-    $: author = post.authors?.[0];
+    const { author } = post;
 
     onMount(() => {
         if (typeof (window as any)?.webln !== "undefined") {
@@ -32,7 +33,7 @@
     });
 </script>
 
-<Title value={`${author.name}: "${post.summary}"`}></Title>
+<Title value={`${author?.[0]?.name}: "${post.summary}"`}></Title>
 
 <article class="typography type-{type}" lang={post.lang}>
     <div class="article-header container">
@@ -49,31 +50,33 @@
           }"
             >
                 <div class="comment-avatar">
-                    {#if author?.url}
+                    {#if author?.[0]?.url}
                         <a
-                            href={author?.url}
+                            href={author?.[0]?.url}
                             rel="author nofollow"
                             class="u-url"
                         >
                             <AuthorAvatar
                                 clazz="u-photo"
-                                avatar={author?.avatar}
+                                avatar={author?.[0]?.avatar}
                                 {gravatarBase}
-                                alt={author?.name}
-                                hash={author?.email_hash}
+                                alt={author?.[0]?.name}
+                                hash={author?.[0]?.email_hash}
                             />
                         </a>
                     {:else}
                         <AuthorAvatar
                             clazz="u-photo"
-                            avatar={author?.avatar}
+                            avatar={author?.[0]?.avatar}
                             {gravatarBase}
-                            alt={author?.name}
-                            hash={author?.email_hash}
+                            alt={author?.[0]?.name}
+                            hash={author?.[0]?.email_hash}
                         />
                     {/if}
                 </div>
-                <span class="p-name" lang={author.lang}>{author?.name}</span>
+                <span class="p-name" lang={author?.[0]?.lang}
+                    >{author?.[0]?.name}</span
+                >
             </div>
         </div>
     </div>
@@ -96,7 +99,11 @@
                 rel="bookmark"
                 style="color: var(--text-color-tertiary); text-decoration: none"
             >
-                <Time date={post.date} class="dt-published" locale={$locale} />
+                <Time
+                    date={post.published?.date}
+                    class="dt-published"
+                    locale={$locale}
+                />
             </a>
         </div>
     </div>
@@ -112,11 +119,11 @@
                     <IconBolt size={18} />
                 </a>
             {/if}
-            {#if post.link}
+            {#if post.data?.link}
                 <a
                     class="button button-text"
                     style="padding:0; height: auto"
-                    href={post.link}
+                    href={post.data?.link}
                     rel="external noopener nofollow"
                 >
                     <IconExternalLink size={18} />
@@ -135,7 +142,7 @@
                             </div>
                             <div class="value">
                                 <Time
-                                    date={post.date}
+                                    date={post.published?.date}
                                     class="dt-published"
                                     locale={$locale}
                                 />
@@ -164,7 +171,7 @@
                         <div style="padding-left: 2rem">
                             <Cite
                                 post={{
-                                    title: post.title,
+                                    title: post.title || post.summary?.raw,
                                     author: post.author,
                                     date: post.published?.date,
                                     url: siteConfig.url + post.route,
@@ -183,7 +190,7 @@
                 </div>
             {/if}
 
-            {#if post.taxonomy || post.langs?.length > 0}
+            {#if post.taxonomy || post.langs?.length || 0 > 0}
                 <div class="article-taxonomy-and-lang no-print">
                     {#if post.taxonomy}
                         <div class="article-taxonomy">
@@ -237,11 +244,11 @@
                             {/if}
                         </div>
                     {/if}
-                    {#if post.langs?.length > 1}
+                    {#if post.langs?.length || 0 > 1}
                         <div class="article-lang">
                             <IconLanguage size={20} />
                             <ul>
-                                {#each post.langs as lang}
+                                {#each post.langs || [] as lang}
                                     <li>
                                         <a
                                             rel="alternate"

@@ -47,7 +47,7 @@
             name="author"
             content={[author]
                 .flat()
-                .map((author) => author.name || author.account || author)
+                .map((author) => author.name)
                 .join(",")}
         />
     {/if}

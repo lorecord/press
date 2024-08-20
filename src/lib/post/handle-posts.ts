@@ -234,6 +234,8 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         summaryObject = { raw: attributes.summary, html: markdown(attributes.summary) };
     }
 
+    const systemConfig = getSystemConfig(site);
+
     let postRaw: PostRaw = {
         ...dataFromRaw,
         summary: summaryObject,
@@ -276,9 +278,9 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }) : undefined,
         data,
         license,
-        author: resolveContact(site, author, dataFromRaw.lang),
-        contributor: resolveContact(site, contributor, dataFromRaw.lang),
-        sponsor: resolveContact(site, sponsor, dataFromRaw.lang),
+        author: resolveContact(site, author || systemConfig.user?.default, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
+        contributor: resolveContact(site, contributor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
+        sponsor: resolveContact(site, sponsor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
     };
 
     cache.raw[`${postRaw.lang}-${postRaw.route}`] = postRaw;
@@ -495,20 +497,21 @@ export function convertToPost(site: Site, raw: PostRaw, mermaidEnabled: boolean 
     return post;
 }
 
-export function resolveContact(site: Site, author: PostAttributesContact | PostAttributesContact[] | undefined, lang: string | undefined): ContactBaseProfile[] {
-    const systemConfig = getSystemConfig(site);
-    let result: ContactBaseProfile[] = [author || systemConfig.user?.default].flat()
+export function resolveContact(site: Site, author: PostAttributesContact | PostAttributesContact[] | undefined | string, lang: string): ContactBaseProfile[] {
+    let result: ContactBaseProfile[] = [author].flat()
         .filter((author) => !!author)
+        .map(author => author as PostAttributesContact)
         .map((author: PostAttributesContact) => {
             if (typeof author === 'string') {
                 author = { user: author };
             }
             let user = (author as UserAuthor).user;
             if (user) {
-                const account = getSiteAccount(site, user, systemConfig.locale?.default || 'en');
+                const account = getSiteAccount(site, user, lang);
                 if (account) {
-                    const { credentials, orcid, account: _, ...data } = account;
+                    const { credentials, orcid, account: accountName, ...data } = account;
                     let contact: ContactBaseProfile = data;
+                    contact.name = contact.name || accountName;
 
                     // if author.name is set, it will override the name from account, etc
                     let effected =

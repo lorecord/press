@@ -134,9 +134,7 @@
                 <div class="article-meta">
                     {#if post.author && !post.isDefaultAuthor}
                         {#each post.author as author}
-                            <span
-                                >{author.name || author.account || author}</span
-                            >
+                            <span>{author.name}</span>
                         {/each}
                     {/if}
 
@@ -277,9 +275,7 @@
                                             >
                                                 <img
                                                     style="display:none"
-                                                    alt={author.name ||
-                                                        author.account ||
-                                                        author}
+                                                    alt={author.name}
                                                     class="u-photo"
                                                     src={siteConfig.url +
                                                         "/favicon.png"}
@@ -289,9 +285,7 @@
                                                     rel="author"
                                                     href={author.url ||
                                                         siteConfig.url}
-                                                    >{author.name ||
-                                                        author.account ||
-                                                        author}</a
+                                                    >{author.name}</a
                                                 >
                                             </span>
                                         {/each}

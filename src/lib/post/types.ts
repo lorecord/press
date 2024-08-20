@@ -101,7 +101,6 @@ export interface PostRaw {
         series?: string[]
     },
     keywords?: string[],
-
     summary: {
         raw: string;
         html: string;

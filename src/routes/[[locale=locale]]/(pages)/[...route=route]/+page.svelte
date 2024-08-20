@@ -81,8 +81,10 @@
             license: license.url || license.name,
         };
 
-        if (post.date) {
-            creativeWork.datePublished = new Date(post.date).toISOString();
+        if (post.published?.date) {
+            creativeWork.datePublished = new Date(
+                post.published.date,
+            ).toISOString();
         }
 
         if (post.authors) {
@@ -90,7 +92,7 @@
                 Object.assign(
                     {
                         "@type": "Person",
-                        name: author.name || author.account || author,
+                        name: author.name,
                     },
                     author.url
                         ? {
@@ -292,10 +294,10 @@
             <meta property="og:type" content="website" />
         {/if}
 
-        {#if post.date}
+        {#if post.published?.date}
             <meta
                 name="og:article:published_time"
-                content={new Date(post.date).toISOString()}
+                content={new Date(post.published.date).toISOString()}
             />
         {/if}
 
@@ -312,11 +314,10 @@
             />
         {/if}
 
-        {#if post.authors}
-            {@const authorString = post.authors
-                .map((author) => author.name || author.account || author)
+        {#if post.author}
+            {@const authorString = post.author
+                .map((author) => author.name)
                 .join(",")}
-            <meta name="author" content={authorString} />
             <meta name="author" content={authorString} />
             <meta name="og:article:author" content={authorString} />
         {/if}

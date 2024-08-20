@@ -9,7 +9,7 @@
     {#each related as r}
         <li>
             <Time
-                date={r.post.date}
+                date={r.post.published?.date}
                 class="dt-published"
                 locale={$locale}
                 options={{ dateStyle: "short" }}
