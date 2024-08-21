@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         error(400, "source URL was malformed or is not a supported URL scheme (e.g. a mailto: link)")
     }
 
-    const targetURL = new URL(target);
+    const targetURL = new URL(target.replace(/#.*$/, ''));
     let [, lang, postRoute] = targetURL.pathname.match(/\/(?:([a-z]{2}(?:-[a-zA-Z]{2,5})?)?\/)?(.*)\//) || [];
 
     const post = await loadPost(site, { route: postRoute, lang });
