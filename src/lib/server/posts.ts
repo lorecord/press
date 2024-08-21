@@ -8,6 +8,7 @@ import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites, type Site } from './sites';
 import { sendWebmentions } from "$lib/interaction/handle-webmention";
 import { sendPingbacks } from "$lib/interaction/handle-pingback";
+import { dev } from "$app/environment";
 
 let postRawsOfSite: {
     [siteUnique: string]: PostRaw[];
@@ -118,13 +119,16 @@ function load() {
                     let linksToPingback = task.links;
 
                     if (systemConfig.webmention?.enabled) {
+                        if (dev) {
+                            console.log(`[server/posts.ts] ready to send webmentions`, effectedRoute, task.links.map((l: any) => l.href));
+                        }
                         sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date)
                             ?.then((mentions) => {
                                 if (mentions && systemConfig.pingback?.enabled) {
                                     let linksToPingback = task.links.filter((l: any) => mentions.find((m: any) => m.target === l.href)?.status === 'unsupported');
 
-                                    if (linksToPingback?.length || 0 > 0) {
-                                        console.log('linksToPingback', linksToPingback);
+                                    if ((linksToPingback?.length || 0) > 0) {
+                                        console.log(`[server/posts.ts] ready to send pingbacks`, effectedRoute, linksToPingback.map((l: any) => l.href));
                                     }
 
                                     // send pingback
@@ -132,6 +136,9 @@ function load() {
                                 }
                             });
                     } else if (systemConfig.pingback?.enabled) {
+                        if ((linksToPingback?.length || 0) > 0) {
+                            console.log(`[server/posts.ts] ready to send pingbacks`, effectedRoute, linksToPingback.map((l: any) => l.href));
+                        }
                         // send pingback
                         sendPingbacks(site, effectedRoute, linksToPingback.map((l: any) => l.href), task.date);
                     }
