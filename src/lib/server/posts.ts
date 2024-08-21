@@ -65,7 +65,11 @@ function load() {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
                         const { links } = p.content || { links: [] };
 
-                        let date = [p.modified?.date, p.published?.date, p.deleted?.date].map((d) => d ? new Date(d).getTime() : 0).filter((d) => d < Date.now()).sort((a, b) => b - a)[0];
+                        // get the latest date of modified, published, and deleted
+                        let date = [p.modified?.date, p.published?.date, p.deleted?.date]
+                            .map((d) => d ? new Date(d).getTime() : 0)
+                            .filter((d) => d < Date.now())
+                            .sort((a, b) => b - a)[0];
 
                         return {
                             date: new Date(date),
@@ -75,6 +79,7 @@ function load() {
                         }
                     });
 
+                // combine tasks with the same route, and keep the latest date
                 tasks = tasks.reduce((acc: any[], current) => {
                     let inAcc = acc.find((item: any) => item.route === current.route);
                     if (!inAcc) {
@@ -102,11 +107,24 @@ function load() {
                 tasks = tasks.filter((t: any) => t.links && t.links.length > 0);
 
                 tasks.forEach((task: any) => {
-                    let effectedRoute = task.route?.endsWith('/') ? task.route.substring(0, task.route.length - 1) : task.route;
-                    sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date);
-                });
 
-                // TODO send pingback
+                    let effectedRoute = task.route?.endsWith('/') ? task.route.substring(0, task.route.length - 1) : task.route;
+
+                    let linksToPingback = task.links;
+
+                    if (systemConfig.webmention?.enabled) {
+                        sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date)
+                            ?.then((mentions) => {
+                                if (mentions && systemConfig.pingback?.enabled) {
+                                    let linksToPingback = task.links.filter((l: any) => !mentions.find((m: any) => m.webmention?.target === l.href));
+
+                                    // send pingback
+                                }
+                            });
+                    } else if (systemConfig.pingback?.enabled) {
+                        // send pingback
+                    }
+                });
             }
 
             // unique routes array

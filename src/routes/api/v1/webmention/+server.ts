@@ -42,7 +42,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         error(404, "Specified target URL not found");
     }
 
-    if (post.webmention?.enabled === false || post.webmention?.accept === false) {
+    if (post.webmention?.accept === false) {
         error(400, "Specified target URL does not accept Webmentions");
     }
 

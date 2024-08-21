@@ -74,7 +74,7 @@ export function fromWebmentionIO(payload: any): WebmentionInteraction {
         })).digest('hex'),
         published: payload.post?.published,
         channel: 'webmention',
-        webmention: {...payload, status: 'ok'},
+        webmention: { ...payload, status: 'ok' },
         url: payload.source,
         type,
         content: payload.post?.name,
@@ -135,7 +135,7 @@ export function deleteWebmention(site: any, postPath: string, source: string) {
         return;
     }
     existed.updated = new Date().toISOString();
-    existed.status = 'deleted';
+    existed.webmention.status = 'deleted';
     let data = YAML.stringify(mentions);
     fs.writeFileSync(filepath, data, 'utf8');
 }
@@ -147,7 +147,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
 
     if (!filepath) {
         console.error(`[webmention] can't find webmention target file path for ${postPath}`);
-        return;
+        return Promise.resolve();
     }
 
     let mentions: any[] = [];
@@ -179,7 +179,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
         });
         tasks.push(resultPromise);
     }
-    Promise.all(tasks).then((results) => {
+    return Promise.all(tasks).then((results) => {
         if (results?.length || 0 > 0) {
             console.log(`[webmention] sent ${results.length} webmentions from ${postPath}`, JSON.stringify(results, null, 2));
         }
@@ -191,5 +191,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
         }
         let data = YAML.stringify(mentions);
         fs.writeFileSync(filepath, data, 'utf8');
+
+        return mentions;
     });
 }
