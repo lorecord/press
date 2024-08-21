@@ -221,7 +221,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     }
 
     let slashed = route?.endsWith('/') ? route : route + '/';
-    let slugInPath = localPath?.split('/').slice(-2)[0];
+    let slugInPath = localPath?.split('/').slice(-2)[0].replace(/^\d+\./, '');
 
     let summaryObject: {
         raw: string,

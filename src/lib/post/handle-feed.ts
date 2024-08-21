@@ -47,7 +47,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
     function toHTML(tree: any[]) {
         return `<ul>${tree.map((node: any) => {
             let children: string = node.children ? toHTML(node.children) : '';
-            return `<li><a href="${siteConfig.url}${raw.attributes.route}#${node.id}">${node.text}</a>${children}</li>`;
+            return `<li><a href="${siteConfig.url}${raw.route}#${node.id}">${node.text}</a>${children}</li>`;
         }).join('')}</ul>`
     }
 
