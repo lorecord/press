@@ -63,6 +63,8 @@ function load() {
             if (systemConfig.webmention?.enabled || systemConfig.pingback?.enabled) {
                 // send mentions via webmentions or pingback
                 let tasks = getPublicPosts(site)
+                    // skip send mention before the specified date
+                    .filter((p) => systemConfig.mention?.send?.since && p.published?.date && new Date(p.published.date).getTime() > new Date(systemConfig.mention.send.since).getTime())
                     .map((p) => {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
                         const { links } = p.content || { links: [] };
