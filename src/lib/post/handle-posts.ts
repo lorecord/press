@@ -180,7 +180,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     const effectedTemplate = dataFromRaw.template || 'default';
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
 
-    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, route: routeInAttributes, slug, toc, published, modified, deleted, ...data } = attributes;
+    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, pingback, route: routeInAttributes, slug, toc, published, modified, deleted, ...data } = attributes;
 
     let defaultDate = (() => {
         let dateFieldValue = date as any;
@@ -249,8 +249,14 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         comment,
         discuss,
         menu,
-        webmention,
+        webmention: Object.assign({}, systemConfig.webmention || {}, typeof webmention === 'boolean' ? {
+            enabled: webmention
+        } : webmention),
+        pingback: Object.assign({}, systemConfig.pingback || {}, typeof pingback === 'boolean' ? {
+            enabled: pingback
+        } : pingback),
         template: effectedTemplate,
+
         slug: attributes.slug || slugInPath,
         taxonomy: {
             category: [taxonomy?.category].flat().filter((c: any) => !!c) as string[],

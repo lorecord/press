@@ -51,16 +51,18 @@ export interface PostRawAttributes {
     },
     type?: string,
     syndication?: string | string[] | { [key: string]: string },
-    webmention?: {
+    pingback: boolean | {
+        enabled?: boolean
+    },
+    webmention?: boolean | {
         enabled?: boolean,
         accept?: boolean,
-        pingback?: boolean,
     },
     summary?: string,
-    [key: string]: any,
     toc?: boolean | {
         enabled: boolean
     },
+    [key: string]: any,
 }
 
 /**
@@ -115,10 +117,12 @@ export interface PostRaw {
     comment?: PostCommentConfig,
     discuss?: PostDiscussConfig,
     menu?: PostMenuConfig,
+    pingback?: {
+        enabled?: boolean
+    },
     webmention?: {
         enabled?: boolean,
         accept?: boolean,
-        pingback?: boolean,
     },
     data?: { [key: string]: any }
 }

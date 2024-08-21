@@ -214,10 +214,10 @@
             href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
         />
 
-        {#if systemConfig.webmention?.pingback}
+        {#if systemConfig.pingback}
             <link
                 rel="pingback"
-                href={systemConfig.webmention?.endpoint || `/api/v1/pingback`}
+                href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
             />
         {/if}
     {/if}
