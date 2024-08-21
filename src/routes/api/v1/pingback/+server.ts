@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import { getNativeInteraction, saveNativeInteraction } from "$lib/interaction/handle-native";
 import type { NativeMention } from "$lib/interaction/types";
 import { findLinkInContent } from "$lib/utils/content";
@@ -13,7 +14,6 @@ export async function POST({ request, locals }) {
 
     // pingback.ping
     if (sourceURI && targetURI) {
-
       const id = crypto.createHash('sha256').update(JSON.stringify({ source: sourceURI, target: targetURI })).digest('hex');
 
       const existed = getNativeInteraction(site, id);
@@ -51,6 +51,10 @@ export async function POST({ request, locals }) {
 
       if (!result?.valid) {
         return new Response(createSuccessResponse(), { status: 400 });
+      }
+
+      if (dev) {
+        console.log(`[api/v1/pingback] result`, result);
       }
 
       if (!result?.deleted) {

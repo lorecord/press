@@ -111,8 +111,6 @@ export async function sendPingbacks(site: Site, postPath: string, targetURIs: st
 }
 
 export async function sendPingback(sourceURI: string, targetURI: string) {
-    const xmlRequest = createPingbackRequest(sourceURI, targetURI);
-
     return resolveEndpoint(targetURI).then((endpoint) => {
         if (!endpoint) {
             console.error(`Pingback endpoint not found for ${targetURI}`);
@@ -129,7 +127,7 @@ export async function sendPingback(sourceURI: string, targetURI: string) {
             headers: {
                 'Content-Type': 'text/xml',
             },
-            body: xmlRequest,
+            body: createPingbackRequest(sourceURI, targetURI),
         }).then((response) => {
             if (response.ok) {
                 return { status: 'done' };
@@ -150,10 +148,17 @@ async function resolveEndpoint(url: string) {
         method: 'HEAD',
     }).then((response) => {
         if (response.ok) {
+            if (dev) {
+                console.log(`[pingback] response headers of ${url}`, response.headers, response.headers.has('X-Pingback'), response.headers.get('X-Pingback'), response.headers.get('Link'));
+            }
             // check the header 'X-Pingback'
             if (response.headers.has('X-Pingback')) {
+                if (dev) {
+                    console.log(`[pingback] endpoind of ${url} from header X-Pingback`, response.headers.get('X-Pingback'));
+                }
                 return response.headers.get('X-Pingback');
             }
+
             // check link header with rel="pingback"
             const link = response.headers.get('Link');
             if (link) {
@@ -165,6 +170,9 @@ async function resolveEndpoint(url: string) {
             }
         }
     }).then((endpoint) => {
+        if (dev) {
+            console.log(`[pingback] endpoind of ${url} from header X-Pingback or link`, endpoint);
+        }
         if (!endpoint) {
             return fetch(url, {
                 method: 'GET',
@@ -180,11 +188,18 @@ async function resolveEndpoint(url: string) {
                 }
             });
         }
+        return endpoint;
     }).then((endpoint) => {
         if (endpoint) {
             const endpointURL = new URL(endpoint, url);
+            if (dev) {
+                console.log(`[pingback] endpoind of ${url}`, endpointURL.href);
+            }
             return endpointURL.href;
         }
+    }).catch((error) => {
+        console.error(`[resolveEndpoint] error: ${error}`);
+        return null;
     });
 }
 

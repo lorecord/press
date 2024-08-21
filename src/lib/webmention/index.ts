@@ -20,6 +20,13 @@ export const resolveEndpoint = async (url: string) => {
         // 1. send head request to check if there is `link` header with 'rel' value 'webmention'
         return fetch(url, { method: 'HEAD', headers }).then((response) => {
             if (response.ok) {
+
+                // check the header 'X-Webmention'
+                if (response.headers.has('X-Webmention')) {
+                    return response.headers.get('X-Webmention');
+                }
+
+                // check link header with rel="webmention"
                 const link = response.headers.get('link');
                 if (link) {
                     const links = link.split(',');
@@ -51,6 +58,7 @@ export const resolveEndpoint = async (url: string) => {
                     return getHrefWithRelValue(content, 'webmention');
                 });
             }
+            return endpoint;
         }).then((endpoint) => {
             // 3. resolve the url if it is a relative url
             if (endpoint) {
