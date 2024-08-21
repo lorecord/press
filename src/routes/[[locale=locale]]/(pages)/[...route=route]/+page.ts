@@ -7,7 +7,7 @@ import { browser } from "$app/environment";
 export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
-    const { localeContext, systemConfig } = data;
+    const { localeContext } = data;
 
     let lang = localeParam || locale.get() || localeContext.contentLocale;
 
@@ -57,37 +57,6 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
     }));
 
     const needAwait = awaitChecker();
-
-    if (browser) {
-        console.log('needAwait', needAwait);
-    }
-
-    if (needAwait) {
-        // TODO fix this
-        let links: string[] = [];
-
-        if (systemConfig?.webmention.enabled) {
-            const endpoint = systemConfig.webmention.endpoint || '/api/v1/webmention';
-            links.push(`<${endpoint}>; rel="webmention"`);
-            setHeaders({
-                'X-Webmention': endpoint
-            });
-        }
-
-        if (systemConfig?.pingback.enabled) {
-            const endpoint = systemConfig.pingback.endpoint || '/api/v1/pingback';
-            links.push(`<${endpoint}>; rel="pingback"`);
-            setHeaders({
-                'X-Pingback': endpoint
-            });
-        }
-
-        if (links.length > 0) {
-            setHeaders({
-                'Link': links.join(', ')
-            });
-        }
-    }
 
     return {
         post: needAwait ? await post : post,

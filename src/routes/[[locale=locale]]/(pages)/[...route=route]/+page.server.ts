@@ -8,8 +8,34 @@ import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
-    const { localeContext } = locals as any;
+export const load: PageServerLoad = async ({ locals, setHeaders }) => {
+    const { localeContext, site } = locals as any;
+
+    const systemConfig = getSystemConfig(site);
+
+    let links: string[] = [];
+
+    if (systemConfig?.webmention?.enabled) {
+        const endpoint = systemConfig.webmention.endpoint || '/api/v1/webmention';
+        links.push(`<${endpoint}>; rel="webmention"`);
+        setHeaders({
+            'X-Webmention': endpoint
+        });
+    }
+
+    if (systemConfig?.pingback.enabled) {
+        const endpoint = systemConfig.pingback.endpoint || '/api/v1/pingback';
+        links.push(`<${endpoint}>; rel="pingback"`);
+        setHeaders({
+            'X-Pingback': endpoint
+        });
+    }
+
+    if (links.length > 0) {
+        setHeaders({
+            'Link': links.join(', ')
+        });
+    }
 
     return {
         localeContext
