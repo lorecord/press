@@ -3,12 +3,12 @@ import { getSiteConfig } from "$lib/server/config";
 
 export async function GET({ locals }) {
     const { site } = locals;
-    
+
     const siteConfig = getSiteConfig(site, 'en');
 
     let { posts, taxonomies } = build(site);
 
-    let responseText = posts.map((post: any) => `${siteConfig.url}${post.attributes.route}`).join('\n');
+    let responseText = posts.map((post: any) => `${siteConfig.url}${post.route}`.replace(/\/+$/, '/')).join('\n');
 
     responseText += '\n';
 

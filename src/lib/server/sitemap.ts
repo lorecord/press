@@ -15,9 +15,9 @@ function build(site: any) {
     let map: any = {};
 
     let filteredPostRaws = postRaws
-        .filter((post: any) => post.attributes?.visible)
+        .filter((post: any) => post.visible)
         .filter((post: any) => {
-            let robots = post.attributes?.robots;
+            let robots = post.data.robots;
             if (!robots) {
                 return true;
             }
@@ -29,10 +29,10 @@ function build(site: any) {
         });
 
     let posts = filteredPostRaws.filter((post: any) => {
-        if (map[post.attributes.route]) {
+        if (map[post.route]) {
             return false;
         }
-        map[post.attributes.route] = true;
+        map[post.route] = true;
         return true;
     });
 
@@ -48,9 +48,9 @@ function build(site: any) {
                 taxonomies.push(`/${prefix}/${slug}/`);
             };
         };
-        post.attributes.taxonomy?.category?.forEach(createHandler('category'));
-        post.attributes.taxonomy?.tag?.forEach(createHandler('tag'));
-        post.attributes.taxonomy?.series?.forEach(createHandler('series'));
+        post.taxonomy?.category?.forEach(createHandler('category'));
+        post.taxonomy?.tag?.forEach(createHandler('tag'));
+        post.taxonomy?.series?.forEach(createHandler('series'));
         return taxonomies;
     });
 
