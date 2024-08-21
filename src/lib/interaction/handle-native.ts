@@ -18,6 +18,7 @@ import {
     calcInteractionId
 } from './utils';
 import path from 'path';
+import { dev } from '$app/environment';
 
 
 let cacheById: {
@@ -193,9 +194,13 @@ export function markdown(content: string, id: string, domain: string) {
 
 //
 export function saveNativeInteraction<T extends NativeInteraction>(site: any, { route }: { route: string }, interaction: T): T | undefined {
+    if (dev) {
+        console.log('[saving NativeInteraction]', route, interaction);
+    }
     let filepath = getNativeInteractionsFilePath(site, { route });
 
     if (!filepath) {
+        console.error('NativeInteraction path not found', route);
         return;
     }
 

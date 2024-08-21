@@ -14,6 +14,7 @@ export async function POST({ request, locals }) {
 
     // pingback.ping
     if (sourceURI && targetURI) {
+      console.log(`[api/v1/pingback] sourceURI: ${sourceURI}, targetURI: ${targetURI}`);
       const id = crypto.createHash('sha256').update(JSON.stringify({ source: sourceURI, target: targetURI })).digest('hex');
 
       const existed = getNativeInteraction(site, id);
@@ -39,6 +40,11 @@ export async function POST({ request, locals }) {
           } as any;
         } else {
           if (response.status >= 400 && response.status < 500) {
+            if (dev) {
+              response.text().then((text) => {
+                console.log(`[api/v1/pingback] valid response status: ${response.status}`, text);
+              });
+            }
             // delete from the database
             return {
               valid: true,
@@ -51,10 +57,6 @@ export async function POST({ request, locals }) {
 
       if (!result?.valid) {
         return new Response(createSuccessResponse(), { status: 400 });
-      }
-
-      if (dev) {
-        console.log(`[api/v1/pingback] result`, result);
       }
 
       if (!result?.deleted) {
