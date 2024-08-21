@@ -9,7 +9,7 @@ export async function POST({ request, locals }) {
     const xml = await request.text();
 
     try {
-        const [, sourceURI, targetURI] = xml.match(/<string>(.*)<\/string>.*<string>(.*)<\/string>/) || [];
+        const [, sourceURI, targetURI] = xml.match(/<string>(.*)<\/string>.*<string>(.*)<\/string>/s) || [];
 
         // pingback.ping
         if (sourceURI && targetURI) {
