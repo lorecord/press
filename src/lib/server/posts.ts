@@ -121,7 +121,7 @@ function load() {
                         sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date)
                             ?.then((mentions) => {
                                 if (mentions && systemConfig.pingback?.enabled) {
-                                    let linksToPingback = task.links.filter((l: any) => mentions.find((m: any) => m.webmention?.target === l.href)?.webmention?.status === 'unsupported');
+                                    let linksToPingback = task.links.filter((l: any) => mentions.find((m: any) => m.target === l.href)?.status === 'unsupported');
 
                                     if (linksToPingback?.length || 0 > 0) {
                                         console.log('linksToPingback', linksToPingback);
