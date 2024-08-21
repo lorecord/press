@@ -71,8 +71,9 @@ export async function POST({ request, locals }) {
         // remove hash from targetURI，`https://example.com/abcd/#comment-1` => `https://example.com/abcd/`
         const targetURIWithoutHash = targetURI.replace(/#.*$/, '');
 
-        saveNativeInteraction(site,
-          { route: new URL(targetURIWithoutHash).pathname }, mention);
+        let effectedRoute = new URL(targetURIWithoutHash).pathname;
+        effectedRoute = effectedRoute.endsWith('/') ? effectedRoute.substring(0, effectedRoute.length - 1) : effectedRoute;
+        saveNativeInteraction(site, { route: effectedRoute }, mention);
       }
 
       return new Response(createSuccessResponse(), { status: 200 });
