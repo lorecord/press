@@ -4,6 +4,7 @@ import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { getPublicPostRaws } from "$lib/server/posts";
 import { locale } from "$lib/translations";
 
+export const trailingSlash = 'always';
 
 export async function GET({ request, locals, params }) {
     const { site } = locals as any;

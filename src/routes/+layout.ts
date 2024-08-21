@@ -43,5 +43,4 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     return { systemConfig, siteConfig, localeContext, currentRoute: pathname };
 }
 
-// trailingSlash will be handled by hooks.server.ts
 export const trailingSlash = 'ignore';

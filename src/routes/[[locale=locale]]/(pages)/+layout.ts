@@ -2,6 +2,8 @@ import { locale } from '$lib/translations';
 import { awaitChecker } from '$lib/browser';
 import type { LayoutLoad } from './$types';
 
+export const trailingSlash = 'always';
+
 export const load: LayoutLoad = async ({ fetch, depends, data }) => {
     depends('locale:locale');
 

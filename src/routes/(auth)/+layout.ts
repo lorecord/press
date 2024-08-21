@@ -1,6 +1,8 @@
 import { loadTranslations, locale } from '$lib/translations';
 import type { LayoutLoad } from './$types';
 
+export const trailingSlash = 'never';
+
 export const load: LayoutLoad = async ({ url, parent, data }) => {
     const { localeContext } = data;
     let {
