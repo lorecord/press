@@ -4,10 +4,6 @@ import { parse } from 'node-html-parser';
 // 0. use 'Webmention' as HTTP User Agent
 export const USER_AGENT = 'Webmention';
 
-export const addWebmentionLinkHeader = (headers: Headers, url: string) => {
-    headers.set('Link', `<${url}>; rel="webmention"`);
-}
-
 // https://www.w3.org/TR/webmention/#sender-discovers-receiver-webmention-endpoint
 export const resolveEndpoint = async (url: string) => {
     if (!url || (new URL(url).protocol !== 'http:' && new URL(url).protocol !== 'https:')) {
