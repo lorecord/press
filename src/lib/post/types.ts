@@ -51,7 +51,7 @@ export interface PostRawAttributes {
     },
     type?: string,
     syndication?: string | string[] | { [key: string]: string },
-    pingback: boolean | {
+    pingback?: boolean | {
         enabled?: boolean
     },
     webmention?: boolean | {
@@ -73,10 +73,10 @@ export interface PostRaw {
     path: string,
     attributes: PostRawAttributes,
     body: string,
-    template?: string,
+    template: string,
     lang?: string,
     langs?: string[],
-    route?: string,
+    route: string,
     visible?: boolean,
     routable?: boolean,
     slug?: string,
