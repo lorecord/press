@@ -94,7 +94,7 @@ export async function sendPingback(sourceURI: string, targetURI: string) {
             }
         }
 
-        return fetch(targetURI, {
+        return fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/xml',
