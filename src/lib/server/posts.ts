@@ -7,6 +7,7 @@ import path from 'path';
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "./config";
 import { sites, type Site } from './sites';
 import { sendWebmentions } from "$lib/interaction/handle-webmention";
+import { sendPingbacks } from "$lib/interaction/handle-pingback";
 
 let postRawsOfSite: {
     [siteUnique: string]: PostRaw[];
@@ -102,6 +103,10 @@ function load() {
                         }
                         return acc;
                     }, []);
+
+                    t.links.forEach((link: any) => {
+                        link.langs = Array.from(new Set(link.langs)).filter((l: any) => !!l);
+                    });
                 });
 
                 tasks = tasks.filter((t: any) => t.links && t.links.length > 0);
@@ -116,13 +121,19 @@ function load() {
                         sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date)
                             ?.then((mentions) => {
                                 if (mentions && systemConfig.pingback?.enabled) {
-                                    let linksToPingback = task.links.filter((l: any) => !mentions.find((m: any) => m.webmention?.target === l.href));
+                                    let linksToPingback = task.links.filter((l: any) => mentions.find((m: any) => m.webmention?.target === l.href)?.webmention?.status === 'unsupported');
+
+                                    if (linksToPingback?.length || 0 > 0) {
+                                        console.log('linksToPingback', linksToPingback);
+                                    }
 
                                     // send pingback
+                                    sendPingbacks(site, effectedRoute, linksToPingback.map((l: any) => l.href), task.date);
                                 }
                             });
                     } else if (systemConfig.pingback?.enabled) {
                         // send pingback
+                        sendPingbacks(site, effectedRoute, linksToPingback.map((l: any) => l.href), task.date);
                     }
                 });
             }

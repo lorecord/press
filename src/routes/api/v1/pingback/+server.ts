@@ -1,31 +1,18 @@
-import { saveNativeInteraction } from '$lib/interaction/handle-native';
-import type { NativeMention } from '$lib/interaction/types';
-import { findLinkInContent } from '$lib/utils/content';
+import { saveNativeInteraction } from "$lib/interaction/handle-native";
+import type { NativeMention } from "$lib/interaction/types";
+import { findLinkInContent } from "$lib/utils/content";
 import crypto from 'crypto';
-import xmlrpc from 'xmlrpc';
-import type { RequestHandler } from "./$types";
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+// src/routes/api/pingback/+server.js
+export async function POST({ request, locals }) {
+    const { site } = locals as any;
+    const xml = await request.text();
+
     try {
-        const { site } = locals as any;
-        const xml = await request.text();
+        const [, sourceURI, targetURI] = xml.match(/<string>(.*)<\/string>.*<string>(.*)<\/string>/) || [];
 
-        const server = xmlrpc.createServer();
-
-        server.on('pingback.ping', async (err, params, callback) => {
-            if (err) {
-                callback({ faultCode: 1, faultString: 'Error processing request' });
-                return;
-            }
-
-            const [sourceURI, targetURI] = params;
-
-            if (!sourceURI || !targetURI) {
-                callback({ faultCode: 2, faultString: 'Invalid sourceURI or targetURI' });
-                return;
-            }
-
-            // validate sourceURI if it links to targetURI
+        // pingback.ping
+        if (sourceURI && targetURI) {
 
             const headers = new Headers();
             headers.set('User-Agent', "XMLRPC");
@@ -55,8 +42,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             });
 
             if (!result?.valid) {
-                callback({ faultCode: 17, faultString: 'The sourceURI does not link to the targetURI' });
-                return;
+                return new Response(createSuccessResponse(), { status: 400 });
             }
 
             if (!result?.deleted) {
@@ -73,14 +59,46 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                     { route: new URL(targetURI).pathname }, mention);
             }
 
-            callback(null, 'Pingback received successfully');
-        });
-
-        server.httpRequestHandler(null, request, new Response(), xml);
-
-        return new Response('Pingback processed', { status: 200 });
+            return new Response(createSuccessResponse(), { status: 200 });
+        } else {
+            return new Response(createErrorResponse(0, 'Invalid method name or parameters'), { status: 400 });
+        }
     } catch (error) {
-        console.error('Pingback handling error:', error);
-        return new Response('Internal Server Error', { status: 500 });
+        return new Response(createErrorResponse(0, 'Malformed XML'), { status: 400 });
     }
-};
+}
+
+function createSuccessResponse() {
+    const response = `
+      <methodResponse>
+        <params>
+          <param>
+            <value><string></string></value>
+          </param>
+        </params>
+      </methodResponse>
+    `;
+    return response.trim();
+}
+
+function createErrorResponse(code: number | string, message: string) {
+    const response = `
+      <methodResponse>
+        <fault>
+          <value>
+            <struct>
+              <member>
+                <name>faultCode</name>
+                <value><int>${code}</int></value>
+              </member>
+              <member>
+                <name>faultString</name>
+                <value><string>${message}</string></value>
+              </member>
+            </struct>
+          </value>
+        </fault>
+      </methodResponse>
+    `;
+    return response.trim();
+}
