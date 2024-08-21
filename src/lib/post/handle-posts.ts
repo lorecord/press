@@ -34,6 +34,7 @@ import { l } from '../translations';
 import type { Post, PostAttributesContact, PostRaw, PostRawAttributes, PostRoute } from './types';
 import type { ContactBaseProfile } from '$lib/types';
 import type { UserAuthor } from '$lib/interaction/types';
+import remarkAttrs from '$lib/markdown/remark-attrs';
 
 const DEFAULT_ATTRIBUTE_MAP: {
     [template: string]: PostRawAttributes
@@ -376,6 +377,7 @@ export function createMarkdownParser(options: {
         .use(remarkParse)
         .use(remarkFrontmatter)
         .use(remarkGfm)
+        .use(remarkAttrs)
         .use(remarkMath)
         .use(remarkLinks)
         .use(remarkFng)
@@ -407,6 +409,10 @@ export function createMarkdownParser(options: {
             ...defaultSchema,
             attributes: {
                 ...defaultSchema.attributes,
+                a: [
+                    ...(defaultSchema.attributes?.a || []),
+                    ['className', /.*/],
+                    ['rel', /.*/]],
                 code: [
                     ...(defaultSchema.attributes?.code || []),
                     ['className', /.*/]
