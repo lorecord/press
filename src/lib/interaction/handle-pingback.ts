@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from "path";
 import YAML from "yaml";
 import { getInteractionsFoler } from "./utils";
+import { dev } from "$app/environment";
 
 export function getPingbackPath(site: Site, postPath: string) {
     const folder = getInteractionsFoler(site, { route: postPath });
@@ -28,6 +29,16 @@ export function loadPingbacks(site: Site, postPath: string) {
 }
 
 export async function sendPingbacks(site: Site, postPath: string, targetURIs: string[], postUpdated: Date) {
+    if (dev) {
+        console.log(`[pingback] sending pingbacks from ${postPath}`, targetURIs);
+    }
+    if ((targetURIs?.length || 0) === 0) {
+        if (dev) {
+            console.log(`[pingback] no target URIs to send pingbacks from ${postPath}`, targetURIs?.length);
+        }
+        return;
+    }
+
     const siteConfig = getSiteConfig(site, 'en');
     const filepath = getPingbackPath(site, postPath);
 
@@ -50,6 +61,9 @@ export async function sendPingbacks(site: Site, postPath: string, targetURIs: st
         let pingback = pingbacks.find((p) => p.targetURI === targetURI);
         if (pingback) {
             if (pingback?.updated && new Date(pingback.updated) >= postUpdated) {
+                if (dev) {
+                    console.log(`[pingback] skip sending pingback to ${targetURI}`);
+                }
                 continue;
             }
         } else {
@@ -60,10 +74,16 @@ export async function sendPingbacks(site: Site, postPath: string, targetURIs: st
         }
 
         const resultPromise = sendPingback(siteConfig.url + postPath + '/', targetURI).then((result) => {
+            if (dev) {
+                console.log(`[pingback] sent pingback to ${targetURI}`, result);
+            }
             Object.assign(pingback, result);
             pingback.updated = new Date().toISOString();
             if (!result) {
                 pingback.status = 'error';
+                if (dev) {
+                    console.error(`[pingback] error sending pingback to ${targetURI}`, result);
+                }
             }
             return pingback;
         })
@@ -71,7 +91,14 @@ export async function sendPingbacks(site: Site, postPath: string, targetURIs: st
         tasks.push(resultPromise);
     }
 
+    if (dev) {
+        console.log(`[pingback] sending ${tasks.length} pingbacks from ${postPath}`);
+    }
+
     return Promise.all(tasks).then((results) => {
+        if ((results?.length || 0) > 0) {
+            console.log(`[pingback] sent ${results.length} pings from ${postPath}`, JSON.stringify(results, null, 2));
+        }
         const filepath = getPingbackPath(site, postPath);
         if (!filepath) {
             console.error('Pingback target.yml path not found');
@@ -94,6 +121,9 @@ export async function sendPingback(sourceURI: string, targetURI: string) {
             }
         }
 
+        if (dev) {
+            console.log(`[pingback] endpoint of ${targetURI} is `, endpoint);
+        }
         return fetch(endpoint, {
             method: 'POST',
             headers: {
