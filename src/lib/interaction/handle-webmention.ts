@@ -24,7 +24,7 @@ export function getWebmentionPathOfSource(site: any, postPath: string) {
 
 export function loadPublishedWebmentions(site: Site, postPath: string) {
     let webmentions = loadWebmentions(site, postPath);
-    return webmentions.filter((mention) => mention.status === 'ok');
+    return webmentions.filter((mention) => !["deleted", "fail", "blocked", "pending", "spam"].includes(mention.webmention?.status));
 }
 
 export function loadOutWebmentions(site: Site, postPath: string) {
