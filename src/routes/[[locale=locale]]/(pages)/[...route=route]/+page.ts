@@ -2,11 +2,12 @@ import { awaitChecker } from "$lib/browser";
 import { locale } from "$lib/translations";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
+import type { Post } from "$lib/post/types";
 
-export const load: PageLoad = async ({ params, fetch, depends, data }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
-    const { localeContext } = data;
+    const { localeContext, systemConfig } = data;
 
     let lang = localeParam || locale.get() || localeContext.contentLocale;
 
@@ -56,6 +57,34 @@ export const load: PageLoad = async ({ params, fetch, depends, data }) => {
     }));
 
     const needAwait = awaitChecker();
+
+    if (needAwait) {
+        post.then((p: Post) => {
+            let links: string[] = [];
+
+            if (p.webmention?.enabled) {
+                const endpoint = systemConfig.webmention.endpoint || '/api/v1/webmention';
+                links.push(`<${endpoint}>; rel="webmention"`);
+                setHeaders({
+                    'X-Webmention': endpoint
+                });
+            }
+
+            if (p?.pingback?.enabled) {
+                const endpoint = systemConfig.pingback.endpoint || '/api/v1/pingback';
+                links.push(`<${endpoint}>; rel="pingback"`);
+                setHeaders({
+                    'X-Pingback': endpoint
+                });
+            }
+
+            if (links.length > 0) {
+                setHeaders({
+                    'Link': links.join(', ')
+                });
+            }
+        });
+    }
 
     return {
         post: needAwait ? await post : post,
