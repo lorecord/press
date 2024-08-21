@@ -1,5 +1,5 @@
-import { loadPostRaw } from '$lib/post/handle-posts';
 import { getSiteConfig } from '$lib/server/config';
+import type { Site } from '$lib/server/sites';
 import { sendWebmention } from '$lib/webmention';
 import Crypto from 'crypto';
 import fs from 'fs';
@@ -7,7 +7,6 @@ import path from 'path';
 import YAML from 'yaml';
 import type { WebmentionInteraction } from './types';
 import { getInteractionsFoler } from './utils';
-import type { Site } from '$lib/server/sites';
 
 export function getWebmentionPathOfTarget(site: any, postPath: string) {
     const folder = getInteractionsFoler(site, { route: postPath });
@@ -182,7 +181,10 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
         tasks.push(resultPromise);
     }
     Promise.all(tasks).then((results) => {
-        console.log(`[webmention] sent ${results.length} webmentions for ${postPath}`, JSON.stringify(results, null, 2));
+        if (results?.length || 0 > 0) {
+            console.log(`[webmention] sent ${results.length} webmentions from ${postPath}`, JSON.stringify(results, null, 2));
+        }
+
         const filepath = getWebmentionPathOfTarget(site, postPath);
         if (!filepath) {
             console.error(`[webmention] can't find webmention target file path for ${postPath}`);

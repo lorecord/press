@@ -10,15 +10,13 @@ const availableLocales = ((glob) => {
     Object.keys(glob).forEach((key) => {
         // ./en/common.yml -> en
         let locale = key.split('/')[1];
-        if(dev){
-            console.log('[lib/translations/index.ts] find locale', locale);
-        }
         locales.add(locale);
     });
+    if (dev) {
+        console.log('[lib/translations/index.ts] find locales', [...locales]);
+    }
     return [...locales];
 })(import.meta.glob('./*/*.yml'));
-
-console.log('availableLocales', availableLocales);
 
 const config: Config = (() => {
     const keys = ['common', 'email', 'auth'];

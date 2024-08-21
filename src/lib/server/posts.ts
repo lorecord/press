@@ -102,8 +102,6 @@ function load() {
 
                 tasks = tasks.filter((t: any) => t.links && t.links.length > 0);
 
-                console.log(`[webmention] send webmentions for ${tasks.length} posts`);
-
                 tasks.forEach((task: any) => {
                     let effectedRoute = task.route?.endsWith('/') ? task.route.substring(0, task.route.length - 1) : task.route;
                     sendWebmentions(site, effectedRoute, task.links.map((l: any) => l.href), task.date);
