@@ -63,8 +63,12 @@ export async function POST({ request, locals }) {
           type: 'mention',
           title: result.title,
         };
+
+        // remove hash from targetURI，`https://example.com/abcd/#comment-1` => `https://example.com/abcd/`
+        const targetURIWithoutHash = targetURI.replace(/#.*$/, '');
+
         saveNativeInteraction(site,
-          { route: new URL(targetURI).pathname }, mention);
+          { route: new URL(targetURIWithoutHash).pathname }, mention);
       }
 
       return new Response(createSuccessResponse(), { status: 200 });

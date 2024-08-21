@@ -46,9 +46,9 @@ export const actions: Actions = {
         if (post && post.comment?.enabled) {
             const form = await request.formData();
             if (form.get("captcha")?.toString().length == 0 // honey pot
-                && form.get("name")?.toString()?.length || 0 > 0
+                && (form.get("name")?.toString()?.length || 0) > 0
                 && form.get("email")?.toString().toLowerCase().match(/[\w](([\w+-_.]+)?[\w])?@([\w](([\w-]+)?[\w])?\.)[a-z]{2,}/)
-                && form.get("text")?.toString()?.length || 0 > 0
+                && (form.get("text")?.toString()?.length || 0) > 0
                 && (form.get("website")?.toString()?.length == 0
                     || form.get("email")?.toString().match(/^(http)/))) {
 

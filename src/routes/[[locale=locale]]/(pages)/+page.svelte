@@ -7,7 +7,6 @@
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
-    import { HOME } from "$env/static/private";
 
     export let data: PageData;
 

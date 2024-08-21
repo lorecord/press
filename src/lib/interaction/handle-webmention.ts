@@ -180,7 +180,7 @@ export function sendWebmentions(site: any, postPath: string, targets: string[], 
         tasks.push(resultPromise);
     }
     return Promise.all(tasks).then((results) => {
-        if (results?.length || 0 > 0) {
+        if ((results?.length || 0) > 0) {
             console.log(`[webmention] sent ${results.length} webmentions from ${postPath}`, JSON.stringify(results, null, 2));
         }
 

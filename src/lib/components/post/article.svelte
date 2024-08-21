@@ -358,7 +358,7 @@
                     </div>
                 {/if}
 
-                {#if post.taxonomy || post.langs?.length || 0 > 0}
+                {#if post.taxonomy || (post.langs?.length || 0) > 0}
                     <div class="article-taxonomy-and-lang no-print">
                         {#if post.taxonomy}
                             <div class="article-taxonomy">
@@ -418,7 +418,7 @@
                                 {/if}
                             </div>
                         {/if}
-                        {#if post.langs?.length || 0 > 1}
+                        {#if (post.langs?.length || 0) > 1}
                             <div class="article-lang">
                                 <IconLanguage size={20} />
                                 <ul>

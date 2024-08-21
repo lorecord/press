@@ -64,6 +64,7 @@ export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders 
     return {
         home: needAwait ? await home : home,
         posts: needAwait ? await posts : posts,
-        limit
+        limit,
+        pathLocale: pathLocaleParam
     };
 } 
