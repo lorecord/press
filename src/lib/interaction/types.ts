@@ -82,6 +82,8 @@ export interface Bookmark extends Base {
 export interface Mention extends Base {
     type: 'mention';
     title?: string;
+    spam?: boolean;
+    approved?: boolean; // default value?
 }
 
 export interface Reaction extends Base {
