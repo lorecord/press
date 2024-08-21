@@ -1,10 +1,9 @@
-import { error } from "@sveltejs/kit";
-import { locale } from "$lib/translations";
-import type { PageLoad } from "./$types";
 import { awaitChecker } from "$lib/browser";
-import { browser } from "$app/environment";
+import { locale } from "$lib/translations";
+import { error } from "@sveltejs/kit";
+import type { PageLoad } from "./$types";
 
-export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
+export const load: PageLoad = async ({ params, fetch, depends, data }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
     const { localeContext } = data;
