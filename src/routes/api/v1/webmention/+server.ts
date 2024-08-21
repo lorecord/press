@@ -50,14 +50,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
     let existed = loadWebmentions(site, postRoute).find((interaction) => interaction.id === id || interaction.webmention?.source === source);
 
-    if (existed?.status === 'pending') {
+    if (existed?.webmention?.status === 'pending') {
         return json({}, {
             status: 201,
             headers: {
                 'Location': `${siteConfig.url}/api/v1/webmention/status/${id}`
             }
         });
-    } else if (existed?.status === 'blocked' || existed?.status === 'spam') {
+    } else if (existed?.webmention?.status === 'blocked' || existed?.webmention?.status === 'spam') {
         return json({}, {
             status: 200,
         });
@@ -101,8 +101,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 published: new Date().toISOString(),
                 type: 'mention',
                 channel: 'webmention',
-                webmention: { source },
-                status: 'ok',
+                webmention: { source, status: 'ok' },
                 created: new Date().toISOString(),
                 updated: new Date().toISOString(),
             }
@@ -119,9 +118,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     let webmentionInteraction: WebmentionInteraction = {
         id,
         channel: 'webmention',
-        webmention: { source },
-        // TODO when prev status is pending, then a new mention update, this should be?
-        status: 'pending',
+        webmention: {
+            source,
+            // TODO when prev status is pending, then a new mention update, this should be?
+            status: 'pending'
+        },
+        url: source,
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
     } as WebmentionInteraction;

@@ -58,10 +58,9 @@ function load() {
                 });
             }
 
-            if (systemConfig.webmention?.enabled) {
-
+            if (systemConfig.webmention?.enabled || systemConfig.pingback?.enabled) {
+                // send mentions via webmentions or pingback
                 let tasks = getPublicPosts(site)
-                    // for test: only get posts after 2024-08-01
                     .map((p) => {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
                         const { links } = p.content || { links: [] };

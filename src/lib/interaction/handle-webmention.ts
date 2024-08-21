@@ -74,7 +74,7 @@ export function fromWebmentionIO(payload: any): WebmentionInteraction {
         })).digest('hex'),
         published: payload.post?.published,
         channel: 'webmention',
-        webmention: payload,
+        webmention: {...payload, status: 'ok'},
         url: payload.source,
         type,
         content: payload.post?.name,
@@ -85,7 +85,6 @@ export function fromWebmentionIO(payload: any): WebmentionInteraction {
             avatar: payload.post?.author?.photo,
             verified: true
         },
-        status: 'ok',
         created: new Date().toISOString(),
         updated: new Date().toISOString()
     }

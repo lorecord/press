@@ -24,6 +24,7 @@ export type Author = UserAuthor | VerifiedAuthor | ContactBaseProfile;
 
 export interface WebmentionRaw {
     source: string;
+    status: 'ok' | 'deleted' | 'fail' | 'blocked' | 'pending' | 'spam';
 }
 
 export interface Reply extends Base {
@@ -39,7 +40,6 @@ export interface Reply extends Base {
 export interface WebmentionBase extends Base {
     channel: 'webmention';
     webmention: WebmentionRaw;
-    status: 'ok' | 'deleted' | 'fail' | 'blocked' | 'pending' | 'spam';
     created: string;
     updated: string;
 }
