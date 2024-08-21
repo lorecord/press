@@ -2,10 +2,11 @@ import { locale } from '$lib/translations';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import { awaitChecker } from '$lib/browser';
+import type { Post } from '$lib/post/types';
 
-export const load: PageLoad = async ({ depends, fetch, params, data }) => {
+export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders }) => {
     const { locale: pathLocaleParam } = params;
-    const { localeContext } = data;
+    const { localeContext, systemConfig } = data;
 
     let limit = 8;
 
@@ -31,6 +32,34 @@ export const load: PageLoad = async ({ depends, fetch, params, data }) => {
     });
 
     const needAwait = awaitChecker();
+
+    if (needAwait) {
+        home.then((p: Post) => {
+            let links: string[] = [];
+
+            if (p.webmention?.enabled) {
+                const endpoint = systemConfig.webmention.endpoint || '/api/v1/webmention';
+                links.push(`<${endpoint}>; rel="webmention"`);
+                setHeaders({
+                    'X-Webmention': endpoint
+                });
+            }
+
+            if (p?.pingback?.enabled) {
+                const endpoint = systemConfig.pingback.endpoint || '/api/v1/pingback';
+                links.push(`<${endpoint}>; rel="pingback"`);
+                setHeaders({
+                    'X-Pingback': endpoint
+                });
+            }
+
+            if (links.length > 0) {
+                setHeaders({
+                    'Link': links.join(', ')
+                });
+            }
+        });
+    }
 
     return {
         home: needAwait ? await home : home,

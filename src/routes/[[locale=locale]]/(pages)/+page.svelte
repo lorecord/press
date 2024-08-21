@@ -7,6 +7,7 @@
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
+    import { HOME } from "$env/static/private";
 
     export let data: PageData;
 
@@ -35,6 +36,19 @@
 <DescriptionMeta value={siteConfig.description}></DescriptionMeta>
 
 <svelte:head>
+    {#if home.webmention?.enabled}
+        <link
+            rel="webmention"
+            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+        />
+    {/if}
+
+    {#if home.pingback?.enabled}
+        <link
+            rel="pingback"
+            href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+        />
+    {/if}
     {#if systemConfig.git?.repo}
         <link rel="vcs-git" href={systemConfig.git?.repo} />
     {/if}

@@ -208,20 +208,6 @@
         {/if}
     {/if}
 
-    {#if systemConfig.webmention?.enabled}
-        <link
-            rel="webmention"
-            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
-        />
-    {/if}
-
-    {#if systemConfig.pingback?.enabled}
-        <link
-            rel="pingback"
-            href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
-        />
-    {/if}
-
     {@html `<script type="application/ld+json">${JSON.stringify(
         ldjson(),
     )}</script>`}

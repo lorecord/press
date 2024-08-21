@@ -176,6 +176,19 @@
 {/await}
 
 <svelte:head>
+    {#if post.webmention?.enabled}
+        <link
+            rel="webmention"
+            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+        />
+    {/if}
+
+    {#if post.pingback?.enabled}
+        <link
+            rel="pingback"
+            href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+        />
+    {/if}
     {#await post then post}
         {#if post.processMeta?.prism}
             <link rel="stylesheet" href="/assets/prism/themes/dark.css" />
