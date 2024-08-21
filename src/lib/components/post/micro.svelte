@@ -31,6 +31,9 @@
             lightningSupported = true;
         }
     });
+
+    $: finalAvatarHash =
+        author?.[0]?.email?.hash?.sha256 || author?.[0]?.email?.hash?.md5;
 </script>
 
 <Title value={`${author?.[0]?.name}: "${post.summary.raw}"`}></Title>
@@ -61,7 +64,7 @@
                                 avatar={author?.[0]?.avatar}
                                 {gravatarBase}
                                 alt={author?.[0]?.name}
-                                hash={author?.[0]?.email_hash}
+                                hash={finalAvatarHash}
                             />
                         </a>
                     {:else}
@@ -70,7 +73,7 @@
                             avatar={author?.[0]?.avatar}
                             {gravatarBase}
                             alt={author?.[0]?.name}
-                            hash={author?.[0]?.email_hash}
+                            hash={finalAvatarHash}
                         />
                     {/if}
                 </div>
