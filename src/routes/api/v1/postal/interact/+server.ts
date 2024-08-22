@@ -94,7 +94,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     if (!post) {
         error(404, 'Post not found');
     }
-    if (!post.comment?.enabled) {
+    if (!post.comment?.enabled || !post.comment?.reply) {
         error(403, "Comment is disabled");
     }
 
@@ -102,10 +102,6 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     let [, website] = signaturePart?.match(/(https?:\/\/[^\s>"']+)>?/) || [];
 
     // TODO text or html
-
-    // TODO check attachments
-
-    // TODO check spam_status
 
     const interaction = {
         channel: 'email',
@@ -122,6 +118,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     let nativeInteraction = createNativeInteractionReply(site, interaction);
 
+    // check spam_status
     if (payload.spam_status?.toLowerCase() === 'spam') {
         nativeInteraction.spam = true;
     }
