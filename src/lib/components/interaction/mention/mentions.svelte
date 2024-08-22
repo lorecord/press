@@ -57,7 +57,6 @@
     .citations {
         display: flex;
         list-style: none;
-        gap: 1rem;
 
         .citations-list-item {
             display: flex;
