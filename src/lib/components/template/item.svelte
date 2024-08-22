@@ -38,7 +38,7 @@
             </div>
             <div class="earlier">
                 {#await earlier then value}
-                    {#if value}
+                    {#if value?.route}
                         <a href={`${value.route}`}>
                             <h4>
                                 <div>
