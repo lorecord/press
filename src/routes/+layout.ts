@@ -26,8 +26,8 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     let lang = locale.get() || localeContext.uiLocale;
 
     if (dev) {
-        console.log('[routes/+layout.ts] => localeContext.uiLocale', localeContext.uiLocale);
-        console.log('[routes/+layout.ts] => lang', lang);
+        // console.log('[routes/+layout.ts] => localeContext.uiLocale', localeContext.uiLocale);
+        // console.log('[routes/+layout.ts] => lang', lang);
     }
 
     const { systemConfig, siteConfig } = await fetch(`/api/v1/config?${new URLSearchParams({
