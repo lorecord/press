@@ -1,15 +1,15 @@
-import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
-import { createTransport } from 'nodemailer';
-import { decrypt } from "$lib/interaction/utils";
-import { t, l } from "$lib/translations";
-import { get } from "svelte/store";
-import type { Author, Reply, } from "$lib/interaction/types";
-import type Mail from "nodemailer/lib/mailer";
 import { getNativeInteraction } from "$lib/interaction/handle-native";
+import type { Author, Reply, } from "$lib/interaction/types";
+import { decrypt } from "$lib/interaction/utils";
 import { loadPost } from "$lib/post/handle-posts";
 import type { Post } from "$lib/post/types";
-import type { Site } from "./sites";
+import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
+import { l } from "$lib/translations";
 import type { Md5HashValue, Sha1HashValue, Sha256HashValue } from "$lib/types";
+import { createTransport } from 'nodemailer';
+import type Mail from "nodemailer/lib/mailer";
+import { get } from "svelte/store";
+import type { Site } from "./sites";
 
 const TO_HOLDER = "undisclosed-recipients:;";
 
@@ -81,6 +81,10 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
     if (!systemConfig.email) {
         console.log('email not configured, skip send reply mail');
         return;
+    }
+
+    if (reply.status && reply.status !== 'approved') {
+        console.log('reply not approved, skip send reply mail');
     }
 
     let replyAuthorData = buildAuthorData(site, reply?.author || {}, reply?.lang || post.lang || systemConfig.locale?.default || 'en');
