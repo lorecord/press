@@ -20,6 +20,7 @@
     import spdxLicenseList from "spdx-license-list";
 
     import type { PageData } from "./$types";
+    import type { Post } from "$lib/post/types";
 
     export let data: PageData;
 
@@ -55,14 +56,14 @@
         links: TemplateLinks,
         note: TemplateNote,
     };
-    const solveTemplate = (post: any) =>
+    const solveTemplate = (post: Post) =>
         templates[(post.template as string) || "default"] || templates.default;
 
     $: templateComponent = browser
         ? Promise.resolve(post).then(solveTemplate)
         : solveTemplate(post);
 
-    const ldjsonCreater = (post: any) => () => {
+    const ldjsonCreater = (post: Post) => () => {
         const license = ((l) => {
             if (spdxLicenseList[l]) {
                 return { licenseId: l, ...spdxLicenseList[l] };
@@ -73,8 +74,8 @@
         let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
-            image: post.image
-                ? [`${siteConfig.url}${post.route}${post.image}`]
+            image: post.data?.image
+                ? [`${siteConfig.url}${post.route}${post.data.image}`]
                 : [`${siteConfig.url}/favicon.png`],
 
             url: `${siteConfig.url}${post.route}`,
@@ -87,8 +88,8 @@
             ).toISOString();
         }
 
-        if (post.authors) {
-            let author = post.authors.map((author: any) =>
+        if (post.author) {
+            let author = post.author.map((author) =>
                 Object.assign(
                     {
                         "@type": "Person",
@@ -101,10 +102,10 @@
                         : {},
                 ),
             );
-            if (author.length === 1) {
-                author = author[0];
-            }
-            creativeWork.author = author;
+
+            creativeWork.author = (
+                author.length === 1 ? author[0] : author
+            ) as any;
         }
 
         if (post.modified?.date) {
@@ -113,36 +114,36 @@
             ).toISOString();
         }
         if (post.summary) {
-            creativeWork.description = post.summary;
+            creativeWork.description = post.summary?.raw;
         }
 
-        if (post.aggregateRating) {
+        if (post.data?.aggregateRating) {
             creativeWork.aggregateRating = {
                 "@type": "AggregateRating",
-                ratingValue: post.aggregateRating.value,
-                reviewCount: post.aggregateRating.count,
-                bestRating: post.aggregateRating.best || 10,
-                worstRating: post.aggregateRating.worst || 1,
+                ratingValue: post.data.aggregateRating.value,
+                reviewCount: post.data.aggregateRating.count,
+                bestRating: post.data.aggregateRating.best || 10,
+                worstRating: post.data.aggregateRating.worst || 1,
             };
         }
 
         if (post.template == "item") {
-            if (post.review) {
+            if (post.data?.review) {
                 creativeWork = Object.assign(creativeWork, {
                     "@type": "Review",
                     itemReviewed: {
-                        "@type": post.review.item?.type,
-                        name: post.review.item?.name,
-                        url: post.review.item?.url,
-                        image: post.review.item?.image,
+                        "@type": post.data.review.item?.type,
+                        name: post.data.review.item?.name,
+                        url: post.data.review.item?.url,
+                        image: post.data.review.item?.image,
                     },
                     reviewRating: {
                         "@type": "Rating",
-                        ratingValue: post.review.rating,
+                        ratingValue: post.data.review.rating,
                         bestRating: 10,
                         worstRating: 1,
                     },
-                    reviewBody: post.review.body || post.summary,
+                    reviewBody: post.data.review.body || post.summary.raw,
                 } as Review);
             } else {
                 creativeWork = Object.assign(creativeWork, {
@@ -348,14 +349,14 @@
             <meta name="rating" content={post.rating} />
         {/if}
 
-        {#if post.image}
+        {#if post.data?.image}
             <meta
                 property="og:image"
-                content="{siteConfig.url}{post.route}{post.image}"
+                content="{siteConfig.url}{post.route}{post.data?.image}"
             />
             <meta
                 name="twitter:image"
-                content="{siteConfig.url}{post.route}{post.image}"
+                content="{siteConfig.url}{post.route}{post.data?.image}"
             />
             <meta name="twitter:card" content="summary_large_image" />
         {:else}
@@ -472,7 +473,7 @@
             </article>
         </div>
     {:then post}
-        <div class="page-wrapper">
+        <div class="page-wrapper template-{post.template || 'default'}">
             <TranslationTips {post} {localeContext} />
 
             {#await templateComponent then templateComponent}
@@ -487,7 +488,7 @@
             {/await}
         </div>
 
-        <div class="discuss no-print">
+        <div class="discuss no-print template-{post.template || 'default'}">
             {#if post.comment?.enabled}
                 {#await citations then value}
                     {#if value?.length}

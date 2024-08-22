@@ -23,7 +23,7 @@ export async function GET({ locals, params }) {
     const systemConfig = getSystemConfig(site);
 
     // https://github.com/citation-file-format/citation-file-format/blob/main/README.md
-    let cff = post.cff || {};
+    let cff = post.data?.cff || {};
 
     cff['cff-version'] = '1.2.0';
     cff.message = 'If you use this content, please cite it as below.';
@@ -41,20 +41,20 @@ export async function GET({ locals, params }) {
     }]
     cff.title = post.title;
 
-    if (post.version) {
+    if (post.data?.cff?.version) {
         cff.version = '2.0.4';
     }
 
-    cff.identifier = [{ type: 'url', value: post.doi || `${siteConfig.url}${post.route}`, description: '' }];
+    cff.identifier = [{ type: 'url', value: post.data?.doi || `${siteConfig.url}${post.route}`, description: '' }];
 
-    cff.doi = '';
+    cff.doi = post.data?.doi || '';
 
     if (post.published?.date) {
         cff['date-released'] = new Date(post.published.date).toISOString().split('T')[0];
     }
 
     cff.url = `${siteConfig.url}${post.route}`;
-    cff.abstract = post.summary;
+    cff.abstract = post.summary?.raw;
 
     ((license) => {
         if (license) {

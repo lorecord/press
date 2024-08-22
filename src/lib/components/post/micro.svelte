@@ -87,10 +87,10 @@
         <div class="e-content article-content">
             {@html post.content?.html}
 
-            {#if post.image}
+            {#if post.data?.image}
                 <img
                     class="no-print"
-                    src={post.image}
+                    src={post.data?.image}
                     alt=""
                     style="max-width: 100%"
                 />
@@ -270,8 +270,10 @@
 </article>
 
 <style lang="scss">
-    :global(.comments-wrapper) {
-        max-width: 60ch !important;
+    :global(.template-note) {
+        :global(.comments-wrapper) {
+            max-width: 60ch !important;
+        }
     }
     :global(article) {
         :global(.article-content) {

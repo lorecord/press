@@ -117,10 +117,10 @@
 >
     {#if header}
         <div class="article-header container">
-            {#if post.image}
+            {#if post.data?.image}
                 <img
                     class="no-print"
-                    src={post.image}
+                    src={post.data?.image}
                     alt=""
                     style="max-width: 100%"
                 />
@@ -183,7 +183,7 @@
                 <a class="u-url" href={siteConfig.url + post.route}
                     >{post.title}</a
                 >
-                <p class="p-summary">{post.summary}</p>
+                <p class="p-summary">{post.summary?.raw}</p>
             </div>
         </div>
     {/if}
