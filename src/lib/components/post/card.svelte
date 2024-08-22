@@ -9,7 +9,8 @@
     export let post: Post = {} as Post;
     export let showContent: boolean = true;
 
-    $: ({ title, summary, route, published, image, review } = post);
+    $: ({ title, summary, route, published, data: postData = {} } = post);
+    $: ({ image, review } = postData);
 </script>
 
 <Card tag="article" class="article">
