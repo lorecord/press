@@ -454,7 +454,8 @@
                 a {
                     color: unset;
                 }
-                a.link {
+
+                :global(a.link) {
                     font-size: 80%;
                     text-decoration: underline;
                     color: var(--text-color-tertiary);
@@ -515,12 +516,6 @@
                     color: var(--text-color-tertiary);
                 }
             }
-        }
-    }
-
-    @media screen and (max-width: 600px) {
-        h3 {
-            padding-left: var(--content-padding);
         }
     }
 </style>
