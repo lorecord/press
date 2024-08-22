@@ -10,8 +10,8 @@ export const load: LayoutLoad = async ({ url, fetch, depends, data }) => {
     addTranslations(translations);
 
     if (dev) {
-        console.log('[routes/+layout.ts] => localeContext', localeContext);
-        console.log('[routes/+laytou.ts] $locale', locale.get());
+        // console.log('[routes/+layout.ts] => localeContext', localeContext);
+        // console.log('[routes/+laytou.ts] $locale', locale.get());
     }
 
     if (localeContext.uiLocale && !locale.get()) {
