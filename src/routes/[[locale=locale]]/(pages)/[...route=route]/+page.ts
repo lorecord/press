@@ -36,25 +36,36 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
     const replies = Promise.resolve(interactions).then(interactions => interactions?.replies || []);
     const mentions = Promise.resolve(interactions).then(interactions => interactions?.mentions || []);
 
-    const newer = Promise.resolve(post).then((post) => post.newer && fetch(`/api/v1/post/${post.newer}${lang ? '?' + new URLSearchParams({
-        lang
-    }) : ''}`).then((r) => {
-        if (r.ok) {
-            return r.json()
-        } else {
-            return {};
-        }
-    }));
+    const newer = Promise.resolve(post).then((post) => {
+        let effectedRoute = post.newer && post.newer.endsWith('/') ? post.newer.substring(0, post.newer.length - 1) : post.newer;
+        return effectedRoute && fetch(`/api/v1/post/${effectedRoute}${lang ? '?' + new URLSearchParams({
+            lang
+        }) : ''}`).then((r) => {
+            if (r.ok) {
+                return r.json()
+            } else {
+                return {};
+            }
+        })
+    });
 
-    const earlier = Promise.resolve(post).then((post) => post.earlier && fetch(`/api/v1/post/${post.earlier}${lang ? '?' + new URLSearchParams({
-        lang
-    }) : ''}`).then((r) => {
-        if (r.ok) {
-            return r.json();
-        } else {
-            return {};
-        }
-    }));
+    const earlier = Promise.resolve(post).then((post) => {
+        let effectedRoute = post.earlier && post.earlier.endsWith('/') ? post.earlier.substring(0, post.earlier.length - 1) : post.earlier;
+        return effectedRoute && fetch(`/api/v1/post${effectedRoute}${lang ? '?' + new URLSearchParams({
+            lang
+        }) : ''}`).then((r) => {
+            if (r.ok) {
+                return r.json();
+            } else {
+                r.text().then((t) => {
+                    console.log('earlier fetch failed', `/api/v1/post${effectedRoute}${lang ? '?' + new URLSearchParams({
+                        lang
+                    }) : ''}`, r.status, t);
+                });
+                return {};
+            }
+        });
+    });
 
     const needAwait = awaitChecker();
 
@@ -85,6 +96,8 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
             }
         });
     }
+
+    console.log('needAwait', needAwait);
 
     return {
         post: needAwait ? await post : post,
