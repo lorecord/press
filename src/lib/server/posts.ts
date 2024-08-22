@@ -129,7 +129,7 @@ function load() {
                                 if (mentions && systemConfig.pingback?.enabled) {
                                     let linksToPingback = task.links.filter((l: any) => mentions.find((m: any) => m.target === l.href)?.status === 'unsupported');
 
-                                    if ((linksToPingback?.length || 0) > 0) {
+                                    if (dev && (linksToPingback?.length || 0) > 0) {
                                         console.log(`[server/posts.ts] ready to send pingbacks`, effectedRoute, linksToPingback.map((l: any) => l.href));
                                     }
 
@@ -138,7 +138,7 @@ function load() {
                                 }
                             });
                     } else if (systemConfig.pingback?.enabled) {
-                        if ((linksToPingback?.length || 0) > 0) {
+                        if (dev && (linksToPingback?.length || 0) > 0) {
                             console.log(`[server/posts.ts] ready to send pingbacks`, effectedRoute, linksToPingback.map((l: any) => l.href));
                         }
                         // send pingback
