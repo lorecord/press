@@ -183,7 +183,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
 
     const response = await resolve(event);
 
-    if (response.status === 404 && !event.isSubRequest && !event.isDataRequest) {
+    if (response.status === 404) {
 
         if (dev) {
             console.log('handleAssets', event.url.pathname);
@@ -197,8 +197,9 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
         let postExsits = false;
 
         while (segments.length) {
-            let path = segments.join('/').replace(/^\//, '');
+            let path = segments.join('/') + "/";
             let lang = localeContext?.contentLocale;
+            console.log('try to get raw', `${lang}-${path}`);
             let raw = await getRaw(`${lang}-${path}`);
 
             if (raw) {

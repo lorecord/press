@@ -35,6 +35,7 @@ import type { Post, PostAttributesContact, PostRaw, PostRawAttributes, PostRoute
 import type { ContactBaseProfile } from '$lib/types';
 import type { UserAuthor } from '$lib/interaction/types';
 import remarkAttrs from '$lib/markdown/remark-attrs';
+import { dev } from '$app/environment';
 
 const DEFAULT_ATTRIBUTE_MAP: {
     [template: string]: PostRawAttributes
@@ -459,6 +460,9 @@ export function fixMarkdownHtmlWrapper(content: string) {
 
 export function getRaw(key: `${string}-${string}`) {
     let raw = cache.raw[key];
+    if (dev && !raw) {
+        console.error(`getRaw: No raw found for key '${key}'.`, Object.keys(cache.raw));
+    }
     return raw;
 }
 
