@@ -492,26 +492,41 @@
             {#if post.comment?.enabled}
                 {#await citations then value}
                     {#if value?.length}
-                        <h3 id="citations" style="text-align: center">
-                            {$t("common.citations_lead_title")}
-                            {#if value.length}
-                                ({value.length})
-                            {/if}
-                        </h3>
-                        <div class="comments-wrapper">
-                            <Mentions mentions={value} />
-                        </div>
+                        <details>
+                            <summary style="text-align: center">
+                                <h3 id="citations" style="text-align: center">
+                                    {$t("common.citations_lead_title")}
+                                    {#if value.length}
+                                        ({value.length})
+                                    {/if}
+                                </h3>
+                            </summary>
+                            <div class="comments-wrapper">
+                                <Mentions mentions={value} />
+                            </div>
+                        </details>
                     {/if}
                 {/await}
 
-                <h3 id="comments" style="text-align: center">
-                    {$t("common.comment_lead_title")}
+                {#if post.comment?.reply}
+                    <h3 id="comments" style="text-align: center">
+                        {$t("common.comment_lead_title")}
+                        {#await commonComments then commonComments}
+                            {#if commonComments?.length || replyCounter}
+                                ({(commonComments.length || 0) + replyCounter})
+                            {/if}
+                        {/await}
+                    </h3>
+                {:else}
                     {#await commonComments then commonComments}
                         {#if commonComments?.length || replyCounter}
-                            ({(commonComments.length || 0) + replyCounter})
+                            <h3 id="comments" style="text-align: center">
+                                {$t("common.comment_lead_title")}
+                                ({(commonComments.length || 0) + replyCounter})
+                            </h3>
                         {/if}
                     {/await}
-                </h3>
+                {/if}
                 <div class="comments-wrapper">
                     {#await commonComments}
                         <div

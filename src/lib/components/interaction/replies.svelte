@@ -61,34 +61,46 @@
     }
 
     onMount(() => {
-        textarea.addEventListener("change", saveText);
-        textarea.addEventListener("input", saveText);
+        if (textarea) {
+            textarea.addEventListener("change", saveText);
+            textarea.addEventListener("input", saveText);
 
-        textarea.addEventListener("keydown", handleKeyDown);
-
-        // load {name, email, website} from locale store
-        let name = form.querySelector("input[name=name]") as HTMLInputElement;
-        let email = form.querySelector("input[name=email]") as HTMLInputElement;
-        let website = form.querySelector(
-            "input[name=website]",
-        ) as HTMLInputElement;
-
-        if (name) {
-            name.value =
-                name.value || localStorage.getItem("comment-name") || "";
-        }
-        if (email) {
-            email.value =
-                email.value || localStorage.getItem("comment-email") || "";
-        }
-        if (website) {
-            website.value =
-                website.value || localStorage.getItem("comment-website") || "";
+            textarea.addEventListener("keydown", handleKeyDown);
         }
 
-        // load text from locale store to textarea
-        textarea.value =
-            textarea.value || sessionStorage.getItem(`comment-craft`) || "";
+        if (form) {
+            // load {name, email, website} from locale store
+            let name = form.querySelector(
+                "input[name=name]",
+            ) as HTMLInputElement;
+            let email = form.querySelector(
+                "input[name=email]",
+            ) as HTMLInputElement;
+            let website = form.querySelector(
+                "input[name=website]",
+            ) as HTMLInputElement;
+
+            if (name) {
+                name.value =
+                    name.value || localStorage.getItem("comment-name") || "";
+            }
+            if (email) {
+                email.value =
+                    email.value || localStorage.getItem("comment-email") || "";
+            }
+            if (website) {
+                website.value =
+                    website.value ||
+                    localStorage.getItem("comment-website") ||
+                    "";
+            }
+        }
+
+        if (textarea) {
+            // load text from locale store to textarea
+            textarea.value =
+                textarea.value || sessionStorage.getItem(`comment-craft`) || "";
+        }
     });
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -110,21 +122,27 @@
     function handleReplySubmit() {
         submmiting = true;
 
-        // save {name, email, website} to locale store
-        let name = form.querySelector("input[name=name]") as HTMLInputElement;
-        let email = form.querySelector("input[name=email]") as HTMLInputElement;
-        let website = form.querySelector(
-            "input[name=website]",
-        ) as HTMLInputElement;
+        if (form) {
+            // save {name, email, website} to locale store
+            let name = form.querySelector(
+                "input[name=name]",
+            ) as HTMLInputElement;
+            let email = form.querySelector(
+                "input[name=email]",
+            ) as HTMLInputElement;
+            let website = form.querySelector(
+                "input[name=website]",
+            ) as HTMLInputElement;
 
-        if (name) {
-            localStorage.setItem("comment-name", name.value);
-        }
-        if (email) {
-            localStorage.setItem("comment-email", email.value);
-        }
-        if (website) {
-            localStorage.setItem("comment-website", website.value);
+            if (name) {
+                localStorage.setItem("comment-name", name.value);
+            }
+            if (email) {
+                localStorage.setItem("comment-email", email.value);
+            }
+            if (website) {
+                localStorage.setItem("comment-website", website.value);
+            }
         }
 
         try {
