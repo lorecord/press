@@ -98,13 +98,13 @@ const DEFAULT_ATTRIBUTE_MAP: {
 }
 
 const cache: {
-    raw: {
-        [key: `${string}-${string}`]: PostRaw
-    },
-    resource: any
+    [site: string]: {
+        raw: {
+            [key: string]: PostRaw | undefined
+        },
+        resource: any
+    }
 } = {
-    raw: {},
-    resource: {}
 };
 
 /**
@@ -266,7 +266,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
             series: [taxonomy?.seires].flat().filter((c: any) => !!c) as string[],
         },
         route: routeInAttributes || (
-            slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`)
+            slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`).replace(/\/+$/, '/')
         ),
         toc: {
             enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
@@ -297,9 +297,20 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         sponsor: resolveContact(site, sponsor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
     };
 
-    cache.raw[`${postRaw.lang}-${postRaw.route}`] = postRaw;
+    const siteCache = cache[site.unique] || (cache[site.unique] = {
+        raw: {} as any,
+        resource: {} as any
+    });
+    siteCache.raw[buildRawCacheKey(postRaw.lang, postRaw.route)] = postRaw;
+
+    console.log('cache updated', cache);
 
     return postRaw;
+}
+
+function buildRawCacheKey(lang: string | undefined, route: string) {
+    lang = lang ? '/' + lang : '';
+    return `${lang}${route}`;
 }
 
 export function loadAllPostRaws(site: Site): PostRaw[] {
@@ -458,11 +469,27 @@ export function fixMarkdownHtmlWrapper(content: string) {
     return content;
 }
 
-export function getRaw(key: `${string}-${string}`) {
-    let raw = cache.raw[key];
-    if (dev && !raw) {
-        console.error(`getRaw: No raw found for key '${key}'.`, Object.keys(cache.raw));
+export function getPostRaw(site: Site, lang: string | undefined, route: string): PostRaw | undefined {
+    const key = buildRawCacheKey(lang, route);
+    const siteCache = cache[site.unique] || (cache[site.unique] = {
+        raw: {} as any,
+        resource: {} as any
+    });
+    let raw = siteCache.raw[key];
+    if (!raw) {
+        console.log('getRaw: miss cache key:', key);
+        const effectedRoute = route.endsWith('/') ? route.slice(0, -1) : route;
+        raw = loadPostRaw(site, { route: effectedRoute, lang });
+        if (raw) {
+            siteCache.raw[key] = raw;
+        } else {
+            console.log('getRaw: Nothing found for route & lang', effectedRoute, lang);
+        }
     }
+    if (dev && !raw) {
+        console.error(`getRaw: No raw found for key '${key}'.`);
+    }
+
     return raw;
 }
 

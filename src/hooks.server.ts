@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { getRaw } from "$lib/post/handle-posts";
+import { getPostRaw } from "$lib/post/handle-posts";
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
 import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
@@ -199,8 +199,7 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
         while (segments.length) {
             let path = segments.join('/') + "/";
             let lang = localeContext?.contentLocale;
-            console.log('try to get raw', `${lang}-${path}`);
-            let raw = await getRaw(`${lang}-${path}`);
+            let raw = await getPostRaw(site, lang, path);
 
             if (raw) {
                 postExsits = true;

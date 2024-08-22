@@ -26,13 +26,13 @@ export async function GET({ locals }) {
     xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
 >${posts.map((post: any) => `
     <url>
-        <loc>${siteConfig.url}${post.route.replace(/\/+$/, '/')}</loc>${(post.modified?.date || post.published?.date)
+        <loc>${siteConfig.url}${post.route}</loc>${(post.modified?.date || post.published?.date)
                 ? `
         <lastmod>${formatDate(new Date(post.modified?.date || post.published?.date))}</lastmod>` : ''}${(post.langs || []).map((lang: string) => `
         <xhtml:link
             rel="alternate"
             hreflang="${lang}"
-            href="${siteConfig.url}/${lang}${post.route.replace(/\/+$/, '/')}"/>`).join('')}
+            href="${siteConfig.url}/${lang}${post.route}"/>`).join('')}
     </url>`).join('')
         }${taxonomies.map((taxonomy: string) => `
     <url>

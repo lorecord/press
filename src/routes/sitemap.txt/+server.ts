@@ -1,14 +1,15 @@
 import { build } from "$lib/server/sitemap";
 import { getSiteConfig } from "$lib/server/config";
+import type { RequestHandler } from "./$types";
 
-export async function GET({ locals }) {
-    const { site } = locals;
+export const GET: RequestHandler = async ({ locals }) => {
+    const { site } = locals as any;
 
     const siteConfig = getSiteConfig(site, 'en');
 
     let { posts, taxonomies } = build(site);
 
-    let responseText = posts.map((post: any) => `${siteConfig.url}${post.route}`.replace(/\/+$/, '/')).join('\n');
+    let responseText = posts.map((post: any) => `${siteConfig.url}${post.route}`).join('\n');
 
     responseText += '\n';
 
