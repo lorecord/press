@@ -3,10 +3,13 @@ import { createTransport } from 'nodemailer';
 import { decrypt } from "$lib/interaction/utils";
 import { t, l } from "$lib/translations";
 import { get } from "svelte/store";
-import type { Author, Reply, Md5HashValue, Sha1HashValue, Sha256HashValue } from "$lib/interaction/types";
+import type { Author, Reply, } from "$lib/interaction/types";
 import type Mail from "nodemailer/lib/mailer";
 import { getNativeInteraction } from "$lib/interaction/handle-native";
 import { loadPost } from "$lib/post/handle-posts";
+import type { Post } from "$lib/post/types";
+import type { Site } from "./sites";
+import type { Md5HashValue, Sha1HashValue, Sha256HashValue } from "$lib/types";
 
 const TO_HOLDER = "undisclosed-recipients:;";
 
@@ -52,7 +55,7 @@ function getTransport(site: any) {
 }
 
 function resolveCommentAuthorUser(comment: Reply) {
-    return comment.author?.user
+    return ((comment.author || {}) as any).user
         || (comment.author?.email?.hash as Sha256HashValue)?.sha256
         || (comment.author?.email?.hash as Md5HashValue)?.md5
         || comment.id;
@@ -73,7 +76,7 @@ function buildAuthorData(site: any, author: Author, lang: string) {
     }
 }
 
-export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
+export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
         console.log('email not configured, skip send reply mail');
@@ -84,7 +87,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
 
     let replied: Reply | undefined = reply.target ? getNativeInteraction(site, reply.target).interaction as Reply : undefined;
 
-    let repliedAuthorData = buildAuthorData(site, replied?.author || {}, replied?.lang || post.lang || systemConfig.locale?.default || 'en');
+    let repliedAuthorData = buildAuthorData(site, replied?.author || post.author?.[0] || {}, replied?.lang || post.lang || systemConfig.locale?.default || 'en');
 
     let uniqueAuthorDataInThread = ((reply, level) => {
         const authorsInThread: Author[] = [];
@@ -108,8 +111,9 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
             }
         }
 
-        // TODO resolve authors of post
-        const authorsRelatedToThread = [...authorsInThread, {
+        const authorsRelatedToThread = [...authorsInThread,
+        ...(post.author || []),
+        {
             name: site.unique,
             email: systemConfig.private?.email?.admin,
             lang: post.lang || systemConfig.locale?.default || 'en'
@@ -145,7 +149,7 @@ export const sendNewReplyMail = async (site: any, post: any, reply: Reply) => {
                     || (md5 && `md5:${md5}` === hash);
             }) || {};
         })
-            .map((author) => buildAuthorData(site, author, reply.lang || post.lang || systemConfig.locale?.default || 'en'))
+            .map((author) => buildAuthorData(site, author, author.lang || reply.lang || post.lang || systemConfig.locale?.default || 'en'))
             .filter((obj) => !!obj.emailAddress);
     })(reply, 4);
 
