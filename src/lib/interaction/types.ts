@@ -11,6 +11,11 @@ interface Base {
     lang?: string;
 }
 
+interface NeedModeration {
+    spam?: boolean;
+    status?: 'pending' | 'auditing' | 'approved' | 'rejected';
+}
+
 export type UserAuthor = {
     user?: string;
 } & ContactBaseProfile;
@@ -27,14 +32,12 @@ export interface WebmentionRaw {
     status: 'ok' | 'deleted' | 'fail' | 'blocked' | 'pending' | 'spam';
 }
 
-export interface Reply extends Base {
+export interface Reply extends Base, NeedModeration {
     type: 'reply';
     content?: string;
     secret?: {
         hash: HashString
     };
-    spam?: boolean;
-    approved?: boolean; // default value?
 }
 
 export interface WebmentionBase extends Base {
@@ -79,18 +82,16 @@ export interface Bookmark extends Base {
     type: 'bookmark';
 }
 
-export interface Mention extends Base {
+export interface Mention extends Base, NeedModeration {
     type: 'mention';
     title?: string;
-    spam?: boolean;
-    approved?: boolean; // default value?
 }
 
 export interface Reaction extends Base {
     type: 'reaction';
 }
 
-export interface Citation extends Base {
+export interface Citation extends Base, NeedModeration {
     type: 'cite';
 }
 

@@ -1,11 +1,11 @@
-import { loadNativeInteractions, loadNativeInteraction, saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
+import { createNativeInteractionReply, loadNativeInteraction, loadPublishedNativeInteractions, saveNativeInteraction } from "$lib/interaction/handle-native";
 import { loadPublishedWebmentions } from "$lib/interaction/handle-webmention";
+import type { NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
 import { loadPost } from "$lib/post/handle-posts";
 import { getRealClientAddress, getRequestPayload } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
-import { json, error } from "@sveltejs/kit";
+import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { NativeInteraction, NativeReply, Reply, WebmentionReply } from "$lib/interaction/types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     const { site } = locals as any;
     const { route } = params;
 
-    const nativeInteractions = loadNativeInteractions(site, { route: route });
+    const nativeInteractions = loadPublishedNativeInteractions(site, { route: route });
 
     const webmentions = loadPublishedWebmentions(site, route);
 
@@ -41,7 +41,11 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
 
     let payload: any = await getRequestPayload(request);
 
-    const { type, email, name, website, text, lang, target } = payload;
+    const { type, email, name, website, text, lang, target, captcha } = payload;
+
+    if (captcha) {
+        error(400, { message: "Captcha is invalid!" });
+    }
 
     if (!text || text.trim() === '') {
         error(400, { message: "Text is required" });

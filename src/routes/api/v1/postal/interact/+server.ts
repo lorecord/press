@@ -120,7 +120,13 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         verified: true
     };
 
-    let saved = saveNativeInteraction(site, { route }, createNativeInteractionReply(site, interaction));
+    let nativeInteraction = createNativeInteractionReply(site, interaction);
+
+    if (payload.spam_status?.toLowerCase() === 'spam') {
+        nativeInteraction.spam = true;
+    }
+
+    let saved = saveNativeInteraction(site, { route }, nativeInteraction);
 
     if (saved) {
         sendNewReplyMail(site, post, saved);

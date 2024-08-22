@@ -64,6 +64,13 @@ export function loadNativeInteraction(site: any, { route, id }: { route: string,
     return (loadNativeInteractions(site, { route: route }) || []).find((i: any) => i.id === id);
 }
 
+export function loadPublishedNativeInteractions(site: any, { route }: { route: string }): NativeInteraction[] {
+    return loadNativeInteractions(site, { route: route })
+        .filter((interaction: NativeInteraction) =>
+            !interaction.spam
+            && !(interaction.status && interaction.status !== 'approved'));
+}
+
 export function loadNativeInteractions(site: any, { route }: { route: string }): NativeInteraction[] {
 
     let filepath = getNativeInteractionsFilePath(site, { route: route });
@@ -258,7 +265,7 @@ export function createNativeInteractionReply(site: any, {
         email, url, text, ip, target, channel
     };
 
-    return Object.assign({
+    let result = Object.assign({
         type: raw.type,
         channel: channel || 'native',
         id: id || calcInteractionId(raw, false),
@@ -278,7 +285,15 @@ export function createNativeInteractionReply(site: any, {
         published: date || new Date().toISOString(),
         content: text,
         lang
-    }, optional(target, 'target'), optional(ip, 'ip', (ip) => encrypt(site, ip)),) as NativeReply;
+    },
+        optional(target, 'target'),
+        optional(ip, 'ip', (ip) => encrypt(site, ip))) as NativeReply;
+
+    if (text.match(/https?:\/\//) || text.match(/\w+\.\w+/)) {
+        result.status = 'auditing';
+    }
+
+    return result;
 }
 
 export function saveCommentAsNativeInteraction(site: any, { route, channel, lang, author, user, email, url, text, ip, reply, type, id, verified }: { route: string, lang: string, channel?: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type?: string, id?: string, verified?: boolean }) {
