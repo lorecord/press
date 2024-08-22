@@ -191,18 +191,18 @@
         />
     {/if}
     {#await post then post}
-        {#if post.processMeta?.prism}
+        {#if post.content?.meta?.prism}
             <link rel="stylesheet" href="/assets/prism/themes/dark.css" />
             <link rel="stylesheet" href="/assets/prism/rehype-prism-plus.css" />
         {/if}
-        {#if post.processMeta?.katex}
+        {#if post.content?.meta?.katex}
             <link
                 rel="stylesheet"
                 href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
             />
         {/if}
 
-        {#if post.processMeta?.mermaid}
+        {#if post.content?.meta?.mermaid}
             <link rel="stylesheet" href="/assets/mermaid/dark.css" />
             <script
                 async
