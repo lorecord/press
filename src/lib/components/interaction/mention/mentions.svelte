@@ -14,30 +14,36 @@
             data-id={mention.id}
             class="citations-list-item"
         >
-            {#if mention.published}
-                <Time
-                    date={mention.published}
-                    class="dt-published"
-                    locale={$locale}
-                    options={{ dateStyle: "short" }}
-                />
-            {/if}
-            <h4>
-                {#if mention.author?.name}
-                    {#if mention.author?.url}
-                        <a href={mention.author?.url} rel="noopener nofollow"
-                            >{mention.author?.name}</a
-                        >
-                    {:else}
-                        {mention.author?.name}
+            <div style="display: flex; gap: 1rem">
+                {#if mention.published}
+                    <Time
+                        date={mention.published}
+                        class="dt-published"
+                        locale={$locale}
+                        options={{ dateStyle: "short" }}
+                    />
+                {/if}
+                <h4>
+                    {#if mention.title && mention.author?.name}
+                        {#if mention.author?.url}
+                            <a
+                                href={mention.author?.url}
+                                rel="noopener nofollow"
+                                >{mention.author?.name}</a
+                            >
+                        {:else}
+                            {mention.author?.name}
+                        {/if}
                     {/if}
-                {/if}
-                {#if mention.url}
-                    <a href={mention.url} rel="noopener nofollow"
-                        >{mention.title || mention.url}</a
-                    >
-                {/if}
-            </h4>
+                    {#if mention.url}
+                        <a href={mention.url} rel="noopener nofollow"
+                            >{mention.title ||
+                                mention.author?.name ||
+                                mention.url}</a
+                        >
+                    {/if}
+                </h4>
+            </div>
             <div class="citation-body">
                 {#if mention.content}
                     {@html mention.content}
@@ -55,7 +61,8 @@
 
         .citations-list-item {
             display: flex;
-            gap: 1rem;
+            flex-flow: column;
+            gap: 0;
 
             margin-bottom: 0.5rem;
 
