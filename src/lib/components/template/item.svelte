@@ -23,7 +23,7 @@
         <div class="sublings">
             <div class="newer">
                 {#await newer then value}
-                    {#if value}
+                    {#if value?.route}
                         <a href={`${value.route}`}>
                             <h4>
                                 <div>

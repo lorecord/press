@@ -303,8 +303,6 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     });
     siteCache.raw[buildRawCacheKey(postRaw.lang, postRaw.route)] = postRaw;
 
-    console.log('cache updated', cache);
-
     return postRaw;
 }
 
