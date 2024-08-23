@@ -76,6 +76,70 @@ function buildAuthorData(site: any, author: Author, lang: string) {
     }
 }
 
+function calcUniqueAuthorDataInThread(post: Post, reply: Reply, replied: Reply | undefined, levelLimited: number, systemConfig: any, site: Site) {
+    const authorsInThread: Author[] = [];
+
+    let current = replied;
+    let deep = 1;
+    while (current?.target) {
+        const { interaction } = getNativeInteraction(site, current.target);
+
+        if (interaction?.type === 'reply') {
+            let author = (interaction as Reply).author;
+            author && authorsInThread.push(author);
+        }
+
+        current = interaction as Reply;
+        deep++;
+
+        if (deep > levelLimited) {
+            // igonre levels that is too deep
+            break;
+        }
+    }
+
+    const authorsRelatedToThread = [...authorsInThread,
+    ...(post.author || []),
+    {
+        name: site.unique,
+        email: systemConfig.private?.email?.admin,
+        lang: post.lang || systemConfig.locale?.default || 'en'
+    } as Author];
+
+    const uniqueEmailHashs = Array.from(new Set(authorsRelatedToThread
+        .map((person) => {
+            const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
+            return (sha256 && `sha256:${sha256}`)
+                || (sha1 && `sha1:${sha1}`)
+                || (md5 && `md5:${md5}`);
+        })
+        .filter((hash) => !!hash)
+        .filter((hash) => {
+            const { md5, sha256, sha1 } = reply?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
+            return (!sha256 || `sha256:${sha256}` !== hash)
+                && (!sha1 || `sha1:${sha1}` !== hash)
+                && (!md5 || `md5:${md5}` !== hash);
+        })
+        .filter((hash) => {
+            const { md5, sha256, sha1 } = replied?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
+            return (!sha256 || `sha256:${sha256}` !== hash)
+                && (!sha1 || `sha1:${sha1}` !== hash)
+                && (!md5 || `md5:${md5}` !== hash);
+        })
+    ));
+
+    return uniqueEmailHashs.map((hash) => {
+        return authorsRelatedToThread.find((person) => {
+            const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
+            return (sha256 && `sha256:${sha256}` === hash)
+                || (sha1 && `sha1:${sha1}` === hash)
+                || (md5 && `md5:${md5}` === hash);
+        }) || {};
+    })
+        .map((author) => buildAuthorData(site, author, author.lang || reply.lang || post.lang || systemConfig.locale?.default || 'en'))
+        .filter((obj) => !!obj.emailAddress);
+}
+
 export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
@@ -93,69 +157,7 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
 
     let repliedAuthorData = buildAuthorData(site, replied?.author || post.author?.[0] || {}, replied?.lang || post.lang || systemConfig.locale?.default || 'en');
 
-    let uniqueAuthorDataInThread = ((reply, level) => {
-        const authorsInThread: Author[] = [];
-
-        let current = replied;
-        let deep = 1;
-        while (current?.target) {
-            const { interaction } = getNativeInteraction(site, current.target);
-
-            if (interaction?.type === 'reply') {
-                let author = (interaction as Reply).author;
-                author && authorsInThread.push(author);
-            }
-
-            current = interaction as Reply;
-            deep++;
-
-            if (deep > level) {
-                // igonre levels that is too deep
-                break;
-            }
-        }
-
-        const authorsRelatedToThread = [...authorsInThread,
-        ...(post.author || []),
-        {
-            name: site.unique,
-            email: systemConfig.private?.email?.admin,
-            lang: post.lang || systemConfig.locale?.default || 'en'
-        } as Author];
-
-        const uniqueEmailHashs = Array.from(new Set(authorsRelatedToThread
-            .map((person) => {
-                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
-                return (sha256 && `sha256:${sha256}`)
-                    || (sha1 && `sha1:${sha1}`)
-                    || (md5 && `md5:${md5}`);
-            })
-            .filter((hash) => !!hash)
-            .filter((hash) => {
-                const { md5, sha256, sha1 } = reply?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
-                return (!sha256 || `sha256:${sha256}` !== hash)
-                    && (!sha1 || `sha1:${sha1}` !== hash)
-                    && (!md5 || `md5:${md5}` !== hash);
-            })
-            .filter((hash) => {
-                const { md5, sha256, sha1 } = replied?.author?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
-                return (!sha256 || `sha256:${sha256}` !== hash)
-                    && (!sha1 || `sha1:${sha1}` !== hash)
-                    && (!md5 || `md5:${md5}` !== hash);
-            })
-        ));
-
-        return uniqueEmailHashs.map((hash) => {
-            return authorsRelatedToThread.find((person) => {
-                const { md5, sha256, sha1 } = person?.email?.hash as Md5HashValue & Sha256HashValue & Sha1HashValue || {};
-                return (sha256 && `sha256:${sha256}` === hash)
-                    || (sha1 && `sha1:${sha1}` === hash)
-                    || (md5 && `md5:${md5}` === hash);
-            }) || {};
-        })
-            .map((author) => buildAuthorData(site, author, author.lang || reply.lang || post.lang || systemConfig.locale?.default || 'en'))
-            .filter((obj) => !!obj.emailAddress);
-    })(reply, 4);
+    let uniqueAuthorDataInThread = calcUniqueAuthorDataInThread(post, reply, replied, 4, systemConfig, site);
 
     let allowReplyEmail = !!systemConfig.postal?.enabled;
 
@@ -241,6 +243,8 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
     }
     const transport = getTransport(site);
 
+    const emailAddressesSent = new Set<String>();
+
     if (repliedAuthorData?.emailAddress && repliedAuthorData.emailAddress !== replyAuthorData?.emailAddress) {
         let lang = replied?.lang || post.lang || systemConfig.locale?.default || 'en';
         let { subject, text, list } = await getEmailConfigParams(lang);
@@ -261,6 +265,7 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
             options.inReplyTo = `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`;
         }
 
+        emailAddressesSent.add(repliedAuthorData.emailAddress);
         transport.sendMail(options).then((result) => {
             console.log(`new reply mail in ${lang} to ${options.to} send, id: ${result.messageId}`);
         });
@@ -303,7 +308,9 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
             options.inReplyTo = `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`;
         }
 
-        let recipientArray = authorDataArray.map((obj) => buildEmailAddress(resolveAuthorName(obj.author, lang), obj.emailAddress as String));
+        let recipientArray = authorDataArray.map((obj) => buildEmailAddress(resolveAuthorName(obj.author, lang), obj.emailAddress as String))
+            .filter((emailAddress) => emailAddressesSent.has(emailAddress) ? false : emailAddressesSent.add(emailAddress));
+
         if (recipientArray.length > 0) {
             options.bcc = recipientArray.join(', ');
             transport.sendMail(options).then((result) => {
