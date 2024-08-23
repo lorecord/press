@@ -1,24 +1,34 @@
 import { visit } from 'unist-util-visit';
+import type { Node, Data } from 'unist';
 import type { Plugin } from 'unified';
 
-const remarkAttrs: Plugin = () => (tree: any, file: any) => {
-    visit(tree, ['text'], (node, index, parent) => {
+const remarkAttrs: Plugin = () => (tree, file: any) => {
+    visit(tree, ['text'], (node, index, parent: Node | undefined) => {
         const [_, beforeAttrs, attrs, afterAttrs] =
-            node.value.match(/^(.*)(\{.*\})(.*)/) || [];
+            (node as any).value.match(/^(.*)(\{.*\})(.*)/) || [];
 
         if (attrs) {
             let parsedAttrs: {
                 [key: string]: string;
             } = {};
             const attrDefs = attrs.slice(1, -1).split(/(\s|,|\s,)/);
+
             for (let i = 0; i < attrDefs.length; i += 2) {
                 if (attrDefs[i].startsWith('.')) {
-                    parsedAttrs['class'] = attrDefs[i].slice(1);
+                    parsedAttrs['class'] = parsedAttrs['class']
+                        ? parsedAttrs['class'] + ' ' + attrDefs[i].slice(1)
+                        : attrDefs[i].slice(1);
+
                 } else if (attrDefs[i].startsWith('#')) {
                     parsedAttrs['id'] = attrDefs[i].slice(1);
                 } else {
-                    const [, attr, value] = attrDefs[i]?.match(/(.*)=(.*)/) || [];
+                    const [, attr, value] = attrDefs[i]?.match(/(.*)="?([^"]*)"?/) || [];
                     if (attr && value) {
+                        if (["rel"].includes(attr)) {
+                            parsedAttrs['rel'] = parsedAttrs['rel']
+                                ? parsedAttrs['rel'] + ' ' + value
+                                : value;
+                        }
                         parsedAttrs[attr] = value;
                     }
                 }
@@ -26,8 +36,8 @@ const remarkAttrs: Plugin = () => (tree: any, file: any) => {
 
             let targetNode = null;
 
-            if (index && index > 0) {
-                const prevSibling = parent.children[index - 1];
+            if (index && index > 0 && parent) {
+                const prevSibling = (parent as any).children[index - 1];
                 targetNode = prevSibling;
             }
 
@@ -36,11 +46,21 @@ const remarkAttrs: Plugin = () => (tree: any, file: any) => {
             }
 
             targetNode.data = targetNode.data || {};
+            const { class: clazz, rel, ...restParsedAttrs } = parsedAttrs;
+            let specialAttrs: any = {};
+
+            if (clazz) {
+                specialAttrs.class = targetNode.data.hProperties?.class ? targetNode.data.hProperties.class + ' ' + clazz : clazz;
+                specialAttrs.rel = targetNode.data.hProperties?.rel ? targetNode.data.hProperties.rel + ' ' + rel : rel;
+            }
+
             targetNode.data.hProperties = {
                 ...targetNode.data.hProperties,
-                ...parsedAttrs
-            }
-            node.value = (beforeAttrs || '') + (afterAttrs || '');
+                ...specialAttrs,
+                ...restParsedAttrs
+            };
+
+            (node as any).value = (beforeAttrs || '') + (afterAttrs || '');
         }
     });
 };
