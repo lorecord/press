@@ -46,3 +46,4 @@ comment_send: 发送
 comment_anonymous: 匿名
 comment_nobody: 无名氏
 reply_via_email: 发邮件
+webmention_tips_html: 了解 <a href="https://indieweb.org/Webmention" rel="noopener nofollow external help">Webmention</a>

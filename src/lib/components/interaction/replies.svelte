@@ -285,8 +285,12 @@
                 action={webmentionEndpoint || ""}
                 on:submit|preventDefault={handleWebmentionSubmit}
             >
+                <input type="hidden" name="target" value={postUrl} />
                 <div class="form-row">
-                    <div class="input-group" style="width: 100%">
+                    <div
+                        class="input-group input-group-pill"
+                        style="width: 100%"
+                    >
                         <label>
                             <input
                                 type="url"
@@ -294,12 +298,11 @@
                                 placeholder="URL"
                                 required
                             />
-                            <input
-                                type="hidden"
-                                name="target"
-                                value={postUrl}
-                            />
+
                             <div class="label">URL</div>
+                            <div class="tips">
+                                {@html $t("common.webmention_tips_html")}
+                            </div>
                         </label>
                         <button
                             type="submit"

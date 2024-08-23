@@ -46,3 +46,4 @@ comment_send: Send
 comment_anonymous: Anonymous
 comment_nobody: Nobody
 reply_via_email: Post via Email
+webmention_tips_html: Know more about <a href="https://indieweb.org/Webmention" rel="noopener nofollow external help">Webmention</a>

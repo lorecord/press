@@ -185,6 +185,18 @@ label {
         transition: 0.2s ease all;
         color: var(--text-color-tertiary);
     }
+    .tips {
+        position: absolute;
+        font-size: 67%;
+        padding-left: 1rem;
+        color: var(--text-color-quaternary);
+
+        a {
+            color: var(--text-color-quaternary);
+            text-decoration: underline;
+            cursor: help;
+        }
+    }
 }
 
 textarea,
@@ -414,6 +426,7 @@ button,
 }
 
 .input-group {
+    --input-group-height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -439,6 +452,18 @@ button,
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         flex: 0;
+    }
+
+    &.input-group-pill {
+        :first-child {
+            border-top-left-radius: calc(var(--input-group-height) / 2);
+            border-bottom-left-radius: calc(var(--input-group-height) / 2);
+        }
+
+        :last-child {
+            border-top-right-radius: calc(var(--input-group-height) / 2);
+            border-bottom-right-radius: calc(var(--input-group-height) / 2);
+        }
     }
 }
 
