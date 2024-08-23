@@ -49,10 +49,10 @@
                     </div>
                 {/if}
 
-                {#if summary?.html}
+                {#if summary?.raw}
                     <div class="summary">
                         {#key summary?.html}
-                            {@html summary?.html}
+                            {@html summary?.raw}
                         {/key}
                     </div>
                 {/if}
