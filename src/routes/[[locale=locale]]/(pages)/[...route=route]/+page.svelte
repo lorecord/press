@@ -578,11 +578,13 @@
 </div>
 
 <style lang="scss">
-    .comments-wrapper {
-        padding: 1rem;
+    .discuss > * {
         max-width: 45rem;
         margin-left: auto;
         margin-right: auto;
+    }
+    .comments-wrapper {
+        padding: 1rem;
     }
 
     .page-wrapper {

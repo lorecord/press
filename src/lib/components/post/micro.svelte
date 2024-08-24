@@ -299,10 +299,10 @@
 </article>
 
 <style lang="scss">
-    :global(.template-note) {
-        :global(.comments-wrapper) {
-            max-width: 60ch !important;
-        }
+    :global(.template-note.discuss > *) {
+        max-width: 60ch !important;
+        margin-left: auto;
+        margin-right: auto;
     }
     :global(article) {
         :global(.article-content) {
