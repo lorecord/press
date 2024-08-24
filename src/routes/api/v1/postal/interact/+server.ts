@@ -120,7 +120,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     // check spam_status
     if (payload.spam_status?.toLowerCase() === 'spam') {
-        nativeInteraction.spam = true;
+        // TODO read spam score from payload
+        nativeInteraction.spam = nativeInteraction.spam || { score: 8, marked: true };
     }
 
     let saved = saveNativeInteraction(site, { route }, nativeInteraction);

@@ -95,9 +95,17 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             target
         };
 
-        let saved = saveNativeInteraction(site, { route: route }, createNativeInteractionReply(site, interaction));
+        let nativeReply = createNativeInteractionReply(site, interaction);
 
-        console.log('new comment saved', saved?.id);
+        if (nativeReply.spam) {
+            const { score } = nativeReply.spam;
+            if (score && !rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * score / 10)) {
+                console.warn(`Super Spam detected on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
+                error(400, { message: "Spam detected!" });
+            }
+        }
+
+        let saved = saveNativeInteraction(site, { route: route }, nativeReply);
 
         if (saved) {
             sendNewReplyMail(site, post, saved);

@@ -12,7 +12,10 @@ interface Base {
 }
 
 interface NeedModeration {
-    spam?: boolean;
+    spam?: {
+        score: number;
+        marked?: boolean;
+    };
     status?: 'pending' | 'auditing' | 'approved' | 'rejected';
 }
 

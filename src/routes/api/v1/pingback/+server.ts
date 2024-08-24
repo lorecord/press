@@ -19,7 +19,7 @@ export async function POST({ request, locals }) {
 
       const existed = getNativeInteraction(site, id);
 
-      if (existed?.interaction?.spam) {
+      if (existed?.interaction?.spam?.marked) {
         return new Response(createErrorResponse(0, 'Spam'), { status: 400 });
       }
 

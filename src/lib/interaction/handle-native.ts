@@ -67,7 +67,7 @@ export function loadNativeInteraction(site: any, { route, id }: { route: string,
 export function loadPublishedNativeInteractions(site: any, { route }: { route: string }): NativeInteraction[] {
     return loadNativeInteractions(site, { route: route })
         .filter((interaction: NativeInteraction) =>
-            !interaction.spam
+            !interaction.spam?.marked
             && !(interaction.status && interaction.status !== 'approved'));
 }
 
@@ -289,11 +289,75 @@ export function createNativeInteractionReply(site: any, {
         optional(target, 'target'),
         optional(ip, 'ip', (ip) => encrypt(site, ip))) as NativeReply;
 
-    if (text.match(/https?:\/\//) || text.match(/\w+\.\w+/)) {
-        result.status = 'auditing';
+    const score = scoreSpam(result);
+    if (score > 0) {
+        result.spam = { score };
+        if (score >= 5) {
+            result.spam.marked = true;
+            result.status = 'rejected';
+        } else if (score >= 4) {
+            result.spam.marked = true;
+            result.status = 'auditing';
+        } else if (score >= 2) {
+            result.status = 'auditing';
+        }
     }
 
     return result;
+}
+
+export function scoreSpam(nativeInteraction: NativeInteraction) {
+    // spam detection:
+    let score = 0;
+
+    const { author } = nativeInteraction;
+
+    if (author?.verified) {
+        score -= 2;
+    }
+
+    if (author?.url?.match(/.ru\b/)) {
+        score += 2;
+    }
+
+    if (nativeInteraction.type == 'reply') {
+        const { content } = nativeInteraction;
+
+        if (content) {
+            const text = content.trim();
+
+            const links = text.match(/<a[^>]+>[^<\/a>]*<\/a>/g) || [];
+            score += links.length * 2;
+
+            const urls = text.match(/https?:\/\/\S+/g) || [];
+            if (urls.length > 0) {
+                const textUrlNum = Math.min(urls.length - links.length, 0);
+                score += textUrlNum * 1;
+            }
+
+            const maybeDomains = text.match(/\w+\.[a-zA-Z]{2,}\b/g) || [];
+            if (maybeDomains.length > 0) {
+                const maybeNum = Math.min(maybeDomains.length - urls.length, 0);
+                score += maybeNum * 0.7;
+            }
+
+            const dotRuDomains = text.match(/\w+\.ru\b/g) || [];
+            if (dotRuDomains.length > 0) {
+                score += (dotRuDomains.length / maybeDomains.length) * 3;
+            }
+
+            const contentExludeLinks = text
+                .replace(/<a[^>]+>[^<\/a>]*<\/a>/g, '')
+                .replace(/https?:\/\/\S+/g, '')
+                .replace(/\w+\.[a-zA-Z]{2,}\b/g, '');
+            score += (1 - contentExludeLinks.length / text.length) * 4;
+        } else {
+            score += 10;
+        }
+    } else if (nativeInteraction.type == 'mention') {
+
+    }
+    return score;
 }
 
 export function saveCommentAsNativeInteraction(site: any, { route, channel, lang, author, user, email, url, text, ip, reply, type, id, verified }: { route: string, lang: string, channel?: string, author: string, user: string, email: string, url: string, text: string, ip: string, reply: string, type?: string, id?: string, verified?: boolean }) {

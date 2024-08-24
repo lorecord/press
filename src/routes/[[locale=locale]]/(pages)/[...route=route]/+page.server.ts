@@ -1,14 +1,13 @@
-import { getSystemConfig } from "$lib/server/config";
-import { saveNativeInteraction, createNativeInteractionReply } from "$lib/interaction/handle-native";
+import { createNativeInteractionReply, saveNativeInteraction } from "$lib/interaction/handle-native";
+import { decrypt } from "$lib/interaction/utils.js";
 import { loadPost } from "$lib/post/handle-posts";
+import { getSiteAccount } from "$lib/server/accounts.js";
+import { getSystemConfig } from "$lib/server/config";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
-import { getSiteAccount } from "$lib/server/accounts.js";
-import { decrypt } from "$lib/interaction/utils.js";
+import { rateLimiter } from "$lib/server/secure";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { RateLimiter } from "$lib/server/rate-limit";
-import { rateLimiter } from "$lib/server/secure";
 
 export const load: PageServerLoad = async ({ locals, setHeaders }) => {
     const { localeContext, site } = locals as any;
@@ -72,7 +71,18 @@ export const actions: Actions = {
                     ip: getRealClientAddress({ request, getClientAddress }),
                     target: form.get("target")?.toString() || '',
                 };
-                let saved = saveNativeInteraction(site, { route: route.toString() }, createNativeInteractionReply(site, comment));
+
+                let nativeReply = createNativeInteractionReply(site, comment);
+
+                if (nativeReply.spam) {
+                    const { score } = nativeReply.spam;
+                    if (score && !rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * score / 10)) {
+                        console.warn(`Super Spam detected on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
+                        return;
+                    }
+                }
+
+                let saved = saveNativeInteraction(site, { route: route.toString() }, nativeReply);
 
                 if (saved) {
                     sendNewReplyMail(site, post, saved);
