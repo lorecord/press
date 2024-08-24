@@ -9,8 +9,6 @@ import type { RequestHandler } from "./$types";
 import { rateLimiter } from "$lib/server/secure";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
-
-
     const { site } = locals as any;
     const { route } = params;
 
@@ -101,7 +99,7 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             const { score } = nativeReply.spam;
             if (score && !rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * score / 10)) {
                 console.warn(`Super Spam detected on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
-                error(400, { message: "Spam detected!" });
+                error(429, { message: "Rate limit exceeded" });
             }
         }
 

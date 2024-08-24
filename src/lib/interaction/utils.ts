@@ -5,6 +5,7 @@ import type { EncryptedString, HashValue, Md5HashValue, Sha1HashValue, Sha256Has
 import crypto from 'crypto';
 import path from 'path';
 import type { NativeInteraction, NativeMention, NativeReply } from './types';
+import { dev } from '$app/environment';
 
 export function hashStringEquals(a: HashValue, b: HashValue) {
     const { md5: aMd5, sha256: aSha256, sha1: aSha1 } = a as Md5HashValue & Sha256HashValue & Sha1HashValue;
@@ -157,10 +158,16 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
     const { author } = nativeInteraction;
 
     if (author?.verified) {
+        if (dev) {
+            console.log(`[scoreSpam] author is verified (-2)`);
+        }
         score -= 2;
     }
 
     if (author?.url?.match(/.ru\b/)) {
+        if (dev) {
+            console.log(`[scoreSpam]`, author.url, 'is .ru, (+ 2)');
+        }
         score += 2;
     }
 
@@ -171,22 +178,36 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
             const text = content.trim();
 
             const links = text.match(/<a[^>]+>[^<\/a>]*<\/a>/g) || [];
-            score += links.length * 2;
+            if (links.length > 0) {
+                if (dev) {
+                    console.log(`[scoreSpam] links`, links.length, 'in content', '(+', links.length * 3, ')');
+                }
+                score += links.length * 3;
+            }
 
             const urls = text.match(/https?:\/\/\S+/g) || [];
             if (urls.length > 0) {
-                const textUrlNum = Math.min(urls.length - links.length, 0);
-                score += textUrlNum * 1;
+                const textUrlNum = Math.max(urls.length - links.length, 0);
+                if (dev) {
+                    console.log(`[scoreSpam] urls`, textUrlNum, 'in content', '(+', textUrlNum * 2, ')');
+                }
+                score += textUrlNum * 2;
             }
 
             const maybeDomains = text.match(/\w+\.[a-zA-Z]{2,}\b/g) || [];
             if (maybeDomains.length > 0) {
                 const maybeNum = Math.min(maybeDomains.length - urls.length, 0);
-                score += maybeNum * 0.7;
+                if (dev) {
+                    console.log(`[scoreSpam] maybeDomains`, maybeNum, 'in content', '(+', maybeNum * 0.5, ')');
+                }
+                score += maybeNum * 0.5;
             }
 
             const dotRuDomains = text.match(/\w+\.ru\b/g) || [];
             if (dotRuDomains.length > 0) {
+                if (dev) {
+                    console.log(`[scoreSpam] dotRuDomains`, dotRuDomains.length, `${((dotRuDomains.length / maybeDomains.length) * 100).toFixed(2)}%`, 'in content', '(+', (dotRuDomains.length / maybeDomains.length) * 3, ')');
+                }
                 score += (dotRuDomains.length / maybeDomains.length) * 3;
             }
 
@@ -194,12 +215,20 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
                 .replace(/<a[^>]+>[^<\/a>]*<\/a>/g, '')
                 .replace(/https?:\/\/\S+/g, '')
                 .replace(/\w+\.[a-zA-Z]{2,}\b/g, '');
-            score += (1 - contentExludeLinks.length / text.length) * 4;
+            if (text.length - contentExludeLinks.length > 0) {
+                if (dev) {
+                    console.log(`[scoreSpam] links content`, text.length - contentExludeLinks.length, `${((1 - contentExludeLinks.length / text.length) * 100).toFixed(2)}%`, 'in content', '(+', (1 - contentExludeLinks.length / text.length) * 4, ')');
+                }
+                score += (1 - contentExludeLinks.length / text.length) * 4;
+            }
         } else {
+            if (dev) {
+                console.log(`[scoreSpam] no content in reply`, '(+10)');
+            }
             score += 10;
         }
     } else if (nativeInteraction.type == 'mention') {
 
     }
-    return score;
+    return +(Math.round(+(score + "e+2")) + "e-2");
 }
