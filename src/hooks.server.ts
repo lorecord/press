@@ -1,26 +1,20 @@
-import fs from 'fs';
-import { getPostRaw } from "$lib/post/handle-posts";
-import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
-import { locale, locales, loadTranslations, knownLocales } from "$lib/translations";
-import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
-import { matchSite } from '$lib/server/sites';
-import { sequence } from '@sveltejs/kit/hooks';
-import { json, type Handle, type HandleServerError } from '@sveltejs/kit';
-import { getEnvConfig, getSystemConfig } from '$lib/server/config';
-import { getSession } from '$lib/server/session';
-import { match as matchLocale } from './params/locale';
 import { dev } from '$app/environment';
-import { RateLimiter } from '$lib/server/rate-limit';
+import { getPostRaw } from "$lib/post/handle-posts";
+import { getEnvConfig, getSystemConfig } from '$lib/server/config';
 import { getRealClientAddress } from '$lib/server/event-utils';
-import { error } from '@sveltejs/kit';
+import { rateLimiter } from '$lib/server/secure';
+import { getSession } from '$lib/server/session';
+import { matchSite } from '$lib/server/sites';
+import { loadTranslations, locale, locales } from "$lib/translations";
+import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
+import { error, type Handle, type HandleServerError } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
+import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
+import fs from 'fs';
+import { match as matchLocale } from './params/locale';
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Promise Rejection:', reason);
-});
-
-const apiRateLimiter = new RateLimiter({
-    limit: 1000,
-    duration: 60 * 1000
 });
 
 export const handleExternalLink: Handle = async ({ event, resolve }) => {
@@ -108,8 +102,8 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
         }
 
         const ip = getRealClientAddress(event);
-        if (!envConfig.private?.IP_LIMIT_WHITE_LIST?.includes(ip) && !apiRateLimiter.inflood(ip, volume)) {
-            console.warn(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(apiRateLimiter.get(ip).last)?.toISOString()}`);
+        if (!envConfig.private?.IP_LIMIT_WHITE_LIST?.includes(ip) && !rateLimiter.inflood(ip, volume)) {
+            console.warn(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(rateLimiter.get(ip).last)?.toISOString()}`);
             error(429, 'Rate limit exceeded');
         }
     }

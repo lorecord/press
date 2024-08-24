@@ -7,6 +7,8 @@ import { getSiteAccount } from "$lib/server/accounts.js";
 import { decrypt } from "$lib/interaction/utils.js";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import { RateLimiter } from "$lib/server/rate-limit";
+import { rateLimiter } from "$lib/server/secure";
 
 export const load: PageServerLoad = async ({ locals, setHeaders }) => {
     const { localeContext, site } = locals as any;
@@ -36,16 +38,24 @@ export const actions: Actions = {
 
         let { route, locale } = params;
         if (!route) {
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.1);
             return;
         }
         if (route?.endsWith('/')) {
             route = route.substring(0, route.length - 1);
         }
 
+        const form = await request.formData();
+        if ((form.get("captcha")?.toString().length || 0) > 0) {
+            // honey pot
+            console.log(`Honey pot triggered on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 10);
+            return;
+        }
+
         const post = await loadPost(site, { route, lang: locale || undefined });
         if (post && post.comment?.enabled && post.comment?.reply) {
-            const form = await request.formData();
-            if (form.get("captcha")?.toString().length == 0 // honey pot
+            if (form.get("captcha")?.toString().length == 0
                 && (form.get("name")?.toString()?.length || 0) > 0
                 && form.get("email")?.toString().toLowerCase().match(/[\w](([\w+-_.]+)?[\w])?@([\w](([\w-]+)?[\w])?\.)[a-z]{2,}/)
                 && (form.get("text")?.toString()?.length || 0) > 0
@@ -68,6 +78,8 @@ export const actions: Actions = {
                     sendNewReplyMail(site, post, saved);
                 }
             }
+        } else {
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.5);
         }
     }
 };

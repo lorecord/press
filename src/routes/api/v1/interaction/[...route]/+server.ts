@@ -6,6 +6,7 @@ import { getRealClientAddress, getRequestPayload } from "$lib/server/event-utils
 import { sendNewReplyMail } from "$lib/server/mail";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { rateLimiter } from "$lib/server/secure";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -44,10 +45,14 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
     const { type, email, name, website, text, lang, target, captcha } = payload;
 
     if (captcha) {
+        // honey pot
+        console.log(`Honey pot triggered on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
+        rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 10);
         error(400, { message: "Captcha is invalid!" });
     }
 
     if (!text || text.trim() === '') {
+        rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.5);
         error(400, { message: "Text is required" });
     }
 
@@ -61,17 +66,20 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
         if (!post) {
             message = "Post not found";
             status = 404;
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.5);
             break;
         }
         if (!post.comment?.enabled || !post.comment?.reply) {
             message = "Comment is disabled";
             status = 403;
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.5);
             break;
         }
 
         if (email && !email.toLowerCase().match(/[\w](([\w+-_.]+)?[\w])?@([\w](([\w-]+)?[\w])?\.)[a-z]{2,}/)) {
             message = "Invalid email";
             status = 400;
+            rateLimiter.inflood(getRealClientAddress({ request, getClientAddress }), (limit) => limit * 0.1);
             break;
         }
 
