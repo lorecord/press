@@ -572,7 +572,7 @@
             aside {
                 position: sticky;
                 top: 0;
-                min-width: calc((100vw - 1024px) / 2 - var(--content-padding));
+                min-width: calc((100vw - 54rem) / 2 - var(--content-padding));
 
                 display: flex;
                 flex-direction: column;
@@ -758,14 +758,14 @@
                 #toc-button {
                     display: flex !important;
                     position: fixed;
-                    right: 20px;
-                    bottom: 140px;
+                    right: 1rem;
+                    bottom: 7rem;
                 }
 
                 #comments-link {
                     position: fixed;
-                    right: 20px;
-                    bottom: 80px;
+                    right: 1rem;
+                    bottom: 4rem;
                 }
             }
         }

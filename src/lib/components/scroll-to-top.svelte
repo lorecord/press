@@ -26,8 +26,8 @@
 <style>
     .scroll-to-top {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 1rem;
+        right: 1rem;
         opacity: 0;
         transition: opacity 0.4s;
         z-index: 1000;

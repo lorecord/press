@@ -11,8 +11,8 @@
 <style lang="scss">
     .skeleton {
         background-color: rgb(222, 222, 222);
-        border-radius: 4px;
-        margin: 8px 0;
+        border-radius: 0.25rem;
+        margin: 0.5rem 0;
         overflow: hidden;
         position: relative;
         display: inline-block;

@@ -76,7 +76,11 @@
             </ul>
 
             <div class="sm">
-                <button id="button" class="button-text button-thin text" on:click={handleReponsive}>
+                <button
+                    id="button"
+                    class="button-text button-thin text"
+                    on:click={handleReponsive}
+                >
                     {#if reponsive}
                         <IconX size={18} />
                     {:else}
@@ -126,8 +130,8 @@
                 }
 
                 .brand-text {
-                    font-size: 18px;
-                    line-height: 27px;
+                    font-size: 1rem;
+                    line-height: 1.5;
                     font-weight: normal;
                     margin: 0;
                 }

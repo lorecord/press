@@ -23,8 +23,8 @@
     .dash-container {
         display: flex;
         aside {
-            width: 300px;
-            padding: 20px;
+            width: 15rem;
+            padding: 1rem;
         }
         main {
             flex: 1;

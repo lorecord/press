@@ -1,11 +1,11 @@
 .container {
     margin: 0 auto;
-    max-width: 1024px;
+    max-width: 54rem;
     flex: 1;
 
     @include breakpoint(xs) {
         max-width: 100svw;
-        min-width: 300px;
+        min-width: 15rem;
     }
 }
 

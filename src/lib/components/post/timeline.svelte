@@ -52,21 +52,21 @@
         position: relative;
         margin: 0 auto;
         list-style: none;
-        padding-left: 100px;
+        padding-left: 5rem;
 
         &::before {
             content: "";
             position: absolute;
             top: 0;
-            bottom: 30px;
+            bottom: 1.5rem;
             width: 2px;
             background-color: rgb(107, 107, 107);
-            margin-left: 20px;
+            margin-left: 1rem;
         }
     }
     .timeline-item {
         position: relative;
-        padding-left: 40px;
+        padding-left: 2rem;
         margin: 0 auto;
         display: flex;
         gap: 0.25rem;
@@ -115,9 +115,9 @@
         .time {
             --color: var(--text-color);
             position: absolute;
-            left: -110px;
-            width: 120px;
-            padding: 5px;
+            left: -5.5rem;
+            width: 6rem;
+            padding: 0.25rem;
             font-weight: bold;
             text-align: right;
             color: var(--color);
@@ -138,7 +138,7 @@
         }
 
         .timeline-item {
-            padding-left: 40px;
+            padding-left: 2rem;
             align-items: baseline;
             margin-left: 0;
 
