@@ -97,6 +97,20 @@
             {/if}
         </div>
         <div class="article-meta">
+            {#if post.data?.reply}
+                {@const reply = post.data?.reply}
+                <div>
+                    <span lang={$locale}>
+                        {#if reply.item?.url}
+                            <a class="u-in-reply-to" href={reply.item.url}
+                                >{reply.item.name}</a
+                            >
+                        {:else}
+                            {reply.item.name}
+                        {/if}
+                    </span>
+                </div>
+            {/if}
             <a
                 href="{siteConfig.url}{post.route}"
                 rel="bookmark"

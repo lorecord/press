@@ -163,6 +163,23 @@
                         </div>
                     {/if}
 
+                    {#if post.data?.reply}
+                        {@const reply = post.data?.reply}
+                        <div>
+                            <span lang={$locale}>
+                                {#if reply.item?.url}
+                                    <a
+                                        class="u-in-reply-to"
+                                        href={reply.item.url}
+                                        >{reply.item.name}</a
+                                    >
+                                {:else}
+                                    {reply.item.name}
+                                {/if}
+                            </span>
+                        </div>
+                    {/if}
+
                     <Time
                         date={post.published?.date}
                         class="dt-published"
