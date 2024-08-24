@@ -49,7 +49,7 @@ doi     = {${url}},
 urldate = {${new Date().toISOString().split("T")[0]}},
 date    = {${isoDateString}},
 year    = {${date.getFullYear()}},
-month   = {${date.getMonth()}},
+month   = {${date.getMonth() + 1}},
 day     = {${date.getDate()}}
 }`}</pre>
 </details>
