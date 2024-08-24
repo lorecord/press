@@ -22,14 +22,15 @@ const remarkAttrs: Plugin = () => (tree, file: any) => {
                 } else if (attrDefs[i].startsWith('#')) {
                     parsedAttrs['id'] = attrDefs[i].slice(1);
                 } else {
-                    const [, attr, value] = attrDefs[i]?.match(/(.*)="?([^"]*)"?/) || [];
-                    if (attr && value) {
+                    const [, attr, value] = attrDefs[i]?.match(/(.+?)(?:="?([^"]*)"?)?$/) || [];
+                    if (attr) {
+                        let effectedValue = value || attr;
                         if (["rel"].includes(attr)) {
                             parsedAttrs['rel'] = parsedAttrs['rel']
-                                ? parsedAttrs['rel'] + ' ' + value
-                                : value;
+                                ? parsedAttrs['rel'] + ' ' + effectedValue
+                                : effectedValue;
                         }
-                        parsedAttrs[attr] = value;
+                        parsedAttrs[attr] = effectedValue;
                     }
                 }
             }
