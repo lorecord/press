@@ -148,3 +148,58 @@ export function calcInteractionId(interaction: any, force: boolean = false) {
     }
     return crypto.createHash('sha1').update(`${interaction.secret}`).digest('hex');
 }
+
+
+export function scoreSpam(nativeInteraction: NativeInteraction) {
+    // spam detection:
+    let score = 0;
+
+    const { author } = nativeInteraction;
+
+    if (author?.verified) {
+        score -= 2;
+    }
+
+    if (author?.url?.match(/.ru\b/)) {
+        score += 2;
+    }
+
+    if (nativeInteraction.type == 'reply') {
+        const { content } = nativeInteraction;
+
+        if (content) {
+            const text = content.trim();
+
+            const links = text.match(/<a[^>]+>[^<\/a>]*<\/a>/g) || [];
+            score += links.length * 2;
+
+            const urls = text.match(/https?:\/\/\S+/g) || [];
+            if (urls.length > 0) {
+                const textUrlNum = Math.min(urls.length - links.length, 0);
+                score += textUrlNum * 1;
+            }
+
+            const maybeDomains = text.match(/\w+\.[a-zA-Z]{2,}\b/g) || [];
+            if (maybeDomains.length > 0) {
+                const maybeNum = Math.min(maybeDomains.length - urls.length, 0);
+                score += maybeNum * 0.7;
+            }
+
+            const dotRuDomains = text.match(/\w+\.ru\b/g) || [];
+            if (dotRuDomains.length > 0) {
+                score += (dotRuDomains.length / maybeDomains.length) * 3;
+            }
+
+            const contentExludeLinks = text
+                .replace(/<a[^>]+>[^<\/a>]*<\/a>/g, '')
+                .replace(/https?:\/\/\S+/g, '')
+                .replace(/\w+\.[a-zA-Z]{2,}\b/g, '');
+            score += (1 - contentExludeLinks.length / text.length) * 4;
+        } else {
+            score += 10;
+        }
+    } else if (nativeInteraction.type == 'mention') {
+
+    }
+    return score;
+}
