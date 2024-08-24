@@ -142,7 +142,7 @@
         <div class="article-micro-action">
             {#if systemConfig.lnurlp?.page && lightningSupported}
                 <a
-                    class="button button-text"
+                    class="button button-text no-print"
                     style="padding:0; height: auto; display: inline-flex; color: gold"
                     rel="noindex nofollow noopener external"
                     href={systemConfig.lnurlp.page}
