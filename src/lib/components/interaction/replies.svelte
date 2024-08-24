@@ -291,7 +291,7 @@
                         class="input-group input-group-pill"
                         style="width: 100%"
                     >
-                        <label>
+                        <label style="flex: 1">
                             <input
                                 type="url"
                                 name="source"
@@ -433,19 +433,27 @@
                     ></div>
                 </label>
             </div>
-            <div class="form-row">
-                <label style="display:none">
-                    <input
-                        type="text"
-                        name="captcha"
-                        placeholder={$t("common.comment_captcha")}
-                        tabindex="-1"
-                        autocomplete="off"
-                    />
-                    <div class="label">
-                        {$t("common.comment_captcha")}
-                    </div>
-                </label>
+            <div
+                class="form-row"
+                style="position: absolute; transform: rotateY(90deg);"
+            >
+                <div class="input-group" style="width: 100%">
+                    <span style="padding-right: 1rem"
+                        >The 52th Mersenne Prime is?</span
+                    >
+                    <label style="flex: 1">
+                        <input
+                            type="text"
+                            name="captcha"
+                            placeholder={$t("common.comment_captcha")}
+                            tabindex="-1"
+                            autocomplete="off"
+                        />
+                        <div class="label">
+                            {$t("common.comment_captcha")}
+                        </div>
+                    </label>
+                </div>
             </div>
             <div
                 class="form-row"
