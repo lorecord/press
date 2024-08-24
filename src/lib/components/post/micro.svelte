@@ -111,6 +111,20 @@
                     </span>
                 </div>
             {/if}
+            {#if post.data?.review}
+                {@const review = post.data?.review}
+                <div>
+                    <span lang={$locale}>
+                        {#if review.item?.url}
+                            <a class="u-review-of" href={review.item.url}
+                                >{review.item.name}</a
+                            >
+                        {:else}
+                            {review.item.name}
+                        {/if}
+                    </span>
+                </div>
+            {/if}
             <a
                 href="{siteConfig.url}{post.route}"
                 rel="bookmark"
