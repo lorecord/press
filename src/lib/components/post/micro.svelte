@@ -58,6 +58,7 @@
                             href={author?.[0]?.url}
                             rel="author nofollow"
                             class="u-url"
+                            data-print-content-none
                         >
                             <AuthorAvatar
                                 clazz="u-photo"
