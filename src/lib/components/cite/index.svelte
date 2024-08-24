@@ -16,6 +16,8 @@
         ?.map((author: ContactBaseProfile) => author?.name)
         .join(", ");
     $: isoDateString = new Date(date).toISOString().split("T")[0];
+
+    // Bibtex: https://www.semantic-mediawiki.org/wiki/Help:BibTeX_format
 </script>
 
 <details>
