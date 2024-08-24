@@ -449,10 +449,10 @@
         <div class="page-wrapper">
             <article class="typography">
                 <div class="article-header container">
-                    <h1 class="p-name" style="text-align: center">
+                    <h1>
                         <Skeleton width="50%" />
                     </h1>
-                    <div class="article-meta" style="text-align: center">
+                    <div class="article-meta">
                         <Skeleton width="8rem" />
                     </div>
                 </div>
