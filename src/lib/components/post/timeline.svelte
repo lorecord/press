@@ -80,9 +80,9 @@
         &::before {
             content: "";
             position: absolute;
-            left: 13px;
-            width: 12px;
-            height: 12px;
+            left: calc(0.6rem + 1px);
+            width: 0.6rem;
+            height: 0.6rem;
             background-color: var(--bg-color);
             border: 2px solid rgb(107, 107, 107);
             border-radius: 50%;
