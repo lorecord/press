@@ -20,7 +20,9 @@ export class Bucket {
     get water() {
         let now = Date.now();
         const timeElapsed = now - this.data.last;
-        this.data.water = Math.max(0, this.data.water * Math.exp(- timeElapsed / this.period));
+        const maxLeakRate = this.data.capacity * (1 - Math.exp(-1 / this.period));
+        const leaked = Math.min(this.data.water * (1 - Math.exp(- timeElapsed / this.period)), maxLeakRate * timeElapsed);
+        this.data.water = Math.max(0, this.data.water - leaked);
         this.data.last = now;
         return this.data.water;
     }
@@ -38,11 +40,21 @@ export class Bucket {
     }
 
     getResetDuration() {
-        const target = this.data.capacity / 2;
-        if (this.data.water <= target) {
-            return 0;
+        const target = this.data.capacity * 0.2;
+        let duration = 0;
+        let remaining = this.data.water;
+
+        if (remaining > target) {
+            if (this.data.water > this.data.capacity) {
+                const maxLeakRate = this.data.capacity * (1 - Math.exp(-1 / this.period));
+                duration += (this.data.water - this.data.capacity) / maxLeakRate;
+                remaining = this.data.capacity;
+            }
+
+            if (remaining > target) {
+                duration += -this.period * Math.log(target / remaining);
+            }
         }
-        const duration = -this.period * Math.log(target / this.data.water)
         return duration;
     }
 
@@ -74,7 +86,11 @@ export class RateLimiter {
     inflood(key: string, volume: number | ((limit: number, water: number) => number) = 1) {
         const bucket = this.get(key);
 
-        bucket.water += (typeof volume === 'function') ? volume(this.limit, bucket.water) : volume;
+        if (bucket.water <= this.limit) {
+            bucket.water += (typeof volume === 'function') ? volume(this.limit, bucket.water) : volume;
+        } else {
+            bucket.water += 1;
+        }
 
         return bucket.water <= this.limit;
     }
