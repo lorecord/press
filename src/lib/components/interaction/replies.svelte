@@ -313,7 +313,18 @@
                             type="submit"
                             class="button-xs-thin"
                             use:loading={webmentionSubmmiting}
-                            >{$t("common.comment_send")}</button
+                            ><svg
+                                viewBox="-10 100 1034 1034"
+                                xmlns="http://www.w3.org/2000/svg"
+                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                version="1.1"
+                                width="1.5rem"
+                                height="1.5rem"
+                                ><path
+                                    fill="currentColor"
+                                    d="M857 216l-230 214h111l-85 368h-2l-120 -368h-144l-121 362h-2l-111 -476h-153l185 700h155l117 -363h2l118 363h153l157 -586h113z"
+                                ></path></svg
+                            ></button
                         >
                     </div>
                 </div>
