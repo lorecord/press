@@ -352,10 +352,9 @@
             <pre>{nostr.note}</pre>
         </details>
     {/if}
-    {#if post.lang == "en"}
+    {#if post.lang == "en" || post.data?.hackernews}
         <details>
             <summary><h4>HackerNews</h4></summary>
-
             {#if post.data?.hackernews}
                 {@const hackernews = post.data.hackernews}
                 <a
@@ -367,13 +366,15 @@
                     target="_blank"><IconBrandYcombinator /> View</a
                 >
             {/if}
-            <a
-                rel="noopener nofollow external noreferrer"
-                aria-label={`share ${post.title} on ycombinator`}
-                class="button button-xs-block button-pill button-quaternary"
-                href={`https://news.ycombinator.com/submitlink?t=${encodeURI(post.title)}&u=${encodeURI(postUrl)}`}
-                target="_blank"><IconBrandYcombinator /> Vote</a
-            >
+            {#if post.lang == "en"}
+                <a
+                    rel="noopener nofollow external noreferrer"
+                    aria-label={`share ${post.title} on ycombinator`}
+                    class="button button-xs-block button-pill button-quaternary"
+                    href={`https://news.ycombinator.com/submitlink?t=${encodeURI(post.title)}&u=${encodeURI(postUrl)}`}
+                    target="_blank"><IconBrandYcombinator /> Vote</a
+                >
+            {/if}
         </details>
     {/if}
     <details open>
