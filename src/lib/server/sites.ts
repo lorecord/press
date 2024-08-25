@@ -124,4 +124,4 @@ function sitesInit() {
 
 sitesInit();
 
-export { sites, matchSite, sitesInit };
+export { sites, defaultSite, matchSite, sitesInit };

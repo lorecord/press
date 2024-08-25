@@ -72,13 +72,15 @@ export class RateLimiter {
      * @param limit - The maximum number of requests that can be made in the period
      * @param period - The time period in milliseconds
      */
-    constructor({ limit, period }: {
+    constructor(options: {
         /** The maximum number of requests that can be made in the period */
         limit: number,
         /** The time period in milliseconds */
-        period: number
+        period: number,
+        logs?: RateLimitBuckets
     }) {
-        this.logs = {};
+        const { limit, period, logs = {} } = options;
+        this.logs = logs;
         this.limit = limit;
         this.period = period;
     }
