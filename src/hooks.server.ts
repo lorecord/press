@@ -111,6 +111,20 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 }
 
+export const handleRequestRateLimitHeader: Handle = async ({ event, resolve }) => {
+    const response = await resolve(event);
+    if (response.status == 429) {
+        const ip = getRealClientAddress(event);
+        const bucket = rateLimiter.get(ip);
+        response.headers.set('X-RateLimit-Limit', `${bucket.capacity}`);
+        response.headers.set('X-RateLimit-Remaining', `${bucket.capacity - bucket.water}`);
+        response.headers.set('X-RateLimit-Used', `${bucket.water}`);
+        response.headers.set('X-RateLimit-Reset', `${Math.floor(bucket.getResetDuration()) + Date.now()}`);
+        response.headers.set('Retry-After', `${new Date(Math.floor(bucket.getResetDuration()) + Date.now()).toUTCString()}`);
+    }
+    return response;
+}
+
 export const handleLanguage: Handle = async ({ event, resolve }) => {
     const { site } = event.locals as any;
     const { system } = site;
@@ -318,5 +332,6 @@ export const handle = sequence(
     // after await resolve(event), the seq bellow will be executed in reverse order
     handleHtmlLangAttr,
     handleExternalLink,
+    handleRequestRateLimitHeader,
     handleAssets
 );

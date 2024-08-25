@@ -1,45 +1,82 @@
-export type RateLimitBucket = {
-    [key: string]: {
-        water: number,
-        last: number,
-        capacity: number
-    }
+export type BucketData = {
+    water: number,
+    last: number,
+    capacity: number
 };
 
-export class RateLimiter {
-    private logs: RateLimitBucket;
-    private limit: number;
-    private duration: number;
+export type RateLimitBuckets = {
+    [key: string]: BucketData
+};
 
-    constructor({ limit, duration }: { limit: number, duration: number }) {
-        this.logs = {};
-        this.limit = limit;
-        this.duration = duration;
+export class Bucket {
+    private data: BucketData;
+    private period: number;
+
+    constructor(data: BucketData, period: number) {
+        this.data = data;
+        this.period = period;
     }
 
-    static create(limit: number, duration: number) {
-        return new RateLimiter({ limit, duration });
+    get water() {
+        let now = Date.now();
+        const timeElapsed = now - this.data.last;
+        this.data.water = Math.max(0, this.data.water * Math.exp(- timeElapsed / this.period));
+        this.data.last = now;
+        return this.data.water;
+    }
+
+    get capacity() {
+        return this.data.capacity;
+    }
+
+    set water(water: number) {
+        this.data.water = water;
+    }
+
+    get last() {
+        return this.data.last;
+    }
+
+    getResetDuration() {
+        const target = this.data.capacity / 2;
+        if (this.data.water <= target) {
+            return 0;
+        }
+        const duration = -this.period * Math.log(target / this.data.water)
+        return duration;
+    }
+
+    reset() {
+        this.data.water = 0;
+    }
+}
+
+export class RateLimiter {
+    readonly logs: RateLimitBuckets;
+    private limit: number;
+    private period: number;
+
+    /**
+     * @param limit - The maximum number of requests that can be made in the period
+     * @param period - The time period in milliseconds
+     */
+    constructor({ limit, period }: {
+        /** The maximum number of requests that can be made in the period */
+        limit: number,
+        /** The time period in milliseconds */
+        period: number
+    }) {
+        this.logs = {};
+        this.limit = limit;
+        this.period = period;
     }
 
     inflood(key: string, volume: number | ((limit: number, water: number) => number) = 1) {
-        const now = Date.now();
-
         const bucket = this.get(key);
 
-        const timeElapsed = now - bucket.last;
+        bucket.water += (typeof volume === 'function') ? volume(this.limit, bucket.water) : volume;
 
-        const leaked = bucket.capacity - bucket.capacity * Math.exp(- timeElapsed / this.duration);
-
-        bucket.water = Math.max(0, bucket.water - leaked);
-
-        bucket.last = now;
-
-        if (bucket.water < this.limit) {
-            bucket.water += (typeof volume === 'function') ? volume(this.limit, bucket.water) : volume;
-            return true;
-        }
-
-        return false;
+        return bucket.water <= this.limit;
     }
 
     get(key: string) {
@@ -48,8 +85,11 @@ export class RateLimiter {
             last: Date.now(),
             capacity: this.limit
         };
+        const data = this.logs[key];
+        return new Bucket(data, this.period);
+    }
 
-        const bucket = this.logs[key];
-        return bucket;
+    reset(key: string) {
+        delete this.logs[key];
     }
 }
