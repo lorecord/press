@@ -83,6 +83,10 @@ export class RateLimiter {
         this.period = period;
     }
 
+    available(key: string) {
+        return this.get(key).water <= this.limit;
+    }
+
     inflood(key: string, volume: number | ((limit: number, water: number) => number) = 1) {
         const bucket = this.get(key);
 
