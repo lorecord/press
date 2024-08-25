@@ -72,7 +72,7 @@ function buildAuthorData(site: any, author: Author, lang: string) {
     return {
         emailAddress,
         author,
-        lang
+        lang: author?.lang || lang
     }
 }
 
@@ -177,11 +177,10 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
         }
 
         let siteConfig = getSiteConfig(site, lang);
-        let postWithLang = post.lang != lang ? await loadPost(site, { route: post.route, lang }) : undefined;
 
         let params: any = {
             site_title: siteConfig.title,
-            post_title: postWithLang?.title || post.title,
+            post_title: post.title,
             replied_author: resolveAuthorName(replied?.author, lang),
             replied_date: new Intl.DateTimeFormat(lang, {
                 dateStyle: "short",
@@ -246,7 +245,7 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
     const emailAddressesSent = new Set<String>();
 
     if (repliedAuthorData?.emailAddress && repliedAuthorData.emailAddress !== replyAuthorData?.emailAddress) {
-        let lang = replied?.lang || post.lang || systemConfig.locale?.default || 'en';
+        let lang = replied?.author?.lang || replied?.lang || post.lang || systemConfig.locale?.default || 'en';
         let { subject, text, list } = await getEmailConfigParams(lang);
         let options: Mail.Options = {
             from: buildEmailAddress(resolveAuthorName(replyAuthorData.author, lang), systemConfig.email?.sender) as string,

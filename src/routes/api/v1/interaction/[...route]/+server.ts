@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 }
 
 export const POST: RequestHandler = async ({ params, locals, request, getClientAddress }) => {
-    const { site } = locals as any;
+    const { site, localeContext } = locals as any;
     const { route } = params;
 
     let payload: any = await getRequestPayload(request);
@@ -101,6 +101,10 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
                 console.warn(`Super Spam detected on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
                 error(429, { message: "Rate limit exceeded" });
             }
+        }
+
+        if (localeContext?.uiLocale && nativeReply.author) {
+            nativeReply.author.lang = localeContext.uiLocale;
         }
 
         let saved = saveNativeInteraction(site, { route: route }, nativeReply);
