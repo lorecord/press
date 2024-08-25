@@ -614,9 +614,20 @@
             gap: 1em;
             justify-content: center;
         }
-
-        .article-content,
         .article-aside aside {
+            padding: 0 var(--content-padding);
+
+            @media screen {
+                :global(> *:first-child) {
+                    margin-top: var(--content-padding);
+                }
+            }
+
+            @media print {
+                padding: 0;
+            }
+        }
+        .article-content {
             padding: var(--content-padding);
 
             @media screen {
@@ -760,12 +771,14 @@
                     position: fixed;
                     right: 1rem;
                     bottom: 7rem;
+                    z-index: 1000;
                 }
 
                 #comments-link {
                     position: fixed;
                     right: 1rem;
                     bottom: 4rem;
+                    z-index: 1000;
                 }
             }
         }
