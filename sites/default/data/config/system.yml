@@ -19,6 +19,7 @@ public:
     personal: true
   webmention:
     enabled: true
+    accept: true
     callback:
       secret:
         hash:
