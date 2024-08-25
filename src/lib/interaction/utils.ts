@@ -119,10 +119,9 @@ export function commentToInteraction(site: any, comment: any): NativeInteraction
         type: 'reply',
         channel: comment.channel || 'native',
         id: comment.id,
-        author: Object.assign({
-            name: comment.author,
-            verified: comment.verified,
-        },
+        author: Object.assign({},
+            optional(comment.author, 'name'),
+            optional(comment.verified, 'verified'),
             optional(comment.user, 'user'),
             optional(comment.url, 'url'),
             optional(comment.email, 'email', () => ({
