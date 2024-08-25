@@ -1,8 +1,9 @@
 import { awaitChecker } from "$lib/browser";
-import { locale } from "$lib/translations";
-import { error } from "@sveltejs/kit";
-import type { PageLoad } from "./$types";
+import type { Mention, Reply } from "$lib/interaction/types";
 import type { Post } from "$lib/post/types";
+import { locale } from "$lib/translations";
+import { error, type MaybePromise } from "@sveltejs/kit";
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
     depends('locale:locale');
@@ -100,12 +101,11 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
     console.log('needAwait', needAwait);
 
     return {
-        post: needAwait ? await post : post,
-        newer: needAwait ? await newer : newer,
-        earlier: needAwait ? await earlier : earlier,
+        post: (needAwait ? await post : post) as MaybePromise<Post>,
+        newer: (needAwait ? await newer : newer) as MaybePromise<Post>, earlier: (needAwait ? await earlier : earlier) as MaybePromise<Post>,
         interactions: {
-            mentions: needAwait ? await mentions : mentions,
-            replies: needAwait ? await replies : replies
+            mentions: (needAwait ? await mentions : mentions) as MaybePromise<Mention[]>,
+            replies: (needAwait ? await replies : replies) as MaybePromise<Reply[]>
         }
     };
 }

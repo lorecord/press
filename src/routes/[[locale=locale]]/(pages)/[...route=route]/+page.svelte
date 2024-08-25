@@ -21,6 +21,7 @@
 
     import type { PageData } from "./$types";
     import type { Post } from "$lib/post/types";
+    import type { Mention, Reply } from "$lib/interaction/types";
 
     export let data: PageData;
 
@@ -36,11 +37,11 @@
 
     let replyCounter = 0;
 
-    const commonCommentsFilter = (replies: any[]) =>
-        replies.filter((r: any) => r.type === "reply");
+    const commonCommentsFilter = (replies: Reply[]) =>
+        replies.filter((r) => r.type === "reply");
     $: commonComments = browser
         ? Promise.resolve(interactions.replies).then(commonCommentsFilter)
-        : commonCommentsFilter(interactions.replies);
+        : commonCommentsFilter(interactions.replies as Reply[]);
 
     const citationsFilter = (mentions: any[]) =>
         mentions.filter(
@@ -48,7 +49,7 @@
         ) || [];
     $: citations = browser
         ? Promise.resolve(interactions.mentions).then(citationsFilter)
-        : citationsFilter(interactions.mentions);
+        : citationsFilter(interactions.mentions as Mention[]);
 
     const templates: any = {
         default: TemplatePage,
@@ -61,7 +62,7 @@
 
     $: templateComponent = browser
         ? Promise.resolve(post).then(solveTemplate)
-        : solveTemplate(post);
+        : solveTemplate(post as Post);
 
     const ldjsonCreater = (post: Post) => () => {
         const license = ((l) => {
@@ -168,29 +169,31 @@
     };
     $: ldjson = browser
         ? Promise.resolve(post).then(ldjsonCreater)
-        : ldjsonCreater(post);
+        : ldjsonCreater(post as Post);
 </script>
 
 {#await post then post}
-    <Title value={post.title}></Title>
+    {#if post.title}
+        <Title value={post.title}></Title>
+    {/if}
     <DescriptionMeta value={post.summary?.raw}></DescriptionMeta>
 {/await}
 
 <svelte:head>
-    {#if post.webmention?.enabled}
-        <link
-            rel="webmention"
-            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
-        />
-    {/if}
-
-    {#if post.pingback?.enabled}
-        <link
-            rel="pingback"
-            href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
-        />
-    {/if}
     {#await post then post}
+        {#if post.webmention?.enabled && post.webmention?.accept}
+            <link
+                rel="webmention"
+                href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+            />
+        {/if}
+
+        {#if post.pingback?.enabled}
+            <link
+                rel="pingback"
+                href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+            />
+        {/if}
         {#if post.content?.meta?.prism}
             <link rel="stylesheet" href="/assets/prism/themes/dark.css" />
             <link rel="stylesheet" href="/assets/prism/rehype-prism-plus.css" />
@@ -321,10 +324,10 @@
                 content={new Date(post.modified.date).toISOString()}
             />
         {/if}
-        {#if post.expired?.date}
+        {#if post.data?.expired?.date}
             <meta
                 name="og:article:expired_time"
-                content={new Date(post.expired.date).toISOString()}
+                content={new Date(post.data?.expired.date).toISOString()}
             />
         {/if}
 
@@ -336,17 +339,17 @@
             <meta name="og:article:author" content={authorString} />
         {/if}
 
-        {#if post.robots}
-            <meta name="robots" content={post.robots.join(",")} />
+        {#if post.data?.robots}
+            <meta name="robots" content={post.data?.robots.join(",")} />
         {/if}
-        {#if post.googlebot}
-            <meta name="googlebot" content={post.googlebot} />
+        {#if post.data?.googlebot}
+            <meta name="googlebot" content={post.data?.googlebot} />
         {/if}
-        {#if post.google}
-            <meta name="google" content={post.google} />
+        {#if post.data?.google}
+            <meta name="google" content={post.data?.google} />
         {/if}
-        {#if post.rating}
-            <meta name="rating" content={post.rating} />
+        {#if post.data?.rating}
+            <meta name="rating" content={post.data?.rating} />
         {/if}
 
         {#if post.data?.image}
@@ -363,24 +366,24 @@
             <meta name="twitter:card" content="summary" />
         {/if}
 
-        {#if post.video}
+        {#if post.data?.video}
             <meta
                 property="og:video"
-                content="{siteConfig.url}{post.route}{post.video}"
+                content="{siteConfig.url}{post.route}{post.data?.video}"
             />
         {/if}
 
-        {#if post.audio}
+        {#if post.data?.audio}
             <meta
                 property="og:audio"
-                content="{siteConfig.url}{post.route}{post.audio}"
+                content="{siteConfig.url}{post.route}{post.data?.audio}"
             />
         {/if}
 
-        {#if post.taxonomy?.category?.length > 0}
+        {#if (post.taxonomy?.category?.length || 0) > 0}
             <meta
                 property="og:article:section"
-                content={post.taxonomy?.category[0]}
+                content={post.taxonomy?.category?.[0]}
             />
         {/if}
         {#if post.taxonomy?.tag}
@@ -558,17 +561,21 @@
                                     systemConfig.email?.sender,
                                 email: systemConfig.email?.sender,
                                 site: siteConfig.title,
-                                title: post.title,
+                                title: post.title || "",
                                 route: post.route,
                             }}
                             replies={commonComments}
                             gravatarBase={systemConfig.gravatar?.base}
                             reply={post.comment?.reply}
-                            reverse={post.comment?.reverse}
+                            reverse={false}
                             {post}
                             postUrl={siteConfig.url + post.route}
                             on:reply={() => replyCounter++}
-                            webmentionEndpoint={`https://webmention.io/${systemConfig.domains?.primary}/webmention`}
+                            webmentionEndpoint={post.webmention?.enabled &&
+                            post.webmention?.accept
+                                ? systemConfig.webmention?.endpoint ||
+                                  `/api/v1/webmention`
+                                : ""}
                         />
                     {/await}
                 </div>

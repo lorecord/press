@@ -5,6 +5,7 @@
         IconMarkdown,
         IconSend,
         IconMailUp,
+        IconBrandYcombinator,
     } from "@tabler/icons-svelte";
     import RepliesList from "./reply/list.svelte";
     import ReplyItem from "./reply/item.svelte";
@@ -15,13 +16,17 @@
     const dispatch = createEventDispatcher();
 
     export let replies: any[];
-    export let reply: false;
+    export let reply: boolean = true;
     export let post: {
         route: string;
-        lang: string;
-        "x.com"?: any;
-        nostr?: any;
-        langs: string[];
+        lang?: string;
+
+        langs?: string[];
+        data?: {
+            "x.com"?: any;
+            nostr?: any;
+            hackernews: any;
+        };
     };
     export let webmentionEndpoint: string = "";
     export let postUrl: string;
@@ -270,7 +275,7 @@
 
     $: replyToReply = replies?.find((reply) => reply.id === target);
 
-    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.route}${replyToReply ? `#${replyToReply.id}` : ""})${post.langs?.length > 0 ? ` [${post.lang}]` : ""}`)}&body=${encodeURI(text || "")}`;
+    $: mailToLink = `mailto:${encodeURI(`"${mailto.site}"<${mailto.email}>"`)}?subject=${encodeURI(`Re: [${mailto.site}] ${mailto.title}(${mailto.route}${replyToReply ? `#${replyToReply.id}` : ""})${(post.langs?.length || 0) > 0 ? ` [${post.lang ? post.lang : ""}]` : ""}`)}&body=${encodeURI(text || "")}`;
 </script>
 
 {#if reply}
@@ -282,7 +287,7 @@
                 use:loading={webmentionSubmmiting}
                 method="post"
                 class="form form-webmention loadable"
-                action={webmentionEndpoint || ""}
+                action={webmentionEndpoint}
                 on:submit|preventDefault={handleWebmentionSubmit}
             >
                 <input type="hidden" name="target" value={postUrl} />
@@ -315,23 +320,39 @@
             </form>
         </details>
     {/if}
-    {#if post["x.com"]?.status}
+    {#if post.data?.["x.com"]?.status}
+        {@const x = post.data["x.com"]}
         <details>
             <summary><h4>X.com</h4></summary>
             <a
                 rel="syndication noopener nofollow external"
                 class="u-syndication"
-                href={post["x.com"].status}
+                href={x.status}
                 style="display: flex; align-items: center;
                 gap: .25rem;"
-                target="_blank"><IconBrandX />{post["x.com"].status}</a
+                target="_blank"><IconBrandX />{x.status}</a
             >
         </details>
     {/if}
-    {#if post.nostr?.note}
+    {#if post.data?.nostr?.note}
+        {@const nostr = post.data.nostr}
         <details>
             <summary><h4>Nostr</h4></summary>
-            <pre>{post.nostr.note}</pre>
+            <pre>{nostr.note}</pre>
+        </details>
+    {/if}
+    {#if post.data?.hackernews?.note}
+        {@const hackernews = post.data.hackernews}
+        <details>
+            <summary><h4>HackerNews</h4></summary>
+            <a
+                rel="syndication noopener nofollow external"
+                class="u-syndication"
+                href={hackernews}
+                style="display: flex; align-items: center;
+                gap: .25rem;"
+                target="_blank"><IconBrandYcombinator />{hackernews}</a
+            >
         </details>
     {/if}
     <details open>
@@ -371,7 +392,9 @@
             on:submit|preventDefault={handleReplySubmit}
         >
             <input type="hidden" name="route" value={post.route} />
-            <input type="hidden" name="lang" value={post.lang} />
+            {#if post.lang}
+                <input type="hidden" name="lang" value={post.lang} />
+            {/if}
             <input type="hidden" name="target" value={target} />
             <div class="form-row">
                 <label>
