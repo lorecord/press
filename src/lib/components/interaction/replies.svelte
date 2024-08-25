@@ -352,17 +352,27 @@
             <pre>{nostr.note}</pre>
         </details>
     {/if}
-    {#if post.data?.hackernews?.note}
-        {@const hackernews = post.data.hackernews}
+    {#if post.lang == "en"}
         <details>
             <summary><h4>HackerNews</h4></summary>
-            <a
-                rel="syndication noopener nofollow external"
-                class="u-syndication"
-                href={hackernews}
-                style="display: flex; align-items: center;
+
+            {#if post.data?.hackernews}
+                {@const hackernews = post.data.hackernews}
+                <a
+                    rel="syndication noopener nofollow external"
+                    class="u-syndication button button-xs-block button-pill button-quaternary"
+                    href={hackernews}
+                    style="display: flex; align-items: center;
                 gap: .25rem;"
-                target="_blank"><IconBrandYcombinator />{hackernews}</a
+                    target="_blank"><IconBrandYcombinator /> View</a
+                >
+            {/if}
+            <a
+                rel="noopener nofollow external noreferrer"
+                aria-label={`share ${post.title} on ycombinator`}
+                class="button button-xs-block button-pill button-quaternary"
+                href={`https://news.ycombinator.com/submitlink?t=${encodeURI(post.title)}&u=${encodeURI(postUrl)}`}
+                target="_blank"><IconBrandYcombinator /> Vote</a
             >
         </details>
     {/if}
