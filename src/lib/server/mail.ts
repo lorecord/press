@@ -308,8 +308,9 @@ export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => 
             options.inReplyTo = `<${replied.id}@${systemConfig.email?.sender.split('@')[1]}>`;
         }
 
-        let recipientArray = authorDataArray.map((obj) => buildEmailAddress(resolveAuthorName(obj.author, lang), obj.emailAddress as String))
-            .filter((emailAddress) => emailAddressesSent.has(emailAddress) ? false : emailAddressesSent.add(emailAddress));
+        let recipientArray = authorDataArray
+            .filter((obj) => obj.emailAddress && (emailAddressesSent.has(obj.emailAddress) ? false : emailAddressesSent.add(obj.emailAddress)))
+            .map((obj) => buildEmailAddress(resolveAuthorName(obj.author, lang), obj.emailAddress as String));
 
         if (recipientArray.length > 0) {
             options.bcc = recipientArray.join(', ');
