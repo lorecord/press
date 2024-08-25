@@ -7,7 +7,7 @@ import { getSession } from '$lib/server/session';
 import { matchSite } from '$lib/server/sites';
 import { loadTranslations, locale, locales } from "$lib/translations";
 import { getAcceptLanguages, getPreferredLangFromHeader } from '$lib/translations/utils';
-import { error, type Handle, type HandleServerError } from '@sveltejs/kit';
+import { error, json, text, type Handle, type HandleServerError } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import fs from 'fs';
@@ -104,23 +104,40 @@ export const handleRequestRateLimit: Handle = async ({ event, resolve }) => {
         const ip = getRealClientAddress(event);
         if (!envConfig.private?.IP_LIMIT_WHITE_LIST?.includes(ip) && !rateLimiter.inflood(ip, volume)) {
             console.warn(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(rateLimiter.get(ip).last)?.toISOString()}`);
-            error(429, 'Rate limit exceeded');
+
+            if (event.request.headers.get('accept')?.includes('text/html')) {
+                error(429, `Rate limit exceeded`);
+            } else if (event.request.headers.get('accept')?.includes('text/plain')) {
+                return text(`Rate limit exceeded`, { status: 429 });
+            } else if (!event.request.headers.get('accept')?.includes('application/json') && event.request.headers.get('accept') != '*/*') {
+                return new Response(`Rate limit exceeded`, { status: 429 });
+            } else {
+                const rateLimitHeader = buildRateLimitHeader(rateLimiter.get(ip));
+                return json('Rate limit exceeded', { status: 429, headers: rateLimitHeader });
+            }
         }
     }
 
     return await resolve(event);
 }
 
+function buildRateLimitHeader(bucket: any) {
+    return {
+        'X-RateLimit-Limit': `${bucket.capacity}`,
+        'X-RateLimit-Remaining': `${bucket.capacity - bucket.water}`,
+        'X-RateLimit-Used': `${bucket.water}`,
+        'X-RateLimit-Reset': `${Math.floor(bucket.getResetDuration()) + Date.now()}`,
+        'Retry-After': `${new Date(Math.floor(bucket.getResetDuration()) + Date.now()).toUTCString()}`
+    }
+}
+
 export const handleRequestRateLimitHeader: Handle = async ({ event, resolve }) => {
     const response = await resolve(event);
     if (response.status == 429) {
+        const { site } = event.locals as any;
         const ip = getRealClientAddress(event);
-        const bucket = rateLimiter.get(ip);
-        response.headers.set('X-RateLimit-Limit', `${bucket.capacity}`);
-        response.headers.set('X-RateLimit-Remaining', `${bucket.capacity - bucket.water}`);
-        response.headers.set('X-RateLimit-Used', `${bucket.water}`);
-        response.headers.set('X-RateLimit-Reset', `${Math.floor(bucket.getResetDuration()) + Date.now()}`);
-        response.headers.set('Retry-After', `${new Date(Math.floor(bucket.getResetDuration()) + Date.now()).toUTCString()}`);
+        console.warn(`[${site.unique}] Rate limit exceeded: ${event.url.pathname} from ${ip}, last @ ${new Date(rateLimiter.get(ip).last)?.toISOString()}`);
+        Object.entries(buildRateLimitHeader(rateLimiter.get(ip))).forEach(([key, value]) => response.headers.set(key, value));
     }
     return response;
 }
