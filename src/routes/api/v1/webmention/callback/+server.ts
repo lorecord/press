@@ -1,9 +1,9 @@
-import { error, json } from '@sveltejs/kit';
-import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
-import { loadPostRaw } from '$lib/post/handle-posts';
-import Crypto from 'crypto';
-import { deleteWebmention, saveWebmention, fromWebmentionIO } from '$lib/interaction/handle-webmention.js';
 import { dev } from '$app/environment';
+import { deleteWebmention, fromWebmentionIO, saveWebmention } from '$lib/interaction/handle-webmention.js';
+import { getPostRaw } from '$lib/post/handle-posts';
+import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
+import { error, json } from '@sveltejs/kit';
+import Crypto from 'crypto';
 
 export async function POST({ url, locals, request }) {
     const { site } = locals as { site: any };
@@ -43,18 +43,18 @@ export async function POST({ url, locals, request }) {
     const target = new URL(payload.target);
     let [, postRoute] = target.pathname.match(/\/(.*)\//) || [];
 
-    let postRaw = await loadPostRaw(site, { route: postRoute });
+    let postRaw = getPostRaw(site, undefined, postRoute);
+
     if (!postRaw?.path) {
         let [lang, route] = postRoute.split('/', 2);
         if (route) {
-            postRaw = await loadPostRaw(site, { route, lang });
+            postRaw = getPostRaw(site, lang, route);
         }
         postRoute = route;
     }
 
-    console.debug('[webmention] postRaw', postRaw);
-
-    if (!postRaw?.path) {
+    if (!postRoute) {
+        console.error('[webmention] invalid post route', target.pathname);
         return error(404);
     }
 

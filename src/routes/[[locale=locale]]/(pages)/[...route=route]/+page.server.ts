@@ -1,6 +1,6 @@
 import { createNativeInteractionReply, saveNativeInteraction } from "$lib/interaction/handle-native";
 import { decrypt } from "$lib/interaction/utils.js";
-import { loadPost } from "$lib/post/handle-posts";
+import { getPostRaw } from "$lib/post/handle-posts";
 import { getSiteAccount } from "$lib/server/accounts.js";
 import { getSystemConfig } from "$lib/server/config";
 import { getRealClientAddress } from "$lib/server/event-utils";
@@ -52,7 +52,7 @@ export const actions: Actions = {
             return;
         }
 
-        const post = await loadPost(site, { route, lang: locale || undefined });
+        const post = getPostRaw(site, locale, route);
         if (post && post.comment?.enabled && post.comment?.reply) {
             if (form.get("captcha")?.toString().length == 0
                 && (form.get("name")?.toString()?.length || 0) > 0

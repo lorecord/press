@@ -2,7 +2,7 @@ import { getNativeInteraction } from "$lib/interaction/handle-native";
 import type { Author, Reply, } from "$lib/interaction/types";
 import { decrypt } from "$lib/interaction/utils";
 import { loadPost } from "$lib/post/handle-posts";
-import type { Post } from "$lib/post/types";
+import type { Post, PostRaw } from "$lib/post/types";
 import { getEnvConfig, getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { l } from "$lib/translations";
 import type { Md5HashValue, Sha1HashValue, Sha256HashValue } from "$lib/types";
@@ -76,7 +76,7 @@ function buildAuthorData(site: any, author: Author, lang: string) {
     }
 }
 
-function calcUniqueAuthorDataInThread(post: Post, reply: Reply, replied: Reply | undefined, levelLimited: number, systemConfig: any, site: Site) {
+function calcUniqueAuthorDataInThread(post: PostRaw, reply: Reply, replied: Reply | undefined, levelLimited: number, systemConfig: any, site: Site) {
     const authorsInThread: Author[] = [];
 
     let current = replied;
@@ -140,7 +140,7 @@ function calcUniqueAuthorDataInThread(post: Post, reply: Reply, replied: Reply |
         .filter((obj) => !!obj.emailAddress);
 }
 
-export const sendNewReplyMail = async (site: Site, post: Post, reply: Reply) => {
+export const sendNewReplyMail = async (site: Site, post: PostRaw, reply: Reply) => {
     let systemConfig = getSystemConfig(site);
     if (!systemConfig.email) {
         console.log('email not configured, skip send reply mail');

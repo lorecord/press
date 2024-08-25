@@ -1,6 +1,6 @@
 import { deleteWebmention, loadWebmentions, saveWebmention } from '$lib/interaction/handle-webmention';
 import type { WebmentionInteraction } from '$lib/interaction/types';
-import { loadPost } from '$lib/post/handle-posts';
+import { getPostRaw } from '$lib/post/handle-posts';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config.js';
 import { getRequestPayload } from '$lib/server/event-utils';
 import { findLinkInContent } from '$lib/utils/content';
@@ -36,13 +36,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     const targetURL = new URL(target.replace(/#.*$/, ''));
     let [, lang, postRoute] = targetURL.pathname.match(/\/(?:([a-z]{2}(?:-[a-zA-Z]{2,5})?)?\/)?(.*)\//) || [];
 
-    const post = await loadPost(site, { route: postRoute, lang });
+    const postRaw = getPostRaw(site, lang, postRoute);
 
-    if (!post) {
+    if (!postRaw) {
+        console.log(`[webmention] invalid post route: ${targetURL.pathname}`);
         error(404, "Specified target URL not found");
     }
 
-    if (post.webmention?.accept === false) {
+    if (postRaw.webmention?.accept === false) {
         error(400, "Specified target URL does not accept Webmentions");
     }
 

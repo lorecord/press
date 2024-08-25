@@ -3,7 +3,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import Crypto from 'crypto';
 import { getNativeInteraction, loadNativeInteraction } from "$lib/interaction/handle-native";
-import { loadPost } from "$lib/post/handle-posts";
+import { getPostRaw, loadPost } from "$lib/post/handle-posts";
 import { dev } from "$app/environment";
 import type { Reply } from "$lib/interaction/types";
 
@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     let lang = replied?.lang || systemConfig.locale?.default || 'en';
 
-    const post = await loadPost(site, { route, lang });
+    const post = getPostRaw(site, lang, route);
 
     if (!post) {
         error(404, 'Post not found');

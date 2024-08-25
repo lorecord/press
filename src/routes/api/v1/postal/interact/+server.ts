@@ -1,12 +1,12 @@
-import { getSystemConfig } from "$lib/server/config";
-import { error, json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
-import Crypto from 'crypto';
-import { createNativeInteractionReply, getNativeInteraction, loadNativeInteraction, saveNativeInteraction } from "$lib/interaction/handle-native";
-import { sendNewReplyMail } from "$lib/server/mail";
-import { loadPost } from "$lib/post/handle-posts";
 import { dev } from "$app/environment";
+import { createNativeInteractionReply, getNativeInteraction, loadNativeInteraction, saveNativeInteraction } from "$lib/interaction/handle-native";
 import type { Reply } from "$lib/interaction/types";
+import { getPostRaw } from "$lib/post/handle-posts";
+import { getSystemConfig } from "$lib/server/config";
+import { sendNewReplyMail } from "$lib/server/mail";
+import { error, json } from "@sveltejs/kit";
+import Crypto from 'crypto';
+import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ url, locals, request }) => {
     const { site } = locals as any;
@@ -89,7 +89,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const [, lang = replied?.lang || systemConfig.locale?.default || 'en'] = payload.subject?.match(/\[(.*)\]$/) || [];
 
-    const post = await loadPost(site, { route, lang });
+    const post = getPostRaw(site, lang, route);
 
     if (!post) {
         error(404, 'Post not found');
