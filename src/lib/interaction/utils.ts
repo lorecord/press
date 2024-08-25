@@ -1,11 +1,11 @@
+import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import { loadPostRaw } from "$lib/post/handle-posts";
+import { fetchPath } from '$lib/handle-path';
 import { getEnvConfig } from "$lib/server/config";
 import type { EncryptedString, HashValue, Md5HashValue, Sha1HashValue, Sha256HashValue } from '$lib/types';
 import crypto from 'crypto';
 import path from 'path';
 import type { NativeInteraction, NativeMention, NativeReply } from './types';
-import { dev } from '$app/environment';
 
 export function hashStringEquals(a: HashValue, b: HashValue) {
     const { md5: aMd5, sha256: aSha256, sha1: aSha1 } = a as Md5HashValue & Sha256HashValue & Sha1HashValue;
@@ -24,11 +24,11 @@ export function getInteractionsFoler(site: any, { route }: { route: string }) {
 }
 
 export function getPostFolder(site: any, { route }: { route: string }) {
-    const postRaw = loadPostRaw(site, { route, lang: 'en' });
-    if (!postRaw || !postRaw.path) {
-        return '';
+    const { target } = fetchPath(site, { route, match: (file) => file.endsWith('.md') });
+
+    if (target?.file) {
+        return path.dirname(target.file);
     }
-    return path.dirname(postRaw.path);
 }
 
 function resolveKey(site: any, key: string | undefined) {
