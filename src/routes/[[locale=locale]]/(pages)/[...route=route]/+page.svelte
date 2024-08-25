@@ -452,10 +452,10 @@
         <div class="page-wrapper">
             <article class="typography">
                 <div class="article-header container">
-                    <h1>
+                    <h1 style="text-align: center">
                         <Skeleton width="50%" />
                     </h1>
-                    <div class="article-meta">
+                    <div class="article-meta" style="text-align: center">
                         <Skeleton width="8rem" />
                     </div>
                 </div>
