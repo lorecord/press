@@ -90,7 +90,8 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             url: website,
             text,
             ip: getRealClientAddress({ request, getClientAddress }),
-            target
+            target,
+            authorLang: localeContext?.uiLocale
         };
 
         let nativeReply = createNativeInteractionReply(site, interaction);

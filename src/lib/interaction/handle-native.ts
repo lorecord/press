@@ -240,7 +240,7 @@ export function saveNativeInteraction<T extends NativeInteraction>(site: any, { 
 }
 
 export function createNativeInteractionReply(site: any, {
-    lang, channel, author, user, email, url, text, ip, target, id, verified, date
+    lang, channel, author, user, email, url, text, ip, target, id, verified, date, authorLang
 }: {
     lang: string,
     channel?: string,
@@ -253,7 +253,8 @@ export function createNativeInteractionReply(site: any, {
     target?: string,
     id?: string,
     verified?: boolean,
-    date?: string
+    date?: string,
+    authorLang: string,
 }) {
     function optional(value: any, key: string, callback?: (value: any) => any) {
         return value && value !== '' ? {
@@ -271,10 +272,10 @@ export function createNativeInteractionReply(site: any, {
         type: raw.type,
         channel: channel || 'native',
         id: id || calcInteractionId(raw, false),
-        author: Object.assign({
-            name: author,
-            verified: verified,
-        },
+        author: Object.assign({},
+            optional(verified, 'verified'),
+            optional(author, 'name'),
+            optional(authorLang, 'lang'),
             optional(user, 'user'),
             optional(url, 'url'),
             optional(email, 'email', () => ({

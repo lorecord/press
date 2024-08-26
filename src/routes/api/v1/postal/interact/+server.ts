@@ -115,7 +115,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         target,
         id: messageUnique,
         url: website,
-        verified: true
+        verified: true,
+        authorLang: lang
     };
 
     let nativeInteraction = createNativeInteractionReply(site, interaction);

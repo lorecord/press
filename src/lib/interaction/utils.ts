@@ -157,6 +157,13 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
 
     const { author } = nativeInteraction;
 
+    if (author?.user) {
+        if (dev) {
+            console.log(`[scoreSpam] author is verified (-2)`);
+        }
+        score -= 5;
+    }
+
     if (author?.verified) {
         if (dev) {
             console.log(`[scoreSpam] author is verified (-2)`);
@@ -164,11 +171,18 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
         score -= 2;
     }
 
-    if (author?.user) {
+    if (author?.lang && author.lang != nativeInteraction.lang) {
         if (dev) {
-            console.log(`[scoreSpam] author is verified (-2)`);
+            console.log(`[scoreSpam] lang does not matche`, author.lang, nativeInteraction.lang, ' (+ 1)');
         }
-        score -= 5;
+        score += 0.5;
+    }
+
+    if (author?.lang && author.lang == 'ru') {
+        if (dev) {
+            console.log(`[scoreSpam] lang is ru`, ' (+ 0.5)');
+        }
+        score += 0.5;
     }
 
     if (author?.url?.match(/.ru\b/)) {
@@ -197,6 +211,28 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
 
         if (content) {
             const text = content.trim();
+
+            if (text.length < 10) {
+                if (dev) {
+                    console.log(`[scoreSpam] content too short`, text.length, '(+ 5)');
+                }
+                score += (10 - text.length) * 0.1;
+            }
+
+            if (text.length > 1000) {
+                // if < 1000, looks good, and if > 11,000 characters, it's probably spam, so it's score is 10
+                if (text.length > 11000) {
+                    if (dev) {
+                        console.log(`[scoreSpam] content too too long`, text.length, '(+ 10)');
+                    }
+                    score += 10;
+                } else {
+                    if (dev) {
+                        console.log(`[scoreSpam] content too long`, text.length, `(+ ${Math.pow((text.length - 1000) / 10000, 3) * 10})`);
+                    }
+                    score += Math.pow((text.length - 1000) / 10000, 3) * 10;
+                }
+            }
 
             const links = text.match(/<a[^>]+>(?!<\/a>).*<\/a>/g) || [];
             if (links.length > 0) {

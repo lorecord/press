@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
 
 export const actions: Actions = {
     default: async ({ request, getClientAddress, params, locals }) => {
-        const { site, session } = locals as any;
+        const { site, session, localeContext } = locals as any;
         const systemConfig = getSystemConfig(site);
 
         let username = '';
@@ -70,6 +70,7 @@ export const actions: Actions = {
                     text: form.get("text")?.toString() || '',
                     ip: getRealClientAddress({ request, getClientAddress }),
                     target: form.get("target")?.toString() || '',
+                    authorLang: localeContext?.uiLocale
                 };
 
                 let nativeReply = createNativeInteractionReply(site, comment);
