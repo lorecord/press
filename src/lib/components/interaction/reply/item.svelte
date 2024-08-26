@@ -38,7 +38,7 @@
 </script>
 
 <article
-    class="comment"
+    class="comment h-site p-comment"
     class:has-reply={item.replies?.length === 1}
     class:has-replies={item.replies?.length > 1}
     class:replying
@@ -67,14 +67,14 @@
 
     <div class="comment-main">
         <div class="comment-header">
-            <span class="comment-author">
+            <span class="comment-author h-card">
                 {#if item.author?.url}
-                    <a href={item.author?.url} rel="noopener author nofollow"
-                        ><span class={`name-${nameSource}`}>{finalName}</span
+                    <a href={item.author?.url} rel="noopener author nofollow" class="u-url"
+                        ><span class={`p-name name-${nameSource}`}>{finalName}</span
                         ></a
                     >
                 {:else}
-                    <span class={`name-${nameSource} `}>{finalName}</span>
+                    <span class={`p-name name-${nameSource} `}>{finalName}</span>
                 {/if}
                 {#if item.author?.user}
                     <span
@@ -133,7 +133,7 @@
                 {/if}
             </a>
         </div>
-        <div class="comment-body">
+        <div class="comment-body e-content">
             {#if item.contentHTML}
                 {@html item.contentHTML}
             {:else if item.content}

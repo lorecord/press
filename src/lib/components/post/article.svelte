@@ -117,19 +117,25 @@
 >
     {#if header}
         <div class="article-header container">
-            {#if post.data?.image}
+            {#if post.data?.featured}
                 <img
-                    class="no-print"
-                    src={post.data?.image}
+                    class="no-print u-featured"
+                    src={post.data?.featured}
                     alt=""
                     style="max-width: 100%"
                 />
             {/if}
-
+            {#if post.data?.photo}
+                <img
+                    class="no-print u-photo"
+                    src={post.data?.photo}
+                    alt=""
+                    style="max-width: 100%"
+                />
+            {/if}
             {#if post.title}
                 <h1 class="p-name">{post.title}</h1>
             {/if}
-
             {#if post.template == "item"}
                 <div class="article-meta">
                     {#if post.author && !(post.author.length === 1 && post.author[0].user === systemConfig.user?.default)}
