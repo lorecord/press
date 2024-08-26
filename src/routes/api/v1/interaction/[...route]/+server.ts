@@ -7,6 +7,8 @@ import { sendNewReplyMail } from "$lib/server/mail";
 import { rateLimiter } from "$lib/server/secure";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { decrypt } from "$lib/interaction/utils";
+import { getSiteAccount } from "$lib/server/accounts";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
     const { site } = locals as any;
@@ -35,8 +37,18 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 }
 
 export const POST: RequestHandler = async ({ params, locals, request, getClientAddress }) => {
-    const { site, localeContext } = locals as any;
+    const { site, session, localeContext } = locals as any;
     const { route } = params;
+
+    let username = '';
+    let useremail = '';
+    if (session) {
+        let account = getSiteAccount(site, session.username, '');
+        if (account?.email?.value) {
+            useremail = decrypt(site, account.email.value);
+        }
+        username = session.username;
+    }
 
     let payload: any = await getRequestPayload(request);
 
@@ -94,6 +106,10 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
             authorLang: localeContext?.uiLocale
         };
 
+        if(email === useremail) {
+            (interaction as any).user = username;
+        }
+
         let nativeReply = createNativeInteractionReply(site, interaction);
 
         if (nativeReply.spam) {
@@ -102,10 +118,6 @@ export const POST: RequestHandler = async ({ params, locals, request, getClientA
                 console.warn(`Super Spam detected on ${route} from ${getRealClientAddress({ request, getClientAddress })}`);
                 error(429, { message: "Rate limit exceeded" });
             }
-        }
-
-        if (localeContext?.uiLocale && nativeReply.author) {
-            nativeReply.author.lang = localeContext.uiLocale;
         }
 
         let saved = saveNativeInteraction(site, { route: route }, nativeReply);
