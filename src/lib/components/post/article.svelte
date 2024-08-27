@@ -205,7 +205,7 @@
         </div>
     {/if}
     <div class="article-body container">
-        {#if (post.toc?.enabled && post.content?.headings) || post.comment?.enabled}
+        {#if post.toc?.enabled && post.content?.headings}
             <div class="article-aside no-print">
                 <aside>
                     {#if post.toc?.enabled && post.content?.headings}
@@ -239,6 +239,15 @@
                             ><IconList size={20} /></a
                         >
                     {/if}
+                </aside>
+            </div>
+        {/if}
+        <div class="e-content article-content">
+            {@html post.content?.html}
+        </div>
+        {#if post.comment?.enabled}
+            <div class="article-aside article-aside-left no-print">
+                <aside>
                     {#if post.comment?.enabled}
                         <a
                             id="comments-link"
@@ -250,9 +259,6 @@
                 </aside>
             </div>
         {/if}
-        <div class="e-content article-content">
-            {@html post.content?.html}
-        </div>
     </div>
     {#if footer}
         <div class="article-footer container">
@@ -569,6 +575,18 @@
             margin-left: 100%;
             height: 100%;
 
+            &.article-aside-left {
+                top: 0;
+                transform: translateX(-100%);
+                margin-left: unset;
+
+                aside {
+                    align-items: end;
+                    top: 50svh;
+                    transform: translateY(-100%);
+                }
+            }
+
             aside {
                 position: sticky;
                 top: 0;
@@ -764,6 +782,15 @@
                 aside {
                     position: static;
                     min-width: unset;
+                }
+
+                &.article-aside-left {
+                    transform: none;
+                    aside {
+                        align-items: end;
+                        top: 0;
+                        transform: none;
+                    }
                 }
 
                 #toc-button {

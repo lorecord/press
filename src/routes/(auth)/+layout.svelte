@@ -13,7 +13,7 @@
 <style lang="scss">
     div {
         display: flex;
-        height: 100vh;
+        height: 100svh;
         min-height: 600px;
         align-items: center;
         justify-content: center;
