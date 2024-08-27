@@ -1,3 +1,3 @@
 export function untag(xml: string) {
-    return xml.replaceAll(/<.*?>/g, '');
+    return xml.replaceAll(/<\/?[^>]+>/g, '');
 }

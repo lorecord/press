@@ -7,6 +7,7 @@ import { sendNewReplyMail } from "$lib/server/mail";
 import { error, json } from "@sveltejs/kit";
 import Crypto from 'crypto';
 import type { RequestHandler } from "./$types";
+import { untag } from "$lib/utils/xml";
 
 export const POST: RequestHandler = async ({ url, locals, request }) => {
     const { site } = locals as any;
@@ -20,14 +21,15 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         return json({ message: "Auto Reply Igored" });
     }
 
-    if (!payload.plain_body || payload.plain_body.trim() === '') {
+    const body = payload.plain_body || untag(payload.html_body || '') || payload.text_body;
+
+    if (!body || body.trim() === '') {
         return json({ message: "Empty Message Igored" });
     }
 
-
     console.log('[postal/interact] POST', payload);
 
-    let [, replyPart, signaturePart] = payload.plain_body.match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
+    let [, replyPart, signaturePart] = body.match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
 
     if (!replyPart) {
         return json({ message: "Signature Only Igored" });
