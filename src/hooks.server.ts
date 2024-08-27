@@ -12,6 +12,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 import fs from 'fs';
 import { match as matchLocale } from './params/locale';
+import { addRelToExternalLinks, addTargetBlankToExternalLinks } from '$lib/utils/html';
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Promise Rejection:', reason);
@@ -23,52 +24,10 @@ export const handleExternalLink: Handle = async ({ event, resolve }) => {
     const response = await resolve(event, {
         transformPageChunk: ({ html }) => {
             if (systemConfig.html?.auto_external_link) {
-                let internalDomains = [systemConfig.domains.primary];
-
-                if (internalDomains.length > 0) {
-                    html = html.replace(/<a\s([^>]*?)href=["']([\w-_+]+:\/\/[^"']*)["']([^>]*?)>/g, (match, beforeHref, hrefValue, afterHref) => {
-                        // Check if the link is external
-                        const url: { value?: URL } = {};
-                        try {
-                            url.value = new URL(hrefValue, event.request.url);
-                        } catch (e) {
-                            console.error(`Invalid URL: ${hrefValue}`);
-                            return match;
-                        }
-
-                        if (!internalDomains.includes(url.value?.hostname)) {
-                            // If external, add rel="external" if not already present
-                            let newLink = `<a ${beforeHref}href="${hrefValue}" ${afterHref}>`;
-                            if (!/rel=["'][^"']*\bexternal\b[^"']*["']/.test(newLink)) {
-                                // add rel="external" to the link
-                                if (/rel=["'][^"']*["']/.test(newLink)) {
-                                    newLink = newLink.replace(/rel=["'][^"']*["']/, (match) => {
-                                        return match.replace(/["']$/, ' external"');
-                                    });
-                                } else {
-                                    newLink = newLink.replace(/>/, ' rel="external">');
-                                }
-                            }
-                            return newLink;
-                        } else {
-                            // If internal, return the link unmodified
-                            return match;
-                        }
-                    });
-                }
+                html = addRelToExternalLinks(html, event.request.url, [systemConfig.domains.primary]);
             }
             if (systemConfig.html?.open_external_link_in_new_tab) {
-                // Use a regex to find all links with rel containing "external" and without a target attribute
-                html = html.replace(/<a\s([^>]*?rel=["'][^"']*)\bexternal\b([^"']*["'][^>]*?)>/g, (match, beforeRel, afterRel) => {
-                    // Check if the link already has a target attribute
-                    if (/target=["'][^"']*["']/.test(beforeRel + afterRel)) {
-                        // If target exists, return the original match without modification
-                        return match;
-                    } else {
-                        // Otherwise, add target="_blank" to the link
-                        return `<a ${beforeRel}${afterRel} target="_blank">`;
-                    }
-                });
+                html = addTargetBlankToExternalLinks(html);
             }
             return html;
         },

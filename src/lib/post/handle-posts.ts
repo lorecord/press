@@ -1,14 +1,19 @@
 import fs from 'fs';
 
+import { dev } from '$app/environment';
+import type { UserAuthor } from '$lib/interaction/types';
 import remarkMathHelper from '$lib/markdown/rehype-math-helper';
 import { rehypePrism } from '$lib/markdown/rehype-prism';
 import remarkPrismHelper from '$lib/markdown/rehype-prism-helper';
+import remarkAttrs from '$lib/markdown/remark-attrs';
 import remarkLinks from '$lib/markdown/remark-links';
 import remarkMermaid from '$lib/markdown/remark-mermaid';
 import { loadRaw } from '$lib/resource';
 import { getSiteAccount } from '$lib/server/accounts';
-import { getSystemConfig } from '$lib/server/config';
+import { getSiteConfig, getSystemConfig } from '$lib/server/config';
 import type { Site } from '$lib/server/sites';
+import type { ContactBaseProfile } from '$lib/types';
+import { addRelToExternalLinks, addTargetBlankToExternalLinks } from '$lib/utils/html';
 import { untag } from '$lib/utils/xml';
 import fm from 'front-matter';
 import { globSync } from "glob";
@@ -32,10 +37,6 @@ import remarkFng from '../remark-fng';
 import { createFootnoteReference } from '../remark-rehyper-handlers';
 import { l } from '../translations';
 import type { Post, PostAttributesContact, PostRaw, PostRawAttributes, PostRoute } from './types';
-import type { ContactBaseProfile } from '$lib/types';
-import type { UserAuthor } from '$lib/interaction/types';
-import remarkAttrs from '$lib/markdown/remark-attrs';
-import { dev } from '$app/environment';
 
 const DEFAULT_ATTRIBUTE_MAP: {
     [template: string]: PostRawAttributes
@@ -536,8 +537,11 @@ export function convertToPost(site: Site, raw: PostRaw, mermaidEnabled: boolean 
         }
     });
 
+    const systemConfig = getSystemConfig(site);
+    const siteConfig = getSiteConfig(site);
+
     post.content = {
-        html,
+        html: systemConfig.domains?.primary && siteConfig.url ? addTargetBlankToExternalLinks(addRelToExternalLinks(html, siteConfig.url, [systemConfig.domains.primary])) : html,
         headings,
         meta,
         links,
