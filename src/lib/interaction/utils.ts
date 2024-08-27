@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/private';
 import { fetchPath } from '$lib/handle-path';
 import { getEnvConfig } from "$lib/server/config";
 import type { EncryptedString, HashValue, Md5HashValue, Sha1HashValue, Sha256HashValue } from '$lib/types';
+import { detectLanguage } from '$lib/utils/lang';
 import crypto from 'crypto';
 import path from 'path';
 import type { NativeInteraction, NativeMention, NativeReply } from './types';
@@ -163,11 +164,32 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
         score -= 2;
     }
 
+    if (author?.user) {
+        if (dev) {
+            console.log(`[scoreSpam] author is verified (-2)`);
+        }
+        score -= 5;
+    }
+
     if (author?.url?.match(/.ru\b/)) {
         if (dev) {
             console.log(`[scoreSpam]`, author.url, 'is .ru, (+ 2)');
         }
         score += 2;
+    }
+
+    if (!author?.email?.value) {
+        if (dev) {
+            console.log(`[scoreSpam] no email (+ 0.5)`);
+        }
+        score += 0.5;
+    }
+
+    if (!author?.name) {
+        if (dev) {
+            console.log(`[scoreSpam] no name (+ 0.5)`);
+        }
+        score += 0.5;
     }
 
     if (nativeInteraction.type == 'reply') {
@@ -176,7 +198,7 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
         if (content) {
             const text = content.trim();
 
-            const links = text.match(/<a[^>]+>[^<\/a>]*<\/a>/g) || [];
+            const links = text.match(/<a[^>]+>(?!<\/a>).*<\/a>/g) || [];
             if (links.length > 0) {
                 if (dev) {
                     console.log(`[scoreSpam] links`, links.length, 'in content', '(+', links.length * 3, ')');
@@ -211,14 +233,27 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
             }
 
             const contentExludeLinks = text
-                .replace(/<a[^>]+>[^<\/a>]*<\/a>/g, '')
+                .replace((/<a[^>]+>(?!<\/a>)(.*)<\/a>/g), '$1')
                 .replace(/https?:\/\/\S+/g, '')
                 .replace(/\w+\.[a-zA-Z]{2,}\b/g, '');
+
+            if (nativeInteraction.lang) {
+                const langPrefix = nativeInteraction.lang.split('-')[0];
+                // const probabilities = detectLanguageWithConfig(contentExludeLinks, { langPrefix: languages[langPrefix] });
+                const probabilities = detectLanguage(contentExludeLinks);
+
+                const probability = probabilities[langPrefix] ?? 0;
+                if (dev) {
+                    console.log(`[scoreSpam] lang probability`, langPrefix, probability, probabilities, '(+', (1 - probability) * 2, ')');
+                }
+                score += (1 - probability) * 2;
+            }
+
             if (text.length - contentExludeLinks.length > 0) {
                 if (dev) {
-                    console.log(`[scoreSpam] links content`, text.length - contentExludeLinks.length, `${((1 - contentExludeLinks.length / text.length) * 100).toFixed(2)}%`, 'in content', '(+', (1 - contentExludeLinks.length / text.length) * 4, ')');
+                    console.log(`[scoreSpam] links content`, text.length - contentExludeLinks.length, `${((1 - contentExludeLinks.length / text.length) * 100).toFixed(2)}%`, 'in content', '(+', (1 - contentExludeLinks.length / text.length) * 3, ')');
                 }
-                score += (1 - contentExludeLinks.length / text.length) * 4;
+                score += (1 - contentExludeLinks.length / text.length) * 3;
             }
         } else {
             if (dev) {

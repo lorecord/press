@@ -293,7 +293,7 @@ export function createNativeInteractionReply(site: any, {
     const score = scoreSpam(result);
     if (score > 0) {
         result.spam = { score };
-        if (score >= 5) {
+        if (score >= 6) {
             result.spam.marked = true;
             result.status = 'rejected';
         } else if (score >= 4) {
