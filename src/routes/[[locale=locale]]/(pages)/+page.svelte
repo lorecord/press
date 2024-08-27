@@ -7,6 +7,7 @@
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
+    import TranslationTips from "$lib/components/translations/tips.svelte";
 
     export let data: PageData;
 
@@ -149,6 +150,7 @@
                 />
             </div>
         </div>
+        <TranslationTips post={home} {localeContext} />
     {/if}
 {/await}
 
