@@ -42,7 +42,10 @@
         currentPageLocale !== currentContentLocale ||
         (suggestions.length > 0 &&
             currentContentLocale != localeContext.preferedLanguage) ||
-        (suggestions.length > 0 && !suggestions.includes(currentContentLocale));
+        (suggestions.length > 0 &&
+            !suggestions.includes(currentContentLocale) &&
+            suggestions.filter((l: string) => l !== currentContentLocale)
+                .length > 0);
     $: {
         if (dev) {
             console.log("suggestions", suggestions);
