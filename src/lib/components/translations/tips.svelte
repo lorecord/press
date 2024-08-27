@@ -39,13 +39,12 @@
         suggestions.find((l: string) => $locales.includes(l)) ||
         currentPageLocale;
     $: showTips =
-        currentPageLocale !== currentContentLocale ||
-        (suggestions.length > 0 &&
-            currentContentLocale != localeContext.preferedLanguage) ||
-        (suggestions.length > 0 &&
-            !suggestions.includes(currentContentLocale) &&
-            suggestions.filter((l: string) => l !== currentContentLocale)
-                .length > 0);
+        suggestions.length > 0 &&
+        suggestions.filter((l: string) => l !== currentContentLocale).length >
+            0 &&
+        (currentContentLocale != localeContext.preferedLanguage ||
+            !suggestions.includes(currentContentLocale) ||
+            currentPageLocale !== currentContentLocale);
     $: {
         if (dev) {
             console.log("suggestions", suggestions);
