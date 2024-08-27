@@ -17,29 +17,6 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
 
     const payload = await request.json();
 
-    if (payload.auto_submitted == 'auto-reply') {
-        return json({ message: "Auto Reply Igored" });
-    }
-
-    const body = payload.plain_body || untag(payload.html_body || '') || payload.text_body;
-
-    if (!body || body.trim() === '') {
-        return json({ message: "Empty Message Igored" });
-    }
-
-    console.log('[postal/interact] POST', payload);
-
-    let [, replyPart, signaturePart] = body.match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
-
-    if (!replyPart) {
-        return json({ message: "Signature Only Igored" });
-    }
-
-    if (systemConfig.postal?.enabled !== true) {
-        console.log('Postal disabled');
-        error(404);
-    }
-
     if (!dev || secretParam !== 'letmein') {
         const secret = systemConfig.postal?.secret;
         if (typeof secret === 'string') {
@@ -54,6 +31,35 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
             error(401);
         }
     }
+
+    if (payload.auto_submitted == 'auto-reply') {
+        return json({ message: "Auto Reply Igored" });
+    }
+
+    const body = payload.plain_body || untag(payload.html_body || '') || payload.text_body;
+
+    if (!body || body.trim() === '') {
+        return json({ message: "Empty Message Igored" });
+    }
+
+    console.log('[postal/interact] POST', payload);
+
+    let [, replyPart, signaturePart] = (payload.plain_body || payload.text_body).match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
+
+    if (!replyPart) {
+        [, replyPart, signaturePart] = payload.html_body.match(/<body[^>]*>([\s\S]*?)(?:<div[^>]*>.*[:：](?=<br>)(?:<br> .*(?=<br>))*(?:<br>[-—]+(?=<br>)(?![\s\S]*<br>[-—]+<br>[\s\S]*)<br>([\s\S]*))?)?<\/body>/) || [];
+    }
+
+    if (!replyPart) {
+        return json({ message: "Signature Only Igored" });
+    }
+
+    if (systemConfig.postal?.enabled !== true) {
+        console.log('Postal disabled');
+        error(404);
+    }
+
+
 
     // https://docs.postalserver.io/developer/http-payloads
 
