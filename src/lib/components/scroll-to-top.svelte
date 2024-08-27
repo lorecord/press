@@ -29,7 +29,9 @@
         bottom: 1rem;
         right: 1rem;
         opacity: 0;
-        transition: opacity 0.4s;
+        transition:
+            opacity 0.2s,
+            transform 0.2s;
         z-index: 1000;
     }
 

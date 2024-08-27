@@ -361,8 +361,6 @@
                     rel="syndication noopener nofollow external"
                     class="u-syndication button button-xs-block button-pill button-quaternary"
                     href={hackernews}
-                    style="display: flex; align-items: center;
-                gap: .25rem;"
                     target="_blank"><IconBrandYcombinator /> View</a
                 >
             {/if}

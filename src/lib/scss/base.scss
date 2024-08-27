@@ -283,7 +283,7 @@ button,
     color: var(--button-text-color);
     background-color: var(--button-bg-color);
 
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 
     &.text {
         --button-bg-color: transparent;
