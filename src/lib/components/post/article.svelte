@@ -767,6 +767,7 @@
 
                 a {
                     color: var(--text-color-tertiary);
+                    font-size: 1rem;
                 }
             }
         }

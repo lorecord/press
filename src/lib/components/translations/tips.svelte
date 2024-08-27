@@ -75,14 +75,14 @@
                 >{#if post.langs?.length > 1}{$l(
                         suggectionLocale,
                         "common.i18n_alert_message_b",
-                    )}{#each suggestions as lang, index}{#if lang !== post.lang}<a
-                                rel="alternate"
-                                href="/{lang}{post.route}"
-                                >{$l(suggectionLocale, `lang.${lang}`)}</a
-                            >{#if suggestions.length - 2 > index}{$l(
-                                    suggectionLocale,
-                                    "common.comma",
-                                )}{/if}{/if}{/each}{$l(
+                    )}{#each suggestions.filter((l) => l !== post.lang) as lang, index}<a
+                            rel="alternate"
+                            href="/{lang}{post.route}"
+                            >{$l(suggectionLocale, `lang.${lang}`)}</a
+                        >{#if index < suggestions.length - 1}{$l(
+                                suggectionLocale,
+                                "common.comma",
+                            )}{/if}{/each}{$l(
                         suggectionLocale,
                         "common.i18n_alert_message_c",
                     )}{/if}

@@ -22,9 +22,11 @@ body {
     text-shadow: 0 0 0.75px #82828200;
 }
 
+[lang="ja"],
 [lang="zh"],
 [lang^="zh-"] {
     --font-text: Georgia, serif;
+
     font-size: 18px;
 }
 
@@ -33,6 +35,7 @@ body {
         font-size: 18px;
     }
 
+    [lang="ja"],
     [lang="zh"],
     [lang^="zh-"] {
         font-size: 16px;
