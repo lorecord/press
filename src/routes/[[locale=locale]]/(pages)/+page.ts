@@ -35,6 +35,10 @@ export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders 
 
     if (needAwait) {
         home.then((p: Post) => {
+            if (!p) {
+                console.error('No post data of home');
+                return;
+            }
             let links: string[] = [];
 
             if (p.webmention?.enabled) {
