@@ -11,7 +11,15 @@
 
     export let data: PageData;
 
-    $: ({ home, posts, pathLocale, siteConfig, systemConfig, limit } = data);
+    $: ({
+        home,
+        posts,
+        pathLocale,
+        siteConfig,
+        systemConfig,
+        limit,
+        localeContext,
+    } = data);
 
     $: supportedLocales = Array.from(
         new Set([
