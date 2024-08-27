@@ -16,7 +16,7 @@
 </script>
 
 <button
-    class="button button-square button-pill button-3 scroll-to-top"
+    class="button button-square button-pill button-3 scroll-to-top no-print"
     on:click={scrollToTop}
     class:visible={isVisible}
 >
