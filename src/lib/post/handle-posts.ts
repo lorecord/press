@@ -423,10 +423,14 @@ export function createMarkdownParser(options: {
                 a: [
                     ...(defaultSchema.attributes?.a || []),
                     ['className', /.*/],
-                    ['rel', /.*/]],
+                    ['rel', /.*/],
+                    ['target', /.*/],
+                    ['lang', /.*/]
+                ],
                 code: [
                     ...(defaultSchema.attributes?.code || []),
-                    ['className', /.*/]
+                    ['className', /.*/],
+                    ['lang', /.*/]
                 ],
                 blockquote: [
                     ...(defaultSchema.attributes?.blockquote || []),
@@ -434,7 +438,8 @@ export function createMarkdownParser(options: {
                 ],
                 div: [
                     ...(defaultSchema.attributes?.div || []),
-                    ['className', /.*/]
+                    ['className', /.*/],
+                    ['lang', /.*/]
                 ],
                 pre: [
                     ...(defaultSchema.attributes?.pre || []),
@@ -443,7 +448,13 @@ export function createMarkdownParser(options: {
                 span: [
                     ...(defaultSchema.attributes?.span || []),
                     ['className', /.*/],
-                    ['line', /.*/]
+                    ['line', /.*/],
+                    ['lang', /.*/]
+                ],
+                details: [
+                    ...(defaultSchema.attributes?.details || []),
+                    ['className', /.*/],
+                    ['open', /.*/]
                 ]
             }
         })
