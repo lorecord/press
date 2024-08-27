@@ -8,7 +8,8 @@
     export let post: any;
     let show: boolean = true;
 
-    $: suggestions = (post.langs || [])
+    $: currentContentLocale = post.lang || localeContext.contentLocale;
+    $: availablePostLangs = (post.langs || [])
         .map((lang: string) => ({
             lang,
             score: ((acceptLanguages) => {
@@ -23,7 +24,8 @@
                     );
 
                     if (prefixMatchedIndex > -1) {
-                        s += acceptLanguages.length - prefixMatchedIndex;
+                        s +=
+                            (acceptLanguages.length - prefixMatchedIndex) * 1.5;
                     }
                 }
             })(localeContext.acceptLanguages || []),
@@ -31,19 +33,22 @@
         .sort((a: any, b: any) => b.score - a.score)
         .map((s: any) => s.lang);
 
+    $: suggestions = availablePostLangs.filter(
+        (lang: string) => lang !== currentContentLocale,
+    );
+
     $: currentPageLocale = $locale || localeContext.uiLocale;
-    $: currentContentLocale = post.lang || localeContext.contentLocale;
+
     $: suggectionLocale =
         localeContext.cookieLocale ||
         $locales.find((l: string) => l === localeContext.preferedLanguage) ||
-        suggestions.find((l: string) => $locales.includes(l)) ||
+        availablePostLangs.find((l: string) => $locales.includes(l)) ||
         currentPageLocale;
+
     $: showTips =
         suggestions.length > 0 &&
-        suggestions.filter((l: string) => l !== currentContentLocale).length >
-            0 &&
         (currentContentLocale != localeContext.preferedLanguage ||
-            !suggestions.includes(currentContentLocale) ||
+            !availablePostLangs.includes(currentContentLocale) ||
             currentPageLocale !== currentContentLocale);
     $: {
         if (dev) {
@@ -75,7 +80,7 @@
                 >{#if post.langs?.length > 1}{$l(
                         suggectionLocale,
                         "common.i18n_alert_message_b",
-                    )}{#each suggestions.filter((l) => l !== post.lang) as lang, index}<a
+                    )}{#each suggestions as lang, index}<a
                             rel="alternate"
                             href="/{lang}{post.route}"
                             >{$l(suggectionLocale, `lang.${lang}`)}</a
