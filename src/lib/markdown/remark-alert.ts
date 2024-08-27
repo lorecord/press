@@ -46,7 +46,7 @@ const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
                         hChildren: children
                     }
                 };
-                inserts.push((({ parent, index, node }) => () => index != null && parent?.children.splice(index, 1, node))({ parent, index, node }));
+                inserts.push((({ parent, index, node }) => () => index != null && parent?.children.splice(index, 1, node))({ parent, index, node: newNode }));
             }
         });
 
