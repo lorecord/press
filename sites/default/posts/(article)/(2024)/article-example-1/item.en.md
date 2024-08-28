@@ -12,9 +12,18 @@ Example of  Markdown Typography.
 
 ===
 
+## Link
+
+```markdown
+[Google](https://google.com)
+```
+
+[Google](https://google.com)
+
+
 ## blockquote
 
-```md
+```markdown
 > Knowledge is power, Frans is Becon.
 ```
 

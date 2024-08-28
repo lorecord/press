@@ -14,9 +14,17 @@ taxonomy:
 
 ===
 
+## Link
+
+```markdown
+[Google](https://google.com)
+```
+
+[Google](https://google.com)
+
 ## blockquote
 
-```md
+```markdown
 > 知识就是力量，法国就是培根。
 ```
 

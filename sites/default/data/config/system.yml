@@ -5,7 +5,7 @@ public:
       - en
       - zh-CN
   html:
-    auto_external_link: true
+    auto_external_link: false
   user:
     default: 'lorepress'
   domains:
