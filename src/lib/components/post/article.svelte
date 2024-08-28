@@ -125,14 +125,6 @@
                     style="max-width: 100%"
                 />
             {/if}
-            {#if post.data?.photo}
-                <img
-                    class="no-print u-photo"
-                    src={post.data?.photo}
-                    alt=""
-                    style="max-width: 100%"
-                />
-            {/if}
             {#if post.title}
                 <h1 class="p-name">{post.title}</h1>
             {/if}
@@ -211,6 +203,24 @@
         </div>
     {/if}
     <div class="article-body container">
+        {#each [post.data?.image || post.data?.photo]
+            .flat()
+            .filter((i) => !!i) as photo}
+            <img
+                class="no-print u-photo"
+                src={photo.src || photo}
+                alt=""
+                style="max-width: 100%"
+            />
+        {/each}
+        {#each [post.data?.audio].flat().filter((i) => !!i) as audio}
+            <audio class="no-print u-audio" src={audio.src || audio} controls />
+        {/each}
+        {#each [post.data?.video].flat().filter((i) => !!i) as video}
+            <video class="no-print u-video" src={video.src || video} controls>
+                <track kind="captions" />
+            </video>
+        {/each}
         {#if post.toc?.enabled && post.content?.headings}
             <div class="article-aside no-print">
                 <aside>
