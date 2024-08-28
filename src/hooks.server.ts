@@ -296,7 +296,7 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
 };
 
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
-    console.error('[handleError]', status, message, event.url.href, getRealClientAddress(event));
+    console.error('[handleError]', status, message, event.url.href, getRealClientAddress(event), error);
 }
 
 export const handle = sequence(
