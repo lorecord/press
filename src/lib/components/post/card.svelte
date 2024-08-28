@@ -35,7 +35,7 @@
                     class="feature_image"
                     style="background-image:url('{route}{featured ||
                         image ||
-                        photo}}')"
+                        photo}')"
                 ></div>
             {/if}
             <div>

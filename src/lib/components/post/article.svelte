@@ -207,17 +207,28 @@
             .flat()
             .filter((i) => !!i) as photo}
             <img
-                class="no-print u-photo"
+                class="u-photo"
                 src={photo.src || photo}
                 alt=""
-                style="max-width: 100%"
+                style="width: 100%; margin: 2rem 0 1rem;"
             />
         {/each}
         {#each [post.data?.audio].flat().filter((i) => !!i) as audio}
-            <audio class="no-print u-audio" src={audio.src || audio} controls />
+            <audio
+                class="u-audio"
+                src={audio.src || audio}
+                controls
+                style="display: block; padding: 2rem; width: 100%"
+                data-print-content={audio.src || audio}
+            />
         {/each}
         {#each [post.data?.video].flat().filter((i) => !!i) as video}
-            <video class="no-print u-video" src={video.src || video} controls>
+            <video
+                class="u-video"
+                src={video.src || video}
+                data-print-content={video.src || video}
+                controls
+            >
                 <track kind="captions" />
             </video>
         {/each}
@@ -258,9 +269,11 @@
                 </aside>
             </div>
         {/if}
-        <div class="e-content article-content">
-            {@html post.content?.html}
-        </div>
+        {#if post.content?.html}
+            <div class="e-content article-content">
+                {@html post.content?.html}
+            </div>
+        {/if}
         {#if post.comment?.enabled}
             <div class="article-aside article-aside-left no-print">
                 <aside>
@@ -279,7 +292,7 @@
     {#if footer}
         <div class="article-footer container">
             <div class="article-extra">
-                {#if post.template == "item"}
+                {#if (post.template == "item" && post.license) || systemConfig.license?.default}
                     <div class="article-license">
                         <div class="article-license-base-info">
                             <div><strong>{post.title}</strong></div>
