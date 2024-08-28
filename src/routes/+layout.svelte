@@ -28,10 +28,9 @@
                 if (!link.getAttribute("rel")?.includes("external")) {
                     link.setAttribute(
                         "rel",
-                        (link.getAttribute("rel") || "") + " external",
+                        (link.getAttribute("rel") || "") + " external noopener",
                     );
                 }
-                // 添加 target="_blank"
                 if (!link.hasAttribute("target")) {
                     link.setAttribute("target", "_blank");
                 }
