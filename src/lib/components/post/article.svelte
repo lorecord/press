@@ -532,6 +532,10 @@
                     }
                 }
             }
+
+            :global(strong) {
+                color: var(--text-color-primary);
+            }
         }
     }
 
@@ -666,6 +670,10 @@
             display: flex;
             gap: 1em;
             justify-content: center;
+
+            &:is(:first-child) {
+                margin-top: 2rem;
+            }
         }
         .article-aside aside {
             padding: 0 var(--content-padding);

@@ -15,7 +15,7 @@
 
 <Card tag="article" class="article">
     <svelte:fragment slot="header">
-        <h2><a href={`${route}`}>{title}</a></h2>
+        <h2><a href={`${route}`}>{title || ""}</a></h2>
     </svelte:fragment>
     <svelte:fragment slot="header-extra">
         <div class="article-meta">
