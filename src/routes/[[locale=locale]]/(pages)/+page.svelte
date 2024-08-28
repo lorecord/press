@@ -44,19 +44,21 @@
 <DescriptionMeta value={siteConfig.description}></DescriptionMeta>
 
 <svelte:head>
-    {#if home.webmention?.enabled}
-        <link
-            rel="webmention"
-            href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
-        />
-    {/if}
+    {#await home then home}
+        {#if home?.webmention?.enabled}
+            <link
+                rel="webmention"
+                href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+            />
+        {/if}
 
-    {#if home.pingback?.enabled}
-        <link
-            rel="pingback"
-            href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
-        />
-    {/if}
+        {#if home?.pingback?.enabled}
+            <link
+                rel="pingback"
+                href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+            />
+        {/if}
+    {/await}
     {#if systemConfig.git?.repo}
         <link rel="vcs-git" href={systemConfig.git?.repo} />
     {/if}
