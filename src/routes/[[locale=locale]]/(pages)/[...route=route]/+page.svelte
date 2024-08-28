@@ -173,9 +173,7 @@
 </script>
 
 {#await post then post}
-    {#if post.title}
-        <Title value={post.title}></Title>
-    {/if}
+    <Title value={post.title || post.summary.raw}></Title>
     <DescriptionMeta value={post.summary?.raw}></DescriptionMeta>
 {/await}
 
