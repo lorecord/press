@@ -10,7 +10,7 @@
     export let showContent: boolean = true;
 
     $: ({ title, summary, route, published, data: postData = {} } = post);
-    $: ({ image, review } = postData);
+    $: ({ image, photo, video, audio, featured, review } = postData);
 </script>
 
 <Card tag="article" class="article">
@@ -30,10 +30,12 @@
     </svelte:fragment>
     {#if showContent}
         <div class="content">
-            {#if image}
+            {#if featured || image || photo}
                 <div
                     class="feature_image"
-                    style="background-image:url('{route}{image}')"
+                    style="background-image:url('{route}{featured ||
+                        image ||
+                        photo}}')"
                 ></div>
             {/if}
             <div>
