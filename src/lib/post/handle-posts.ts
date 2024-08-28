@@ -183,7 +183,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
     const effectedTemplate = dataFromRaw.template || 'default';
     attributes = Object.assign({}, DEFAULT_ATTRIBUTE_MAP[effectedTemplate], attributes);
 
-    const { title, author, contributor, sponsor, taxonomy, keywords, summary, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, pingback, route: routeInAttributes, slug, toc, published, modified, deleted, ...data } = attributes;
+    const { title, author, contributor, sponsor, taxonomy, keywords, summary, category, tag, series, license, uuid, date, visible, routable, menu, comment, discuss, syndication, type, webmention, pingback, route: routeInAttributes, slug, toc, published, modified, deleted, featured, image, audio, video, photo, ...data } = attributes;
 
     let defaultDate = (() => {
         let dateFieldValue = date as any;
@@ -259,12 +259,11 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
             enabled: pingback
         } : pingback),
         template: effectedTemplate,
-
         slug: attributes.slug || slugInPath,
         taxonomy: {
-            category: [taxonomy?.category].flat().filter((c: any) => !!c) as string[],
-            tag: [taxonomy?.tag].flat().filter((c: any) => !!c) as string[],
-            series: [taxonomy?.seires].flat().filter((c: any) => !!c) as string[],
+            category: [category, taxonomy?.category].flat().filter((c: any) => !!c) as string[],
+            tag: [tag, taxonomy?.tag].flat().filter((c: any) => !!c) as string[],
+            series: [series, taxonomy?.series].flat().filter((c: any) => !!c) as string[],
         },
         route: routeInAttributes || (
             slashed.endsWith(`/${attributes.slug || slugInPath}/`) ? slashed : slashed.replace(/\/[^\/]+\/$/, `/${attributes.slug || slugInPath}/`).replace(/\/+$/, '/')
@@ -296,6 +295,29 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         author: resolveContact(site, author || systemConfig.user?.default, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
         contributor: resolveContact(site, contributor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
         sponsor: resolveContact(site, sponsor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
+        featured,
+        image: [image].flat().filter((c: any) => !!c) as string[],
+        audio: [audio].flat().map((c: any) => {
+            if (typeof c === 'string') {
+                return { src: c };
+            } else {
+                return c;
+            }
+        }),
+        video: [video].flat().map((c: any) => {
+            if (typeof c === 'string') {
+                return { src: c };
+            } else {
+                return c;
+            }
+        }),
+        photo: [photo].flat().map((c: any) => {
+            if (typeof c === 'string') {
+                return { src: c };
+            } else {
+                return c;
+            }
+        })
     };
 
     const siteCache = cache[site.unique] || (cache[site.unique] = {

@@ -75,8 +75,8 @@
         let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
-            image: post.data?.image
-                ? [`${siteConfig.url}${post.route}${post.data.image}`]
+            image: post.image?.[0]
+                ? [`${siteConfig.url}${post.route}${post.image[0]}`]
                 : [`${siteConfig.url}/favicon.png`],
 
             url: `${siteConfig.url}${post.route}`,
@@ -352,31 +352,33 @@
             <meta name="rating" content={post.data?.rating} />
         {/if}
 
-        {#if post.data?.image}
+        {#if post.image?.[0] || post.featured || post.photo}
+            {@const image =
+                post.featured || post.photo?.[0]?.src || post.image?.[0]}
             <meta
                 property="og:image"
-                content="{siteConfig.url}{post.route}{post.data?.image}"
+                content="{siteConfig.url}{post.route}{image}"
             />
             <meta
                 name="twitter:image"
-                content="{siteConfig.url}{post.route}{post.data?.image}"
+                content="{siteConfig.url}{post.route}{image}"
             />
             <meta name="twitter:card" content="summary_large_image" />
         {:else}
             <meta name="twitter:card" content="summary" />
         {/if}
 
-        {#if post.data?.video}
+        {#if post.video?.[0]}
             <meta
                 property="og:video"
-                content="{siteConfig.url}{post.route}{post.data?.video}"
+                content="{siteConfig.url}{post.route}{post.video[0].src}"
             />
         {/if}
 
-        {#if post.data?.audio}
+        {#if post.audio?.[0]}
             <meta
                 property="og:audio"
-                content="{siteConfig.url}{post.route}{post.data?.audio}"
+                content="{siteConfig.url}{post.route}{post.audio[0].src}"
             />
         {/if}
 

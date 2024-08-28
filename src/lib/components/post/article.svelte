@@ -203,30 +203,38 @@
         </div>
     {/if}
     <div class="article-body container">
-        {#each [post.data?.image || post.data?.photo]
-            .flat()
-            .filter((i) => !!i) as photo}
+        {#each post.photo || [] as photo}
             <img
                 class="u-photo"
-                src={photo.src || photo}
+                src={photo.src}
                 alt=""
                 style="width: 100%; margin: 2rem 0 1rem;"
             />
         {/each}
-        {#each [post.data?.audio].flat().filter((i) => !!i) as audio}
+        {#each post.image || [] as image}
+            {#if image}
+                <img
+                    class="u-photo"
+                    src={image}
+                    alt=""
+                    style="margin: 2rem auto 1rem auto;"
+                />
+            {/if}
+        {/each}
+        {#each post.audio || [] as audio}
             <audio
                 class="u-audio"
-                src={audio.src || audio}
+                src={audio.src}
                 controls
                 style="display: block; padding: 2rem; width: 100%"
-                data-print-content={audio.src || audio}
+                data-print-content={audio.src}
             />
         {/each}
-        {#each [post.data?.video].flat().filter((i) => !!i) as video}
+        {#each post.video || [] as video}
             <video
                 class="u-video"
-                src={video.src || video}
-                data-print-content={video.src || video}
+                src={video.src}
+                data-print-content={video.src}
                 controls
                 style="max-width: 100%;
                     max-height: 100vh;

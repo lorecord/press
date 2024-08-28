@@ -88,14 +88,51 @@
         <div class="e-content article-content">
             {@html post.content?.html}
 
-            {#if post.data?.image}
-                <img
-                    class="no-print"
-                    src={post.data?.image}
-                    alt=""
-                    style="max-width: 100%"
-                />
+            {#if post.image}
+                {#each post.image || [] as image}
+                    <img
+                        class="no-print"
+                        src={image}
+                        alt=""
+                        style="margin:0 auto; max-width: 100%"
+                    />
+                {/each}
             {/if}
+            {#if post.photo}
+                {#each post.photo || [] as photo}
+                    <img
+                        class="no-print"
+                        src={photo.src}
+                        alt=""
+                        style="width: 100%; padding: 1rem 0"
+                    />
+                {/each}
+            {/if}
+            {#each post.audio || [] as audio}
+                <audio
+                    class="u-audio"
+                    src={audio.src}
+                    controls
+                    style="display: block; padding: 2rem; width: 100%"
+                    data-print-content={audio.src}
+                />
+            {/each}
+            {#each post.video || [] as video}
+                <video
+                    class="u-video"
+                    src={video.src}
+                    data-print-content={video.src}
+                    controls
+                    style="max-width: 100%;
+                    max-height: 100vh;
+                    min-width: 300px;
+                    margin: 0rem auto;
+                    display: block;
+                    padding: 2rem 0 1rem;"
+                >
+                    <track kind="captions" />
+                </video>
+            {/each}
         </div>
         <div class="article-meta">
             {#if post.data?.reply}

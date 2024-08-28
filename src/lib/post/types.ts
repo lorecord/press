@@ -38,8 +38,11 @@ export interface PostRawAttributes {
     taxonomy?: {
         category?: string | string[],
         tag?: string | string[]
-        seires?: string | string[]
+        series?: string | string[]
     },
+    category?: string | string[],
+    tag?: string | string[]
+    series?: string | string[],
     keywords?: string | string[],
     visible?: boolean,
     routable?: boolean,
@@ -62,6 +65,11 @@ export interface PostRawAttributes {
     toc?: boolean | {
         enabled: boolean
     },
+    featured?: string,
+    image?: string | string[],
+    video?: string | string[] | { [key: string]: string } | { [key: string]: string }[],
+    audio?: string | string[] | { [key: string]: string } | { [key: string]: string }[],
+    photo?: string | string[] | { [key: string]: string } | { [key: string]: string }[],
     [key: string]: any,
 }
 
@@ -124,6 +132,11 @@ export interface PostRaw {
         enabled?: boolean,
         accept?: boolean,
     },
+    featured?: string,
+    image?: string[],
+    video?: { [key: string]: string }[],
+    audio?: { [key: string]: string }[],
+    photo?: { [key: string]: string }[],
     data?: { [key: string]: any }
 }
 
