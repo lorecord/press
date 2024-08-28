@@ -228,6 +228,12 @@
                 src={video.src || video}
                 data-print-content={video.src || video}
                 controls
+                style="max-width: 100%;
+                    max-height: 100vh;
+                    min-width: 300px;
+                    margin: 0rem auto;
+                    display: block;
+                    padding: 2rem 0 1rem;"
             >
                 <track kind="captions" />
             </video>
