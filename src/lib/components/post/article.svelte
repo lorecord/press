@@ -217,7 +217,7 @@
                     class="u-photo"
                     src={image}
                     alt=""
-                    style="margin: 2rem auto 1rem auto;"
+                    style="margin: 2rem auto 1rem; max-width: 100%"
                 />
             {/if}
         {/each}
@@ -382,6 +382,22 @@
                                     />
                                 </div>
                             </div>
+                            {#if post.modified?.date && post.modified?.date !== post.published?.date}
+                                <div class="article-license-meta-item">
+                                    <div class="label">
+                                        <span lang={$locale}
+                                            >{$t("common.update_date")}</span
+                                        >
+                                    </div>
+                                    <div class="value">
+                                        <Time
+                                            date={post.modified?.date}
+                                            class="dt-updated"
+                                            locale={$locale}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
                             {#if post.license || systemConfig.license?.default}
                                 <div class="article-license-meta-item">
                                     <div class="label">

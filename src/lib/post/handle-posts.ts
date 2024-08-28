@@ -196,9 +196,9 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         }
     })();
 
-    function resolvePostData(value: string | boolean | undefined | {
+    function resolvePostDate(value: string | boolean | undefined | {
         date: string
-    }, defaultValue: string | undefined, defaultProvider: () => { date: string }): { date: string } | undefined {
+    }, defaultValue: string | undefined, defaultProvider: () => { date: string } | undefined): { date: string } | undefined {
         if (value === false) {
             return undefined;
         } else if (typeof value === 'string') {
@@ -271,20 +271,24 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         toc: {
             enabled: attributes.toc === true || (attributes.toc && attributes.toc.enabled === true) || false
         },
-        published: resolvePostData(published, defaultDate, () => {
+        published: resolvePostDate(published, defaultDate, () => {
             const { stat } = resourceRaw;
             return {
                 date: stat?.birthtime.toISOString()
             };
         }),
-        modified: resolvePostData(modified, defaultDate, () => {
+        modified: resolvePostDate(modified, undefined, () => {
             const { stat } = resourceRaw;
-            return {
-                date: stat?.mtime.toISOString()
-            };
+            if (stat?.mtime.toISOString()) {
+                return {
+                    date: stat?.mtime.toISOString()
+                };
+            } else {
+                return { date: defaultDate }
+            }
         }),
 
-        deleted: deleted ? resolvePostData(deleted, defaultDate, () => {
+        deleted: deleted ? resolvePostDate(deleted, defaultDate, () => {
             const { stat } = resourceRaw;
             return {
                 date: stat?.mtime.toISOString()
@@ -297,21 +301,21 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         sponsor: resolveContact(site, sponsor, dataFromRaw.lang || systemConfig.locale?.default || 'en'),
         featured,
         image: [image].flat().filter((c: any) => !!c) as string[],
-        audio: [audio].flat().map((c: any) => {
+        audio: [audio].flat().filter((c: any) => !!c).map((c: any) => {
             if (typeof c === 'string') {
                 return { src: c };
             } else {
                 return c;
             }
         }),
-        video: [video].flat().map((c: any) => {
+        video: [video].flat().filter((c: any) => !!c).map((c: any) => {
             if (typeof c === 'string') {
                 return { src: c };
             } else {
                 return c;
             }
         }),
-        photo: [photo].flat().map((c: any) => {
+        photo: [photo].flat().filter((c: any) => !!c).map((c: any) => {
             if (typeof c === 'string') {
                 return { src: c };
             } else {
