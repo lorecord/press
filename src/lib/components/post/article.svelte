@@ -306,7 +306,7 @@
     {#if footer}
         <div class="article-footer container">
             <div class="article-extra">
-                {#if (post.template == "item" && post.license) || systemConfig.license?.default}
+                {#if post.template == "item" && post.license !== "false" && (post.license || systemConfig.license?.default)}
                     <div class="article-license">
                         <div class="article-license-base-info">
                             <div><strong>{post.title}</strong></div>
