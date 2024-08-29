@@ -47,8 +47,8 @@ export async function GET({ request, locals, params }) {
     );
 
     let body = type === 'atom'
-        ? renderAtom(posts, lang, siteConfig, defaultAuthor, supportedLocales)
-        : renderRss(posts, lang, siteConfig, defaultAuthor, supportedLocales);
+        ? renderAtom(posts, lang, siteConfig, defaultAuthor, supportedLocales, systemConfig.websub)
+        : renderRss(posts, lang, siteConfig, defaultAuthor, supportedLocales, systemConfig.websub);
 
     return new Response(body, {
         status: 200,
@@ -77,7 +77,7 @@ function escapeHtml(unsafe: string) {
  * @param lang 
  * @returns 
  */
-const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[]) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" 
     xmlns:atom="http://www.w3.org/2005/Atom"
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
@@ -86,6 +86,7 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     <title>${siteConfig.title}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
+    ${websubConfig?.enabled ? `<atom:link rel="hub" href="${websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'}" />` : ``}
     <language>${lang}</language>
     <generator>Press</generator>
     <docs>https://www.rssboard.org/rss-specification</docs>
@@ -117,12 +118,13 @@ ${posts.map((post: any) => `
  * @param lang 
  * @returns 
  */
-const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[]) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>${siteConfig.url}</id>
     <title type="text">${siteConfig.title}</title>
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
+    ${websubConfig?.enabled ? `<link rel="hub" href="${websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'}" />` : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
     </author>` : ``
