@@ -131,9 +131,9 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
     }${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<updated>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toISOString()}</updated>` : ``}
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
-    <link href="${siteConfig.url}/feed" rel="self" type="application/atom+xml"/>
+    <link href="${siteConfig.url}/feed/" rel="self" type="application/atom+xml"/>
 ${supportedLocales.map((locale: any) => {
-        return `<link href="${siteConfig.url}/${locale}/feed" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
+        return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
     })}
     <rights>Copyright (c)</rights>
 ${posts.map((post: any) => `
@@ -147,9 +147,13 @@ ${posts.map((post: any) => `
         ${post.modified?.date
             ? `<updated>${new Date(post.modified?.date).toISOString()}</updated>`
             : ``}
-        ${post.audio
-            ? `<link rel="enclosure" type="audio/mpeg" length="1337"
-        href="${post.audio}"/>`
+        ${post.audio?.[0]
+            ? `<link rel="enclosure" type="audio/mpeg"
+        href="${post.audio?.[0]}"/>`
+            : ``}
+            ${post.video?.[0]
+            ? `<link rel="enclosure" type="video"
+            href="${post.video?.[0]}"/>`
             : ``}
         ${post.author
             ? post.author.map((author: any) => `<author>
