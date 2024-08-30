@@ -451,6 +451,7 @@ export function createMarkdownParser(options: {
                     ['className', /.*/],
                     ['rel', /.*/],
                     ['target', /.*/],
+                    ['style', /.*/],
                     ['lang', /.*/]
                 ],
                 code: [
@@ -465,6 +466,7 @@ export function createMarkdownParser(options: {
                 div: [
                     ...(defaultSchema.attributes?.div || []),
                     ['className', /.*/],
+                    ['style', /.*/],
                     ['lang', /.*/]
                 ],
                 pre: [
@@ -475,13 +477,20 @@ export function createMarkdownParser(options: {
                     ...(defaultSchema.attributes?.span || []),
                     ['className', /.*/],
                     ['line', /.*/],
+                 ['style', /.*/],
                     ['lang', /.*/]
                 ],
                 details: [
                     ...(defaultSchema.attributes?.details || []),
                     ['className', /.*/],
                     ['open', /.*/]
+                ],
+                p: [
+                    ...(defaultSchema.attributes?.p || []),
+                    ['className', /.*/],
+                    ['style', /.*/]
                 ]
+
             }
         })
         .use(rephypeKatex)
