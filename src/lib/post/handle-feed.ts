@@ -1,4 +1,4 @@
-import { getSiteConfig, getSystemConfig } from "$lib/server/config";
+import { getSiteConfig } from "$lib/server/config";
 import type { Site } from "$lib/server/sites";
 import { t } from "$lib/translations";
 import { convertToPost } from "./handle-posts";
