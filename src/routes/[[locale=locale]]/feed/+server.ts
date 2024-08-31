@@ -6,7 +6,7 @@ import { locale } from "$lib/translations";
 
 export const trailingSlash = 'always';
 
-export async function GET({ request, locals, params }) {
+export async function GET({ request, locals, params, url }) {
     const { site } = locals as any;
     const systemConfig = getSystemConfig(site);
 
@@ -50,11 +50,21 @@ export async function GET({ request, locals, params }) {
         ? renderAtom(posts, lang, siteConfig, defaultAuthor, supportedLocales, systemConfig.websub)
         : renderRss(posts, lang, siteConfig, defaultAuthor, supportedLocales, systemConfig.websub);
 
+    const headers: any = {
+        'Content-Type': contentType,
+        'Cache-Control': 'max-age=604800',
+    };
+
+    if (systemConfig.websub?.enabled) {
+        headers['Link'] = `<${url.pathname}>; rel="self", ` + [systemConfig.websub.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<${u}>; rel="hub"`).join(' ');
+    }
+
     return new Response(body, {
         status: 200,
         headers: {
             'Content-Type': contentType,
-            'Cache-Control': 'max-age=604800'
+            'Cache-Control': 'max-age=604800',
+
         }
     });
 }
@@ -86,7 +96,8 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     <title>${siteConfig.title}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
-    ${websubConfig?.enabled ? `<atom:link rel="hub" href="${websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'}" />` : ``}
+    ${websubConfig?.enabled
+        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" /><atom:link rel="hub" href="${u}" />`) : ``}
     <language>${lang}</language>
     <generator>Press</generator>
     <docs>https://www.rssboard.org/rss-specification</docs>
@@ -99,14 +110,14 @@ ${posts.map((post: any) => `
         <content:encoded><![CDATA[${escapeHtml(post.content?.html)}]]></content:encoded>
         <pubDate>${new Date(post.published.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
-        ? post.taxonomy.category
-            .map((category: any) => `<category>${category}</category>`).join('\n')
-        : ''}
+                ? post.taxonomy.category
+                    .map((category: any) => `<category>${category}</category>`).join('\n')
+                : ''}
         ${post.taxonomy?.tag
-        ? post.taxonomy.tag
-            .map((tag: any) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                ? post.taxonomy.tag
+                    .map((tag: any) => `<category>${tag}</category>`).join('\n\t\t') : ''}
     </item>`
-)
+        )
         .join('')}
 </channel>
 </rss>
@@ -124,7 +135,8 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
     <title type="text">${siteConfig.title}</title>
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
-    ${websubConfig?.enabled ? `<link rel="hub" href="${websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'}" />` : ``}
+    ${websubConfig?.enabled
+        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`) : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
     </author>` : ``
