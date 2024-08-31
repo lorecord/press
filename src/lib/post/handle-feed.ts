@@ -249,7 +249,16 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
 
     let feedHtml = `${post?.content?.html || ''}`;
 
-    feedHtml = feedHtml.replace(/href="#([^"]*)"/g, `href="${siteConfig.url}${post.route}#$1"`);
+    feedHtml = feedHtml.replace(/(<a.*href=")([^"]*)(".*>)/g, (match, beforeHref, hrefValue, afterHref) => {
+        // Check if the link is external
+        const url: { value?: URL } = {};
+        try {
+            url.value = new URL(hrefValue, `${siteConfig.url}${post.route}`);
+        } catch (e) {
+            return match;
+        }
+        return `${beforeHref}${url.value.href}${afterHref}`;
+    });
 
     if (post.langs) {
         feedHtml = `${feedHtml}
