@@ -249,8 +249,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
 
     let feedHtml = `${post?.content?.html || ''}`;
 
-    feedHtml = feedHtml.replace(/(<a.*href=")([^"]*)(".*>)/g, (match, beforeHref, hrefValue, afterHref) => {
-        // Check if the link is external
+    feedHtml = feedHtml.replace(/(<a.*?href=")([^"]*)("[^>]*?>)/g, (match, beforeHref, hrefValue, afterHref) => {
         const url: { value?: URL } = {};
         try {
             url.value = new URL(hrefValue, `${siteConfig.url}${post.route}`);
