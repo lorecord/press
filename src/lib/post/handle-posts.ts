@@ -13,7 +13,7 @@ import { getSiteAccount } from '$lib/server/accounts';
 import { getSiteConfig, getSystemConfig } from '$lib/server/config';
 import type { Site } from '$lib/server/sites';
 import type { ContactBaseProfile } from '$lib/types';
-import { addRelToExternalLinks, addTargetBlankToExternalLinks } from '$lib/utils/html';
+import { addRelToExternalLinks } from '$lib/utils/html';
 import { untag } from '$lib/utils/xml';
 import fm from 'front-matter';
 import { globSync } from "glob";
@@ -587,7 +587,7 @@ export function convertToPost(site: Site, raw: PostRaw, mermaidEnabled: boolean 
     const siteConfig = getSiteConfig(site);
 
     post.content = {
-        html: systemConfig.domains?.primary && siteConfig.url ? addTargetBlankToExternalLinks(addRelToExternalLinks(html, siteConfig.url, [systemConfig.domains.primary])) : html,
+        html: systemConfig.domains?.primary && siteConfig.url ? addRelToExternalLinks(html, siteConfig.url, [systemConfig.domains.primary]) : html,
         headings,
         meta,
         links,

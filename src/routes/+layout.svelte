@@ -28,12 +28,12 @@
                 if (!link.getAttribute("rel")?.includes("external")) {
                     link.setAttribute(
                         "rel",
-                        (link.getAttribute("rel") || "") + " external noopener",
+                        (link.getAttribute("rel") || "") + " external",
                     );
                 }
-                if (!link.hasAttribute("target")) {
-                    link.setAttribute("target", "_blank");
-                }
+                // if (!link.hasAttribute("target")) {
+                //     link.setAttribute("target", "_blank");
+                // }
             }
         });
     }
@@ -53,12 +53,12 @@
     }
 
     onMount(() => {
-        processExternalLinks();
+        // processExternalLinks();
         processAnchorLinks();
     });
 
     afterUpdate(() => {
-        processExternalLinks();
+        // processExternalLinks();
         processAnchorLinks();
     });
 

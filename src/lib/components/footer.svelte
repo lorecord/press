@@ -50,6 +50,7 @@
                     href="https://beian.miit.gov.cn/"
                     data-spacer="ignore"
                     rel="external nofollow noopener noreferrer"
+                    target="_blank"
                     >{siteConfig.beian}</a
                 >
             </span>

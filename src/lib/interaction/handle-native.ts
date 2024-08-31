@@ -147,8 +147,9 @@ export function markdown(content: string, id: string, domain: string) {
                                 if (theLink.properties?.href?.match(/^([a-zA-Z]+:)?\/\//) // is a aboslute link
                                     && !theLink.properties?.href?.match(new RegExp(`^([a-zA-Z]+:)?\\/\\/${domain}`)) // is not internal link
                                 ) {
-                                    theLink.properties.rel = 'external nofollow noopener';
-                                    theLink.properties.target = '_blank';
+                                    theLink.properties.rel = 'external nofollow';
+                                    // theLink.properties.rel = 'external nofollow noopener';
+                                    // theLink.properties.target = '_blank';
                                 }
                             }
 
