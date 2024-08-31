@@ -250,7 +250,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
 
     let feedHtml = `${post?.content?.html || ''}`;
 
-    feedHtml = feedHtml.replace(/(<a.*?href=")([^"]*)("[^>]*?>)/g, (match, beforeHref, hrefValue, afterHref) => {
+    feedHtml = feedHtml.replace(/(<(?:a|img|video|audio).*?(?:href|src|source)=")([^"]*)("[^>]*?>)/g, (match, beforeHref, hrefValue, afterHref) => {
         const url: { value?: URL } = {};
         try {
             url.value = new URL(hrefValue, `${siteConfig.url}${post.route}`);
