@@ -189,7 +189,8 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
         <name>${defaultAuthor?.name}</name>
         <uri>${defaultAuthor?.url}</uri>
     </author>` : ``
-    }${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<updated>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toISOString()}</updated>` : ``}
+    }
+    ${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<updated>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toISOString()}</updated>` : ``}
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}/feed/" rel="self" type="application/atom+xml"/>
