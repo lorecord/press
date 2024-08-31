@@ -340,8 +340,7 @@
                 class="u-syndication"
                 href={x.status}
                 style="display: flex; align-items: center;
-                gap: .25rem;"
-                target="_blank"><IconBrandX />{x.status}</a
+                gap: .25rem;"><IconBrandX />{x.status}</a
             >
         </details>
     {/if}
@@ -360,8 +359,7 @@
                 <a
                     rel="syndication noopener nofollow external"
                     class="u-syndication button button-xs-block button-pill button-quaternary"
-                    href={hackernews}
-                    target="_blank"><IconBrandYcombinator /> View</a
+                    href={hackernews}><IconBrandYcombinator /> View</a
                 >
             {/if}
             {#if post.lang == "en"}
