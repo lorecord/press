@@ -128,25 +128,33 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
  * @returns 
  */
 const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet href="/rss.xsl" type="text/xsl"?>
 <rss version="2.0" 
     xmlns:atom="http://www.w3.org/2005/Atom"
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
     <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
+    ${supportedLocales.map((locale: any) => {
+    return `<atom:link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale}" title="${t.get(`lang.${locale}`)}" />`
+}).join('\n\t')}
     <title>${siteConfig.title || ''}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
     ${websubConfig?.enabled
-        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" /><atom:link rel="hub" href="${u}" />`) : ``}
+        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" /><atom:link rel="hub" href="${u}" />`).join('\n') : ``}
     <language>${lang}</language>
     <generator>Press</generator>
+    <copyright>Copyright (c)</copyright>
     <docs>https://www.rssboard.org/rss-specification</docs>
+    ${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<lastBuildDate>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toUTCString()}</lastBuildDate>` : ``}
+    <ttl>60</ttl>
 ${posts.map((post: any) => `
     <item>
         <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
         <title>${post.title || post.published?.date}</title>
         <link>${siteConfig.url}${post.route}</link>
-        <description><![CDATA[${escapeHtml(post.summary?.html)}]]></description>
+        <comments>${siteConfig.url}${post.route}#comments</comments>
+        <description><![CDATA[${escapeHtml(post.summary?.raw)}]]></description>
         <content:encoded><![CDATA[${escapeHtml(post.content?.html)}]]></content:encoded>
         <pubDate>${new Date(post.published.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
@@ -176,17 +184,18 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
     ${websubConfig?.enabled
-        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`) : ``}
+        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
+        <uri>${defaultAuthor?.url}</uri>
     </author>` : ``
     }${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<updated>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toISOString()}</updated>` : ``}
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}/feed/" rel="self" type="application/atom+xml"/>
-${supportedLocales.map((locale: any) => {
+    ${supportedLocales.map((locale: any) => {
         return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
-    })}
+    }).join('\n\t')}
     <rights>Copyright (c)</rights>
 ${posts.map((post: any) => `
     <entry>
@@ -201,25 +210,25 @@ ${posts.map((post: any) => `
             : ``}
         ${post.audio?.[0]
             ? `<link rel="enclosure" type="audio/mpeg"
-        href="${post.audio?.[0]}"/>`
+        href="${post.audio?.[0].src}"/>`
             : ``}
-            ${post.video?.[0]
+        ${post.video?.[0]
             ? `<link rel="enclosure" type="video"
-            href="${post.video?.[0]}"/>`
+            href="${post.video?.[0].src}"/>`
             : ``}
         ${post.author
             ? post.author.map((author: any) => `<author>
             <name>${author.name}</name>
-        </author>`)
+        </author>`).join('\n')
             : ``}
         ${post.contributor
             ? post.contributor.map((c: any) => `
         <contributor>
             <name>${c}</name>
         </contributor>
-            `)
+            `).join('\n')
             : ``}
-        <summary><![CDATA[${escapeHtml(post.summary?.html)}]]></summary>
+        <summary><![CDATA[${escapeHtml(post.summary?.raw)}]]></summary>
         <content type="html"><![CDATA[${escapeHtml(post.content?.html)}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
@@ -243,7 +252,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
     if (post.langs) {
         feedHtml = `${feedHtml}
         <p>${post.langs?.map((lang: string) =>
-            `<a rel="alternate" href="${siteConfig.url}/${lang}${post.route}">${t.get(`lang.${lang}`)}</a>`)
+            `<a rel="alternate" href="${siteConfig.url}/${lang}${post.route}">${t.get(`lang.${lang}`)}</a>`).join('\n')
             }</p>
         `;
     }
