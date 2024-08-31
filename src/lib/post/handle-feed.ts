@@ -141,7 +141,7 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
     ${websubConfig?.enabled
-        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" /><atom:link rel="hub" href="${u}" />`).join('\n') : ``}
+        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<atom:link rel="hub" href="${u}" />`).join('\n') : ``}
     <language>${lang}</language>
     <generator>Press</generator>
     <copyright>Copyright (c)</copyright>
@@ -248,6 +248,8 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
     const siteConfig = getSiteConfig(site, post.lang);
 
     let feedHtml = `${post?.content?.html || ''}`;
+
+    feedHtml = feedHtml.replace(/href="#([^"]*)"/g, `href="${siteConfig.url}${post.route}#$1"`);
 
     if (post.langs) {
         feedHtml = `${feedHtml}
