@@ -38,7 +38,7 @@
             <span class="issn">
                 <abbr title="International Standard Serial Number">ISSN</abbr>
                 <a
-                    rel="noopener nofollow"
+                    rel="external noopener nofollow"
                     href={`https://portal.issn.org/resource/ISSN/${siteConfig.issn}`}
                     ><span itemprop="issn">{siteConfig.issn}</span></a
                 >
