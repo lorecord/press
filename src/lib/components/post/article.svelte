@@ -592,6 +592,7 @@
 
         @media print {
             --article-border: none;
+            print-color-adjust: exact; /* force bg color if need */
             border-radius: 0;
         }
 
@@ -600,6 +601,10 @@
         .article-footer {
             background: var(--article-bg-color);
             border: var(--article-border);
+
+            @media print {
+                print-color-adjust: exact; /* force bg color if need */
+            }
         }
 
         .article-header,

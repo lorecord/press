@@ -418,6 +418,7 @@
 
             @media print {
                 padding: 0 !important;
+                print-color-adjust: exact; /* force bg color if need */
             }
         }
 

@@ -27,6 +27,10 @@
         color: #666;
     }
 
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
     ol {
         a[href^="#fnref-"] {
             display: none;
@@ -76,6 +80,11 @@
         h5 {
             font-size: 1.222em;
         }
+    }
+
+    p {
+        widows: 4;
+        orphans: 3;
     }
 
     .page-break {
