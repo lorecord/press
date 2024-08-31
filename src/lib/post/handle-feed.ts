@@ -6,22 +6,22 @@ import type { Post, PostRaw } from "./types";
 
 export type FeedRender = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any) => string;
 
-export const renderFeed = (requestAcceptHeader: string | null, url: any, posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any): { body: string, headers: { [key: string]: string } } => {
+export const renderFeed = (requestAcceptHeader: string | null, url: URL, posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any): { body: string, headers: { [key: string]: string } } => {
 
     let type = 'rss';
 
     let contentType = 'application/rss+xml;charset=UTF-8';
 
     if ((requestAcceptHeader && requestAcceptHeader.includes('application/atom+xml'))
-        || url.endsWith('atom')) {
+        || url.href.endsWith('atom')) {
         type = 'atom';
         contentType = 'application/atom+xml;charset=UTF-8';
     } else if ((requestAcceptHeader && requestAcceptHeader.includes('application/feed+json'))
-        || url.endsWith('json')) {
+        || url.href.endsWith('json')) {
         type = 'json';
         contentType = 'application/feed+json;charset=UTF-8';
     } else if ((requestAcceptHeader && requestAcceptHeader.includes('application/json'))
-        || url.endsWith('json')) {
+        || url.href.endsWith('json')) {
         type = 'json';
         contentType = 'application/json;charset=UTF-8';
     }
@@ -91,7 +91,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
             id: `${siteConfig.url}${post.route}`,
             url: `${siteConfig.url}${post.route}`,
             // external_url: post.external_url,
-            title: post.title,
+            title: post.title || post.published?.date,
             date_published: post.published?.date,
             // content_text: post.content?.raw,
             content_html: post.content?.html,
@@ -133,7 +133,7 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
     <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
-    <title>${siteConfig.title}</title>
+    <title>${siteConfig.title || ''}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
     ${websubConfig?.enabled
@@ -144,7 +144,7 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
 ${posts.map((post: any) => `
     <item>
         <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
-        <title>${post.title}</title>
+        <title>${post.title || post.published?.date}</title>
         <link>${siteConfig.url}${post.route}</link>
         <description><![CDATA[${escapeHtml(post.summary?.html)}]]></description>
         <content:encoded><![CDATA[${escapeHtml(post.content?.html)}]]></content:encoded>
@@ -172,7 +172,7 @@ ${posts.map((post: any) => `
 const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>${siteConfig.url}</id>
-    <title type="text">${siteConfig.title}</title>
+    <title type="text">${siteConfig.title || ''}</title>
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
     ${websubConfig?.enabled
@@ -191,7 +191,7 @@ ${supportedLocales.map((locale: any) => {
 ${posts.map((post: any) => `
     <entry>
         <id isPermaLink="true">${siteConfig.url}${post.route}</id>
-        <title>${post.title}</title>
+        <title>${post.title || post.published?.date}</title>
         <link href="${siteConfig.url}${post.route}" />
         ${post.published.date
             ? `<published>${new Date(post.published.date).toISOString()}</published>`
