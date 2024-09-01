@@ -94,7 +94,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
             title: post.title || post.published?.date,
             date_published: post.published?.date,
             // content_text: post.content?.raw,
-            content_html: post.content?.html,
+            content_html: renderMedia(siteConfig, post) + post.content?.html,
             summary: post.summary?.raw,
             authors: post.author?.map((author: any) => ({
                 name: author.name,
@@ -155,7 +155,7 @@ ${posts.map((post: any) => `
         <link>${siteConfig.url}${post.route}</link>
         <comments>${siteConfig.url}${post.route}#comments</comments>
         <description><![CDATA[${escapeHtml(post.summary?.raw)}]]></description>
-        <content:encoded><![CDATA[${escapeHtml(post.content?.html)}]]></content:encoded>
+        <content:encoded><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html)}]]></content:encoded>
         <pubDate>${new Date(post.published.date).toUTCString()}</pubDate>
         ${post.taxonomy?.category
                 ? post.taxonomy.category
@@ -230,7 +230,7 @@ ${posts.map((post: any) => `
             `).join('\n')
             : ``}
         <summary><![CDATA[${escapeHtml(post.summary?.raw)}]]></summary>
-        <content type="html"><![CDATA[${escapeHtml(post.content?.html)}]]></content>
+        <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html)}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
                 .map((category: any) => `<category>${category}</category>`).join('\n')
@@ -243,6 +243,23 @@ ${posts.map((post: any) => `
         .join('')}
 </feed>
 `)
+
+export function renderMedia(siteConfig: any, post: Post) {
+    let html = '';
+    if (post.image) {
+        html += post.image.map((img: string) => `<img src="${siteConfig.url}${img}" />`).join('\n');
+    }
+    if (post.photo) {
+        html += post.photo.map((img) => `<img src="${siteConfig.url}${img.src}" />`).join('\n');
+    }
+    if (post.audio) {
+        html += post.audio.map((audio) => `<audio controls><source src="${siteConfig.url}${audio.src}" /></audio>`).join('\n');
+    }
+    if (post.video) {
+        html += post.video.map((video) => `<video controls><source src="${siteConfig.url}${video.src}" /></video>`).join('\n');
+    }
+    return html;
+}
 
 export function convertToPostForFeed(site: Site, raw: PostRaw) {
     let post: Post = convertToPost(site, raw, false);
