@@ -68,3 +68,12 @@ export const addTargetBlankToExternalLinks = (html: string) => {
 
     return html;
 }
+
+export function toAbsoluteURL(url: string, base: string) {
+    try {
+        return new URL(url, base).href;
+    } catch (e) {
+        console.error(e);
+        return url;
+    }
+}

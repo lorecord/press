@@ -1,6 +1,7 @@
 import { getSiteConfig } from "$lib/server/config";
 import type { Site } from "$lib/server/sites";
 import { t } from "$lib/translations";
+import { toAbsoluteURL } from "$lib/utils/html";
 import { convertToPost } from "./handle-posts";
 import type { Post, PostRaw } from "./types";
 
@@ -127,7 +128,10 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
  * @param lang 
  * @returns 
  */
-const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => {
+    const getUrl = (post: Post) => `${siteConfig.url}${post.route}`;
+    const lastBuildDate = posts?.[0]?.modified?.date || posts?.[0]?.published?.date;
+    return `<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/rss.xsl" type="text/xsl"?>
 <rss version="2.0" 
     xmlns:atom="http://www.w3.org/2005/Atom"
@@ -135,41 +139,41 @@ const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: 
 <channel>
     <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
     ${supportedLocales.map((locale: any) => {
-    return `<atom:link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale}" title="${t.get(`lang.${locale}`)}" />`
-}).join('\n\t')}
+        return `<atom:link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale}" title="${t.get(`lang.${locale}`)}" />`
+    }).join('\n\t')}
     <title>${siteConfig.title || ''}</title>
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
     ${websubConfig?.enabled
-        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<atom:link rel="hub" href="${u}" />`).join('\n') : ``}
+            ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<atom:link rel="hub" href="${u}" />`).join('\n') : ``}
     <language>${lang}</language>
     <generator>Press</generator>
     <copyright>Copyright (c)</copyright>
     <docs>https://www.rssboard.org/rss-specification</docs>
-    ${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<lastBuildDate>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toUTCString()}</lastBuildDate>` : ``}
+    ${lastBuildDate ? `<lastBuildDate>${new Date(lastBuildDate).toUTCString()}</lastBuildDate>` : ``}
     <ttl>60</ttl>
 ${posts.map((post) => `
     <item>
-        <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
+        <guid isPermaLink="true">${getUrl(post)}</guid>
         <title>${post.title || post.published?.date}</title>
-        <link>${siteConfig.url}${post.route}</link>
-        <comments>${siteConfig.url}${post.route}#comments</comments>
+        <link>${getUrl(post)}</link>
+        <comments>${getUrl(post)}#comments</comments>
         <description><![CDATA[${escapeHtml(post.summary?.raw)}]]></description>
         <content:encoded><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content:encoded>
         ${post.published?.date ? `<pubDate>${new Date(post.published?.date).toUTCString()}</pubDate>` : ''}
         ${post.taxonomy?.category
-                ? post.taxonomy.category
-                    .map((category) => `<category>${category}</category>`).join('\n')
-                : ''}
+                    ? post.taxonomy.category
+                        .map((category) => `<category>${category}</category>`).join('\n')
+                    : ''}
         ${post.taxonomy?.tag
-                ? post.taxonomy.tag
-                    .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                    ? post.taxonomy.tag
+                        .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
     </item>`
-        )
-        .join('')}
+            )
+            .join('')}
 </channel>
-</rss>
-`)
+</rss>`;
+}
 
 /**
  * https://datatracker.ietf.org/doc/html/rfc4287
@@ -177,96 +181,101 @@ ${posts.map((post) => `
  * @param lang 
  * @returns 
  */
-const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => {
+    const getUrl = (post: Post) => `${siteConfig.url}${post.route}`;
+    const lastBuildDate = posts?.[0]?.modified?.date || posts?.[0]?.published?.date;
+    return `<?xml version="1.0" encoding="UTF-8" ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>${siteConfig.url}</id>
     <title type="text">${siteConfig.title || ''}</title>
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
     ${websubConfig?.enabled
-        ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
+            ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
         <uri>${defaultAuthor?.url}</uri>
     </author>` : ``
-    }
-    ${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<updated>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toISOString()}</updated>` : ``}
+        }
+    ${lastBuildDate ? `<updated>${new Date(lastBuildDate).toISOString()}</updated>` : ``}
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}/feed/" rel="self" type="application/atom+xml"/>
     ${supportedLocales.map((locale: any) => {
-        return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
-    }).join('\n\t')}
+            return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
+        }).join('\n\t')}
     <rights>Copyright (c)</rights>
 ${posts.map((post) => `
     <entry>
-        <id isPermaLink="true">${siteConfig.url}${post.route}</id>
+        <id isPermaLink="true">${getUrl(post)}</id>
         <title>${post.title || post.published?.date}</title>
-        <link href="${siteConfig.url}${post.route}" />
+        <link href="${getUrl(post)}" />
         ${post.published?.date
-            ? `<published>${new Date(post.published.date).toISOString()}</published>`
-            : ``}
+                ? `<published>${new Date(post.published.date).toISOString()}</published>`
+                : ``}
         ${post.modified?.date
-            ? `<updated>${new Date(post.modified?.date).toISOString()}</updated>`
-            : ``}
+                ? `<updated>${new Date(post.modified?.date).toISOString()}</updated>`
+                : ``}
         ${post.audio?.[0]
-            ? `<link rel="enclosure" type="audio/mpeg"
-        href="${post.audio?.[0].src}"/>`
-            : ``}
+                ? `<link rel="enclosure" type="audio/mpeg"
+        href="${toAbsoluteURL(post.audio?.[0].src, getUrl(post))}"/>`
+                : ``}
         ${post.video?.[0]
-            ? `<link rel="enclosure" type="video"
-            href="${post.video?.[0].src}"/>`
-            : ``}
+                ? `<link rel="enclosure" type="video"
+            href="${toAbsoluteURL(post.video?.[0].src, getUrl(post))}"/>`
+                : ``}
         ${post.author
-            ? post.author.map((author: any) => `<author>
+                ? post.author.map((author: any) => `<author>
             <name>${author.name}</name>
         </author>`).join('\n')
-            : ``}
+                : ``}
         ${post.contributor
-            ? post.contributor.map((c) => `
+                ? post.contributor.map((c) => `
         <contributor>
             <name>${c.name}</name>
         </contributor>
             `).join('\n')
-            : ``}
+                : ``}
         <summary><![CDATA[${escapeHtml(post.summary?.raw)}]]></summary>
         <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content>
         ${post.taxonomy?.category
-            ? post.taxonomy.category
-                .map((category) => `<category>${category}</category>`).join('\n')
-            : ''}
+                ? post.taxonomy.category
+                    .map((category) => `<category>${category}</category>`).join('\n')
+                : ''}
         ${post.taxonomy?.tag
-            ? post.taxonomy.tag
-                .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                ? post.taxonomy.tag
+                    .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
     </entry>`
-    )
-        .join('')}
-</feed>
-`)
+        )
+            .join('')}
+</feed>`;
+};
 
 export function renderMedia(siteConfig: any, post: Post) {
     let html = '';
+    const postUrl = `${siteConfig.url}${post.route}`;
     if (post.image) {
-        html += post.image.map((img: string) => `<img src="${siteConfig.url}${img}" />`).join('\n');
+        html += post.image.map((img: string) => `<img src="${toAbsoluteURL(img, postUrl)}" />`).join('\n');
     }
     if (post.photo) {
-        html += post.photo.map((img) => `<img src="${siteConfig.url}${img.src}" />`).join('\n');
+        html += post.photo.map((img) => `<img src="${toAbsoluteURL(img.src, postUrl)}" />`).join('\n');
     }
     if (post.audio) {
-        html += post.audio.map((audio) => `<audio controls><source src="${siteConfig.url}${audio.src}" /></audio>`).join('\n');
+        html += post.audio.map((audio) => `<audio controls><source src="${toAbsoluteURL(audio.src, postUrl)}" /></audio>`).join('\n');
     }
     if (post.video) {
-        html += post.video.map((video) => `<video controls><source src="${siteConfig.url}${video.src}" /></video>`).join('\n');
+        html += post.video.map((video) => `<video controls><source src="${toAbsoluteURL(video.src, postUrl)}" /></video>`).join('\n');
     }
     return html;
 }
 
-export function convertToPostForFeed(site: Site, raw: PostRaw) {
+export function convertToPostForFeed(site: Site, raw: PostRaw, toc: boolean = false) {
     let post: Post = convertToPost(site, raw, false);
     const siteConfig = getSiteConfig(site, post.lang);
 
     let feedHtml = `${post?.content?.html || ''}`;
 
+    // Replace relative URLs with absolute URLs
     feedHtml = feedHtml.replace(/(<(?:a|img|video|audio).*?(?:href|src|source)=")([^"]*)("[^>]*?>)/g, (match, beforeHref, hrefValue, afterHref) => {
         const url: { value?: URL } = {};
         try {
@@ -318,7 +327,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
         }).join('')}</ul>`
     }
 
-    if (post.toc?.enabled && post.content?.headings) {
+    if (toc && post.toc?.enabled && post.content?.headings) {
         feedHtml = `
         <h3>${t.get("common.toc")}</h3>
         ${toHTML(buildTree(post.content?.headings as any[]))}
