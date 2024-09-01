@@ -260,7 +260,7 @@ export function convertToPostForFeed(site: Site, raw: PostRaw) {
         return `${beforeHref}${url.value.href}${afterHref}`;
     });
 
-    if (post.langs) {
+    if ((post.langs?.length || 0) > 1) {
         feedHtml = `${feedHtml}
         <p>${post.langs?.map((lang: string) =>
             `<a rel="alternate" href="${siteConfig.url}/${lang}${post.route}">${t.get(`lang.${lang}`)}</a>`).join('\n')
