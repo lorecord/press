@@ -96,7 +96,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
             // content_text: post.content?.raw,
             content_html: renderMedia(siteConfig, post) + post.content?.html,
             summary: post.summary?.raw,
-            authors: post.author?.map((author: any) => ({
+            authors: post.author?.map((author) => ({
                 name: author.name,
                 url: author.url,
                 avatar: author.avatar
@@ -127,7 +127,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
  * @param lang 
  * @returns 
  */
-const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/rss.xsl" type="text/xsl"?>
 <rss version="2.0" 
     xmlns:atom="http://www.w3.org/2005/Atom"
@@ -148,22 +148,22 @@ const renderRss = (posts: any, lang: string, siteConfig: any, defaultAuthor: any
     <docs>https://www.rssboard.org/rss-specification</docs>
     ${posts?.[0]?.modified?.date || posts?.[0]?.published?.date ? `<lastBuildDate>${new Date(posts?.[0]?.modified?.date || posts?.[0]?.published?.date).toUTCString()}</lastBuildDate>` : ``}
     <ttl>60</ttl>
-${posts.map((post: any) => `
+${posts.map((post) => `
     <item>
         <guid isPermaLink="true">${siteConfig.url}${post.route}</guid>
         <title>${post.title || post.published?.date}</title>
         <link>${siteConfig.url}${post.route}</link>
         <comments>${siteConfig.url}${post.route}#comments</comments>
         <description><![CDATA[${escapeHtml(post.summary?.raw)}]]></description>
-        <content:encoded><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html)}]]></content:encoded>
-        <pubDate>${new Date(post.published.date).toUTCString()}</pubDate>
+        <content:encoded><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content:encoded>
+        ${post.published?.date ? `<pubDate>${new Date(post.published?.date).toUTCString()}</pubDate>` : ''}
         ${post.taxonomy?.category
                 ? post.taxonomy.category
-                    .map((category: any) => `<category>${category}</category>`).join('\n')
+                    .map((category) => `<category>${category}</category>`).join('\n')
                 : ''}
         ${post.taxonomy?.tag
                 ? post.taxonomy.tag
-                    .map((tag: any) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                    .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
     </item>`
         )
         .join('')}
@@ -177,7 +177,7 @@ ${posts.map((post: any) => `
  * @param lang 
  * @returns 
  */
-const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
+const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => (`<?xml version="1.0" encoding="UTF-8" ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>${siteConfig.url}</id>
     <title type="text">${siteConfig.title || ''}</title>
@@ -198,12 +198,12 @@ const renderAtom = (posts: any, lang: string, siteConfig: any, defaultAuthor: an
         return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
     }).join('\n\t')}
     <rights>Copyright (c)</rights>
-${posts.map((post: any) => `
+${posts.map((post) => `
     <entry>
         <id isPermaLink="true">${siteConfig.url}${post.route}</id>
         <title>${post.title || post.published?.date}</title>
         <link href="${siteConfig.url}${post.route}" />
-        ${post.published.date
+        ${post.published?.date
             ? `<published>${new Date(post.published.date).toISOString()}</published>`
             : ``}
         ${post.modified?.date
@@ -223,21 +223,21 @@ ${posts.map((post: any) => `
         </author>`).join('\n')
             : ``}
         ${post.contributor
-            ? post.contributor.map((c: any) => `
+            ? post.contributor.map((c) => `
         <contributor>
-            <name>${c}</name>
+            <name>${c.name}</name>
         </contributor>
             `).join('\n')
             : ``}
         <summary><![CDATA[${escapeHtml(post.summary?.raw)}]]></summary>
-        <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html)}]]></content>
+        <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content>
         ${post.taxonomy?.category
             ? post.taxonomy.category
-                .map((category: any) => `<category>${category}</category>`).join('\n')
+                .map((category) => `<category>${category}</category>`).join('\n')
             : ''}
         ${post.taxonomy?.tag
             ? post.taxonomy.tag
-                .map((tag: any) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
     </entry>`
     )
         .join('')}
