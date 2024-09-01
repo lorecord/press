@@ -11,7 +11,7 @@ const remarkAttrs: Plugin = () => (tree, file: any) => {
             let parsedAttrs: {
                 [key: string]: string;
             } = {};
-            const attrDefs = attrs.slice(1, -1).split(/(\s|,|\s,)/);
+            const attrDefs = attrs.slice(1, -1).split(/(\s+)/);
 
             for (let i = 0; i < attrDefs.length; i += 2) {
                 if (attrDefs[i].startsWith('.')) {
@@ -38,11 +38,16 @@ const remarkAttrs: Plugin = () => (tree, file: any) => {
             let targetNode = null;
 
             if (index && index > 0 && parent) {
-                const prevSibling = (parent as any).children[index - 1];
-                targetNode = prevSibling;
+                for (let i = index - 1; i >= 0; i--) {
+                    let prevSibling = (parent as any).children[i];
+                    targetNode = prevSibling;
+                    if (targetNode.type !== 'text' && targetNode.type !== 'break') {
+                        break;
+                    }
+                }
             }
 
-            if (!targetNode) {
+            if (!targetNode || targetNode.type === 'break' || targetNode.type === "text") {
                 targetNode = parent;
             }
 
