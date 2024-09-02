@@ -8,8 +8,6 @@
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
 
-    import "../../styles.css";
-
     import "$lib/scss/default.scss";
     import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";

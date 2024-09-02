@@ -1,6 +1,4 @@
 <script lang="ts">
-    import "../styles.css";
-
     import "$lib/scss/default.scss";
     import "$lib/scss/dark.scss";
     import "$lib/scss/print.scss";
