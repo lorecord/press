@@ -5,7 +5,7 @@ import { toAbsoluteURL } from "$lib/utils/html";
 import { convertToPost } from "./handle-posts";
 import type { Post, PostRaw } from "./types";
 
-export type FeedRender = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any) => string;
+export type FeedRender = (posts: Post[], lang: string, pathname: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any) => string;
 
 export const renderFeed = (requestAcceptHeader: string | null, url: URL, posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any): { body: string, headers: { [key: string]: string } } => {
 
@@ -38,7 +38,7 @@ export const renderFeed = (requestAcceptHeader: string | null, url: URL, posts: 
         'Cache-Control': 'max-age=604800',
     };
 
-    const body = renderMap[type](posts, lang, siteConfig, defaultAuthor, supportedLocales, websub, url.pathname);
+    const body = renderMap[type](posts, lang, url.pathname, siteConfig, defaultAuthor, supportedLocales, websub);
 
     return { body, headers };
 }
