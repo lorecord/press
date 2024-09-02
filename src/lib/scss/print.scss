@@ -37,12 +37,6 @@
         }
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
     p {
         margin: 0.5em 0;
     }
@@ -82,7 +76,8 @@
         }
     }
 
-    p {
+    p,
+    pre {
         widows: 4;
         orphans: 3;
     }
@@ -92,9 +87,22 @@
         break-after: page;
     }
 
-    pre,
     blockquote {
         page-break-inside: avoid;
+    }
+
+    pre {
+        page-break-inside: auto;
+    }
+
+    blockqoute,
+    pre {
+        box-decoration-break: clone;
+    }
+
+    code[class*="language-"],
+    pre[class*="language-"] {
+        color: inherit !important;
     }
 
     .no-print,
