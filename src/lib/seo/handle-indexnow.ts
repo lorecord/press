@@ -24,6 +24,7 @@ Host: api.indexnow.org
  */
 export const requestIndexNow = async (indexTasks: {
     url: string;
+    langUrls: string[];
     callback: (response: any) => Promise<any>;
 }[], extra: {
     key: string;
@@ -31,7 +32,9 @@ export const requestIndexNow = async (indexTasks: {
     host: string;
     dataFolder: string;
 }) => {
-    const urlList = indexTasks.map((t) => t.url);
+    const urlList = [...indexTasks.map((t) => t.url),
+    ...indexTasks.map((t) => t.langUrls?.length > 0 ? t.langUrls : []).flat()
+    ];
     const { host, key, keyLocation, dataFolder } = extra;
     const body = JSON.stringify(Object.assign({ host, key, keyLocation, urlList }, keyLocation ? { keyLocation } : {}));
 
@@ -77,6 +80,7 @@ export const requestIndexNow = async (indexTasks: {
 
 export const handleRequestIndexNow = async (pages: {
     url: string;
+    langUrls: string[],
     folder: string;
     modified?: string;
 }[], extra: {
@@ -102,7 +106,7 @@ export const handleRequestIndexNow = async (pages: {
         return;
     }
 
-    for (const { url, folder, modified } of pages) {
+    for (const { url, langUrls, folder, modified } of pages) {
 
         const filepath = path.join(folder, '/.data/seo/indexnow.json');
         if (!fs.existsSync(path.dirname(filepath))) {
@@ -125,6 +129,7 @@ export const handleRequestIndexNow = async (pages: {
 
             indexTasks.push({
                 url,
+                langUrls,
                 callback: async ({ text, status }: any) => {
                     data = {
                         status: status,

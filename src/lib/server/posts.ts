@@ -41,6 +41,7 @@ function load() {
                 let tasks = getPublicPostRaws(site)
                     .map((p: any) => ({
                         url: `${siteConfig.url}${p?.route}`,
+                        langUrls: p?.langs?.map((l: any) => `${siteConfig.url}/${l}${p?.route}`) || [],
                         folder: path.dirname(p?.path) || '',
                         modified: p?.modified?.date
                     }))
