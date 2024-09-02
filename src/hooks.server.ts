@@ -296,6 +296,9 @@ export const handleIndexNowKeyFile: Handle = async ({ event, resolve }) => {
 };
 
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
+    if (status < 500) {
+        rateLimiter.inflood(getRealClientAddress(event), 10);
+    }
     console.error('[handleError]', status, message, event.url.href, getRealClientAddress(event), error);
 }
 
