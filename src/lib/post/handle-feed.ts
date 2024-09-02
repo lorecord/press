@@ -373,9 +373,11 @@ export const sendWebhubPing = (site: Site, urls: string[], endpoints: string[], 
             }
         }).then((response) => {
             if (response.status >= 200 && response.status < 300) {
-
+                console.log(`[server/posts.ts] websub success`,
+                    response.status);
             } else {
-                console.error(`[server/posts.ts] websub success`, response.status, response.statusText);
+                console.error(`[server/posts.ts] websub failed`,
+                    response.status, response.statusText);
             }
         });
     });
