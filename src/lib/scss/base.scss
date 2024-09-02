@@ -5,6 +5,12 @@
 html {
     scroll-behavior: smooth;
     font-size: clamp(18px, 2vw, 20px);
+
+    &[lang="ja"],
+    &[lang="zh"],
+    &[lang^="zh-"] {
+        font-size: clamp(16px, 2vw, 18px);
+    }
 }
 
 html,
@@ -26,8 +32,6 @@ body {
 [lang="zh"],
 [lang^="zh-"] {
     --font-text: Georgia, serif;
-
-    font-size: clamp(16px, 2vw, 18px);
 }
 
 p {
