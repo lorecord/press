@@ -39,7 +39,7 @@ export async function GET({ request, locals, params, url }) {
     const { body, headers } = renderFeed(accept, url, posts, lang, siteConfig, defaultAuthor, supportedLocales, systemConfig.websub);
 
     if (systemConfig.websub?.enabled) {
-        headers['Link'] = `<${siteConfig.url}${url.pathname}>; rel="self", ` + [systemConfig.websub.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<${u}>; rel="hub"`).join(' ');
+        headers['Link'] = `<${siteConfig.url}${url.pathname}>; rel="self", ` + [systemConfig.websub.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<${u}>; rel="hub"`).join(', ');
     }
 
     return new Response(body, {

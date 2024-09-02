@@ -4,6 +4,8 @@ import { t } from "$lib/translations";
 import { toAbsoluteURL } from "$lib/utils/html";
 import { convertToPost } from "./handle-posts";
 import type { Post, PostRaw } from "./types";
+import path from "path";
+import fs from 'fs';
 
 export type FeedRender = (posts: Post[], lang: string, pathname: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websub: any) => string;
 
@@ -191,7 +193,7 @@ const renderAtom = (posts: Post[], lang: string, pathname: string, siteConfig: a
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
     ${websubConfig?.enabled
-            ? [websubConfig.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
+            ? [websubConfig.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n\t') : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
         <uri>${defaultAuthor?.url}</uri>
@@ -340,6 +342,54 @@ export function convertToPostForFeed(site: Site, raw: PostRaw, toc: boolean = fa
         post.content = { html: feedHtml, headings: [], links: [], meta: {} };
     }
 
-
     return post;
+}
+
+export const sendWebhubPing = (site: Site, urls: string[], endpoints: string[], contentUpdated: Date) => {
+    const dataFolder = site.constants.DATA_DIR;
+    const globalIndexNowFile = path.join(dataFolder, '/webhub.json');
+    let globalIndexNow: any = {};
+    if (fs.existsSync(globalIndexNowFile)) {
+        globalIndexNow = JSON.parse(fs.readFileSync(globalIndexNowFile, 'utf-8'));
+    }
+
+    if (globalIndexNow.updated && new Date(globalIndexNow.updated).getTime() > new Date().getTime() - 1000 * 60 * 1) {
+        return;
+    }
+
+    const tasks = endpoints.map((endpoint) => {
+        const body = new URLSearchParams();
+        body.append('hub.mode', 'publish');
+
+        urls.forEach((url) => {
+            body.append('hub.url', url);
+        })
+
+        return fetch(endpoint, {
+            method: 'POST',
+            body: body.toString(),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+
+            } else {
+                console.error(`[server/posts.ts] websub success`, response.status, response.statusText);
+            }
+        });
+    });
+
+    Promise.all(tasks).then(() => {
+        let data = {
+            updated: new Date().toISOString(),
+        }
+
+        const indexNowFolder = path.join(dataFolder, '/');
+        if (!fs.existsSync(indexNowFolder)) {
+            fs.mkdirSync(indexNowFolder, { recursive: true });
+        }
+
+        fs.writeFileSync(path.join(indexNowFolder, 'webhu.json'), JSON.stringify(data, null, 2));
+    });
 }

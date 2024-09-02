@@ -9,6 +9,7 @@ import { sites, type Site } from './sites';
 import { sendWebmentions } from "$lib/interaction/handle-webmention";
 import { sendPingbacks } from "$lib/interaction/handle-pingback";
 import { dev } from "$app/environment";
+import { sendWebhubPing } from "$lib/post/handle-feed";
 
 let postRawsOfSite: {
     [siteUnique: string]: PostRaw[];
@@ -58,6 +59,27 @@ function load() {
                     host: systemConfig.domains?.primary,
                     dataFolder: site.constants.DATA_DIR
                 });
+            }
+
+            if (systemConfig.websub?.enabled) {
+                const siteConfig = getSiteConfig(site, systemConfig.locale?.default || 'en');
+                const supportedLocales = Array.from(
+                    new Set([
+                        systemConfig.locale?.default || "en",
+                        ...(systemConfig.locale?.supports || []),
+                    ]),
+                );
+                const posts = getPublicPosts(site);
+
+                const lastBuildDate = posts.reduce((acc, current) => {
+                    const dateString = current.modified?.date || current.published?.date;
+                    const date = dateString ? new Date(dateString).getTime() : 0;
+                    return date > acc ? date : acc;
+                }, 0);
+
+                const feedUrls = [`${siteConfig.url}/feed/`, ...supportedLocales.map((lang) => `${siteConfig.url}/${lang}/feed/`)];
+
+                sendWebhubPing(site, feedUrls, [systemConfig.Config.websub.endpoint || ''].flat().filter(u => !!u), new Date(lastBuildDate));
             }
 
             if (systemConfig.webmention?.enabled || systemConfig.pingback?.enabled) {
