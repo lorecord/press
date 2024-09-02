@@ -276,7 +276,7 @@
                         <a
                             href="#article-toc"
                             id="toc-button"
-                            class="button button-4 button-square button-pill"
+                            class="button button-3 button-square button-pill"
                             ><IconList size={20} /></a
                         >
                     {/if}
@@ -876,7 +876,7 @@
 
                 #comments-link {
                     --button-bg-color: var(--text-color-quaternary);
-
+                    color: inherit;
                     position: fixed;
                     right: 1rem;
                     bottom: 4rem;
