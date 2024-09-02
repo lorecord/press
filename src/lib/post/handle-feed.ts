@@ -163,11 +163,11 @@ ${posts.map((post) => `
         ${post.published?.date ? `<pubDate>${new Date(post.published?.date).toUTCString()}</pubDate>` : ''}
         ${post.taxonomy?.category
                     ? post.taxonomy.category
-                        .map((category) => `<category>${category}</category>`).join('\n')
+                        .map((category) => `<category><![CDATA[${category}]]></category>`).join('\n')
                     : ''}
         ${post.taxonomy?.tag
                     ? post.taxonomy.tag
-                        .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                        .map((tag) => `<category><![CDATA[${tag}]]></category>`).join('\n\t\t') : ''}
     </item>`
             )
             .join('')}
@@ -240,11 +240,11 @@ ${posts.map((post) => `
         <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content>
         ${post.taxonomy?.category
                 ? post.taxonomy.category
-                    .map((category) => `<category>${category}</category>`).join('\n')
+                    .map((category) => `<category><![CDATA[${category}]]></category>`).join('\n')
                 : ''}
         ${post.taxonomy?.tag
                 ? post.taxonomy.tag
-                    .map((tag) => `<category>${tag}</category>`).join('\n\t\t') : ''}
+                    .map((tag) => `<category><![CDATA[${tag}]]></category>`).join('\n\t\t') : ''}
     </entry>`
         )
             .join('')}
