@@ -390,6 +390,6 @@ export const sendWebhubPing = (site: Site, urls: string[], endpoints: string[], 
             fs.mkdirSync(indexNowFolder, { recursive: true });
         }
 
-        fs.writeFileSync(path.join(indexNowFolder, 'webhu.json'), JSON.stringify(data, null, 2));
+        fs.writeFileSync(path.join(indexNowFolder, 'webhub.json'), JSON.stringify(data, null, 2));
     });
 }
