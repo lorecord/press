@@ -38,7 +38,7 @@ export const renderFeed = (requestAcceptHeader: string | null, url: URL, posts: 
         'Cache-Control': 'max-age=604800',
     };
 
-    const body = renderMap[type](posts, lang, siteConfig, defaultAuthor, supportedLocales, websub);
+    const body = renderMap[type](posts, lang, siteConfig, defaultAuthor, supportedLocales, websub, url.pathname);
 
     return { body, headers };
 }
@@ -56,13 +56,13 @@ function escapeHtml(unsafe: string) {
 /**
  * https://www.jsonfeed.org/version/1.1/
  */
-const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string | string[] }) => {
+const renderJson = (posts: Post[], lang: string, pathname: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string | string[] }) => {
 
     const feed: any = {
         version: "https://jsonfeed.org/version/1.1",
         title: siteConfig.title,
         home_page_url: siteConfig.url,
-        feed_url: `${siteConfig.url}/feed/`,
+        feed_url: `${siteConfig.url}${pathname}`,
     };
 
     if (siteConfig.description) {
@@ -84,7 +84,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
     feed.language = lang;
     // expired
     if (websubConfig?.enabled) {
-        feed.hubs = [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u);
+        feed.hubs = [websubConfig.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u);
     }
 
     feed.items = posts.map((post) => {
@@ -128,7 +128,7 @@ const renderJson = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
  * @param lang 
  * @returns 
  */
-const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => {
+const renderRss = (posts: Post[], lang: string, pathname: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string, }) => {
     const getUrl = (post: Post) => `${siteConfig.url}${post.route}`;
     const lastBuildDate = posts?.[0]?.modified?.date || posts?.[0]?.published?.date;
     return `<?xml version="1.0" encoding="UTF-8" ?>
@@ -137,7 +137,7 @@ const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: 
     xmlns:atom="http://www.w3.org/2005/Atom"
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
-    <atom:link href="${siteConfig.url}/feed/" rel="self" type="application/rss+xml" />
+    <atom:link href="${siteConfig.url}${pathname}" rel="self" type="application/rss+xml" />
     ${supportedLocales.map((locale: any) => {
         return `<atom:link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale}" title="${t.get(`lang.${locale}`)}" />`
     }).join('\n\t')}
@@ -145,7 +145,7 @@ const renderRss = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: 
     <description>${siteConfig.description}</description>
     <link>${siteConfig.url}</link>
     ${websubConfig?.enabled
-            ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<atom:link rel="hub" href="${u}" />`).join('\n') : ``}
+            ? [websubConfig.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<atom:link rel="hub" href="${u}" />`).join('\n\t') : ``}
     <language>${lang}</language>
     <generator>Press</generator>
     <copyright>Copyright (c)</copyright>
@@ -181,7 +181,7 @@ ${posts.map((post) => `
  * @param lang 
  * @returns 
  */
-const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => {
+const renderAtom = (posts: Post[], lang: string, pathname: string, siteConfig: any, defaultAuthor: any, supportedLocales: string[], websubConfig?: { enabled: boolean, endpoint?: string }) => {
     const getUrl = (post: Post) => `${siteConfig.url}${post.route}`;
     const lastBuildDate = posts?.[0]?.modified?.date || posts?.[0]?.published?.date;
     return `<?xml version="1.0" encoding="UTF-8" ?>
@@ -191,7 +191,7 @@ const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
     <subtitle type="text">${siteConfig.description}</subtitle>
     <link href="${siteConfig.url}" />
     ${websubConfig?.enabled
-            ? [websubConfig.endpoint || 'https://pubsubhubbub.superfeedr.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
+            ? [websubConfig.endpoint || 'https://pubsubhubbub.appspot.com'].flat().filter(u => !!u).map(u => `<link rel="hub" href="${u}" />`).join('\n') : ``}
     ${defaultAuthor ? `<author>
         <name>${defaultAuthor?.name}</name>
         <uri>${defaultAuthor?.url}</uri>
@@ -200,7 +200,7 @@ const renderAtom = (posts: Post[], lang: string, siteConfig: any, defaultAuthor:
     ${lastBuildDate ? `<updated>${new Date(lastBuildDate).toISOString()}</updated>` : ``}
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
-    <link href="${siteConfig.url}/feed/" rel="self" type="application/atom+xml"/>
+    <link href="${siteConfig.url}${pathname}" rel="self" type="application/atom+xml"/>
     ${supportedLocales.map((locale: any) => {
             return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
         }).join('\n\t')}
