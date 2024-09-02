@@ -80,7 +80,7 @@ function load() {
 
                 const feedUrls = [`${siteConfig.url}/feed/`, ...supportedLocales.map((lang) => `${siteConfig.url}/${lang}/feed/`)];
 
-                sendWebhubPing(site, feedUrls, [systemConfig.Config.websub.endpoint || ''].flat().filter(u => !!u), new Date(lastBuildDate));
+                sendWebhubPing(site, feedUrls, [systemConfig.websub.endpoint || ''].flat().filter(u => !!u), new Date(lastBuildDate));
             }
 
             if (systemConfig.webmention?.enabled || systemConfig.pingback?.enabled) {
