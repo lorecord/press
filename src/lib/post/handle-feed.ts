@@ -240,11 +240,11 @@ ${posts.map((post) => `
         <content type="html"><![CDATA[${renderMedia(siteConfig, post)}${escapeHtml(post.content?.html || '')}]]></content>
         ${post.taxonomy?.category
                 ? post.taxonomy.category
-                    .map((category) => `<category><![CDATA[${category}]]></category>`).join('\n')
+                    .map((category) => `<category term="${category}" label="${category}" />`).join('\n')
                 : ''}
         ${post.taxonomy?.tag
                 ? post.taxonomy.tag
-                    .map((tag) => `<category><![CDATA[${tag}]]></category>`).join('\n\t\t') : ''}
+                    .map((tag) => `<category term="${tag}" label="${tag}" />`).join('\n\t\t') : ''}
     </entry>`
         )
             .join('')}
