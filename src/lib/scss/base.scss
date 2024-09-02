@@ -629,3 +629,15 @@ table {
         padding: 0.5rem 0.5rem;
     }
 }
+
+@media (prefers-color-scheme: light) {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        color: inherit !important;
+        text-shadow: none !important;
+    }
+    .mermaid {
+        background-color: inherit !important;
+        color: var(--text-color) !important;
+    }
+}
