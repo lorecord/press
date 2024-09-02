@@ -113,7 +113,7 @@ code {
 }
 
 pre,
-code:not([class*="language-"]) {
+code:not([class*="language-"]):not(.code-highlight) {
     background-color: var(--code-bg-color);
     border-radius: 0.25rem;
     color: var(--code-color);
@@ -636,8 +636,22 @@ table {
         color: inherit !important;
         text-shadow: none !important;
     }
-    .mermaid {
+    div.mermaid {
         background-color: inherit !important;
         color: var(--text-color) !important;
+
+        .node {
+            rect,
+            circle,
+            polygon,
+            path {
+                fill: var(--bg-color) !important;
+                stroke: var(--text-color) !important;
+            }
+        }
+
+        .nodeLabel {
+            color: var(--text-color) !important;
+        }
     }
 }

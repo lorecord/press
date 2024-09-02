@@ -105,6 +105,12 @@
         color: inherit !important;
     }
 
+    pre,
+    code:not([class*="language-"]):not(.code-highlight) {
+        border: 1px solid #eee;
+        background-color: inherit;
+    }
+
     .no-print,
     .print-none {
         display: none !important;
