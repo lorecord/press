@@ -6,14 +6,14 @@ import type { Post } from '$lib/post/types';
 
 export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders }) => {
     const { locale: pathLocaleParam } = params;
-    const { localeContext, systemConfig } = data;
+    const { localeContext, systemConfig, siteConfig } = data;
 
     let limit = 8;
 
     depends('locale:locale');
     let posts = fetch(`/api/v1/post?${new URLSearchParams({
         template: 'item',
-        lang: pathLocaleParam || locale.get() || localeContext.contentLocale,
+        lang: pathLocaleParam || locale.get() || localeContext.contentLocale || '',
         limit: `${limit}`,
     })}`).then((r) => {
         if (r.ok) {
@@ -54,6 +54,13 @@ export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders 
                 links.push(`<${endpoint}>; rel="pingback"`);
                 setHeaders({
                     'X-Pingback': endpoint
+                });
+            }
+
+            if ((p?.langs?.length || 0) > 1) {
+                links.push(`<${siteConfig.url}${p.route}>; rel="alternate"; hreflang="x-default"`);
+                p?.langs?.forEach((lang: string) => {
+                    links.push(`<${siteConfig.url}/${lang}${p.route}>; rel="alternate"; hreflang="${lang}"`);
                 });
             }
 
