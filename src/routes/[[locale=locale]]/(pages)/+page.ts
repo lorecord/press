@@ -62,6 +62,9 @@ export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders 
                 p?.langs?.forEach((lang: string) => {
                     links.push(`<${siteConfig.url}/${lang}${p.route}>; rel="alternate"; hreflang="${lang}"`);
                 });
+                if (p?.lang) {
+                    links.push(`<${siteConfig.url}/${p.lang}${p.route}>; rel="canonical"`);
+                }
             }
 
             if (links.length > 0) {
