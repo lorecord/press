@@ -48,14 +48,14 @@
         {#if home?.webmention?.enabled}
             <link
                 rel="webmention"
-                href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+                href={systemConfig.webmention?.endpoint || `${siteConfig.url}/api/v1/webmention`}
             />
         {/if}
 
         {#if home?.pingback?.enabled}
             <link
                 rel="pingback"
-                href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+                href={systemConfig.pingback.endpoint || `${siteConfig.url}/api/v1/pingback`}
             />
         {/if}
     {/await}

@@ -75,7 +75,7 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
             let links: string[] = [];
 
             if (p.webmention?.enabled) {
-                const endpoint = systemConfig.webmention.endpoint || '/api/v1/webmention';
+                const endpoint = systemConfig.webmention.endpoint || `${siteConfig.url}/api/v1/webmention`;
                 links.push(`<${endpoint}>; rel="webmention"`);
                 setHeaders({
                     'X-Webmention': endpoint
@@ -83,7 +83,7 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
             }
 
             if (p?.pingback?.enabled) {
-                const endpoint = systemConfig.pingback.endpoint || '/api/v1/pingback';
+                const endpoint = systemConfig.pingback.endpoint || `${siteConfig.url}/api/v1/pingback`;
                 links.push(`<${endpoint}>; rel="pingback"`);
                 setHeaders({
                     'X-Pingback': endpoint

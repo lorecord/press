@@ -197,14 +197,14 @@
         {#if post.webmention?.enabled && post.webmention?.accept}
             <link
                 rel="webmention"
-                href={systemConfig.webmention?.endpoint || `/api/v1/webmention`}
+                href={systemConfig.webmention?.endpoint || `${siteConfig.url}/api/v1/webmention`}
             />
         {/if}
 
         {#if post.pingback?.enabled}
             <link
                 rel="pingback"
-                href={systemConfig.pingback.endpoint || `/api/v1/pingback`}
+                href={systemConfig.pingback.endpoint || `${siteConfig.url}/api/v1/pingback`}
             />
         {/if}
         {#if post.content?.meta?.prism}
