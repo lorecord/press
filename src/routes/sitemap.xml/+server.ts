@@ -27,7 +27,7 @@ export async function GET({ locals }) {
 >${posts.map((post: any) => {
             // https://developers.google.com/search/docs/specialty/international/localized-versions?hl=zh-cn#example_2
             const langs = post.langs || [];
-            if (langs?.length) {
+            if (langs?.length > 1) {
                 const alternates = langs.map((lang: string) => `
         <xhtml:link
             rel="alternate"
