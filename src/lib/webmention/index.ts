@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { getHrefWithRelValue } from '$lib/utils/html';
 import { parse } from 'node-html-parser';
 
@@ -42,6 +43,9 @@ export const resolveEndpoint = async (url: string) => {
                     }
                 }
             }
+            if (dev) {
+                console.error(`[resolveEndpoint] HEAD request failed`, response.headers.get('X-Webmention'), response.headers.get('link'));
+            }
             return null;
         }).then((endpoint) => {
             if (!endpoint) {
@@ -64,6 +68,10 @@ export const resolveEndpoint = async (url: string) => {
             if (endpoint) {
                 const endpointURL = new URL(endpoint, url);
                 return endpointURL.href;
+            } else {
+                if (dev) {
+                    console.error(`[resolveEndpoint] endpoind #3 failed`, endpoint);
+                }
             }
         }).catch((error) => {
             console.error(`[resolveEndpoint] error: ${error}`);
