@@ -79,6 +79,8 @@ const remarkLinks: Plugin = () => (tree: any, file: any) => {
         .filter((link, index) => link.href?.match(/^(https?|ftp):\/\//))
         // .filter((link) => !link.href.match(/^(https?|ftp):\/\/(localhost|127\.0\.0\.1|(.*\.)?example\.com)/));
 
+    // TODO check relative links
+
     file.data.links = links;
 };
 
