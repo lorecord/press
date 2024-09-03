@@ -8,7 +8,7 @@ import type { PageLoad } from "./$types";
 export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders }) => {
     depends('locale:locale');
     const { route, locale: localeParam } = params;
-    const { localeContext, systemConfig } = data;
+    const { localeContext, systemConfig, siteConfig } = data;
 
     let lang = localeParam || locale.get() || localeContext.contentLocale;
 
@@ -87,6 +87,13 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
                 links.push(`<${endpoint}>; rel="pingback"`);
                 setHeaders({
                     'X-Pingback': endpoint
+                });
+            }
+
+            if ((p?.langs?.length || 0) > 1) {
+                links.push(`<${siteConfig.url}${p.route}>; rel="alternate"; hreflang="x-default"`);
+                p?.langs?.forEach((lang: string) => {
+                    links.push(`<${siteConfig.url}/${lang}${p.route}>; rel="alternate"; hreflang="${lang}"`);
                 });
             }
 

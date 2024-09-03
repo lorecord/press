@@ -2,7 +2,7 @@ import { createNativeInteractionReply, saveNativeInteraction } from "$lib/intera
 import { decrypt } from "$lib/interaction/utils.js";
 import { getPostRaw } from "$lib/post/handle-posts";
 import { getSiteAccount } from "$lib/server/accounts.js";
-import { getSystemConfig } from "$lib/server/config";
+import { getSiteConfig, getSystemConfig } from "$lib/server/config";
 import { getRealClientAddress } from "$lib/server/event-utils";
 import { sendNewReplyMail } from "$lib/server/mail";
 import { rateLimiter } from "$lib/server/secure";
@@ -13,10 +13,12 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
     const { localeContext, site } = locals as any;
 
     const systemConfig = getSystemConfig(site);
+    const siteConfig = getSiteConfig(site, localeContext?.uiLocale);
 
     return {
         localeContext,
-        systemConfig
+        systemConfig,
+        siteConfig
     };
 }
 
