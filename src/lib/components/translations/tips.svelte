@@ -69,7 +69,9 @@
         out:fade|global={{ duration: 150 }}
     >
         <div class="alert alert-info no-print">
-            <strong style="display: flex; align-items: center; gap: .25rem;"
+            <strong
+                class="alert-label"
+                style="display: inline-flex; align-items: center; gap: .25rem;"
                 ><IconLanguage size={18} />
                 {$l(suggectionLocale, "common.i18n_alert_title")}</strong
             >
@@ -110,10 +112,15 @@
         @media screen and (max-width: 768px) {
             padding-right: 1rem;
             flex-flow: column;
+
+            .alert-label {
+                display: flex !important;
+            }
         }
     }
     .button-close {
         position: absolute;
         right: 0;
+        top: 0.5rem;
     }
 </style>

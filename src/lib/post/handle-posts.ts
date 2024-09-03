@@ -490,8 +490,11 @@ export function createMarkdownParser(options: {
                     ...(defaultSchema.attributes?.p || []),
                     ['className', /.*/],
                     ['style', /.*/]
+                ],
+                strong: [
+                    ...(defaultSchema.attributes?.strong || []),
+                    ['className', /.*/],
                 ]
-
             }
         })
         .use(rephypeKatex)

@@ -12,20 +12,17 @@ $alert-warning-color: #eebe00;
     padding: 1rem;
     border-radius: 0.25rem;
     margin: 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
     border-left-width: 1px !important;
 
-    @media screen and (max-width: 600px) {
-        display: block;
-        strong {
-            margin-right: 0.5rem;
-        }
-    }
-
-    > strong:first-child {
+    > strong:first-child,
+    .alert-label {
         color: var(--alert-color);
+        margin-right: 0.5rem;
+
+        @media screen and (max-width: 768px) {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
     }
 
     &.alert-info {

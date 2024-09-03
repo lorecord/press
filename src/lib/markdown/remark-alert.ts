@@ -2,6 +2,7 @@ import { visit } from 'unist-util-visit';
 import type { Plugin, Transformer } from 'unified';
 import { h } from 'hastscript';
 import type { Root } from 'mdast';
+import { dev } from '$app/environment';
 
 export interface Options {
     classNamePrefix?: string;
@@ -17,9 +18,11 @@ const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
         let admonitions = ['Note', 'Abstract', 'Info', 'Tip', 'Success', 'Question', 'Warning', 'Failure', 'Danger', 'Bug', 'Example', 'Quote'].map((a) => a.toLowerCase());
 
         visit(tree, 'paragraph', (node, index, parent) => {
-            if (node.children.length === 1
-                && node.children[0].type === 'text'
+            if (node.children[0].type === 'text'
                 && node.children[0].value.startsWith('!!!')) {
+                if (dev) {
+                    console.log('[remark-alert] node found:', node);
+                }
                 const textNode = node.children[0];
                 let rest = textNode.value.slice(3); // remove '!!!'
                 let type = "info";
@@ -27,14 +30,26 @@ const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
                 rest = rest.replace(/^\s+/, ''); // remove leading whitespace
 
                 {
-                    let foo = rest.split(' ');
+                    let foo = rest.split(/(?<=\w+)\s/);
                     let t = foo[0].toLowerCase();
                     if (admonitions.includes(t)) {
                         type = t;
-                        children.push(h('strong', {}, foo[0]));
-                        children.push(h('span', {}, foo.slice(1).map((f: string) => ` ${f}`).join('')));
+                        children.push({
+                            type: 'strong',
+                            children: [{ type: 'text', value: foo[0] }],
+                            data: {
+                                hProperties: { className: [`alert-label`] }
+                            },
+                            position: textNode.position
+                        });
+                        if (foo.length > 1 && foo[1]) {
+                            children.push({
+                                type: 'text',
+                                value: foo[1], position: textNode.position
+                            });
+                        }
                     } else {
-                        children.push(h('span', {}, rest));
+                        children.push({ type: 'text', value: rest, position: textNode.position });
                     }
                 }
 
@@ -42,9 +57,9 @@ const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
                     type: 'alert',
                     data: {
                         hName: tagName,
-                        hProperties: { className: [classNamePrefix, `${classNamePrefix}-${type}`] },
-                        hChildren: children
-                    }
+                        hProperties: { className: [classNamePrefix, `${classNamePrefix}-${type}`] }
+                    },
+                    children: [...children, ...node.children.slice(1)]
                 };
                 inserts.push((({ parent, index, node }) => () => index != null && parent?.children.splice(index, 1, node))({ parent, index, node: newNode }));
             }
