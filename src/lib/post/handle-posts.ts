@@ -252,6 +252,7 @@ export function loadFrontMatterRaw(site: Site, filepath: string): PostRaw | unde
         comment,
         discuss,
         menu,
+        keywords: [keywords || []].flat().filter((c: any) => !!c),
         webmention: Object.assign({}, systemConfig.webmention || {}, typeof webmention === 'boolean' ? {
             enabled: webmention
         } : webmention),
@@ -477,7 +478,7 @@ export function createMarkdownParser(options: {
                     ...(defaultSchema.attributes?.span || []),
                     ['className', /.*/],
                     ['line', /.*/],
-                 ['style', /.*/],
+                    ['style', /.*/],
                     ['lang', /.*/]
                 ],
                 details: [
