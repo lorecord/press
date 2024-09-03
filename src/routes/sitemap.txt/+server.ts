@@ -9,7 +9,14 @@ export const GET: RequestHandler = async ({ locals }) => {
 
     let { posts, taxonomies } = build(site);
 
-    let responseText = posts.map((post: any) => `${siteConfig.url}${post.route}`).join('\n');
+    let responseText = posts.map((post) => {
+        if ((post.langs?.length || 0) > 1) {
+            return post.langs?.map((lang: string) => {
+                return `${siteConfig.url}/${lang}${post.route}`;
+            }).join('\n');
+        }
+        return `${siteConfig.url}${post.route}`;
+    }).join('\n');
 
     responseText += '\n';
 

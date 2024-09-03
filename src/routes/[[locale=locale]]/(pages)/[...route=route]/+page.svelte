@@ -434,15 +434,22 @@
         {/if}
 
         {#if siteConfig.url}
-            {@const url = `${siteConfig.url}/${post.lang || ""}${post.route}`}
+            {@const url =
+                post.canonical ||
+                post.data?.canonical ||
+                (post.langs?.length || 0) > 1
+                    ? `${siteConfig.url}/${post.lang || ""}${post.route}`
+                    : `${siteConfig.url}${post.route}`}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
 
-            <link
-                rel="alternate"
-                href={`${siteConfig.url}${post.route}`}
-                hreflang="x-default"
-            />
+            {#if (post.langs?.length || 0) > 1}
+                <link
+                    rel="alternate"
+                    href={`${siteConfig.url}${post.route}`}
+                    hreflang="x-default"
+                />
+            {/if}
 
             {#each post.langs || [] as value}
                 <link

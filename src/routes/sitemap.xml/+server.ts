@@ -24,16 +24,31 @@ export async function GET({ locals }) {
     xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
     xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
     xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
->${posts.map((post: any) => `
-    <url>
-        <loc>${siteConfig.url}${post.route}</loc>${(post.modified?.date || post.published?.date)
-                ? `
-        <lastmod>${formatDate(new Date(post.modified?.date || post.published?.date))}</lastmod>` : ''}${(post.langs || []).map((lang: string) => `
+>${posts.map((post: any) => {
+            // https://developers.google.com/search/docs/specialty/international/localized-versions?hl=zh-cn#example_2
+            const langs = post.langs || [];
+            if (langs?.length) {
+                const alternates = langs.map((lang: string) => `
         <xhtml:link
             rel="alternate"
             hreflang="${lang}"
-            href="${siteConfig.url}/${lang}${post.route}"/>`).join('')}
-    </url>`).join('')
+            href="${siteConfig.url}/${lang}${post.route}"/>`).join('');
+
+                return langs.map((lang: string) => `
+    <url>
+        <loc>${siteConfig.url}/${lang}${post.route}</loc>${(post.modified?.date || post.published?.date)
+                        ? `
+        <lastmod>${formatDate(new Date(post.modified?.date || post.published?.date))}</lastmod>` : ''}${alternates}
+    </url>`).join('');
+            } else {
+                return `
+    <url>
+        <loc>${siteConfig.url}${post.route}</loc>${(post.modified?.date || post.published?.date)
+                        ? `
+        <lastmod>${formatDate(new Date(post.modified?.date || post.published?.date))}</lastmod>` : ''}
+    </url>`;
+            }
+        }).join('')
         }${taxonomies.map((taxonomy: string) => `
     <url>
         <loc>${siteConfig.url}${taxonomy}</loc>
