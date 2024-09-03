@@ -1,8 +1,6 @@
-import { visit } from 'unist-util-visit';
-import type { Plugin, Transformer } from 'unified';
-import { h } from 'hastscript';
 import type { Root } from 'mdast';
-import { dev } from '$app/environment';
+import type { Plugin, Transformer } from 'unified';
+import { visit } from 'unist-util-visit';
 
 export interface Options {
     classNamePrefix?: string;
@@ -20,9 +18,6 @@ const remarkAlert: Plugin<[Options | undefined], Root> = (options = {}): void
         visit(tree, 'paragraph', (node, index, parent) => {
             if (node.children[0].type === 'text'
                 && node.children[0].value.startsWith('!!!')) {
-                if (dev) {
-                    console.log('[remark-alert] node found:', node);
-                }
                 const textNode = node.children[0];
                 let rest = textNode.value.slice(3); // remove '!!!'
                 let type = "info";
