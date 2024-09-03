@@ -22,6 +22,7 @@
     import type { PageData } from "./$types";
     import type { Post } from "$lib/post/types";
     import type { Mention, Reply } from "$lib/interaction/types";
+    import { toAbsoluteURL } from "$lib/utils/html";
 
     export let data: PageData;
 
@@ -75,10 +76,22 @@
         let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
-            image: [
-                ...(post.image || []),
-                ...(post.photo || []).map((photo) => photo.src),
-            ].map((img) => `${siteConfig.url}${post.route}${img}`),
+            image: Array.from(
+                new Set(
+                    [
+                        post.featured ? [post.featured] : [],
+                        post.image || [],
+                        (post.photo || []).map((photo) => photo.src),
+                    ]
+                        .flat()
+                        .map((img) =>
+                            toAbsoluteURL(
+                                img,
+                                `${siteConfig.url}${post.route}`,
+                            ),
+                        ),
+                ),
+            ),
             url: `${siteConfig.url}${post.route}`,
             license: license.url || license.name,
             keywords: post.keywords?.join(","),
@@ -352,18 +365,18 @@
             <meta name="rating" content={post.data?.rating} />
         {/if}
 
-        {#if post.image?.[0] || post.featured || post.photo}
+        {#if post.featured || post.photo?.[0]?.src || post.image?.[0]}
             {@const image =
                 post.featured || post.photo?.[0]?.src || post.image?.[0]}
-            <meta
-                property="og:image"
-                content="{siteConfig.url}{post.route}{image}"
-            />
-            <meta
-                name="twitter:image"
-                content="{siteConfig.url}{post.route}{image}"
-            />
-            <meta name="twitter:card" content="summary_large_image" />
+            {#if image}
+                {@const imageUrl = toAbsoluteURL(
+                    image,
+                    `${siteConfig.url}${post.route}`,
+                )}
+                <meta property="og:image" content={imageUrl} />
+                <meta name="twitter:image" content={imageUrl} />
+                <meta name="twitter:card" content="summary_large_image" />
+            {/if}
         {:else}
             <meta name="twitter:card" content="summary" />
         {/if}
@@ -371,14 +384,20 @@
         {#if post.video?.[0]}
             <meta
                 property="og:video"
-                content="{siteConfig.url}{post.route}{post.video[0].src}"
+                content={toAbsoluteURL(
+                    post.video[0].src,
+                    `${siteConfig.url}${post.route}`,
+                )}
             />
         {/if}
 
         {#if post.audio?.[0]}
             <meta
                 property="og:audio"
-                content="{siteConfig.url}{post.route}{post.audio[0].src}"
+                content={toAbsoluteURL(
+                    post.audio[0].src,
+                    `${siteConfig.url}${post.route}`,
+                )}
             />
         {/if}
 

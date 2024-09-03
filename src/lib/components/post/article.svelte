@@ -117,14 +117,30 @@
 >
     {#if header}
         <div class="article-header container">
-            {#if post.data?.featured}
+            {#if post.featured}
                 <img
                     class="no-print u-featured"
-                    src={post.data?.featured}
+                    src={post.featured}
                     alt=""
                     style="max-width: 100%"
                 />
             {/if}
+            {#if post.video?.[0]}
+                <video
+                    class="u-video"
+                    src={post.video?.[0].src}
+                    data-print-content={post.video?.[0].src}
+                    controls
+                    style="width: 100%;
+                    max-height: 100vh;
+                    min-width: 300px;
+                    display: block;
+                    padding: 0;"
+                >
+                    <track kind="captions" />
+                </video>
+            {/if}
+
             {#if post.title}
                 <h1 class="p-name">{post.title}</h1>
             {/if}
@@ -230,21 +246,23 @@
                 data-print-content={audio.src}
             />
         {/each}
-        {#each post.video || [] as video}
-            <video
-                class="u-video"
-                src={video.src}
-                data-print-content={video.src}
-                controls
-                style="max-width: 100%;
+        {#each post.video || [] as video, index}
+            {#if index > 0}
+                <video
+                    class="u-video"
+                    src={video.src}
+                    data-print-content={video.src}
+                    controls
+                    style="max-width: 100%;
                     max-height: 100vh;
                     min-width: 300px;
                     margin: 0rem auto;
                     display: block;
                     padding: 2rem 0 1rem;"
-            >
-                <track kind="captions" />
-            </video>
+                >
+                    <track kind="captions" />
+                </video>
+            {/if}
         {/each}
         {#if post.toc?.enabled && post.content?.headings}
             <div class="article-aside no-print">

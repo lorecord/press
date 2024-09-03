@@ -107,8 +107,8 @@ const renderJson = (posts: Post[], lang: string, pathname: string, siteConfig: a
             language: post.lang,
             tags: [...(post.taxonomy?.series || []), ...(post.taxonomy?.category || []), ...(post.taxonomy?.tag || [])],
         };
-        if (post.image?.[0] || post.photo?.[0]) {
-            item.image = `${siteConfig.url}${post.image?.[0] || post.photo?.[0]}`;
+        if (post.featured || post.image?.[0] || post.photo?.[0]) {
+            item.image = `${siteConfig.url}${post.featured || post.image?.[0] || post.photo?.[0]}`;
         }
         // banner_image = 
         if (post.modified?.date) {
@@ -256,6 +256,9 @@ ${posts.map((post) => `
 export function renderMedia(siteConfig: any, post: Post) {
     let html = '';
     const postUrl = `${siteConfig.url}${post.route}`;
+    if (post.featured) {
+        html += `<img src="${toAbsoluteURL(post.featured, postUrl)}" />`;
+    }
     if (post.image) {
         html += post.image.map((img: string) => `<img src="${toAbsoluteURL(img, postUrl)}" />`).join('\n');
     }
