@@ -107,8 +107,9 @@ const renderJson = (posts: Post[], lang: string, pathname: string, siteConfig: a
             language: post.lang,
             tags: [...(post.taxonomy?.series || []), ...(post.taxonomy?.category || []), ...(post.taxonomy?.tag || [])],
         };
-        if (post.featured || post.image?.[0] || post.photo?.[0]) {
-            item.image = `${siteConfig.url}${post.featured || post.image?.[0] || post.photo?.[0]}`;
+        const image = post.featured || post.image?.[0] || post.photo?.[0]?.src;
+        if (image) {
+            item.image = toAbsoluteURL(image, `${siteConfig.url}${post.route}`);
         }
         // banner_image = 
         if (post.modified?.date) {
