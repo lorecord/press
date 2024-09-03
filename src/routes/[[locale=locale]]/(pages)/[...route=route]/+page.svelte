@@ -75,12 +75,13 @@
         let creativeWork: CreativeWork = {
             "@type": "CreativeWork",
             headline: post.title,
-            image: post.image?.[0]
-                ? [`${siteConfig.url}${post.route}${post.image[0]}`]
-                : [`${siteConfig.url}/favicon.png`],
-
+            image: [
+                ...(post.image || []),
+                ...(post.photo || []).map((photo) => photo.src),
+            ].map((img) => `${siteConfig.url}${post.route}${img}`),
             url: `${siteConfig.url}${post.route}`,
             license: license.url || license.name,
+            keywords: post.keywords?.join(","),
         };
 
         if (post.published?.date) {
@@ -114,8 +115,9 @@
                 post.modified.date,
             ).toISOString();
         }
-        if (post.summary) {
-            creativeWork.description = post.summary?.raw;
+        if (post.summary?.raw) {
+            // TODO creativeWork.abstract
+            creativeWork.description = post.summary.raw;
         }
 
         if (post.data?.aggregateRating) {
