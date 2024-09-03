@@ -84,10 +84,16 @@ function load() {
             }
 
             if (systemConfig.webmention?.enabled || systemConfig.pingback?.enabled) {
+                if (dev) {
+                    console.log(`[server/posts.ts] webmention or pingback enabled, starting to collecte links`);
+                }
+
                 // send mentions via webmentions or pingback
                 let tasks = getPublicPosts(site)
                     // skip send mention before the specified date
-                    .filter((p) => systemConfig.mention?.send?.since && p.published?.date && new Date(p.published.date).getTime() > new Date(systemConfig.mention.send.since).getTime())
+                    .filter((p) => !systemConfig.mention?.send?.since
+                        || (p.published?.date
+                            && new Date(p.published.date).getTime() > new Date(systemConfig.mention.send.since).getTime()))
                     .map((p) => {
                         const siteConfig = getSiteConfig(site, p.lang || systemConfig.locale?.default || 'en');
                         const { links } = p.content || { links: [] };
@@ -117,6 +123,10 @@ function load() {
                     }
                     return acc;
                 }, []);
+
+                if (dev) {
+                    console.log(`[server/posts.ts] collected ${tasks.length} post with links`);
+                }
 
                 // remove duplicate links
                 tasks.forEach((t) => {
