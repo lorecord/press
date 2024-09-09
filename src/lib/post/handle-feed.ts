@@ -142,7 +142,7 @@ const renderRss = (posts: Post[], lang: string, pathname: string, siteConfig: an
 <channel>
     <atom:link href="${siteConfig.url}${pathname}" rel="self" type="application/rss+xml" />
     ${extendRegionIndepents(supportedLocales).map((locale) => {
-        return `<atom:link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.code}`)}" />`
+        return `<atom:link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.hreflang}`)}" />`
     }).join('\n\t')}
     <title>${siteConfig.title || ''}</title>
     <description>${siteConfig.description}</description>
@@ -205,7 +205,7 @@ const renderAtom = (posts: Post[], lang: string, pathname: string, siteConfig: a
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}${pathname}" rel="self" type="application/atom+xml"/>
     ${extendRegionIndepents(supportedLocales).map((locale) => {
-            return `<link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.code}`)}"/>`
+            return `<link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.hreflang}`)}"/>`
         }).join('\n\t')}
     <rights>Copyright (c)</rights>
 ${posts.map((post) => `
