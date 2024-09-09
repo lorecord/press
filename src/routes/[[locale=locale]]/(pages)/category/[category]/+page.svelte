@@ -54,6 +54,13 @@
 {/await}
 
 <svelte:head>
+    {#if localeContext.pathLocale}
+        <meta
+            http-equiv="Content-Language"
+            content={localeContext.pathLocale}
+        />
+    {/if}
+
     {#await label then label}
         {#if siteConfig.keywords}
             <meta

@@ -194,6 +194,9 @@
 
 <svelte:head>
     {#await post then post}
+        {#if post.lang}
+            <meta http-equiv="Content-Language" content={post.lang} />
+        {/if}
         {#if post.webmention?.enabled && post.webmention?.accept}
             <link
                 rel="webmention"

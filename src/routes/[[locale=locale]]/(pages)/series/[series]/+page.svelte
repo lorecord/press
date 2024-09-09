@@ -65,6 +65,13 @@
         {/if}
     {/await}
 
+    {#if localeContext.pathLocale}
+        <meta
+            http-equiv="Content-Language"
+            content={localeContext.pathLocale}
+        />
+    {/if}
+
     {#if siteConfig.url}
         {@const url =
             supportedLocales.length > 1 && localeContext.pathLocale

@@ -46,6 +46,9 @@
 
 <svelte:head>
     {#await home then home}
+        {#if home.lang}
+            <meta http-equiv="Content-Language" content={home.lang} />
+        {/if}
         {#if home?.webmention?.enabled}
             <link
                 rel="webmention"

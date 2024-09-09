@@ -39,6 +39,13 @@
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}
 
+    {#if localeContext.contentLang}
+        <meta
+            http-equiv="Content-Language"
+            content={localeContext.contentLang}
+        />
+    {/if}
+
     {#if siteConfig.url}
         {@const url =
             supportedLocales.length > 1 && localeContext.pathLocale
