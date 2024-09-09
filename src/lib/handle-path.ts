@@ -30,6 +30,13 @@ export function langFallback(langMap: LangMap, lang: string | undefined): PathMe
                     return langMap[langKey];
                 }
             }
+        } else {
+            for (let langKey in langMap) {
+                // if langKey is zh-hans or zh, lang is zh-hant
+                if (langKey.startsWith(`${lang}-`)) {
+                    return langMap[langKey];
+                }
+            }
         }
     }
     let defaultLang = lang;
