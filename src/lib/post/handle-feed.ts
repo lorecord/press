@@ -1,7 +1,7 @@
 import { getSiteConfig } from "$lib/server/config";
 import type { Site } from "$lib/server/sites";
 import { t } from "$lib/translations";
-import { toAbsoluteURL } from "$lib/utils/html";
+import { extendRegionIndepents, toAbsoluteURL } from "$lib/utils/html";
 import { convertToPost } from "./handle-posts";
 import type { Post, PostRaw } from "./types";
 import path from "path";
@@ -141,8 +141,8 @@ const renderRss = (posts: Post[], lang: string, pathname: string, siteConfig: an
     xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
     <atom:link href="${siteConfig.url}${pathname}" rel="self" type="application/rss+xml" />
-    ${supportedLocales.map((locale: any) => {
-        return `<atom:link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale}" title="${t.get(`lang.${locale}`)}" />`
+    ${extendRegionIndepents(supportedLocales).map((locale) => {
+        return `<atom:link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/rss+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.code}`)}" />`
     }).join('\n\t')}
     <title>${siteConfig.title || ''}</title>
     <description>${siteConfig.description}</description>
@@ -204,8 +204,8 @@ const renderAtom = (posts: Post[], lang: string, pathname: string, siteConfig: a
     <generator uri="https://press.lorecord.com" version="0.0.1">Press</generator>
     <link href="${siteConfig.url}" rel="alternate" type="text/html"/>
     <link href="${siteConfig.url}${pathname}" rel="self" type="application/atom+xml"/>
-    ${supportedLocales.map((locale: any) => {
-            return `<link href="${siteConfig.url}/${locale}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale}" />`
+    ${extendRegionIndepents(supportedLocales).map((locale) => {
+            return `<link href="${siteConfig.url}/${locale.code}/feed/" rel="alternate" type="application/atom+xml" hreflang="${locale.hreflang}" title="${t.get(`lang.${locale.code}`)}"/>`
         }).join('\n\t')}
     <rights>Copyright (c)</rights>
 ${posts.map((post) => `
