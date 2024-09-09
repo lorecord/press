@@ -65,7 +65,10 @@
     {/await}
 
     {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${pathLocale || $locale}/series/${series}/`}
+        {@const url =
+            supportedLocales.length > 1 && pathLocale
+                ? `${siteConfig.url}/${pathLocale}/series/${series}/`
+                : `${siteConfig.url}/series/${series}/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 

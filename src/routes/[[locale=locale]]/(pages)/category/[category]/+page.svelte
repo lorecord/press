@@ -65,7 +65,10 @@
     {/await}
 
     {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${pathLocale || $locale}/category/${category}/`}
+        {@const url =
+            supportedLocales.length > 1 && pathLocale
+                ? `${siteConfig.url}/${pathLocale}/category/${category}/`
+                : `${siteConfig.url}/category/${category}/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 

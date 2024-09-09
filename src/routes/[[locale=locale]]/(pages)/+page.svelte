@@ -48,14 +48,16 @@
         {#if home?.webmention?.enabled}
             <link
                 rel="webmention"
-                href={systemConfig.webmention?.endpoint || `${siteConfig.url}/api/v1/webmention`}
+                href={systemConfig.webmention?.endpoint ||
+                    `${siteConfig.url}/api/v1/webmention`}
             />
         {/if}
 
         {#if home?.pingback?.enabled}
             <link
                 rel="pingback"
-                href={systemConfig.pingback.endpoint || `${siteConfig.url}/api/v1/pingback`}
+                href={systemConfig.pingback.endpoint ||
+                    `${siteConfig.url}/api/v1/pingback`}
             />
         {/if}
     {/await}
@@ -78,7 +80,10 @@
         <meta name="keywords" content={siteConfig.keywords.join(",")} />
     {/if}
     {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${pathLocale || $locale}/`}
+        {@const url =
+            pathLocale && home.lang && (home.langs?.length || 0) > 1
+                ? `${siteConfig.url}/${home.lang}/`
+                : siteConfig.url}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 

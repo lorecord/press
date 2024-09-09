@@ -39,7 +39,10 @@
     {/if}
 
     {#if siteConfig.url}
-        {@const url = `${siteConfig.url}/${pathLocale || $locale}/archives/`}
+        {@const url =
+            supportedLocales.length > 1 && pathLocale
+                ? `${siteConfig.url}/${pathLocale}/archives/`
+                : `${siteConfig.url}/archives/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 

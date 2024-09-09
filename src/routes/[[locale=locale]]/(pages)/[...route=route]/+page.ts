@@ -72,6 +72,16 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
 
     if (needAwait) {
         post.then((p: Post) => {
+
+            if (!p) {
+                console.error('No post data');
+                return;
+            }
+
+            setHeaders({
+                'Content-Language': p.lang || localeContext.contentLocale || systemConfig.locale.default || 'en'
+            });
+
             let links: string[] = [];
 
             if (p.webmention?.enabled) {
@@ -96,8 +106,10 @@ export const load: PageLoad = async ({ params, fetch, depends, data, setHeaders 
                     links.push(`<${siteConfig.url}/${lang}${p.route}>; rel="alternate"; hreflang="${lang}"`);
                 });
 
-                if (p?.lang) {
+                if (localeContext.pathLocale && p?.lang && (p?.langs?.length || 0) > 1) {
                     links.push(`<${siteConfig.url}/${p.lang}${p.route}>; rel="canonical"`);
+                } else {
+                    links.push(`<${siteConfig.url}${p.route}>; rel="canonical"`);
                 }
             }
 

@@ -197,14 +197,16 @@
         {#if post.webmention?.enabled && post.webmention?.accept}
             <link
                 rel="webmention"
-                href={systemConfig.webmention?.endpoint || `${siteConfig.url}/api/v1/webmention`}
+                href={systemConfig.webmention?.endpoint ||
+                    `${siteConfig.url}/api/v1/webmention`}
             />
         {/if}
 
         {#if post.pingback?.enabled}
             <link
                 rel="pingback"
-                href={systemConfig.pingback.endpoint || `${siteConfig.url}/api/v1/pingback`}
+                href={systemConfig.pingback.endpoint ||
+                    `${siteConfig.url}/api/v1/pingback`}
             />
         {/if}
         {#if post.content?.meta?.prism}
@@ -437,9 +439,11 @@
             {@const url =
                 post.canonical ||
                 post.data?.canonical ||
+                (localeContext.pathLocale &&
+                post.lang &&
                 (post.langs?.length || 0) > 1
                     ? `${siteConfig.url}/${post.lang || ""}${post.route}`
-                    : `${siteConfig.url}${post.route}`}
+                    : `${siteConfig.url}${post.route}`)}
             <link rel="canonical" href={url} />
             <meta property="og:url" content={url} />
 
