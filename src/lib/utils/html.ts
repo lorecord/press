@@ -19,7 +19,7 @@ export const extendRegionIndepents = (languages: string[]): {
         const region = lang.split('-')[0];
 
         if (region && !processedLanguages.has(region)) {
-            langs.push({ code: region, hreflang: lang });
+            langs.push({ code: lang, hreflang: region });
             processedLanguages.add(region);
         }
     });
