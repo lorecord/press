@@ -1,5 +1,6 @@
 import { build, formatDate } from "$lib/server/sitemap";
 import { getSiteConfig } from "$lib/server/config";
+import { extendRegionIndepents } from "$lib/utils/html";
 
 export async function GET({ locals }) {
 
@@ -28,11 +29,11 @@ export async function GET({ locals }) {
             // https://developers.google.com/search/docs/specialty/international/localized-versions?hl=zh-cn#example_2
             const langs = post.langs || [];
             if (langs?.length > 1) {
-                let alternates = langs.map((lang: string) => `
+                let alternates = extendRegionIndepents(langs).map((lang) => `
         <xhtml:link
             rel="alternate"
-            hreflang="${lang}"
-            href="${siteConfig.url}/${lang}${post.route}"/>`).join('');
+            hreflang="${lang.hreflang}"
+            href="${siteConfig.url}/${lang.code}${post.route}"/>`).join('');
 
                 alternates += `
         <xhtml:link

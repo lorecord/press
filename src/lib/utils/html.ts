@@ -1,5 +1,32 @@
 import { parse } from "node-html-parser";
 
+export const extendRegionIndepents = (languages: string[]): {
+    code: string;
+    hreflang: string;
+}[] => {
+    let langs: {
+        code: string;
+        hreflang: string;
+    }[] = [];
+    const processedLanguages = new Set<string>();
+
+    languages.forEach((lang) => {
+        if (!processedLanguages.has(lang)) {
+            langs.push({ code: lang, hreflang: lang });
+            processedLanguages.add(lang);
+        }
+
+        const region = lang.split('-')[0];
+
+        if (region && !processedLanguages.has(region)) {
+            langs.push({ code: region, hreflang: lang });
+            processedLanguages.add(region);
+        }
+    });
+
+    return langs;
+}
+
 export const getHrefWithRelValue = (content: string, rel: string) => {
     const doc = parse(content);
     const links = doc.querySelectorAll(`link[rel="${rel}"]`);

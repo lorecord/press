@@ -3,6 +3,7 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import { awaitChecker } from '$lib/browser';
 import type { Post } from '$lib/post/types';
+import { extendRegionIndepents } from '$lib/utils/html';
 
 export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders }) => {
     const { locale: pathLocaleParam } = params;
@@ -64,8 +65,8 @@ export const load: PageLoad = async ({ depends, fetch, params, data, setHeaders 
 
             if ((p?.langs?.length || 0) > 1) {
                 links.push(`<${siteConfig.url}${p.route}>; rel="alternate"; hreflang="x-default"`);
-                p?.langs?.forEach((lang: string) => {
-                    links.push(`<${siteConfig.url}/${lang}${p.route}>; rel="alternate"; hreflang="${lang}"`);
+                extendRegionIndepents(p?.langs||[]).forEach((lang) => {
+                    links.push(`<${siteConfig.url}/${lang.code}${p.route}>; rel="alternate"; hreflang="${lang.hreflang}"`);
                 });
                 if (localeContext.pathLocale && p?.lang && (p?.langs?.length || 0) > 1) {
                     links.push(`<${siteConfig.url}/${p.lang}${p.route}>; rel="canonical"`);

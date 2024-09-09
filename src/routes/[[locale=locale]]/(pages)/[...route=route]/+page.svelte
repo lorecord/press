@@ -22,7 +22,7 @@
     import type { PageData } from "./$types";
     import type { Post } from "$lib/post/types";
     import type { Mention, Reply } from "$lib/interaction/types";
-    import { toAbsoluteURL } from "$lib/utils/html";
+    import { extendRegionIndepents, toAbsoluteURL } from "$lib/utils/html";
 
     export let data: PageData;
 
@@ -453,15 +453,14 @@
                     href={`${siteConfig.url}${post.route}`}
                     hreflang="x-default"
                 />
+                {#each extendRegionIndepents(post.langs || []) as value}
+                    <link
+                        rel="alternate"
+                        href="{siteConfig.url}/{value.code}{post.route}"
+                        hreflang={value.hreflang}
+                    />
+                {/each}
             {/if}
-
-            {#each post.langs || [] as value}
-                <link
-                    rel="alternate"
-                    href="{siteConfig.url}/{value}{post.route}"
-                    hreflang={value}
-                />
-            {/each}
         {/if}
 
         <meta property="og:locale" content={post.lang} />

@@ -6,6 +6,7 @@
     import Skeleton from "$lib/ui/skeleton/index.svelte";
     import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
+    import { extendRegionIndepents } from "$lib/utils/html";
 
     export let data: PageData;
 
@@ -71,18 +72,20 @@
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 
-        <link
-            rel="alternate"
-            href={`${siteConfig.url}/tag/${tag}/`}
-            hreflang="x-default"
-        />
-        {#each supportedLocales as value}
+        {#if supportedLocales.length > 1}
             <link
                 rel="alternate"
-                href="{siteConfig.url}/{value}/tag/{tag}/"
-                hreflang={value}
+                href={`${siteConfig.url}/tag/${tag}/`}
+                hreflang="x-default"
             />
-        {/each}
+            {#each extendRegionIndepents(supportedLocales) as value}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/{value.code}/tag/{tag}/"
+                    hreflang={value.hreflang}
+                />
+            {/each}
+        {/if}
     {/if}
 
     <meta property="og:type" content="website" />

@@ -8,6 +8,7 @@
     import type { WebPage, WithContext } from "schema-dts";
     import type { PageData } from "./$types";
     import TranslationTips from "$lib/components/translations/tips.svelte";
+    import { extendRegionIndepents } from "$lib/utils/html";
 
     export let data: PageData;
 
@@ -87,14 +88,16 @@
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 
-        <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
-        {#each supportedLocales as value}
-            <link
-                rel="alternate"
-                href="{siteConfig.url}/{value}/"
-                hreflang={value}
-            />
-        {/each}
+        {#if (home.langs?.length || 0) > 1}
+            <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
+            {#each extendRegionIndepents(supportedLocales) as value}
+                <link
+                    rel="alternate"
+                    href="{siteConfig.url}/{value.code}/"
+                    hreflang={value.hreflang}
+                />
+            {/each}
+        {/if}
     {/if}
 
     <meta property="og:locale" content={$locale} />
