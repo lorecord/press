@@ -54,10 +54,10 @@
 {/await}
 
 <svelte:head>
-    {#if localeContext.pathLocale}
+    {#if localeContext.contentLang}
         <meta
             http-equiv="Content-Language"
-            content={localeContext.pathLocale}
+            content={localeContext.contentLang}
         />
     {/if}
 
