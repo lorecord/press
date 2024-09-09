@@ -10,7 +10,7 @@
 
     export let data: PageData;
 
-    $: ({ tag, posts, siteConfig, pathLocale, systemConfig } = data);
+    $: ({ tag, posts, siteConfig, localeContext, systemConfig } = data);
 
     const resolveLabel = (posts: any[]) =>
         posts?.length
@@ -66,8 +66,8 @@
 
     {#if siteConfig.url}
         {@const url =
-            supportedLocales.length > 1 && pathLocale
-                ? `${siteConfig.url}/${pathLocale}/tag/${tag}/`
+            supportedLocales.length > 1 && localeContext.pathLocale
+                ? `${siteConfig.url}/${localeContext.pathLocale}/tag/${tag}/`
                 : `${siteConfig.url}/tag/${tag}/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />

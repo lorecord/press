@@ -9,7 +9,7 @@
 
     export let data: PageData;
 
-    $: ({ posts, siteConfig, pathLocale, systemConfig } = data);
+    $: ({ posts, siteConfig, localeContext, systemConfig } = data);
 
     let ldjson = () => {
         let creativeWork: WebPage = {
@@ -41,8 +41,8 @@
 
     {#if siteConfig.url}
         {@const url =
-            supportedLocales.length > 1 && pathLocale
-                ? `${siteConfig.url}/${pathLocale}/archives/`
+            supportedLocales.length > 1 && localeContext.pathLocale
+                ? `${siteConfig.url}/${localeContext.pathLocale}/archives/`
                 : `${siteConfig.url}/archives/`}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
