@@ -173,7 +173,11 @@ export const handleAssets: Handle = async ({ event, resolve }) => {
             console.log('handleAssets', event.url.pathname);
         }
 
-        const effectedPathname = localeContext?.pathLocaleParam ? event.url.pathname.replace(`^/${localeContext?.pathLocaleParam}`, '') : event.url.pathname;
+        const effectedPathname = localeContext?.pathLocaleParam ? event.url.pathname.replace(new RegExp(`^/${localeContext?.pathLocaleParam}`), '') : event.url.pathname;
+
+        if (dev) {
+            console.log('effectedPathname', effectedPathname, 'event.url.pathname', event.url.pathname, `pathLocaleParam`, localeContext?.pathLocaleParam);
+        }
 
         let segments = effectedPathname.split('/');
         let fileName = segments.pop();
