@@ -526,13 +526,17 @@ export function getPostRaw(site: Site, lang: string | undefined, route: string):
     });
     let raw = siteCache.raw[key];
     if (!raw) {
-        console.log('getRaw: miss cache key:', key);
+        if (dev) {
+            console.log('getRaw: miss cache key:', key);
+        }
         const effectedRoute = route.endsWith('/') ? route.slice(0, -1) : route;
         raw = loadPostRaw(site, { route: effectedRoute, lang });
         if (raw) {
             siteCache.raw[key] = raw;
         } else {
-            console.log('getRaw: Nothing found for route & lang', effectedRoute, lang);
+            if (dev) {
+                console.log('getRaw: Nothing found for route & lang', effectedRoute, lang);
+            }
         }
     }
     if (dev && !raw) {

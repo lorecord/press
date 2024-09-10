@@ -46,8 +46,8 @@
 
 <svelte:head>
     {#await home then home}
-        {#if home.lang}
-            <meta http-equiv="Content-Language" content={home.lang} />
+        {#if home?.lang}
+            <meta http-equiv="Content-Language" content={home?.lang} />
         {/if}
         {#if home?.webmention?.enabled}
             <link
@@ -85,13 +85,13 @@
     {/if}
     {#if siteConfig.url}
         {@const url =
-            pathLocale && home.lang && (home.langs?.length || 0) > 1
-                ? `${siteConfig.url}/${home.lang}/`
+            pathLocale && home?.lang && (home?.langs?.length || 0) > 1
+                ? `${siteConfig.url}/${home?.lang}/`
                 : siteConfig.url}
         <link rel="canonical" href={url} />
         <meta property="og:url" content={url} />
 
-        {#if (home.langs?.length || 0) > 1}
+        {#if (home?.langs?.length || 0) > 1}
             <link rel="alternate" href={siteConfig.url} hreflang="x-default" />
             {#each extendRegionIndepents(supportedLocales) as value}
                 <link
