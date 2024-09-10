@@ -111,7 +111,7 @@ export const detectLanguageWithConfig = <T extends LanguageConfigMap>(text: stri
     let probabilities: { [key in keyof T]: number } = {} as { [key in keyof T]: number };
 
     for (let lang in scores) {
-        probabilities[lang] = scores[lang] / totalScore;
+        probabilities[lang] = totalScore ? scores[lang] / totalScore : 0;
     }
 
     probabilities = Object.fromEntries(

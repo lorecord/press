@@ -278,7 +278,7 @@ export function scoreSpam(nativeInteraction: NativeInteraction) {
                 // const probabilities = detectLanguageWithConfig(contentExludeLinks, { langPrefix: languages[langPrefix] });
                 const probabilities = detectLanguage(contentExludeLinks);
 
-                const probability = probabilities[langPrefix] ?? 0;
+                const probability = probabilities[langPrefix] || 0;
                 if (dev) {
                     console.log(`[scoreSpam] lang probability`, langPrefix, probability, probabilities, '(+', (1 - probability) * 2, ')');
                 }
