@@ -95,7 +95,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
         replyContext.replied = replied;
     }
 
-    const [, lang = replied?.lang || systemConfig.locale?.default || 'en'] = payload.subject?.match(/\[(.*)\]$/) || [];
+    const [, lang = replied?.lang || systemConfig.locale?.default || 'en'] = payload.subject?.match(/\[([^[]*)\]$/) || [];
 
     const post = getPostRaw(site, lang, route);
 
