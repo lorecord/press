@@ -47,7 +47,7 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     let [, replyPart, signaturePart] = (payload.plain_body || payload.text_body).match(/([\s\S]*?)(?:\n.*[:：](?=\n)(?:\n> .*(?=\n))*)(?:\n[-—]+\s*(?=\n)(?![\s\S]*\n[-—]+\s*\n[\s\S]*)\n([\s\S]*))?/) || [];
 
     if (!replyPart) {
-        [, replyPart, signaturePart] = payload.html_body.match(/<body[^>]*>([\s\S]*?)(?:<div[^>]*>.*[:：](?=<br>)(?:<br> .*(?=<br>))*(?:<br>[-—]+(?=<br>)(?![\s\S]*<br>[-—]+<br>[\s\S]*)<br>([\s\S]*))?)?<\/body>/) || [];
+        [, replyPart, signaturePart] = payload.html_body?.match(/<body[^>]*>([\s\S]*?)(?:<div[^>]*>.*[:：](?=<br>)(?:<br> .*(?=<br>))*(?:<br>[-—]+(?=<br>)(?![\s\S]*<br>[-—]+<br>[\s\S]*)<br>([\s\S]*))?)?<\/body>/) || [];
     }
 
     if (!replyPart) {
@@ -64,8 +64,8 @@ export const POST: RequestHandler = async ({ url, locals, request }) => {
     // https://docs.postalserver.io/developer/http-payloads
 
     // parse 'Jim Green <test@example.com>' to '['Jim Green', 'test@example.com']', and test@example.com to ['', 'test@example.com']
-    const [, author, email = payload.from] = payload.from.match(/(.*?)\s*<(.*)>/) || [];
-    const [, messageUnique] = payload.message_id.match(/<?(.*)@.*>?/) || [];
+    const [, author, email = payload.from] = payload.from?.match(/(.*?)\s*<(.*)>/) || [];
+    const [, messageUnique] = payload.message_id?.match(/<?(.*)@.*>?/) || [];
     const [, target] = payload.in_reply_to?.match(/<?(.*)@.*>?/) || payload.subject?.match(/.*\(.*#(.*)\)/) || [];
 
     const route: string | undefined = (() => {
